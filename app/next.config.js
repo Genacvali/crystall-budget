@@ -40,13 +40,22 @@ module.exports = withPWA({
     serverActions: { 
       allowedOrigins: [process.env.NEXTAUTH_URL?.replace('https://', '').replace('http://', '')].filter(Boolean)
     },
+    // важно: этот пакет остаётся внешним для серверных компонентов/роутов
+    serverComponentsExternalPackages: ['@node-rs/argon2'],
   },
   images: {
     domains: [],
     formats: ['image/webp', 'image/avif'],
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.resolve.alias['@'] = path.resolve(__dirname, 'src');
+
+    if (isServer) {
+      // не пытайся парсить бинарь .node → оставь модуль внешним
+      if (!config.externals) config.externals = [];
+      config.externals.push('@node-rs/argon2');
+    }
+
     return config;
   },
 });

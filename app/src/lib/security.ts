@@ -1,12 +1,12 @@
-import { hash as a2hash, verify as a2verify } from '@node-rs/argon2';
+import * as a2 from '@node-rs/argon2';
 
 export async function hashPassword(password: string): Promise<string> {
-  return a2hash(password);
+  return a2.hash(password);
 }
 
 export async function verifyPassword(password: string, hash: string): Promise<boolean> {
   try {
-    return await a2verify(hash, password);
+    return await a2.verify(hash, password);
   } catch (error) {
     return false;
   }
