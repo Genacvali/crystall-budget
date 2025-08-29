@@ -35,7 +35,10 @@ async function getDashboardData(userId: string) {
   }
 
   const household = userHouseholds[0].household;
-  const currentBudget = getCurrentBudget(household.budgets);
+  const now = new Date();
+  const currentBudget = household.budgets.find(budget => 
+    budget.periodStart <= now && now < budget.nextStart
+  );
 
   if (!currentBudget) {
     return {
@@ -47,13 +50,13 @@ async function getDashboardData(userId: string) {
     };
   }
 
-  const totalSpent = currentBudget.allocations?.reduce((sum, alloc) => sum + alloc.spent, 0) || 0;
-  const totalPlanned = currentBudget.allocations?.reduce((sum, alloc) => sum + alloc.planned, 0) || 0;
+  const totalSpent = currentBudget.allocations.reduce((sum, alloc) => sum + alloc.spent, 0);
+  const totalPlanned = currentBudget.allocations.reduce((sum, alloc) => sum + alloc.planned, 0);
 
   return {
     household,
     currentBudget,
-    allocations: currentBudget.allocations || [],
+    allocations: currentBudget.allocations,
     totalSpent,
     totalPlanned,
   };
