@@ -7,17 +7,15 @@ generator client {
   provider = "prisma-client-js"
 }
 
-/* УДАЛЯЕМ enum'ы — SQLite их не поддерживает */
-
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
   passwordHash  String
   createdAt     DateTime @default(now())
   households    HouseholdMember[]
+  categories    Category[]
+  accounts      Account[]
   transactions  Transaction[]
-
-  @@map("users")
 }
 
 model Household {
@@ -27,10 +25,6 @@ model Household {
   members     HouseholdMember[]
   budgets     Budget[]
   categories  Category[]
-  accounts    Account[]
-  transactions Transaction[]
-
-  @@map("households")
 }
 
 model HouseholdMember {
@@ -40,47 +34,40 @@ model HouseholdMember {
   role         String   @default("MEMBER") // OWNER | MEMBER
   joinedAt     DateTime @default(now())
 
-  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  household Household @relation(fields: [householdId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 
   @@unique([householdId, userId])
-  @@map("household_members")
 }
 
 model Budget {
   id            String   @id @default(cuid())
   householdId   String
-  name          String   @default("")
-  periodStart   DateTime // произвольный старт
-  nextStart     DateTime // начало следующего периода (эквивалент end, не включ.)
-  incomePlanned Int      @default(0) // в копейках
-  incomeActual  Int      @default(0) // в копейках
-  carryIn       Int      @default(0) // общий резерв, если используется
+  periodStart   DateTime
+  nextStart     DateTime
+  incomePlanned Int      @default(0)
+  incomeActual  Int      @default(0)
+  carryIn       Int      @default(0)
   allocations   Allocation[]
-  transactions  Transaction[]
   createdAt     DateTime @default(now())
 
-  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  household Household @relation(fields: [householdId], references: [id])
 
   @@unique([householdId, periodStart])
-  @@map("budgets")
 }
 
 model Category {
   id           String   @id @default(cuid())
   householdId  String
   name         String
-  icon         String?  @default("💰")
-  color        String?  @default("#3B82F6")
+  icon         String?
   isHidden     Boolean  @default(false)
-  sortOrder    Int      @default(0)
 
-  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-  allocations Allocation[]
+  household    Household @relation(fields: [householdId], references: [id])
+  allocations  Allocation[]
   transactions Transaction[]
 
   @@unique([householdId, name])
-  @@map("categories")
 }
 
 model Allocation {
@@ -88,32 +75,28 @@ model Allocation {
   budgetId    String
   categoryId  String
   type        String   // "FIXED" | "PERCENT"
-  amount      Int?     // копейки, если FIXED
+  amount      Int?     // если FIXED (в копейках)
   percent     Float?   // если PERCENT (0..100)
   rollover    String   @default("SAME_CATEGORY") // SAME_CATEGORY | TO_RESERVE | NONE
   planned     Int      @default(0)
   spent       Int      @default(0)
   carryOut    Int      @default(0)
 
-  budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
-  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  budget   Budget   @relation(fields: [budgetId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
 
   @@unique([budgetId, categoryId])
-  @@map("allocations")
 }
 
 model Account {
-  id        String   @id @default(cuid())
-  householdId String
-  name      String
-  currency  String   @default("RUB") // "RUB"
-  balance   Int      @default(0)
-  isHidden  Boolean  @default(false)
+  id           String   @id @default(cuid())
+  householdId  String
+  name         String
+  currency     String   @default("RUB") // только RUB сейчас
+  balance      Int      @default(0)
 
-  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  household    Household   @relation(fields: [householdId], references: [id])
   transactions Transaction[]
-
-  @@map("accounts")
 }
 
 model Transaction {
@@ -123,18 +106,16 @@ model Transaction {
   accountId   String?
   categoryId  String?
   budgetId    String?
-  amount      Int      // расход < 0, доход > 0, в копейках
+  amount      Int      // расход < 0, доход > 0 (в копейках)
   occurredAt  DateTime
   note        String?
   isPending   Boolean  @default(false)
-  createdAt   DateTime @default(now())
 
-  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
-  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  account   Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
-  category  Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  budget    Budget?   @relation(fields: [budgetId], references: [id], onDelete: SetNull)
+  household Household @relation(fields: [householdId], references: [id])
+  user      User?     @relation(fields: [userId], references: [id])
+  account   Account?  @relation(fields: [accountId], references: [id])
+  category  Category? @relation(fields: [categoryId], references: [id])
+  budget    Budget?   @relation(fields: [budgetId], references: [id])
 
   @@index([householdId, occurredAt])
-  @@map("transactions")
 }
