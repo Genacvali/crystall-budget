@@ -47,13 +47,13 @@ async function getDashboardData(userId: string) {
     };
   }
 
-  const totalSpent = currentBudget.allocations.reduce((sum, alloc) => sum + alloc.spent, 0);
-  const totalPlanned = currentBudget.allocations.reduce((sum, alloc) => sum + alloc.planned, 0);
+  const totalSpent = currentBudget.allocations?.reduce((sum, alloc) => sum + alloc.spent, 0) || 0;
+  const totalPlanned = currentBudget.allocations?.reduce((sum, alloc) => sum + alloc.planned, 0) || 0;
 
   return {
     household,
     currentBudget,
-    allocations: currentBudget.allocations,
+    allocations: currentBudget.allocations || [],
     totalSpent,
     totalPlanned,
   };
