@@ -1,0 +1,128 @@
+{
+  "app": {
+    "title": "CrystallBudget",
+    "subtitle": "Умное управление бюджетом"
+  },
+  "nav": {
+    "dashboard": "Дашборд",
+    "categories": "Категории",
+    "budgets": "Бюджеты", 
+    "accounts": "Счета",
+    "settings": "Настройки",
+    "transactions": "Операции"
+  },
+  "auth": {
+    "signin": "Войти",
+    "signup": "Регистрация",
+    "signout": "Выход",
+    "email": "Email",
+    "password": "Пароль",
+    "confirmPassword": "Подтверждение пароля",
+    "rememberMe": "Запомнить меня",
+    "forgotPassword": "Забыли пароль?",
+    "createAccount": "Создать аккаунт",
+    "alreadyHaveAccount": "Уже есть аккаунт?",
+    "dontHaveAccount": "Нет аккаунта?"
+  },
+  "dashboard": {
+    "income": "Доход",
+    "planned": "План",
+    "actual": "Факт", 
+    "left": "Остаток",
+    "spent": "Потрачено",
+    "progress": "Прогресс",
+    "addTransaction": "Добавить операцию",
+    "currentBudget": "Текущий бюджет",
+    "noBudget": "Нет активного бюджета",
+    "createBudget": "Создать бюджет"
+  },
+  "budget": {
+    "create": "Создать бюджет",
+    "edit": "Редактировать бюджет", 
+    "delete": "Удалить бюджет",
+    "name": "Название",
+    "period": "Период",
+    "periodStart": "Начало периода",
+    "periodEnd": "Конец периода",
+    "income": "Планируемый доход",
+    "allocations": "Распределение",
+    "rollover": "Перенос остатков"
+  },
+  "category": {
+    "add": "Добавить категорию",
+    "edit": "Редактировать категорию",
+    "delete": "Удалить категорию",
+    "name": "Название",
+    "icon": "Иконка",
+    "color": "Цвет",
+    "type": "Тип",
+    "amount": "Сумма",
+    "percent": "Процент",
+    "fixed": "Фиксированная",
+    "percentage": "Процентная"
+  },
+  "transaction": {
+    "add": "Добавить операцию",
+    "edit": "Редактировать операцию",
+    "delete": "Удалить операцию", 
+    "amount": "Сумма",
+    "category": "Категория",
+    "account": "Счёт",
+    "date": "Дата",
+    "note": "Заметка",
+    "income": "Доход",
+    "expense": "Расход"
+  },
+  "account": {
+    "add": "Добавить счёт",
+    "edit": "Редактировать счёт",
+    "name": "Название",
+    "balance": "Баланс",
+    "currency": "Валюта"
+  },
+  "household": {
+    "name": "Домохозяйство",
+    "members": "Участники",
+    "addMember": "Добавить участника",
+    "role": "Роль",
+    "owner": "Владелец",
+    "member": "Участник"
+  },
+  "settings": {
+    "language": "Язык",
+    "currency": "Валюта",
+    "notifications": "Уведомления",
+    "theme": "Тема",
+    "profile": "Профиль"
+  },
+  "common": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Изменить",
+    "add": "Добавить",
+    "close": "Закрыть",
+    "confirm": "Подтвердить",
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "warning": "Предупреждение",
+    "info": "Информация",
+    "search": "Поиск",
+    "filter": "Фильтр",
+    "sort": "Сортировка",
+    "total": "Итого",
+    "yes": "Да",
+    "no": "Нет"
+  },
+  "errors": {
+    "required": "Обязательное поле",
+    "invalidEmail": "Некорректный email",
+    "passwordTooShort": "Пароль слишком короткий",
+    "passwordsDontMatch": "Пароли не совпадают",
+    "userNotFound": "Пользователь не найден",
+    "wrongPassword": "Неверный пароль",
+    "userAlreadyExists": "Пользователь уже существует",
+    "unexpectedError": "Произошла неожиданная ошибка"
+  }
+}

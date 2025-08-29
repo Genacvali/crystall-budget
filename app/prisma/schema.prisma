@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AllocationType { FIXED PERCENT }
+enum RolloverType   { SAME_CATEGORY TO_RESERVE NONE }
+enum Currency { RUB }
+enum MemberRole { OWNER MEMBER }
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  createdAt     DateTime @default(now())
+  households    HouseholdMember[]
+  transactions  Transaction[]
+
+  @@map("users")
+}
+
+model Household {
+  id          String   @id @default(cuid())
+  name        String
+  currency    Currency @default(RUB)
+  createdAt   DateTime @default(now())
+  members     HouseholdMember[]
+  budgets     Budget[]
+  categories  Category[]
+  accounts    Account[]
+  transactions Transaction[]
+
+  @@map("households")
+}
+
+model HouseholdMember {
+  id           String   @id @default(cuid())
+  householdId  String
+  userId       String
+  role         MemberRole @default(MEMBER)
+  joinedAt     DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, userId])
+  @@map("household_members")
+}
+
+model Budget {
+  id            String   @id @default(cuid())
+  householdId   String
+  name          String   @default("")
+  periodStart   DateTime // произвольный старт
+  nextStart     DateTime // начало следующего периода (эквивалент end, не включ.)
+  incomePlanned Int      @default(0) // в копейках
+  incomeActual  Int      @default(0) // в копейках
+  carryIn       Int      @default(0) // общий резерв, если используется
+  allocations   Allocation[]
+  transactions  Transaction[]
+  createdAt     DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+
+  @@unique([householdId, periodStart])
+  @@map("budgets")
+}
+
+model Category {
+  id           String   @id @default(cuid())
+  householdId  String
+  name         String
+  icon         String?  @default("💰")
+  color        String?  @default("#3B82F6")
+  isHidden     Boolean  @default(false)
+  sortOrder    Int      @default(0)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  allocations Allocation[]
+  transactions Transaction[]
+
+  @@unique([householdId, name])
+  @@map("categories")
+}
+
+model Allocation {
+  id          String   @id @default(cuid())
+  budgetId    String
+  categoryId  String
+  type        AllocationType
+  amount      Int?         // копейки, если FIXED
+  percent     Float?       // если PERCENT (0..100)
+  rollover    RolloverType @default(SAME_CATEGORY)
+  planned     Int    @default(0)
+  spent       Int    @default(0)
+  carryOut    Int    @default(0)
+
+  budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([budgetId, categoryId])
+  @@map("allocations")
+}
+
+model Account {
+  id        String   @id @default(cuid())
+  householdId String
+  name      String
+  currency  Currency @default(RUB)
+  balance   Int      @default(0)
+  isHidden  Boolean  @default(false)
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+
+  @@map("accounts")
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  householdId String
+  userId      String?
+  accountId   String?
+  categoryId  String?
+  budgetId    String?
+  amount      Int      // расход < 0, доход > 0, в копейках
+  occurredAt  DateTime
+  note        String?
+  isPending   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  account   Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  category  Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  budget    Budget?   @relation(fields: [budgetId], references: [id], onDelete: SetNull)
+
+  @@index([householdId, occurredAt])
+  @@map("transactions")
+}

@@ -1,0 +1,128 @@
+{
+  "app": {
+    "title": "CrystallBudget",
+    "subtitle": "Smart Budget Management"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "categories": "Categories",
+    "budgets": "Budgets",
+    "accounts": "Accounts", 
+    "settings": "Settings",
+    "transactions": "Transactions"
+  },
+  "auth": {
+    "signin": "Sign in",
+    "signup": "Sign up",
+    "signout": "Sign out",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "createAccount": "Create account",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?"
+  },
+  "dashboard": {
+    "income": "Income",
+    "planned": "Planned",
+    "actual": "Actual",
+    "left": "Left", 
+    "spent": "Spent",
+    "progress": "Progress",
+    "addTransaction": "Add Transaction",
+    "currentBudget": "Current Budget",
+    "noBudget": "No active budget",
+    "createBudget": "Create Budget"
+  },
+  "budget": {
+    "create": "Create Budget",
+    "edit": "Edit Budget",
+    "delete": "Delete Budget",
+    "name": "Name",
+    "period": "Period",
+    "periodStart": "Period Start",
+    "periodEnd": "Period End",
+    "income": "Planned Income",
+    "allocations": "Allocations",
+    "rollover": "Rollover"
+  },
+  "category": {
+    "add": "Add Category",
+    "edit": "Edit Category", 
+    "delete": "Delete Category",
+    "name": "Name",
+    "icon": "Icon",
+    "color": "Color",
+    "type": "Type",
+    "amount": "Amount",
+    "percent": "Percent",
+    "fixed": "Fixed",
+    "percentage": "Percentage"
+  },
+  "transaction": {
+    "add": "Add Transaction",
+    "edit": "Edit Transaction",
+    "delete": "Delete Transaction",
+    "amount": "Amount",
+    "category": "Category",
+    "account": "Account",
+    "date": "Date", 
+    "note": "Note",
+    "income": "Income",
+    "expense": "Expense"
+  },
+  "account": {
+    "add": "Add Account",
+    "edit": "Edit Account", 
+    "name": "Name",
+    "balance": "Balance",
+    "currency": "Currency"
+  },
+  "household": {
+    "name": "Household",
+    "members": "Members",
+    "addMember": "Add Member",
+    "role": "Role",
+    "owner": "Owner",
+    "member": "Member"
+  },
+  "settings": {
+    "language": "Language",
+    "currency": "Currency",
+    "notifications": "Notifications", 
+    "theme": "Theme",
+    "profile": "Profile"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel", 
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "confirm": "Confirm",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort",
+    "total": "Total",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "errors": {
+    "required": "Required field",
+    "invalidEmail": "Invalid email",
+    "passwordTooShort": "Password too short",
+    "passwordsDontMatch": "Passwords don't match",
+    "userNotFound": "User not found",
+    "wrongPassword": "Wrong password", 
+    "userAlreadyExists": "User already exists",
+    "unexpectedError": "Unexpected error occurred"
+  }
+}
