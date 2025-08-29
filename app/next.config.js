@@ -1,14 +1,10 @@
-import withPWAInit from 'next-pwa';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-const withPWA = withPWAInit({
+// next.config.js (CommonJS)
+const withPWA = require('next-pwa')({
   dest: 'public',
+  disable: process.env.NODE_ENV !== 'production',
   register: true,
-  skipWaiting: true,
-  disable: process.env.NODE_ENV === 'development',
+  scope: '/',
+  sw: 'sw.js',
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -35,25 +31,20 @@ const withPWA = withPWAInit({
   ],
 });
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+module.exports = withPWA({
+  reactStrictMode: true,
   output: 'standalone',
   experimental: {
-    serverActions: {
-      allowedOrigins: [process.env.NEXTAUTH_URL?.replace('https://', '').replace('http://', '')],
+    serverActions: { 
+      allowedOrigins: [process.env.NEXTAUTH_URL?.replace('https://', '').replace('http://', '')].filter(Boolean)
     },
   },
   images: {
     domains: [],
     formats: ['image/webp', 'image/avif'],
   },
-  webpack: (config, { dev, isServer }) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.resolve(__dirname, './src'),
-    };
+  webpack: (config) => {
+    // Никаких require() здесь - используем только готовый config
     return config;
   },
-};
-
-export default withPWA(nextConfig);
+});
