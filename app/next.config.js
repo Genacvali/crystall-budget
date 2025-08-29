@@ -1,4 +1,6 @@
 // next.config.js (CommonJS)
+const path = require('path');
+
 const withPWA = require('next-pwa')({
   dest: 'public',
   disable: process.env.NODE_ENV !== 'production',
@@ -44,7 +46,10 @@ module.exports = withPWA({
     formats: ['image/webp', 'image/avif'],
   },
   webpack: (config) => {
-    // Никаких require() здесь - используем только готовый config
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, './src'),
+    };
     return config;
   },
 });
