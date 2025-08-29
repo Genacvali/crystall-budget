@@ -59,7 +59,6 @@ export async function POST(request: NextRequest) {
       const household = await tx.household.create({
         data: {
           name: householdName || 'Семья',
-          currency: 'RUB',
         }
       });
 
