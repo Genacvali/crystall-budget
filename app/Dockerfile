@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.6
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed
@@ -5,9 +6,17 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Install dependencies based on the preferred package manager
+ENV NPM_CONFIG_CACHE=/root/.npm
+
 COPY package.json package-lock.json* ./
-RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
+# Кэшируем npm-кэш вне слоя, сборка быстрее и меньше мусора
+RUN --mount=type=cache,target=/root/.npm \
+    --mount=type=cache,target=/app/.npm \
+    if [ -f package-lock.json ]; then \
+      npm ci --no-audit --no-fund --progress=false; \
+    else \
+      npm install --no-audit --no-fund --progress=false; \
+    fi
 
 # Rebuild the source code only when needed
 FROM base AS builder
