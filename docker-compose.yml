@@ -31,6 +31,11 @@ services:
   app:
     build: ./app
     env_file: .env
+    environment:
+      - HOST=0.0.0.0
+      - PORT=3000
+      # ВАЖНО: NEXTAUTH_URL должен быть доменным, не IP:порт
+      - NEXTAUTH_URL=https://161-35-31-38.sslip.io
     depends_on:
       db:
         condition: service_healthy

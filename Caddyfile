@@ -1,4 +1,4 @@
-161.35.31.38.sslip.io {
+161-35-31-38.sslip.io {
   encode zstd gzip
   reverse_proxy app:3000
   
