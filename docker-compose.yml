@@ -1,30 +1,13 @@
 version: "3.9"
 services:
-  db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - crystall-network
-
-  # отдельный джоб для миграций
   migrate:
     build:
       context: ./app
       target: migrator
     env_file: .env
-    depends_on:
-      db:
-        condition: service_healthy
+    volumes:
+      - app_data:/app/data
+    # завершится и выйдет 0 при успехе
     networks:
       - crystall-network
 
@@ -38,10 +21,10 @@ services:
       # ВАЖНО: NEXTAUTH_URL должен быть доменным, не IP:порт
       - NEXTAUTH_URL=https://161-35-31-38.sslip.io
     depends_on:
-      db:
-        condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    volumes:
+      - app_data:/app/data
     command: ["node", "server.js"]
     networks:
       - crystall-network
@@ -64,7 +47,7 @@ services:
       - crystall-network
 
 volumes:
-  pgdata:
+  app_data:
   caddy_data:
   caddy_config:
 
