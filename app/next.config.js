@@ -46,10 +46,7 @@ module.exports = withPWA({
     formats: ['image/webp', 'image/avif'],
   },
   webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': path.resolve(__dirname, './src'),
-    };
+    config.resolve.alias['@'] = path.resolve(__dirname, 'src');
     return config;
   },
 });
