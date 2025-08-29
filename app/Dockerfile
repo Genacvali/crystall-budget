@@ -3,12 +3,8 @@
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
-
 ENV NPM_CONFIG_CACHE=/root/.npm
-
 COPY package.json package-lock.json* ./
-
-# ВАЖНО: игнорируем ВСЕ скрипты (включая твой "postinstall")
 RUN --mount=type=cache,target=/root/.npm \
     --mount=type=cache,target=/app/.npm \
     if [ -f package-lock.json ]; then \
@@ -17,26 +13,40 @@ RUN --mount=type=cache,target=/root/.npm \
       npm install --no-audit --no-fund --progress=false --ignore-scripts; \
     fi
 
+# ---------- builder ----------
 FROM node:20-alpine AS builder
-# Prisma на Alpine требует openssl
-RUN apk add --no-cache libc6-compat openssl
+# Добавляем тулчейн для сборки нативных модулей
+RUN apk add --no-cache libc6-compat openssl python3 make g++
 WORKDIR /app
-
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Теперь schema есть — вручную генерим клиент и билдим
+# Сборка бинари для argon2 (после копирования исходников)
+RUN npm rebuild argon2 --unsafe-perm --build-from-source || npm rebuild argon2 --unsafe-perm || true
+
 RUN npx prisma generate
 RUN npm run build
 
+# ---------- migrator ----------
+FROM node:20-alpine AS migrator
+RUN apk add --no-cache libc6-compat openssl python3 make g++
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Соберём бинари argon2 и здесь тоже, т.к. здесь запускается seed
+RUN npm rebuild argon2 --unsafe-perm --build-from-source || npm rebuild argon2 --unsafe-perm || true
+
+ENTRYPOINT ["npx","prisma"]
+CMD ["migrate","deploy","--schema","prisma/schema.prisma"]
+
+# ---------- runner ----------
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000
-# standalone + статика
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-# (опционально, но удобно для отладки и prisma client)
 COPY --from=builder /app/prisma ./prisma
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["node","server.js"]

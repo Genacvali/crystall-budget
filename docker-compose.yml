@@ -18,8 +18,9 @@ services:
 
   # отдельный джоб для миграций
   migrate:
-    build: ./app
-    command: ["sh", "-c", "npx prisma migrate deploy && npm run seed"]
+    build:
+      context: ./app
+      target: migrator
     env_file: .env
     depends_on:
       db:
