@@ -39,6 +39,8 @@ CMD 'npx prisma migrate deploy --schema prisma/schema.prisma && node prisma/seed
 
 # ---------- runner ----------
 FROM node:20-alpine AS runner
+# Устанавливаем OpenSSL 1.1 для совместимости с Prisma
+RUN apk add --no-cache openssl1.1-compat libc6-compat
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000 HOST=0.0.0.0 NODE_OPTIONS=--max-old-space-size=256
 # standalone + статика
