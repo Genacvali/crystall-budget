@@ -16,13 +16,26 @@ services:
     networks:
       - crystall-network
 
+  # отдельный джоб для миграций
+  migrate:
+    build: ./app
+    command: ["sh", "-c", "npx prisma migrate deploy && npm run seed"]
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - crystall-network
+
   app:
     build: ./app
     env_file: .env
     depends_on:
       db:
         condition: service_healthy
-    command: ["/bin/sh", "-c", "npx prisma migrate deploy && npm run seed && node server.js"]
+      migrate:
+        condition: service_completed_successfully
+    command: ["node", "server.js"]
     networks:
       - crystall-network
 
@@ -32,6 +45,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+    environment:
+      - HOSTNAME=${HOSTNAME:-localhost}   # установите в .env свой домен вида IP.sslip.io
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data

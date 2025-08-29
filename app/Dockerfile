@@ -32,8 +32,11 @@ RUN npm run build
 FROM node:20-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000
+# standalone + статика
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
+# (опционально, но удобно для отладки и prisma client)
+COPY --from=builder /app/prisma ./prisma
 EXPOSE 3000
 CMD ["node", "server.js"]
