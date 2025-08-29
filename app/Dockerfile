@@ -3,8 +3,7 @@
 # ---------- deps ----------
 FROM node:20-slim AS deps
 WORKDIR /app
-ENV NODE_ENV=production NPM_CONFIG_CACHE=/root/.npm
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates && rm -rf /var/lib/apt/lists/*
+ENV NPM_CONFIG_CACHE=/root/.npm            # <-- без NODE_ENV=production!
 COPY package.json package-lock.json* ./
 RUN --mount=type=cache,target=/root/.npm \
     if [ -f package-lock.json ]; then \
