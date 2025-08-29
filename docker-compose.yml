@@ -34,6 +34,7 @@ services:
     environment:
       - HOST=0.0.0.0
       - PORT=3000
+      - NODE_OPTIONS=--max-old-space-size=256
       # ВАЖНО: NEXTAUTH_URL должен быть доменным, не IP:порт
       - NEXTAUTH_URL=https://161-35-31-38.sslip.io
     depends_on:
