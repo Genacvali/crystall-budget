@@ -13,9 +13,9 @@ model User {
   passwordHash  String
   createdAt     DateTime @default(now())
   households    HouseholdMember[]
-  categories    Category[]
-  accounts      Account[]
   transactions  Transaction[]
+
+  @@map("users")
 }
 
 model Household {
@@ -25,6 +25,10 @@ model Household {
   members     HouseholdMember[]
   budgets     Budget[]
   categories  Category[]
+  accounts    Account[]
+  transactions Transaction[]
+
+  @@map("households")
 }
 
 model HouseholdMember {
@@ -34,40 +38,47 @@ model HouseholdMember {
   role         String   @default("MEMBER") // OWNER | MEMBER
   joinedAt     DateTime @default(now())
 
-  household Household @relation(fields: [householdId], references: [id])
-  user      User      @relation(fields: [userId], references: [id])
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([householdId, userId])
+  @@map("household_members")
 }
 
 model Budget {
   id            String   @id @default(cuid())
   householdId   String
+  name          String   @default("")
   periodStart   DateTime
   nextStart     DateTime
   incomePlanned Int      @default(0)
   incomeActual  Int      @default(0)
   carryIn       Int      @default(0)
   allocations   Allocation[]
+  transactions  Transaction[]
   createdAt     DateTime @default(now())
 
-  household Household @relation(fields: [householdId], references: [id])
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
 
   @@unique([householdId, periodStart])
+  @@map("budgets")
 }
 
 model Category {
   id           String   @id @default(cuid())
   householdId  String
   name         String
-  icon         String?
+  icon         String?  @default("💰")
+  color        String?  @default("#3B82F6")
   isHidden     Boolean  @default(false)
+  sortOrder    Int      @default(0)
 
-  household    Household @relation(fields: [householdId], references: [id])
+  household    Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
   allocations  Allocation[]
   transactions Transaction[]
 
   @@unique([householdId, name])
+  @@map("categories")
 }
 
 model Allocation {
@@ -82,10 +93,11 @@ model Allocation {
   spent       Int      @default(0)
   carryOut    Int      @default(0)
 
-  budget   Budget   @relation(fields: [budgetId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+  budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
   @@unique([budgetId, categoryId])
+  @@map("allocations")
 }
 
 model Account {
@@ -94,9 +106,12 @@ model Account {
   name         String
   currency     String   @default("RUB") // только RUB сейчас
   balance      Int      @default(0)
+  isHidden     Boolean  @default(false)
 
-  household    Household   @relation(fields: [householdId], references: [id])
+  household    Household   @relation(fields: [householdId], references: [id], onDelete: Cascade)
   transactions Transaction[]
+
+  @@map("accounts")
 }
 
 model Transaction {
@@ -110,12 +125,14 @@ model Transaction {
   occurredAt  DateTime
   note        String?
   isPending   Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
-  household Household @relation(fields: [householdId], references: [id])
-  user      User?     @relation(fields: [userId], references: [id])
-  account   Account?  @relation(fields: [accountId], references: [id])
-  category  Category? @relation(fields: [categoryId], references: [id])
-  budget    Budget?   @relation(fields: [budgetId], references: [id])
+  household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  account   Account?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  category  Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  budget    Budget?   @relation(fields: [budgetId], references: [id], onDelete: SetNull)
 
   @@index([householdId, occurredAt])
+  @@map("transactions")
 }
