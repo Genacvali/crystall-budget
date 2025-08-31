@@ -10,10 +10,25 @@ datasource db {
 }
 
 /* enum'ы под PG */
-enum AllocationType { FIXED PERCENT }
-enum RolloverType   { SAME_CATEGORY TO_RESERVE NONE }
-enum Currency       { RUB }
-enum MemberRole     { OWNER MEMBER }
+enum AllocationType {
+  FIXED
+  PERCENT
+}
+
+enum RolloverType {
+  SAME_CATEGORY
+  TO_RESERVE
+  NONE
+}
+
+enum Currency {
+  RUB
+}
+
+enum MemberRole {
+  OWNER
+  MEMBER
+}
 
 /* Модели (минимум для MVP) */
 model User {
