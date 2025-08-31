@@ -92,14 +92,7 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Создаём основной счёт
-      await tx.account.create({
-        data: {
-          name: 'Основной счёт',
-          householdId: household.id,
-          currency: 'RUB',
-        }
-      });
+      // Основной счёт не создаём - используем упрощённую схему без модели Account
 
       return { user, household };
     });
