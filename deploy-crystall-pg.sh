@@ -65,7 +65,7 @@ const HOST = process.env.HOST || '127.0.0.1';
 
 // Auth guard
 app.addHook('onRequest', async (req, reply) => {
-  if (req.url.startsWith('/api/') && !req.url.startsWith('/api/auth/') && !req.url.startsWith('/api/health')) {
+  if (req.url.startsWith('/') && !req.url.startsWith('/auth/') && !req.url.startsWith('/health')) {
     const auth = req.headers.authorization || '';
     const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
     try { 
@@ -76,9 +76,9 @@ app.addHook('onRequest', async (req, reply) => {
   }
 });
 
-app.get('/api/health', async () => ({ ok: true, ts: Date.now() }));
+app.get('/health', async () => ({ ok: true, ts: Date.now() }));
 
-app.post('/api/auth/signup', async (req, reply) => {
+app.post('/auth/signup', async (req, reply) => {
   const { email, password } = req.body || {};
   if (!email || !password) return reply.code(400).send({ error: 'bad_input' });
   
@@ -244,9 +244,7 @@ cp "${CADDYFILE}" "${CADDYFILE}.bak"
 cat > "${CADDYFILE}" <<CADDY
 ${DOMAIN} {
   @api path /api/*
-  reverse_proxy @api 127.0.0.1:${API_PORT} {
-    rewrite * /api{path}
-  }
+  reverse_proxy @api 127.0.0.1:${API_PORT}
   reverse_proxy 127.0.0.1:3000
 }
 CADDY
