@@ -1,13 +1,18 @@
-datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL") // file:./data/crystall.db
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  engineType = "binary"
 }
 
-generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
-  engineType    = "binary"
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
+
+enum AllocationType { FIXED PERCENT }
+enum RolloverType   { SAME_CATEGORY TO_RESERVE NONE }
+enum Currency       { RUB }
+enum MemberRole     { OWNER MEMBER }
 
 model User {
   id            String   @id @default(cuid())
@@ -34,11 +39,11 @@ model Household {
 }
 
 model HouseholdMember {
-  id           String   @id @default(cuid())
+  id           String     @id @default(cuid())
   householdId  String
   userId       String
-  role         String   @default("MEMBER") // OWNER | MEMBER
-  joinedAt     DateTime @default(now())
+  role         MemberRole @default(MEMBER)
+  joinedAt     DateTime   @default(now())
 
   household Household @relation(fields: [householdId], references: [id], onDelete: Cascade)
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -84,16 +89,16 @@ model Category {
 }
 
 model Allocation {
-  id          String   @id @default(cuid())
+  id          String         @id @default(cuid())
   budgetId    String
   categoryId  String
-  type        String   // "FIXED" | "PERCENT"
-  amount      Int?     // если FIXED (в копейках)
-  percent     Float?   // если PERCENT (0..100)
-  rollover    String   @default("SAME_CATEGORY") // SAME_CATEGORY | TO_RESERVE | NONE
-  planned     Int      @default(0)
-  spent       Int      @default(0)
-  carryOut    Int      @default(0)
+  type        AllocationType
+  amount      Int?           // если FIXED (в копейках)
+  percent     Float?         // если PERCENT (0..100)
+  rollover    RolloverType   @default(SAME_CATEGORY)
+  planned     Int            @default(0)
+  spent       Int            @default(0)
+  carryOut    Int            @default(0)
 
   budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
@@ -106,7 +111,7 @@ model Account {
   id           String   @id @default(cuid())
   householdId  String
   name         String
-  currency     String   @default("RUB") // только RUB сейчас
+  currency     Currency @default(RUB)
   balance      Int      @default(0)
   isHidden     Boolean  @default(false)
 
