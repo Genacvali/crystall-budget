@@ -244,7 +244,9 @@ cp "${CADDYFILE}" "${CADDYFILE}.bak"
 cat > "${CADDYFILE}" <<CADDY
 ${DOMAIN} {
   @api path /api/*
-  reverse_proxy @api 127.0.0.1:${API_PORT}
+  reverse_proxy @api 127.0.0.1:${API_PORT} {
+    rewrite * /api{path}
+  }
   reverse_proxy 127.0.0.1:3000
 }
 CADDY
