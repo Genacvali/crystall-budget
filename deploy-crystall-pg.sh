@@ -40,7 +40,7 @@ cat > "${API_DIR}/package.json" <<'JSON'
     "seed": "node seed.js"
   },
   "dependencies": {
-    "@node-rs/argon2": "1.7.3",
+    "bcrypt": "5.1.1",
     "dotenv": "16.4.5",
     "fastify": "4.28.1",
     "jsonwebtoken": "9.0.2",
@@ -53,7 +53,7 @@ JSON
 cat > "${API_DIR}/server.js" <<'JS'
 const Fastify = require('fastify');
 const jwt = require('jsonwebtoken');
-const { hash, verify } = require('@node-rs/argon2');
+const bcrypt = require('bcrypt');
 const { Pool } = require('pg');
 require('dotenv').config();
 
@@ -84,7 +84,7 @@ app.post('/api/auth/signup', async (req, reply) => {
   const { email, password } = req.body || {};
   if (!email || !password) return reply.code(400).send({ error: 'bad_input' });
   
-  const passwordHash = await hash(password);
+  const passwordHash = await bcrypt.hash(password, 10);
   try {
     await pool.query(`INSERT INTO "User"(id,email,"passwordHash") VALUES (gen_random_uuid(), $1, $2)`, [email, passwordHash]);
     reply.send({ ok: true });
@@ -98,7 +98,7 @@ app.post('/api/auth/login', async (req, reply) => {
   const { email, password } = req.body || {};
   const { rows } = await pool.query(`SELECT id, "passwordHash" FROM "User" WHERE email=$1`, [email]);
   const user = rows[0];
-  if (!user || !await verify(user.passwordHash, password)) {
+  if (!user || !await bcrypt.compare(password, user.passwordHash)) {
     return reply.code(401).send({ error: 'bad_credentials' });
   }
   const token = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '7d' });
@@ -197,12 +197,12 @@ SQL
 # seed.js
 cat > "${API_DIR}/seed.js" <<'JS'
 const { Pool } = require('pg');
-const { hash } = require('@node-rs/argon2');
+const bcrypt = require('bcrypt');
 require('dotenv').config();
 
 (async () => {
   const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-  const passwordHash = await hash('demo1234');
+  const passwordHash = await bcrypt.hash('demo1234', 10);
   await pool.query(`INSERT INTO "User"(id,email,"passwordHash") VALUES (gen_random_uuid(), $1, $2) ON CONFLICT (email) DO NOTHING`, ['demo@crystall.local', passwordHash]);
   console.log('Demo user created: demo@crystall.local / demo1234');
   await pool.end();
