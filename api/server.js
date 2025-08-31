@@ -89,7 +89,15 @@ app.post('/api/auth/login', async (req, reply) => {
   const user = rows[0];
   if (!user) return reply.code(401).send({ error: 'bad_credentials' });
 
-  const ok = await verify(user.passwordHash, password);
+  let ok = false;
+  try {
+    ok = await verify(user.passwordHash, password);
+  } catch (e) {
+    // Здесь будут старые bcrypt-хэши или повреждённые значения
+    req.log.warn({ err: e, email }, 'password verify failed (probably legacy hash)');
+    return reply.code(401).send({ error: 'bad_credentials' });
+  }
+
   if (!ok) return reply.code(401).send({ error: 'bad_credentials' });
 
   const token = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '7d' });
