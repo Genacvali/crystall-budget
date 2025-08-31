@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { AuthService } from '@/lib/auth';
 import Link from 'next/link';
 
 export default function SignInPage() {
@@ -19,19 +19,11 @@ export default function SignInPage() {
     setError('');
     
     try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError('Неверный email или пароль');
-      } else {
-        window.location.href = '/';
-      }
+      const result = await AuthService.login(email, password);
+      AuthService.setToken(result.token);
+      window.location.href = '/';
     } catch (err) {
-      setError('Произошла ошибка при входе');
+      setError(err instanceof Error ? err.message : 'Произошла ошибка при входе');
     } finally {
       setLoading(false);
     }

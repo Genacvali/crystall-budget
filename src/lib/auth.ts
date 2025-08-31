@@ -1,123 +1,69 @@
-import { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import { prisma } from './db';
-import { verifyPassword } from './security';
-
-export const authOptions: NextAuthOptions = {
-  providers: [
-    CredentialsProvider({
-      id: 'credentials',
-      name: 'Email & Password',
-      credentials: {
-        email: { 
-          label: 'Email', 
-          type: 'email',
-          placeholder: 'your@email.com'
-        },
-        password: { 
-          label: 'Password', 
-          type: 'password' 
-        },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          return null;
-        }
-
-        try {
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email.toLowerCase() },
-            include: {
-              households: {
-                include: {
-                  household: true
-                }
-              }
-            }
-          });
-
-          if (!user) {
-            return null;
-          }
-
-          const isValid = await verifyPassword(credentials.password, user.passwordHash);
-          if (!isValid) {
-            return null;
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            households: user.households.map(hm => ({
-              id: hm.household.id,
-              name: hm.household.name,
-              role: hm.role
-            }))
-          };
-        } catch (error) {
-          console.error('Auth error:', error);
-          return null;
-        }
-      },
-    }),
-  ],
-  session: {
-    strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  jwt: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.households = user.households;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      if (token) {
-        session.user.id = token.sub!;
-        session.user.households = token.households as any;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: '/auth/signin',
-    error: '/auth/error',
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-};
-
-declare module 'next-auth' {
-  interface User {
-    households: Array<{
-      id: string;
-      name: string;
-      role: string;
-    }>;
-  }
-
-  interface Session {
-    user: {
-      id: string;
-      email: string;
-      households: Array<{
-        id: string;
-        name: string;
-        role: string;
-      }>;
-    };
-  }
+export interface AuthUser {
+  id: string;
+  email: string;
 }
 
-declare module 'next-auth/jwt' {
-  interface JWT {
-    households: Array<{
-      id: string;
-      name: string;
-      role: string;
-    }>;
+export interface LoginResponse {
+  token: string;
+}
+
+export interface SignupResponse {
+  ok: boolean;
+}
+
+export class AuthService {
+  private static TOKEN_KEY = 'jwt';
+
+  static getToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  static setToken(token: string): void {
+    if (typeof window === 'undefined') return;
+    localStorage.setItem(this.TOKEN_KEY, token);
+  }
+
+  static removeToken(): void {
+    if (typeof window === 'undefined') return;
+    localStorage.removeItem(this.TOKEN_KEY);
+  }
+
+  static async login(email: string, password: string): Promise<LoginResponse> {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Login failed');
+    }
+
+    return res.json();
+  }
+
+  static async signup(email: string, password: string): Promise<SignupResponse> {
+    const res = await fetch('/api/auth/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Signup failed');
+    }
+
+    return res.json();
+  }
+
+  static isAuthenticated(): boolean {
+    return !!this.getToken();
+  }
+
+  static logout(): void {
+    this.removeToken();
   }
 }

@@ -1,15 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { AuthService } from '@/lib/auth';
 import Link from 'next/link';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
-    confirmPassword: '',
-    householdName: ''
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -27,38 +26,14 @@ export default function SignUpPage() {
     setError('');
     
     try {
-      // Регистрируем пользователя
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          householdName: formData.householdName
-        })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Ошибка при регистрации');
-        return;
-      }
-
-      // Автоматически входим
-      const result = await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError('Пользователь создан, но не удалось войти. Попробуйте войти вручную.');
-      } else {
-        window.location.href = '/';
-      }
+      await AuthService.signup(formData.email, formData.password);
+      
+      // Автоматически входим после регистрации
+      const result = await AuthService.login(formData.email, formData.password);
+      AuthService.setToken(result.token);
+      window.location.href = '/';
     } catch (err) {
-      setError('Произошла ошибка при регистрации');
+      setError(err instanceof Error ? err.message : 'Произошла ошибка при регистрации');
     } finally {
       setLoading(false);
     }
@@ -137,19 +112,6 @@ export default function SignUpPage() {
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Название домохозяйства (необязательно)
-              </label>
-              <input
-                type="text"
-                name="householdName"
-                value={formData.householdName}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Семья Ивановых"
-              />
-            </div>
           </div>
 
           {error && (
