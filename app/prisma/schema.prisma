@@ -47,6 +47,7 @@ model Household {
   members     HouseholdMember[]
   budgets     Budget[]
   categories  Category[]
+  transactions Transaction[]
 }
 
 model HouseholdMember {
@@ -71,6 +72,7 @@ model Budget {
   incomeActual  Int      @default(0)
   carryIn       Int      @default(0)
   allocations   Allocation[]
+  transactions  Transaction[]
   createdAt     DateTime @default(now())
 
   household Household @relation(fields: [householdId], references: [id])
