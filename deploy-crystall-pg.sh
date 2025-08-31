@@ -26,7 +26,7 @@ cat > "${API_DIR}/.env" <<'ENV'
 PORT=4000
 HOST=127.0.0.1
 JWT_SECRET=change_me_super_secret_32_chars_long_key
-DATABASE_URL=postgresql://crystall:supersecret@127.0.0.1:5432/crystall?schema=public
+DATABASE_URL=postgresql://crystall:supersecret@127.0.0.1:5432/crystall
 ENV
 
 # package.json
