@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DOMAIN="${1:-crystallbudget.161-35-31-38.sslip.io}"
-API_DIR="/opt/crystall-api"
+API_DIR="/data/crystall-api"
 API_USER="crystallapi"
 API_PORT="4000"
 API_UNIT="crystall-api.service"
