@@ -1,88 +1,41 @@
+// /data/crystall-budget/app/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AuthService } from '@/lib/auth';
-import { APIClient } from '@/lib/api';
 
-export default function HomePage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [health, setHealth] = useState<any>(null);
+export default function Home() {
+  const [status, setStatus] = useState<'loading'|'ok'|'fail'>('loading');
+  const [ts, setTs] = useState<number|undefined>();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      setIsAuthenticated(AuthService.isAuthenticated());
-      
-      try {
-        const healthData = await APIClient.health();
-        setHealth(healthData);
-      } catch (error) {
-        console.error('API health check failed:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
+    const url = process.env.NEXT_PUBLIC_API_URL || '/api';
+    fetch(`${url}/health`)
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(j => { setStatus('ok'); setTs(j.ts); })
+      .catch(() => setStatus('fail'));
   }, []);
 
-  const handleLogout = () => {
-    AuthService.logout();
-    setIsAuthenticated(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Загрузка...</div>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8">
-      <div className="max-w-md w-full text-center space-y-6">
-        <h1 className="text-4xl font-bold text-blue-600">💎 CrystallBudget</h1>
-        <p className="text-gray-600">Умное управление семейным бюджетом</p>
-        
-        {health && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-            <p className="text-sm text-green-700">
-              ✅ API работает (ts: {health.ts})
-            </p>
-          </div>
-        )}
+    <main className="max-w-lg mx-auto p-6">
+      <div className="text-3xl font-bold mb-4">💎 CrystallBudget</div>
 
-        {isAuthenticated ? (
-          <div className="space-y-4">
-            <p className="text-green-600">✅ Вы авторизованы</p>
-            <button
-              onClick={handleLogout}
-              className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition"
-            >
-              Выйти
-            </button>
+      {status === 'loading' && <div>Загрузка…</div>}
+      {status === 'ok' && (
+        <div className="space-y-4">
+          <div className="rounded-md p-3 bg-green-50 border border-green-200">
+            API живо ✅ {ts ? new Date(ts).toLocaleString() : ''}
           </div>
-        ) : (
-          <div className="space-y-4">
-            <p className="text-gray-600">Войдите в аккаунт</p>
-            <div className="space-y-2">
-              <a
-                href="/auth/login"
-                className="block w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition text-center"
-              >
-                Войти
-              </a>
-              <a
-                href="/auth/signup"
-                className="block w-full border border-blue-600 text-blue-600 py-2 px-4 rounded-lg hover:bg-blue-50 transition text-center"
-              >
-                Создать аккаунт
-              </a>
-            </div>
+          <div className="space-x-2">
+            <a href="/auth/signin" className="px-4 py-2 rounded bg-blue-600 text-white">Войти</a>
+            <a href="/auth/signup" className="px-4 py-2 rounded bg-gray-200">Создать аккаунт</a>
           </div>
-        )}
-      </div>
-    </div>
+        </div>
+      )}
+      {status === 'fail' && (
+        <div className="rounded-md p-3 bg-red-50 border border-red-200">
+          Не удалось достучаться до API (проверь Caddy/бэкенд)
+        </div>
+      )}
+    </main>
   );
 }
