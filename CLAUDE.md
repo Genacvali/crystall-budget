@@ -9,8 +9,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Start production**: `npm start`
 - **Lint**: `npm run lint`
 - **Database seed**: `npm run seed`
-- **Prisma generate**: `npx prisma generate`
-- **Database migrations**: `npx prisma migrate deploy`
+- **Prisma generate**: `npm run prisma:generate` (or `npx prisma generate`)
+- **Database migrations**: `npm run prisma:migrate` (or `npx prisma migrate deploy`)
 
 ## Production Deployment (CentOS 9)
 
@@ -106,3 +106,5 @@ API routes follow RESTful patterns:
 - TypeScript strict mode enabled
 - PWA disabled in development mode
 - Production runs with memory limits: Node.js 256MB, systemd MemoryMax=600M
+- Prisma auto-generates client on `postinstall` hook
+- Supports bilingual interface (Russian/English) via i18n in src/i18n/
