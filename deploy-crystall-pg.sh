@@ -2,7 +2,7 @@
 set -euo pipefail
 
 DOMAIN="${1:-crystallbudget.161-35-31-38.sslip.io}"
-API_DIR="/data/crystall-api"
+API_DIR="/data/crystall-budget"
 API_USER="crystallapi"
 API_PORT="4000"
 API_UNIT="crystall-api.service"
@@ -15,9 +15,8 @@ command -v psql >/dev/null || { echo "psql not found"; exit 1; }
 command -v node >/dev/null || { echo "node not found"; exit 1; }
 systemctl is-enabled caddy >/dev/null 2>&1 || { echo "caddy not enabled"; exit 1; }
 
-# Создать пользователя и директорию
+# Создать пользователя 
 id -u "${API_USER}" >/dev/null 2>&1 || useradd -r -m -s /sbin/nologin "${API_USER}"
-rm -rf "${API_DIR}"
 mkdir -p "${API_DIR}"
 chown -R "${API_USER}:${API_USER}" "${API_DIR}"
 
