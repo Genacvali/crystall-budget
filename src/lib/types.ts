@@ -1,6 +1,10 @@
-import type { AllocationType, RolloverType, Currency, MemberRole } from '@prisma/client';
+// Импортируем только существующие типы из Prisma
+import type { AllocationType, RolloverType, MemberRole } from '@prisma/client';
 
-export type { AllocationType, RolloverType, Currency, MemberRole };
+// Определяем Currency локально, если его нет в Prisma
+export type Currency = 'RUB';
+
+export type { AllocationType, RolloverType, MemberRole };
 
 export interface User {
   id: string;
