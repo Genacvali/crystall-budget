@@ -93,15 +93,41 @@ app.post('/api/auth/login', async (req, reply) => {
   try {
     ok = await verify(user.passwordHash, password);
   } catch (e) {
-    // Здесь будут старые bcrypt-хэши или повреждённые значения
-    req.log.warn({ err: e, email }, 'password verify failed (probably legacy hash)');
+    req.log.warn({ err: e, email }, 'password verify failed (legacy or broken hash)');
     return reply.code(401).send({ error: 'bad_credentials' });
   }
-
   if (!ok) return reply.code(401).send({ error: 'bad_credentials' });
 
   const token = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '7d' });
+
+  // Ставим cookie, чтобы SSR видел авторизацию
+  // В проде включи secure: true (работает по HTTPS — у тебя как раз Caddy+TLS)
+  reply.setCookie('auth_token', token, {
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: true,      // оставь true — у тебя https-домен
+    maxAge: 60 * 60 * 24 * 7
+  });
+
   reply.send({ token });
+});
+
+// Логаут (чистим cookie)
+app.post('/api/auth/logout', async (req, reply) => {
+  reply.clearCookie('auth_token', { path: '/' });
+  reply.send({ ok: true });
+});
+
+// Простой check endpoint для SSR
+app.get('/api/me', async (req, reply) => {
+  const cookie = req.cookies?.auth_token || '';
+  try {
+    const payload = jwt.verify(cookie, JWT_SECRET);
+    return { userId: payload.sub };
+  } catch {
+    return reply.code(401).send({ error: 'unauthorized' });
+  }
 });
 
 // ===== 404 для неизвестных маршрутов API =====
