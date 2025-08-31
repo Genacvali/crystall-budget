@@ -1,10 +1,7 @@
-// Импортируем только существующие типы из Prisma
-import type { AllocationType, RolloverType, MemberRole } from '@prisma/client';
-
-// Определяем Currency локально, если его нет в Prisma
 export type Currency = 'RUB';
-
-export type { AllocationType, RolloverType, MemberRole };
+export type AllocationType = 'FIXED' | 'PERCENT';
+export type RolloverType = 'SAME_CATEGORY' | 'TO_RESERVE' | 'NONE';
+export type MemberRole = 'OWNER' | 'MEMBER';
 
 export interface User {
   id: string;
@@ -70,29 +67,10 @@ export interface Transaction {
   isPending: boolean;
 }
 
-// Utility types for API responses
 export interface ApiResponse<T = any> {
   data?: T;
   error?: string;
   message?: string;
-}
-
-export interface PaginatedResponse<T> {
-  data: T[];
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
-// Form types
-export interface SignUpFormData {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  householdName: string;
 }
 
 export interface SignInFormData {
