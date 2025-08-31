@@ -47,7 +47,7 @@ cat > "${API_DIR}/package.json" <<'JSON'
     "db:seed": "node seed.js"
   },
   "dependencies": {
-    "@node-rs/argon2": "^1.9.0",
+    "@node-rs/argon2": "^1.8.3",
     "dotenv": "^16.4.5",
     "fastify": "^4.28.1",
     "fastify-cors": "^8.4.2",
