@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_ENV=production node .next/standalone/server.js",
     "lint": "next lint",
     "seed": "node prisma/seed.js",
-    "postinstall": "prisma generate || true"
+    "postinstall": "prisma generate || true",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy"
   },
   "dependencies": {
     "next": "14.2.0",
