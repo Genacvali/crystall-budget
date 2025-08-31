@@ -57,7 +57,6 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const app = Fastify({ logger: true });
-app.register(require('@fastify/cors'), { origin: true });
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const JWT_SECRET = process.env.JWT_SECRET;
