@@ -9,10 +9,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum AllocationType { FIXED PERCENT }
-enum RolloverType   { SAME_CATEGORY TO_RESERVE NONE }
-enum Currency       { RUB }
-enum MemberRole     { OWNER MEMBER }
+enum AllocationType {
+  FIXED
+  PERCENT
+}
+
+enum RolloverType {
+  SAME_CATEGORY
+  TO_RESERVE
+  NONE
+}
+
+enum Currency {
+  RUB
+}
+
+enum MemberRole {
+  OWNER
+  MEMBER
+}
 
 model User {
   id            String   @id @default(cuid())
