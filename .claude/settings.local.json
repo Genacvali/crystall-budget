@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(npx prisma:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(cat:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

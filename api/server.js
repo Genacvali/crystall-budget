@@ -1,4 +1,7 @@
-// server.js
+// Минимальный Fastify API без миграций.
+// Таблица "User" должна существовать заранее (один раз создай в psql).
+// Хэш пароля делаем через @node-rs/argon2 (без bcrypt, чтобы не упираться в сборку).
+
 const Fastify = require('fastify');
 const cors = require('@fastify/cors');
 const helmet = require('@fastify/helmet');
@@ -9,159 +12,72 @@ require('dotenv').config();
 
 const app = Fastify({ logger: true });
 
-// Без CSP (иначе Next иногда ругается), HSTS/прочее пусть делает Caddy
 app.register(helmet, { contentSecurityPolicy: false });
-
-// Разрешим CORS c куками/заголовками по умолчанию
-app.register(cors, {
-  origin: true,
-  credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
-});
+app.register(cors, { origin: true, credentials: true });
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-
-const JWT_SECRET = process.env.JWT_SECRET || 'change_me_super_secret_32_chars';
-const PORT = Number(process.env.PORT || 4000);
+const JWT_SECRET = process.env.JWT_SECRET || 'change_me';
+const PORT = parseInt(process.env.PORT || '4000', 10);
 const HOST = process.env.HOST || '127.0.0.1';
 
-// ===== Глобальный гард авторизации =====
-// Открытые пути: health и всё под /api/auth/*
-const openPaths = [/^\/api\/health\b/, /^\/api\/auth\/.*/];
-
+// Глобальный гард для /api/* (кроме /api/auth/* и /api/health)
 app.addHook('onRequest', async (req, reply) => {
-  // Разрешаем preflight-запросы без проверки
-  if (req.method === 'OPTIONS') {
-    reply.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    reply.header('Access-Control-Allow-Credentials', 'true');
-    reply.header('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
-    reply.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    return reply.code(204).send();
-  }
-
-  // Интересуют только /api/*
-  if (!req.url.startsWith('/api/')) return;
-
-  // Открытые эндпоинты пропускаем
-  if (openPaths.some(rx => rx.test(req.url))) return;
-
-  // Bearer проверка
-  const auth = req.headers.authorization || '';
-  const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
-  if (!token) {
-    return reply.code(401).send({ error: 'unauthorized' });
-  }
-  try {
-    req.user = jwt.verify(token, JWT_SECRET);
-  } catch {
-    return reply.code(401).send({ error: 'unauthorized' });
+  if (req.url.startsWith('/api/')
+    && !req.url.startsWith('/api/auth/')
+    && !req.url.startsWith('/api/health')) {
+    const auth = req.headers.authorization || '';
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : '';
+    try { req.user = jwt.verify(token, JWT_SECRET); }
+    catch { return reply.code(401).send({ error: 'unauthorized' }); }
   }
 });
 
-// ===== Health =====
 app.get('/api/health', async () => ({ ok: true, ts: Date.now() }));
 
-// ===== Auth =====
 app.post('/api/auth/signup', async (req, reply) => {
   const { email, password } = req.body || {};
   if (!email || !password) return reply.code(400).send({ error: 'bad_input' });
+  const passwordHash = await hash(password);
   try {
-    const passwordHash = await hash(password);
     await pool.query(
-      `INSERT INTO "User"(id,email,"passwordHash") VALUES (gen_random_uuid(), $1, $2)`,
+      `INSERT INTO "User"(id, email, "passwordHash") VALUES (gen_random_uuid(), $1, $2)`,
       [email, passwordHash]
     );
-    reply.send({ ok: true });
+    return { ok: true };
   } catch (e) {
     if (e.code === '23505') return reply.code(409).send({ error: 'exists' });
-    req.log.error({ err: e }, 'signup failed');
-    reply.code(500).send({ error: 'internal' });
+    req.log.error(e);
+    return reply.code(500).send({ error: 'internal' });
   }
 });
 
 app.post('/api/auth/login', async (req, reply) => {
   const { email, password } = req.body || {};
+  if (!email || !password) return reply.code(400).send({ error: 'bad_input' });
+
   const { rows } = await pool.query(
-    `SELECT id, "passwordHash" FROM "User" WHERE email=$1`,
+    `SELECT id, "passwordHash" FROM "User" WHERE email = $1`,
     [email]
   );
   const user = rows[0];
   if (!user) return reply.code(401).send({ error: 'bad_credentials' });
 
-  let ok = false;
+  // На случай «битых» старых хэшей — не валим 500, а отдаём 401
   try {
-    ok = await verify(user.passwordHash, password);
+    const ok = await verify(user.passwordHash, password);
+    if (!ok) return reply.code(401).send({ error: 'bad_credentials' });
   } catch (e) {
-    req.log.warn({ err: e, email }, 'password verify failed (legacy or broken hash)');
+    req.log.warn({ err: e }, 'verify failed (treat as bad credentials)');
     return reply.code(401).send({ error: 'bad_credentials' });
   }
-  if (!ok) return reply.code(401).send({ error: 'bad_credentials' });
 
   const token = jwt.sign({ sub: user.id }, JWT_SECRET, { expiresIn: '7d' });
-
-  // Ставим cookie, чтобы SSR видел авторизацию
-  // В проде включи secure: true (работает по HTTPS — у тебя как раз Caddy+TLS)
-  reply.setCookie('auth_token', token, {
-    path: '/',
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: true,      // оставь true — у тебя https-домен
-    maxAge: 60 * 60 * 24 * 7
-  });
-
-  reply.send({ token });
+  return { token };
 });
 
-// Логаут (чистим cookie)
-app.post('/api/auth/logout', async (req, reply) => {
-  reply.clearCookie('auth_token', { path: '/' });
-  reply.send({ ok: true });
-});
+// пример приватного роута
+app.get('/api/me', async (req) => ({ id: req.user.sub }));
 
-// Простой check endpoint для SSR
-app.get('/api/me', async (req, reply) => {
-  const cookie = req.cookies?.auth_token || '';
-  try {
-    const payload = jwt.verify(cookie, JWT_SECRET);
-    return { userId: payload.sub };
-  } catch {
-    return reply.code(401).send({ error: 'unauthorized' });
-  }
-});
-
-// ===== 404 для неизвестных маршрутов API =====
-app.setNotFoundHandler((req, reply) => {
-  if (req.url.startsWith('/api/')) {
-    return reply.code(404).send({ error: 'not_found' });
-  }
-  // Для не-API отдаём простой текст (фронт отдаёт Next / Caddy)
-  reply.code(404).type('text/plain').send('Not found');
-});
-
-// ===== Глобальный обработчик ошибок =====
-app.setErrorHandler((err, req, reply) => {
-  req.log.error({ err }, 'unhandled error');
-  reply.code(500).send({ error: 'internal' });
-});
-
-// ===== Запуск =====
-const start = async () => {
-  try {
-    await app.listen({ host: HOST, port: PORT });
-    app.log.info(`API listening on http://${HOST}:${PORT}`);
-  } catch (err) {
-    app.log.error(err);
-    process.exit(1);
-  }
-};
-start();
-
-// Корректное закрытие пула при остановке
-const shutdown = async () => {
-  app.log.info('Shutting down...');
-  try { await pool.end(); } catch {}
-  process.exit(0);
-};
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+app.listen({ host: HOST, port: PORT })
+  .then(() => app.log.info(`API listening on http://${HOST}:${PORT}`))
+  .catch(err => { app.log.error(err); process.exit(1); });

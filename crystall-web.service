@@ -1,0 +1,16 @@
+[Unit]
+Description=Crystall Budget Next.js Web
+After=network.target
+Wants=network-online.target
+
+[Service]
+WorkingDirectory=/data/crystall-budget/web
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
+Environment=NODE_ENV=production
+Restart=always
+RestartSec=2
+RuntimeMaxMemory=300M
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target
