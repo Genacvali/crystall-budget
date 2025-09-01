@@ -57,17 +57,17 @@ check_ports() {
     log "Проверка портов..."
     
     # Проверяем API (порт 4000)
-    if nc -z 127.0.0.1 4000 2>/dev/null; then
+    if command -v nc &> /dev/null && nc -z 127.0.0.1 4000 2>/dev/null; then
         success "API доступен на порту 4000"
     else
-        warning "API не отвечает на порту 4000"
+        warning "API не отвечает на порту 4000 (nc не найден или порт закрыт)"
     fi
     
     # Проверяем Web (порт 3000)  
-    if nc -z 127.0.0.1 3000 2>/dev/null; then
+    if command -v nc &> /dev/null && nc -z 127.0.0.1 3000 2>/dev/null; then
         success "Web доступен на порту 3000"
     else
-        warning "Web не отвечает на порту 3000"
+        warning "Web не отвечает на порту 3000 (nc не найден или порт закрыт)"
     fi
 }
 

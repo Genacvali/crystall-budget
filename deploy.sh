@@ -42,9 +42,20 @@ check_root() {
 check_ports() {
     log "Проверка занятых портов..."
     
-    if netstat -tuln | grep -q ":${API_PORT} "; then
+    # Используем ss вместо netstat (более современная утилита)
+    if command -v ss &> /dev/null; then
+        local netstat_cmd="ss -tuln"
+    elif command -v netstat &> /dev/null; then
+        local netstat_cmd="netstat -tuln"
+    else
+        warning "Утилиты ss/netstat не найдены, устанавливаем net-tools..."
+        dnf install -y net-tools
+        local netstat_cmd="netstat -tuln"
+    fi
+    
+    if ${netstat_cmd} | grep -q ":${API_PORT} "; then
         warning "Порт ${API_PORT} занят:"
-        netstat -tuln | grep ":${API_PORT} "
+        ${netstat_cmd} | grep ":${API_PORT} "
         read -p "Продолжить? (y/n): " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -54,9 +65,9 @@ check_ports() {
         success "Порт ${API_PORT} свободен"
     fi
     
-    if netstat -tuln | grep -q ":${WEB_PORT} "; then
+    if ${netstat_cmd} | grep -q ":${WEB_PORT} "; then
         warning "Порт ${WEB_PORT} занят:"
-        netstat -tuln | grep ":${WEB_PORT} "
+        ${netstat_cmd} | grep ":${WEB_PORT} "
         read -p "Продолжить? (y/n): " -n 1 -r
         echo
         if [[ ! $REPLY =~ ^[Yy]$ ]]; then
@@ -156,14 +167,31 @@ setup_user() {
 deploy_project() {
     log "Развертывание проекта..."
     
+    # Определяем источник файлов
+    local source_dir="$(pwd)"
+    
     # Копируем файлы
     if [[ -d "${PROJECT_DIR}" ]]; then
         log "Очистка старого проекта..."
         rm -rf "${PROJECT_DIR}"/*
     fi
     
-    cp -r ./* "${PROJECT_DIR}/" 2>/dev/null || true
+    log "Копирование файлов из ${source_dir}..."
+    cp -r "${source_dir}"/* "${PROJECT_DIR}/" 2>/dev/null || {
+        error "Не удалось скопировать файлы проекта"
+    }
+    
+    # Проверяем что скопировалось
+    if [[ ! -d "${PROJECT_DIR}/api" ]]; then
+        error "Директория API не найдена после копирования"
+    fi
+    
+    if [[ ! -d "${PROJECT_DIR}/web" ]]; then
+        error "Директория Web не найдена после копирования"
+    fi
+    
     chown -R "${DB_USER}:${DB_USER}" "${PROJECT_DIR}"
+    success "Файлы проекта скопированы"
     
     # Настройка API
     log "Установка зависимостей API..."

@@ -50,7 +50,7 @@ check_ports() {
     for port in 3000 4000 80 443; do
         printf "%-10s " "Порт ${port}:"
         
-        if nc -z 127.0.0.1 "${port}" 2>/dev/null; then
+        if command -v nc &> /dev/null && nc -z 127.0.0.1 "${port}" 2>/dev/null; then
             echo -e "${GREEN}✓ доступен${NC}"
             
             # Показываем какой процесс использует порт
