@@ -5,7 +5,8 @@
       "Bash(grep:*)",
       "Bash(cat:*)",
       "Bash(rm:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []
