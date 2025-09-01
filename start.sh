@@ -105,6 +105,7 @@ main() {
     if ! systemctl is-active --quiet postgresql; then
         log "Запуск PostgreSQL..."
         systemctl start postgresql
+        sleep 3
         success "PostgreSQL запущен"
     fi
     
