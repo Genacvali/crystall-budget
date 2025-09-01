@@ -170,28 +170,46 @@ deploy_project() {
     # Определяем источник файлов
     local source_dir="$(pwd)"
     
-    # Копируем файлы
-    if [[ -d "${PROJECT_DIR}" ]]; then
-        log "Очистка старого проекта..."
-        rm -rf "${PROJECT_DIR}"/*
+    # Если мы уже в PROJECT_DIR, проверяем наличие файлов
+    if [[ "${source_dir}" == "${PROJECT_DIR}" ]]; then
+        log "Запуск из целевой директории ${PROJECT_DIR}"
+        
+        # Проверяем что файлы уже есть
+        if [[ -d "api" && -d "web" ]]; then
+            success "Файлы проекта уже в нужном месте"
+        else
+            error "Файлы проекта не найдены в ${PROJECT_DIR}. Скопируйте проект сюда и запустите снова."
+        fi
+    else
+        # Копируем из другого места
+        log "Копирование файлов из ${source_dir}..."
+        
+        # Создаем целевую директорию
+        mkdir -p "${PROJECT_DIR}"
+        
+        # Копируем только нужные файлы
+        cp -r "${source_dir}/api" "${source_dir}/web" "${PROJECT_DIR}/" 2>/dev/null || {
+            error "Не удалось скопировать api/web директории"
+        }
+        
+        # Копируем конфиги и скрипты
+        cp "${source_dir}"/*.sh "${source_dir}"/*.service "${source_dir}"/Caddyfile "${source_dir}"/README.md "${source_dir}"/CLAUDE.md "${PROJECT_DIR}/" 2>/dev/null || {
+            warning "Некоторые файлы не скопированы (возможно, не все присутствуют)"
+        }
+        
+        success "Файлы проекта скопированы"
     fi
     
-    log "Копирование файлов из ${source_dir}..."
-    cp -r "${source_dir}"/* "${PROJECT_DIR}/" 2>/dev/null || {
-        error "Не удалось скопировать файлы проекта"
-    }
-    
-    # Проверяем что скопировалось
+    # Проверяем что необходимые директории есть
     if [[ ! -d "${PROJECT_DIR}/api" ]]; then
-        error "Директория API не найдена после копирования"
+        error "Директория API не найдена в ${PROJECT_DIR}"
     fi
     
     if [[ ! -d "${PROJECT_DIR}/web" ]]; then
-        error "Директория Web не найдена после копирования"
+        error "Директория Web не найдена в ${PROJECT_DIR}"
     fi
     
     chown -R "${DB_USER}:${DB_USER}" "${PROJECT_DIR}"
-    success "Файлы проекта скопированы"
     
     # Настройка API
     log "Установка зависимостей API..."
