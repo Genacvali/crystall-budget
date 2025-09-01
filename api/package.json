@@ -5,7 +5,8 @@
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "start": "NODE_ENV=production node server.js"
+    "start": "NODE_ENV=production node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "@fastify/cors": "^9.0.1",

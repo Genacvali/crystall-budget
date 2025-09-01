@@ -1,14 +1,17 @@
 [Unit]
 Description=Crystall API
-After=network.target
+After=network.target postgresql-16.service
 Wants=network-online.target
 
 [Service]
+Type=simple
+User=crystall
+Group=crystall
 WorkingDirectory=/data/crystall-budget/api
 ExecStart=/usr/bin/node server.js
 EnvironmentFile=/data/crystall-budget/api/.env
 Restart=always
-RestartSec=2
+RestartSec=5
 RuntimeMaxMemory=300M
 LimitNOFILE=65535
 

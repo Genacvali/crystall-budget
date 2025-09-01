@@ -2,36 +2,98 @@
 
 Минимальный budget management API + frontend для личного пользования.
 
-## Шаги
+## Развертывание на CentOS 9
 
-1) Установи Node LTS, PostgreSQL, Caddy.
-2) Создай каталог: /data/crystall-budget и скопируй проект.
-3) API:
-   ```bash
-   cd api && cp .env.example .env  # поправь DATABASE_URL, JWT_SECRET
-   npm i
-   # один раз создай таблицу User в psql (см. server.js комментарий).
-   sudo systemctl enable --now crystall-api
-   ```
-4) WEB:
-   ```bash
-   cd ../web
-   npm i
-   npm run build
-   sudo systemctl enable --now crystall-web
-   ```
-5) Caddy: /etc/caddy/Caddyfile (подставь домен/sslip.io), затем:
-   ```bash
-   sudo systemctl reload caddy
-   ```
+### 1. Установка зависимостей
+```bash
+# Node.js 20 LTS
+sudo dnf install -y nodejs npm
 
-## Создание таблицы User в PostgreSQL
+# PostgreSQL 16
+sudo dnf install -y postgresql-server postgresql-contrib
+sudo postgresql-setup --initdb
+sudo systemctl enable --now postgresql
 
+# Caddy
+sudo dnf install -y 'dnf-command(copr)'
+sudo dnf copr enable @caddy/caddy -y
+sudo dnf install -y caddy
+```
+
+### 2. Настройка PostgreSQL
+```bash
+sudo -u postgres psql
+```
 ```sql
-create extension if not exists pgcrypto;
-create table if not exists "User"(
-  id uuid primary key default gen_random_uuid(),
-  email text unique not null,
-  "passwordHash" text not null
-);
+CREATE USER crystall WITH ENCRYPTED PASSWORD 'adminDII';
+CREATE DATABASE crystall OWNER crystall;
+GRANT ALL PRIVILEGES ON DATABASE crystall TO crystall;
+\q
+```
+
+### 3. Создание пользователя системы
+```bash
+sudo useradd -r -m -s /bin/bash crystall
+sudo mkdir -p /data/crystall-budget
+sudo chown crystall:crystall /data/crystall-budget
+```
+
+### 4. Развертывание проекта
+```bash
+# Скопировать файлы проекта в /data/crystall-budget
+sudo cp -r . /data/crystall-budget/
+sudo chown -R crystall:crystall /data/crystall-budget
+
+# API
+sudo -u crystall bash
+cd /data/crystall-budget/api
+cp .env.example .env
+# Отредактировать .env с правильными данными БД
+npm install
+
+# Создать таблицу User
+psql "postgres://crystall:adminDII@127.0.0.1:5432/crystall" -c "
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE TABLE IF NOT EXISTS \"User\"(
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT UNIQUE NOT NULL,
+  \"passwordHash\" TEXT NOT NULL
+);"
+
+# WEB
+cd /data/crystall-budget/web
+npm install
+npm run build
+```
+
+### 5. Systemd сервисы
+```bash
+# Скопировать service файлы
+sudo cp /data/crystall-budget/crystall-api.service /etc/systemd/system/
+sudo cp /data/crystall-budget/crystall-web.service /etc/systemd/system/
+
+# Запустить сервисы
+sudo systemctl daemon-reload
+sudo systemctl enable --now crystall-api
+sudo systemctl enable --now crystall-web
+
+# Проверить статус
+sudo systemctl status crystall-api
+sudo systemctl status crystall-web
+```
+
+### 6. Настройка Caddy
+```bash
+# Отредактировать /etc/caddy/Caddyfile (заменить YOUR-IP на реальный IP)
+sudo cp /data/crystall-budget/Caddyfile /etc/caddy/
+sudo systemctl reload caddy
+```
+
+## Проверка работы
+```bash
+# API
+curl http://127.0.0.1:4000/api/health
+
+# Web через Caddy
+curl https://crystallbudget.YOUR-IP.sslip.io
 ```
