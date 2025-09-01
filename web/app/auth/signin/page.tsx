@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { api, setToken } from '@/lib/api';
+import { api, setToken } from '../../../lib/api';
 
 export default function SignIn() {
   const [email, setEmail] = useState('demo@crystall.local');

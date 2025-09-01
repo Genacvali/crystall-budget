@@ -4,6 +4,8 @@ export const metadata = {
 };
 export const viewport = { width: 'device-width', initialScale: 1, themeColor: '#3b82f6' };
 
+import './globals.css';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ru">
