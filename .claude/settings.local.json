@@ -12,7 +12,8 @@
       "WebSearch",
       "Bash(sqlite3:*)",
       "Bash(tree:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Read(///**)"
     ],
     "deny": [],
     "ask": []
