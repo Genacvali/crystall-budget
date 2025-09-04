@@ -1038,9 +1038,15 @@ DASHBOARD_HTML = """
     <div class="card">
       <div class="card-body">
         <h6 class="card-title mb-2">{{ s.source_name }}</h6>
-        <div class="d-flex justify-content-between"><span>Пришло</span><strong>{{ s.income|float|round(2) }}</strong></div>
-        <div class="d-flex justify-content-between"><span>Ушло</span><strong>{{ s.spent|float|round(2) }}</strong></div>
-        <div class="d-flex justify-content-between"><span>Остаток</span><strong>{{ s.rest|float|round(2) }}</strong></div>
+        <div class="d-flex justify-content-between">
+          <span>Пришло</span><strong>{{ s.income|format_amount }} ₽</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span>Ушло</span><strong>{{ s.spent|format_amount }} ₽</strong>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span>Остаток</span><strong>{{ s.rest|format_amount }} ₽</strong>
+        </div>
       </div>
     </div>
   </div>
@@ -1056,7 +1062,10 @@ DASHBOARD_HTML = """
       <div class="col-md-4">
         <div class="border rounded p-2">
           <div class="fw-semibold">{{ item.category_name }}</div>
-          <div class="small text-muted">Лимит: {{ item.limit|float|round(2) }} • Потрачено: {{ item.spent|float|round(2) }}</div>
+          <div class="small text-muted">
+            Лимит: {{ item.limit|format_amount }} ₽ •
+            Потрачено: {{ item.spent|format_amount }} ₽
+          </div>
         </div>
       </div>
       {% endfor %}
