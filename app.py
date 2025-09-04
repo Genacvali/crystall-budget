@@ -894,7 +894,7 @@ def edit_income(income_id):
             </div>
             <div class="mb-3">
               <label class="form-label">Сумма</label>
-              <input class="form-control" type="number" name="amount" step="0.01" min="0.01" value="{{ income.amount }}" required>
+              <input class="form-control" type="number" name="amount" step="0.01" min="0.01" value="{{ income.amount|format_amount }}" required>
             </div>
             <div class="mb-3">
               <label class="form-label">Источник</label>
