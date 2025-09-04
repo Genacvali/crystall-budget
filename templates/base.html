@@ -23,46 +23,25 @@
   <link href="{{ url_for('static', filename='css/clean-theme.css') }}" rel="stylesheet">
 
   <style>
-    /* Safe area for iOS */
     :root{
       --safe-area-inset-top: env(safe-area-inset-top, 0px);
       --safe-area-inset-right: env(safe-area-inset-right, 0px);
       --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
       --safe-area-inset-left: env(safe-area-inset-left, 0px);
     }
-    body{
-      padding-top:var(--safe-area-inset-top);
-      padding-bottom:var(--safe-area-inset-bottom);
-      padding-left:var(--safe-area-inset-left);
-      padding-right:var(--safe-area-inset-right);
-    }
-    .container-fluid{
-      padding-left:max(15px,var(--safe-area-inset-left));
-      padding-right:max(15px,var(--safe-area-inset-right));
-    }
+    body{ padding-top:var(--safe-area-inset-top); padding-bottom:var(--safe-area-inset-bottom); padding-left:var(--safe-area-inset-left); padding-right:var(--safe-area-inset-right); }
+    .container-fluid{ padding-left:max(15px,var(--safe-area-inset-left)); padding-right:max(15px,var(--safe-area-inset-right)); }
 
-    /* ---------- NAV FIXES: не налезать на логотип, красиво переноситься ---------- */
-    .navbar-modern .container-fluid{
-      display:flex;
-      align-items:center;
-      gap:.5rem;
-      flex-wrap:wrap;               /* разрешаем перенос на 2 строку */
-    }
-    .navbar-brand-modern{
-      margin-right:auto;            /* бренд уходит влево, остальное вправо */
-      white-space:nowrap;
-    }
+    /* NAV: не наезжать на логотип, перенос на 2 строку при узкой ширине */
+    .navbar-modern .container-fluid{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .navbar-brand-modern{ margin-right:auto; white-space:nowrap; }
     .navbar-modern .navbar-nav .nav-link-modern,
     .navbar-modern .btn,
     .navbar-modern .currency-selector{ white-space:nowrap; }
 
     @media (max-width: 992px){
       .navbar-modern .navbar-nav .nav-link-modern,
-      .navbar-modern .btn{
-        padding:.4rem .6rem;
-        font-size:.95rem;
-      }
-      /* компактнее валюта на узких экранах */
+      .navbar-modern .btn{ padding:.4rem .6rem; font-size:.95rem; }
       .currency-selector .currency-option{ padding:.25rem .5rem; min-width:2.25rem; }
     }
   </style>
@@ -105,7 +84,6 @@
 
         <ul class="navbar-nav">
           <li class="nav-item me-3">
-            <!-- Расширенный выбор валют -->
             <div class="currency-selector">
               <button class="currency-option active rub" onclick="setCurrency('RUB')" id="curr-rub">₽</button>
               <button class="currency-option usd" onclick="setCurrency('USD')" id="curr-usd">$</button>
@@ -126,11 +104,7 @@
               <i class="bi bi-person-circle"></i> {{ session.user_name }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end modern-card" style="border:none;">
-              <li>
-                <a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}">
-                  <i class="bi bi-box-arrow-right"></i> Выйти
-                </a>
-              </li>
+              <li><a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
             </ul>
           </li>
         </ul>
@@ -175,11 +149,28 @@
       updateCurrencyDisplays();
     }
 
+    // ВАЖНО: обновляем и .currency, и .currency-display
     function updateCurrencyDisplays(){
       const symbol = currencySymbols[currentCurrency] || '';
-      document.querySelectorAll('.currency-display').forEach(el=>{
-        const amount = el.textContent.replace(/[₽$€֏₾]/g,'').trim();
-        el.textContent = amount + ' ' + symbol;
+
+      document.querySelectorAll('.currency, .currency-display').forEach(el=>{
+        // Текст внутри (могут быть "25 000 ₽", "Остаток: 25 000 ₽", и т.п.)
+        let txt = el.textContent.trim();
+
+        // если уже есть какой-то символ валюты — заменим его
+        if (/[₽$€֏₾]/.test(txt)) {
+          txt = txt.replace(/[₽$€֏₾]/g, symbol);
+        } else {
+          // иначе просто добавим к числу (ищем последнюю числовую группу)
+          const m = txt.match(/(.+?)([-\d\s.,]+)\s*$/);
+          if (m) {
+            txt = `${m[1]}${m[2]} ${symbol}`.trim();
+          } else {
+            txt = `${txt} ${symbol}`.trim();
+          }
+        }
+
+        el.textContent = txt;
       });
     }
 
@@ -208,7 +199,7 @@
 
       // currency
       const savedCurrency = localStorage.getItem('currency') || 'RUB';
-      setCurrency(savedCurrency);
+      setCurrency(savedCurrency);      // включает updateCurrencyDisplays()
 
       // iOS Safari fix
       if(/iPad|iPhone|iPod/.test(navigator.userAgent)){
