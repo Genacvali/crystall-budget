@@ -1,71 +1,55 @@
 {% extends "base.html" %}
-{% block title %}📈 Доходы - CrystalBudget{% endblock %}
+{% block title %}Доходы — CrystalBudget{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <h2 class="text-gradient pulse-element d-flex align-items-center gap-3">
-            <i class="bi bi-graph-up-arrow"></i>
-            <span>Мои Доходы</span>
-        </h2>
-        <form method="POST" action="/income/add" class="mb-4">
-            <div class="card modern-card">
-                <div class="card-body">
-                    <h6 class="card-title text-gradient mb-3">
-                        <i class="bi bi-plus-circle"></i> Добавить доход
-                    </h6>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label for="month" class="form-label">
-                                <i class="bi bi-calendar"></i> Месяц
-                            </label>
-                            <input type="month" id="month" name="month" value="{{ current_month }}" 
-                                   class="form-modern" required>
-                        </div>
-                        <div class="col-md-4">
-                            <label for="amount" class="form-label">
-                                <i class="bi bi-currency-dollar"></i> Сумма
-                            </label>
-                            <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
-                                   inputmode="decimal" class="form-modern" required
-                                   placeholder="Сумма дохода">
-                        </div>
-                        <div class="col-md-2 col-sm-12 d-flex align-items-end">
-                            <label class="form-label d-none d-md-block">&nbsp;</label>
-                            <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0 magic-float">
-                                <i class="bi bi-check-lg me-1"></i> ✨ Пополнить
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="h4 m-0">Мои доходы</h2>
 </div>
 
-<!-- Mobile view -->
+<!-- Форма добавления дохода -->
+<form method="POST" action="/income/add" class="mb-3">
+    <div class="card card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="date" class="form-label">Дата</label>
+                <input type="date" id="date" name="date"
+                       value="{{ today }}" class="form-control" required>
+            </div>
+            <div class="col-md-4">
+                <label for="amount" class="form-label">Сумма</label>
+                <input type="number" id="amount" name="amount" step="0.01" min="0.01"
+                       inputmode="decimal" class="form-control" placeholder="Сумма дохода" required>
+            </div>
+            <div class="col-md-4 d-grid">
+                <label class="form-label d-none d-md-block">&nbsp;</label>
+                <button type="submit" class="btn btn-success">Добавить доход</button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<!-- Мобильный вид -->
 <div class="d-block d-md-none">
     {% for income in incomes %}
-    <div class="card mb-3 modern-card glow-effect">
+    <div class="card mb-2">
         <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-3">
+            <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
-                    <h6 class="card-title mb-1">{{ income.amount|format_amount }} ₽</h6>
+                    <h6 class="mb-1">{{ income.amount|format_amount }} ₽</h6>
                     <small class="text-muted">
-                        <i class="bi bi-calendar3"></i> {{ income.month }}
+                        <i class="bi bi-calendar3"></i> {{ income.date|format_date_with_day }}
                     </small>
                 </div>
             </div>
-            
-            <div class="d-flex gap-2">
-                <a href="{{ url_for('edit_income', month=income.month) }}" 
-                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center magic-float">
-                    <i class="bi bi-pencil me-2"></i> 🪄 Пересчитать
+            <div class="d-flex gap-2 mt-2">
+                <a href="{{ url_for('edit_income', income_id=income.id) }}"
+                   class="btn btn-outline-primary flex-fill">
+                    <i class="bi bi-pencil"></i> Изменить
                 </a>
-                <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="flex-fill">
-                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center" 
-                            onclick="return confirm('Вы уверены, что хотите списать золото?\n\nМесяц: {{ income.month }}\nЗолото: {{ income.amount|format_amount }} монет.')">
-                        <i class="bi bi-trash3 me-2"></i> ☠️ Списать
+                <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="flex-fill">
+                    <button type="submit" class="btn btn-outline-danger w-100"
+                            onclick="return confirm('Удалить доход?\nДата: {{ income.date|format_date_with_day }}\nСумма: {{ income.amount|format_amount }}₽')">
+                        <i class="bi bi-trash"></i> Удалить
                     </button>
                 </form>
             </div>
@@ -74,34 +58,32 @@
     {% endfor %}
 </div>
 
-<!-- Desktop table view -->
+<!-- Табличный вид для десктопа -->
 <div class="table-responsive d-none d-md-block">
-    <table class="table-modern">
-        <thead class="table-dark">
+    <table class="table table-striped align-middle">
+        <thead class="table-light">
             <tr>
-                <th><i class="bi bi-calendar"></i> 📅 Месяц</th>
-                <th><i class="bi bi-currency-exchange"></i> 💰 Золото</th>
-                <th><i class="bi bi-gear"></i> ⚙️ Магия</th>
+                <th>Дата</th>
+                <th class="text-end">Сумма</th>
+                <th class="text-end">Действия</th>
             </tr>
         </thead>
         <tbody>
             {% for income in incomes %}
             <tr>
-                <td>{{ income.month }}</td>
-                <td class="fw-bold">{{ income.amount|format_amount }} ₽</td>
-                <td>
-                    <div class="d-flex gap-2">
-                        <a href="{{ url_for('edit_income', month=income.month) }}" 
-                           class="btn btn-sm btn-outline-primary magic-float">
-                            <i class="bi bi-pencil me-1"></i> 🪄 Пересчитать
-                        </a>
-                        <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirm('Вы уверены, что хотите списать золото?\n\nМесяц: {{ income.month }}\nЗолото: {{ income.amount|format_amount }} монет.')">
-                                <i class="bi bi-trash3 me-1"></i> ☠️ Списать
-                            </button>
-                        </form>
-                    </div>
+                <td>{{ income.date|format_date_with_day }}</td>
+                <td class="text-end fw-bold">{{ income.amount|format_amount }} ₽</td>
+                <td class="text-end">
+                    <a href="{{ url_for('edit_income', income_id=income.id) }}"
+                       class="btn btn-sm btn-outline-primary me-1">
+                        <i class="bi bi-pencil"></i> Изменить
+                    </a>
+                    <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Удалить доход?\nДата: {{ income.date|format_date_with_day }}\nСумма: {{ income.amount|format_amount }}₽')">
+                            <i class="bi bi-trash"></i> Удалить
+                        </button>
+                    </form>
                 </td>
             </tr>
             {% endfor %}
@@ -111,13 +93,10 @@
 
 {% if not incomes %}
 <div class="text-center py-5">
-    <div class="card border-0 bg-transparent">
-        <div class="card-body">
-            <i class="bi bi-graph-up-arrow display-4 text-white-50 mb-3"></i>
-            <h5 class="text-white-50">💰 Пустая казна</h5>
-            <p class="text-white-50 mb-4">Пополните королевскую казну для начала магического планирования</p>
-        </div>
-    </div>
+    <p class="text-muted mb-3">Доходов пока нет</p>
+    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addIncomeForm">
+        <i class="bi bi-plus-lg me-1"></i> Добавить первый доход
+    </button>
 </div>
 {% endif %}
 {% endblock %}
@@ -125,23 +104,10 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-focus amount input after month selection
-    const monthInput = document.getElementById('month');
-    const amountInput = document.getElementById('amount');
-    
-    if (monthInput && amountInput) {
-        monthInput.addEventListener('change', function() {
-            if (this.value) {
-                setTimeout(() => amountInput.focus(), 100);
-            }
-        });
-    }
-    
-    // Set current month as default
-    if (monthInput && !monthInput.value) {
+    const dateInput = document.getElementById('date');
+    if (dateInput && !dateInput.value) {
         const now = new Date();
-        const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
-        monthInput.value = currentMonth;
+        dateInput.value = now.toISOString().slice(0, 10);
     }
 });
 </script>
