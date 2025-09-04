@@ -66,13 +66,25 @@ LAYOUT_TEMPLATE = '''
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>{% block title %}CrystalBudget{% endblock %}</title>
+    
+    <!-- iOS Specific Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CrystalBudget">
+    <meta name="format-detection" content="telephone=no">
+    
+    <!-- Theme Colors -->
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="msapplication-navbutton-color" content="#6c5ce7">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#6c5ce7">
+    
+    <!-- Favicon and Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9InVybCgjZ3JhZGllbnQpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzZjNWNlNyIvPgo8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <meta name="theme-color" content="#6c5ce7">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         :root {
             --primary-color: #6c5ce7;
@@ -81,14 +93,34 @@ LAYOUT_TEMPLATE = '''
             --danger-color: #e17055;
             --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
             --border-radius: 12px;
+            --safe-area-top: env(safe-area-inset-top);
+            --safe-area-bottom: env(safe-area-inset-bottom);
+            --safe-area-left: env(safe-area-inset-left);
+            --safe-area-right: env(safe-area-inset-right);
         }
         
-        * { -webkit-tap-highlight-color: transparent; }
+        * { 
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        input, textarea, select {
+            -webkit-user-select: text;
+            user-select: text;
+        }
         
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding-top: var(--safe-area-top);
+            padding-bottom: var(--safe-area-bottom);
+            padding-left: var(--safe-area-left);
+            padding-right: var(--safe-area-right);
+            overflow-x: hidden;
         }
         
         .main-content {
@@ -210,8 +242,20 @@ LAYOUT_TEMPLATE = '''
         .balance-warning { color: var(--warning-color); font-weight: 600; }
         
         .navbar {
-            background: transparent !important;
-            padding: 1rem 0;
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 0.75rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .navbar-nav {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 0.25rem 0.5rem;
         }
         
         .navbar-brand {
@@ -257,18 +301,134 @@ LAYOUT_TEMPLATE = '''
             font-weight: 500;
         }
         
+        /* iOS Safari specific fixes */
+        @supports (-webkit-appearance: none) {
+            body {
+                min-height: -webkit-fill-available;
+            }
+        }
+        
+        /* Mobile optimizations */
         @media (max-width: 768px) {
-            .main-content { margin-top: 0; border-radius: 0; }
-            .container { padding-left: 1rem; padding-right: 1rem; }
+            .main-content { 
+                margin-top: 0; 
+                border-radius: 0;
+                min-height: calc(100vh - 80px);
+                min-height: calc(100dvh - 80px); /* Dynamic viewport height */
+            }
+            
+            .container { 
+                padding-left: max(1rem, var(--safe-area-left));
+                padding-right: max(1rem, var(--safe-area-right));
+            }
+            
             .kpi-value { font-size: 1.5rem; }
-            .quick-expense { padding: 1rem; }
+            .quick-expense { 
+                padding: 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            /* Better touch targets */
+            .btn {
+                min-height: 48px;
+                min-width: 48px;
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+            
+            input, select, textarea {
+                min-height: 48px;
+                font-size: 16px; /* Prevents zoom on iOS */
+                border-radius: 12px;
+            }
+            
+            /* Sticky bottom for forms */
+            .mobile-sticky-bottom {
+                position: sticky;
+                bottom: max(1rem, var(--safe-area-bottom));
+                background: white;
+                padding: 1rem;
+                border-radius: 12px 12px 0 0;
+                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+                margin-top: 1rem;
+            }
+            
+            /* Improved card layout */
+            .expense-card {
+                border-left: 4px solid var(--primary-color);
+                margin-bottom: 0.75rem;
+                transition: transform 0.2s ease;
+            }
+            
+            .expense-card:active {
+                transform: scale(0.98);
+            }
+            
+            /* Better navigation */
+            .navbar-nav {
+                width: auto;
+                margin: 0 auto;
+            }
+            
+            .nav-link {
+                padding: 0.5rem 1rem !important;
+                border-radius: 12px;
+                margin: 0 0.25rem;
+                transition: all 0.2s ease;
+            }
+            
+            .nav-link:active {
+                background: rgba(255, 255, 255, 0.2) !important;
+            }
+        }
+        
+        /* iPhone specific optimizations */
+        @media (max-width: 430px) {
+            .row.g-3 > * {
+                margin-bottom: 0.75rem;
+            }
+            
+            .quick-expense .row {
+                flex-direction: column;
+            }
+            
+            .quick-expense .col-12 {
+                width: 100%;
+                margin-bottom: 0.5rem;
+            }
+            
+            .table-responsive {
+                display: none; /* Hide table on very small screens */
+            }
+            
+            .mobile-card-view {
+                display: block;
+            }
+        }
+        
+        /* Landscape iPhone */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .kpi-card {
+                padding: 1rem;
+            }
+            
+            .kpi-value {
+                font-size: 1.25rem;
+            }
+            
+            .main-content {
+                padding-top: 0.5rem;
+            }
         }
     </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="bi bi-gem"></i> CrystalBudget</a>
+            <a class="navbar-brand" href="/" style="font-weight: 700; font-size: 1.25rem;">
+                <i class="bi bi-gem" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>
+                <span class="d-none d-sm-inline">CrystalBudget</span>
+                <span class="d-sm-none">💎</span>
+            </a>
             {% if session.user_id %}
             <div class="navbar-nav ms-auto">
                 <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="bi bi-house"></i> <span class="d-none d-md-inline">Главная</span></a>
@@ -309,6 +469,156 @@ LAYOUT_TEMPLATE = '''
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // iOS Safari optimizations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Fix iOS viewport height issues
+            function setVH() {
+                let vh = window.innerHeight * 0.01;
+                document.documentElement.style.setProperty('--vh', `${vh}px`);
+            }
+            
+            setVH();
+            window.addEventListener('resize', setVH);
+            window.addEventListener('orientationchange', function() {
+                setTimeout(setVH, 100);
+            });
+            
+            // Prevent zoom on input focus (iOS)
+            const inputs = document.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.style.fontSize = '16px';
+                });
+                
+                input.addEventListener('blur', function() {
+                    this.style.fontSize = '';
+                });
+            });
+            
+            // Touch feedback for cards
+            const cards = document.querySelectorAll('.expense-card');
+            cards.forEach(card => {
+                let touchStartY = 0;
+                
+                card.addEventListener('touchstart', function(e) {
+                    touchStartY = e.touches[0].clientY;
+                    this.style.transform = 'scale(0.98)';
+                    this.style.transition = 'transform 0.1s ease';
+                });
+                
+                card.addEventListener('touchend', function() {
+                    this.style.transform = '';
+                });
+                
+                card.addEventListener('touchcancel', function() {
+                    this.style.transform = '';
+                });
+            });
+            
+            // Auto-submit form optimization
+            const quickForm = document.getElementById('quickExpenseForm');
+            if (quickForm) {
+                const submitBtn = quickForm.querySelector('button[type="submit"]');
+                
+                quickForm.addEventListener('submit', function(e) {
+                    submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Добавляю...';
+                    submitBtn.disabled = true;
+                });
+            }
+            
+            // Smart number input for amounts
+            const amountInputs = document.querySelectorAll('input[type="number"][inputmode="decimal"]');
+            amountInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    // Remove non-numeric characters except dots and commas
+                    let value = this.value.replace(/[^0-9.,]/g, '');
+                    
+                    // Replace comma with dot
+                    value = value.replace(',', '.');
+                    
+                    // Ensure only one decimal point
+                    const parts = value.split('.');
+                    if (parts.length > 2) {
+                        value = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    
+                    // Limit to 2 decimal places
+                    if (parts[1] && parts[1].length > 2) {
+                        value = parts[0] + '.' + parts[1].substring(0, 2);
+                    }
+                    
+                    this.value = value;
+                });
+                
+                // Add currency formatting on blur
+                input.addEventListener('blur', function() {
+                    if (this.value) {
+                        const num = parseFloat(this.value);
+                        if (!isNaN(num)) {
+                            this.value = num.toFixed(2);
+                        }
+                    }
+                });
+            });
+            
+            // Haptic feedback simulation
+            function vibrateIfSupported(duration = 10) {
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(duration);
+                }
+            }
+            
+            // Add haptic feedback to buttons
+            document.querySelectorAll('.btn').forEach(btn => {
+                btn.addEventListener('touchstart', () => vibrateIfSupported(10));
+            });
+            
+            // Quick category selection
+            const categorySelect = document.querySelector('select[name="category_id"]');
+            if (categorySelect) {
+                // Add quick access buttons for frequent categories
+                const frequentCategories = ['Продукты', 'Транспорт', 'Развлечения'];
+                const quickCategoryDiv = document.createElement('div');
+                quickCategoryDiv.className = 'd-flex gap-2 mb-3 d-md-none';
+                
+                frequentCategories.forEach(catName => {
+                    const option = Array.from(categorySelect.options).find(opt => opt.text === catName);
+                    if (option) {
+                        const btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.className = 'btn btn-outline-primary btn-sm flex-fill';
+                        btn.textContent = catName;
+                        btn.style.fontSize = '0.8rem';
+                        
+                        btn.addEventListener('click', () => {
+                            categorySelect.value = option.value;
+                            vibrateIfSupported(5);
+                            
+                            // Visual feedback
+                            btn.classList.add('btn-primary');
+                            btn.classList.remove('btn-outline-primary');
+                            
+                            // Reset other buttons
+                            quickCategoryDiv.querySelectorAll('.btn').forEach(b => {
+                                if (b !== btn) {
+                                    b.classList.add('btn-outline-primary');
+                                    b.classList.remove('btn-primary');
+                                }
+                            });
+                        });
+                        
+                        quickCategoryDiv.appendChild(btn);
+                    }
+                });
+                
+                if (quickCategoryDiv.children.length > 0) {
+                    categorySelect.parentNode.insertBefore(quickCategoryDiv, categorySelect);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
 '''
@@ -355,15 +665,16 @@ DASHBOARD_TEMPLATE = '''
 
 <div class="quick-expense">
     <h5><i class="bi bi-plus-circle"></i> Быстрая трата</h5>
-    <form method="POST" action="/quick-expense">
+    <form method="POST" action="/quick-expense" id="quickExpenseForm">
         <div class="row g-3">
             <div class="col-12 col-md-3">
                 <label class="form-label text-muted"><i class="bi bi-calendar"></i> Дата</label>
-                <input type="date" name="date" value="{{ today }}" class="form-control" required>
+                <input type="date" name="date" value="{{ today }}" class="form-control" required 
+                       data-touch="true">
             </div>
             <div class="col-12 col-md-3">
                 <label class="form-label text-muted"><i class="bi bi-tag"></i> Категория</label>
-                <select name="category_id" class="form-select" required>
+                <select name="category_id" class="form-select" required data-touch="true">
                     <option value="">Выберите категорию</option>
                     {% for cat in categories %}
                     <option value="{{ cat.id }}">{{ cat.name }}</option>
@@ -373,61 +684,72 @@ DASHBOARD_TEMPLATE = '''
             <div class="col-12 col-md-2">
                 <label class="form-label text-muted"><i class="bi bi-currency-exchange"></i> Сумма</label>
                 <input type="number" name="amount" placeholder="0" step="0.01" min="0.01" 
-                       inputmode="decimal" class="form-control" required>
+                       inputmode="decimal" pattern="[0-9]*" class="form-control" required 
+                       data-touch="true" autocomplete="off">
             </div>
             <div class="col-12 col-md-2">
                 <label class="form-label text-muted"><i class="bi bi-chat"></i> Комментарий</label>
-                <input type="text" name="note" placeholder="Описание" class="form-control">
+                <input type="text" name="note" placeholder="Описание" class="form-control" 
+                       data-touch="true" autocomplete="off">
             </div>
             <div class="col-12 col-md-2">
-                <label class="form-label" style="opacity: 0;">&nbsp;</label>
-                <button type="submit" class="btn btn-success w-100">
-                    <i class="bi bi-plus-lg"></i> Добавить
+                <label class="form-label d-none d-md-block" style="opacity: 0;">&nbsp;</label>
+                <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center" 
+                        style="height: 48px;">
+                    <i class="bi bi-plus-lg me-2"></i> Добавить
                 </button>
             </div>
         </div>
     </form>
 </div>
 
-<div class="d-block d-md-none">
+<div class="d-block d-md-none mobile-card-view">
     <!-- Mobile card view -->
     {% for item in budget_data %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="card-title mb-0 fw-bold">{{ item.category_name }}</h6>
-                <span class="category-badge">{{ item.category_name[:3] }}</span>
-            </div>
-            <div class="row text-center">
-                <div class="col-3">
-                    <small class="text-muted d-block">Прошлое</small>
-                    <span class="fw-bold {% if item.carryover > 0 %}balance-positive{% elif item.carryover < 0 %}balance-negative{% endif %}">
-                        {{ item.carryover|format_amount }}
-                    </span>
-                </div>
-                <div class="col-3">
-                    <small class="text-muted d-block">Лимит</small>
-                    <span class="fw-bold">{{ item.limit|format_amount }}</span>
-                </div>
-                <div class="col-3">
-                    <small class="text-muted d-block">Траты</small>
-                    <span class="fw-bold">{{ item.spent|format_amount }}</span>
-                </div>
-                <div class="col-3">
-                    <small class="text-muted d-block">Остаток</small>
-                    <span class="fw-bold {% if item.balance > item.limit * 0.2 %}balance-positive{% elif item.balance > 0 %}balance-warning{% else %}balance-negative{% endif %}">
-                        {{ item.balance|format_amount }}
-                    </span>
+    <div class="card mb-3 expense-card" data-category="{{ item.category_name }}">
+        <div class="card-body" style="padding: 1rem;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="card-title mb-0 fw-bold" style="font-size: 1.1rem;">{{ item.category_name }}</h6>
+                <div class="d-flex align-items-center">
+                    {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
+                    <small class="text-muted me-2">{{ progress_percent }}%</small>
+                    <div class="progress" style="height: 4px; width: 40px;">
+                        <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
+                             style="width: {{ [progress_percent, 100] | min }}%"></div>
+                    </div>
                 </div>
             </div>
-            <!-- Progress bar -->
-            <div class="mt-3">
-                {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
-                <div class="progress" style="height: 6px;">
-                    <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
-                         style="width: {{ [progress_percent, 100] | min }}%"></div>
+            
+            <div class="row text-center g-2">
+                <div class="col-6">
+                    <div class="border rounded p-2" style="background: #f8f9fa;">
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">🎯 Лимит</small>
+                        <span class="fw-bold d-block" style="font-size: 1rem; color: #6c5ce7;">{{ item.limit|format_amount }}</span>
+                    </div>
                 </div>
-                <small class="text-muted">{{ progress_percent }}% использовано</small>
+                <div class="col-6">
+                    <div class="border rounded p-2" style="background: #f8f9fa;">
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">💳 Траты</small>
+                        <span class="fw-bold d-block" style="font-size: 1rem;">{{ item.spent|format_amount }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row text-center g-2 mt-2">
+                <div class="col-6">
+                    <div class="border rounded p-2" style="background: #f8f9fa;">
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">⬅️ Прошлое</small>
+                        <span class="fw-bold d-block {% if item.carryover > 0 %}balance-positive{% elif item.carryover < 0 %}balance-negative{% endif %}" style="font-size: 0.9rem;">
+                            {{ item.carryover|format_amount }}
+                        </span>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="border rounded p-2" style="background: {{ 'linear-gradient(135deg, #00b894 0%, #00a085 100%)' if item.balance > item.limit * 0.2 else ('linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)' if item.balance > 0 else 'linear-gradient(135deg, #e17055 0%, #d63031 100%)') }}; color: white;">
+                        <small class="d-block" style="font-size: 0.75rem; opacity: 0.9;">💰 Остаток</small>
+                        <span class="fw-bold d-block" style="font-size: 1.1rem;">{{ item.balance|format_amount }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -521,7 +843,43 @@ EXPENSES_TEMPLATE = '''
     </div>
 </div>
 
-<div class="table-responsive">
+<!-- Mobile view -->
+<div class="d-block d-md-none">
+    {% for expense in expenses %}
+    <div class="card mb-3 expense-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <h6 class="card-title mb-1">{{ expense.amount|format_amount }} ₽</h6>
+                    <small class="text-muted">
+                        <i class="bi bi-calendar3"></i> {{ expense.date|format_date_with_day }}
+                    </small>
+                </div>
+                <span class="badge bg-primary">{{ expense.category_name }}</span>
+            </div>
+            
+            {% if expense.note %}
+            <p class="card-text text-muted mb-2" style="font-size: 0.9rem;">
+                <i class="bi bi-chat-text"></i> {{ expense.note }}
+            </p>
+            {% endif %}
+            
+            <div class="d-flex justify-content-end">
+                <form method="POST" action="/expenses/delete/{{ expense.id }}" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center" 
+                            onclick="return confirm('Удалить трату?')" 
+                            style="font-size: 0.8rem;">
+                        <i class="bi bi-trash3 me-1"></i> Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Desktop table view -->
+<div class="table-responsive d-none d-md-block">
     <table class="table table-striped">
         <thead>
             <tr>
