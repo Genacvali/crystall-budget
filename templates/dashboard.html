@@ -43,12 +43,18 @@
                         <label class="form-label">
                             <i class="bi bi-tags-fill"></i> Категория
                         </label>
-                        <select name="category_id" class="form-modern" required>
-                            <option value="">Выберите категорию...</option>
-                            {% for cat in categories %}
-                            <option value="{{ cat.id }}">{{ cat.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="d-flex gap-2">
+                            <select name="category_id" class="form-modern" required style="flex: 1;">
+                                <option value="">Выберите категорию...</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="button" class="btn-modern btn-modern-outline" style="padding: 12px;" 
+                                    data-bs-toggle="modal" data-bs-target="#quickCategoryModal">
+                                <i class="bi bi-plus"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="col-12 col-md-2">
                         <label class="form-label">
@@ -109,13 +115,13 @@
                 <div class="col-6">
                     <div class="p-2 rounded" style="background: var(--bg-secondary);">
                         <small class="text-muted d-block">💰 Лимит</small>
-                        <strong class="text-primary">{{ item.limit|format_amount }} ₽</strong>
+                        <strong class="text-primary currency-display">{{ item.limit|format_amount }} ₽</strong>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="p-2 rounded" style="background: var(--bg-secondary);">
                         <small class="text-muted d-block">💸 Потрачено</small>
-                        <strong class="{% if item.spent > item.limit %}text-danger{% else %}text-success{% endif %}">
+                        <strong class="{% if item.spent > item.limit %}text-danger{% else %}text-success{% endif %} currency-display">
                             {{ item.spent|format_amount }} ₽
                         </strong>
                     </div>
@@ -125,7 +131,7 @@
             <!-- Remaining Amount -->
             <div class="mt-3 text-center">
                 <small class="text-muted">Остаток:</small>
-                <div class="fs-5 fw-bold {% if (item.limit - item.spent) < 0 %}text-danger{% else %}text-success{% endif %}">
+                <div class="fs-5 fw-bold {% if (item.limit - item.spent) < 0 %}text-danger{% else %}text-success{% endif %} currency-display">
                     {{ (item.limit - item.spent)|format_amount }} ₽
                 </div>
             </div>
@@ -165,9 +171,9 @@
                         {% for item in budget_data %}
                         <tr>
                             <td class="fw-bold">{{ item.category_name }}</td>
-                            <td>{{ item.limit|format_amount }} ₽</td>
-                            <td>{{ item.spent|format_amount }} ₽</td>
-                            <td class="{% if (item.limit - item.spent) < 0 %}text-danger{% else %}text-success{% endif %}">
+                            <td class="currency-display">{{ item.limit|format_amount }} ₽</td>
+                            <td class="currency-display">{{ item.spent|format_amount }} ₽</td>
+                            <td class="{% if (item.limit - item.spent) < 0 %}text-danger{% else %}text-success{% endif %} currency-display">
                                 {{ (item.limit - item.spent)|format_amount }} ₽
                             </td>
                             <td>
@@ -218,6 +224,56 @@
     </div>
 </div>
 {% endif %}
+
+<!-- Quick Category Creation Modal -->
+<div class="modal fade" id="quickCategoryModal" tabindex="-1" aria-labelledby="quickCategoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content modern-card" style="border: none;">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-gradient" id="quickCategoryModalLabel">
+                    <i class="bi bi-plus-circle"></i> Быстрое создание категории
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quickCategoryForm" method="POST" action="/categories/add">
+                    <div class="mb-3">
+                        <label for="quickCatName" class="form-label">
+                            <i class="bi bi-tag"></i> Название категории
+                        </label>
+                        <input type="text" id="quickCatName" name="name" class="form-modern" 
+                               placeholder="Например: Продукты, Транспорт" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quickLimitType" class="form-label">
+                            <i class="bi bi-gear"></i> Тип лимита
+                        </label>
+                        <select id="quickLimitType" name="limit_type" class="form-modern" required>
+                            <option value="fixed">Фиксированная сумма</option>
+                            <option value="percent">Процент от дохода</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quickValue" class="form-label">
+                            <i class="bi bi-calculator"></i> Значение
+                        </label>
+                        <input type="number" id="quickValue" name="value" step="0.01" min="0.01" 
+                               inputmode="decimal" class="form-modern" required
+                               placeholder="Сумма или процент">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn-modern btn-modern-outline" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Отмена
+                </button>
+                <button type="submit" form="quickCategoryForm" class="btn-modern btn-modern-success">
+                    <i class="bi bi-check-lg"></i> Создать категорию
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -279,6 +335,60 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = 'translateY(0)';
         });
     });
+    
+    // Quick category form handlers
+    const quickCategoryForm = document.getElementById('quickCategoryForm');
+    const quickLimitType = document.getElementById('quickLimitType');
+    const quickValue = document.getElementById('quickValue');
+    
+    if (quickLimitType && quickValue) {
+        quickLimitType.addEventListener('change', function() {
+            if (this.value === 'percent') {
+                quickValue.placeholder = 'Процент (например, 30)';
+                quickValue.max = '100';
+            } else {
+                quickValue.placeholder = 'Сумма (например, 5000)';
+                quickValue.removeAttribute('max');
+            }
+        });
+    }
+    
+    if (quickCategoryForm) {
+        quickCategoryForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Создаём...';
+            submitBtn.disabled = true;
+            
+            // Submit form
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this)
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Close modal and reload page
+                    bootstrap.Modal.getInstance(document.getElementById('quickCategoryModal')).hide();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 300);
+                } else {
+                    alert('Ошибка при создании категории. Попробуйте снова.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка. Попробуйте снова.');
+            })
+            .finally(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    }
 });
 </script>
 {% endblock %}
