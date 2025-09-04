@@ -590,7 +590,7 @@ def sources_delete(source_id):
     uid = session["user_id"]
     conn = get_db()
     
-    # Проверим, есть ли связанные записи
+    # Подсчитаем связанные записи для информации
     income_count = conn.execute(
         "SELECT COUNT(*) FROM income_daily WHERE user_id=? AND source_id=?",
         (uid, source_id)
@@ -601,16 +601,45 @@ def sources_delete(source_id):
         (uid, source_id)
     ).fetchone()[0]
     
-    if income_count > 0 or rule_count > 0:
+    # Получим название источника для сообщения
+    source_name = conn.execute(
+        "SELECT name FROM income_sources WHERE id=? AND user_id=?",
+        (source_id, uid)
+    ).fetchone()
+    
+    if not source_name:
         conn.close()
-        flash(f"Нельзя удалить источник: с ним связано {income_count} записей доходов и {rule_count} привязок к категориям. Сначала удалите связанные записи.", "error")
+        flash("Источник не найден", "error")
         return redirect(url_for("sources_page"))
+    
+    source_name = source_name[0]
+    
+    # Удаляем привязки к категориям (делаем их неназначенными)
+    if rule_count > 0:
+        conn.execute(
+            "DELETE FROM source_category_rules WHERE user_id=? AND source_id=?",
+            (uid, source_id)
+        )
+    
+    # Обнуляем source_id в доходах (делаем их неназначенными)
+    if income_count > 0:
+        conn.execute(
+            "UPDATE income_daily SET source_id=NULL WHERE user_id=? AND source_id=?",
+            (uid, source_id)
+        )
     
     # Удаляем источник
     conn.execute("DELETE FROM income_sources WHERE id=? AND user_id=?", (source_id, uid))
     conn.commit()
     conn.close()
-    flash("Источник удалён", "success")
+    
+    msg_parts = [f"Источник «{source_name}» удалён"]
+    if income_count > 0:
+        msg_parts.append(f"{income_count} записей доходов стали неназначенными")
+    if rule_count > 0:
+        msg_parts.append(f"{rule_count} категорий отвязаны от источника")
+    
+    flash(". ".join(msg_parts), "success")
     return redirect(url_for("sources_page"))
 
 
@@ -764,6 +793,7 @@ def categories_update(cat_id):
     name = (request.form.get("name") or "").strip()
     limit_type = request.form.get("limit_type")
     value = request.form.get("value")
+    source_id = request.form.get("source_id")
 
     if not name or not limit_type or not value:
         flash("Пожалуйста, заполните все поля", "error")
@@ -778,6 +808,8 @@ def categories_update(cat_id):
         return redirect(url_for("categories"))
 
     conn = get_db()
+    
+    # Обновляем категорию
     conn.execute(
         """
         UPDATE categories
@@ -786,6 +818,39 @@ def categories_update(cat_id):
         """,
         (name, limit_type, val, cat_id, uid),
     )
+    
+    # Обновляем привязку к источнику
+    existing_rule = conn.execute(
+        "SELECT id FROM source_category_rules WHERE user_id=? AND category_id=?",
+        (uid, cat_id)
+    ).fetchone()
+    
+    if source_id:
+        # Проверяем, что источник принадлежит пользователю
+        valid_source = conn.execute(
+            "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
+            (source_id, uid)
+        ).fetchone()
+        
+        if valid_source:
+            if existing_rule:
+                conn.execute(
+                    "UPDATE source_category_rules SET source_id=? WHERE id=?",
+                    (source_id, existing_rule["id"])
+                )
+            else:
+                conn.execute(
+                    "INSERT INTO source_category_rules(user_id, source_id, category_id) VALUES (?,?,?)",
+                    (uid, source_id, cat_id)
+                )
+    else:
+        # Удаляем привязку, если источник не выбран
+        if existing_rule:
+            conn.execute(
+                "DELETE FROM source_category_rules WHERE id=?",
+                (existing_rule["id"],)
+            )
+    
     conn.commit()
     conn.close()
     flash("Категория обновлена", "success")

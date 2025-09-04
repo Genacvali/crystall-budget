@@ -48,17 +48,25 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
       <i class="bi bi-speedometer2"></i> Финансовый дашборд
     </h1>
   </div>
-  <!-- Переключатель месяца: кнопка реально открывает пикер -->
+  <!-- Переключатель месяца и дата -->
   <div class="col-auto">
-    <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
-      <div class="input-group input-group-sm" style="max-width:190px;">
-        <button class="input-group-text" type="button" id="month-btn" aria-label="Выбрать месяц">
-          <i class="bi bi-calendar3"></i>
-        </button>
-        <input type="month" id="month-input" name="month" value="{{ current_month }}" class="form-control">
+    <div class="d-flex align-items-center gap-3">
+      <!-- Текущая дата и день недели -->
+      <div class="text-center">
+        <div class="fw-bold text-primary" id="current-date-display"></div>
+        <small class="text-muted" id="current-day-display"></small>
       </div>
-      <button type="submit" class="btn btn-outline-primary btn-sm">Показать</button>
-    </form>
+      
+      <!-- Выбор месяца -->
+      <form method="get" class="d-flex align-items-center gap-2">
+        <div class="input-group input-group-sm" style="min-width:180px;">
+          <button class="input-group-text" type="button" id="month-btn" aria-label="Выбрать месяц">
+            <i class="bi bi-calendar3"></i>
+          </button>
+          <input type="month" id="month-input" name="month" value="{{ current_month }}" class="form-control" onchange="this.form.submit()">
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -188,15 +196,36 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  // --- Отображение текущей даты и дня недели ---
+  const dateDisplay = document.getElementById('current-date-display');
+  const dayDisplay = document.getElementById('current-day-display');
+  if (dateDisplay && dayDisplay) {
+    const now = new Date();
+    const options = { day: 'numeric', month: 'long' };
+    const dateStr = now.toLocaleDateString('ru-RU', options);
+    const dayStr = now.toLocaleDateString('ru-RU', { weekday: 'long' });
+    
+    dateDisplay.textContent = dateStr;
+    dayDisplay.textContent = dayStr;
+  }
+
   // --- Рабочая кнопка-иконка для month-пикера ---
   const mBtn = document.getElementById('month-btn');
   const mInp = document.getElementById('month-input');
   if (mBtn && mInp) {
-    mBtn.addEventListener('click', () => {
+    mBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       try {
-        if (typeof mInp.showPicker === 'function') mInp.showPicker();
-        else mInp.focus();
-      } catch { mInp.focus(); }
+        if (mInp.showPicker && typeof mInp.showPicker === 'function') {
+          mInp.showPicker();
+        } else {
+          mInp.focus();
+          mInp.click();
+        }
+      } catch (err) {
+        mInp.focus();
+        mInp.click();
+      }
     });
   }
 
