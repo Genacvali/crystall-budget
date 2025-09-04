@@ -815,8 +815,52 @@ def get_db():
     return conn
 
 
-def init_db():
+def check_and_migrate_db():
+    """Check database schema and migrate if needed"""
     conn = get_db()
+    
+    try:
+        # Check if users table exists
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='users'")
+        users_exists = cursor.fetchone() is not None
+        
+        if not users_exists:
+            print("[MIGRATE] Creating new database with user authentication...")
+            init_fresh_db(conn)
+        else:
+            # Check if old tables need migration
+            cursor = conn.execute("PRAGMA table_info(categories)")
+            columns = [col[1] for col in cursor.fetchall()]
+            
+            if 'user_id' not in columns:
+                print("[MIGRATE] Migrating existing database to multi-user schema...")
+                migrate_existing_db(conn)
+            else:
+                print("[INFO] Database schema is up to date")
+                
+    except Exception as e:
+        print(f"[ERROR] Database migration failed: {e}")
+        # If migration fails, backup and recreate
+        import shutil
+        import time
+        backup_name = f"budget_backup_{int(time.time())}.db"
+        try:
+            shutil.copy(DB_PATH, backup_name)
+            print(f"[BACKUP] Old database backed up to {backup_name}")
+        except:
+            pass
+        
+        conn.close()
+        os.remove(DB_PATH)
+        conn = get_db()
+        init_fresh_db(conn)
+        print("[MIGRATE] Created fresh database (old data backed up)")
+    
+    conn.commit()
+    conn.close()
+
+def init_fresh_db(conn):
+    """Initialize fresh database with user authentication"""
     
     # Create users table
     conn.execute('''
@@ -863,6 +907,99 @@ def init_db():
             note TEXT
         )
     ''')
+
+def migrate_existing_db(conn):
+    """Migrate existing single-user database to multi-user"""
+    
+    # Create users table
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            name TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Create a default user for existing data
+    default_password = generate_password_hash('admin123')
+    
+    cursor = conn.execute('''
+        INSERT INTO users (email, password_hash, name) 
+        VALUES ('admin@crystalbudget.local', ?, 'Admin User')
+    ''', (default_password,))
+    
+    default_user_id = cursor.lastrowid
+    print(f"[MIGRATE] Created default user: admin@crystalbudget.local / admin123 (ID: {default_user_id})")
+    
+    # Rename old tables
+    conn.execute('ALTER TABLE categories RENAME TO categories_old')
+    conn.execute('ALTER TABLE income RENAME TO income_old')
+    conn.execute('ALTER TABLE expenses RENAME TO expenses_old')
+    
+    # Create new tables with user_id
+    conn.execute('''
+        CREATE TABLE categories (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            name TEXT NOT NULL,
+            limit_type TEXT NOT NULL CHECK (limit_type IN ('fixed','percent')),
+            value REAL NOT NULL,
+            UNIQUE(user_id, name)
+        )
+    ''')
+    
+    conn.execute('''
+        CREATE TABLE income (
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            month TEXT NOT NULL,
+            amount REAL NOT NULL,
+            PRIMARY KEY (user_id, month)
+        )
+    ''')
+    
+    conn.execute('''
+        CREATE TABLE expenses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            date TEXT NOT NULL,
+            month TEXT NOT NULL,
+            category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+            amount REAL NOT NULL,
+            note TEXT
+        )
+    ''')
+    
+    # Migrate data
+    # Migrate categories
+    conn.execute('''
+        INSERT INTO categories (id, user_id, name, limit_type, value)
+        SELECT id, ?, name, limit_type, value FROM categories_old
+    ''', (default_user_id,))
+    
+    # Migrate income
+    conn.execute('''
+        INSERT INTO income (user_id, month, amount)
+        SELECT ?, month, amount FROM income_old
+    ''', (default_user_id,))
+    
+    # Migrate expenses
+    conn.execute('''
+        INSERT INTO expenses (id, user_id, date, month, category_id, amount, note)
+        SELECT id, ?, date, month, category_id, amount, note FROM expenses_old
+    ''', (default_user_id,))
+    
+    # Drop old tables
+    conn.execute('DROP TABLE categories_old')
+    conn.execute('DROP TABLE income_old')
+    conn.execute('DROP TABLE expenses_old')
+    
+    print("[MIGRATE] Successfully migrated existing data to multi-user schema")
+
+def init_db():
+    """Legacy function - now just calls check_and_migrate_db"""
+    check_and_migrate_db()
 
 def create_default_categories(user_id):
     """Create default categories for new user"""
@@ -1483,6 +1620,12 @@ def add_income():
 
 
 if __name__ == '__main__':
-    init_db()
+    # For testing: delete existing database to start fresh
+    if os.environ.get('RESET_DB', '').lower() == 'true':
+        if os.path.exists(DB_PATH):
+            os.remove(DB_PATH)
+            print(f"[RESET] Deleted existing database: {DB_PATH}")
+    
+    check_and_migrate_db()
     debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     app.run(host='0.0.0.0', port=5000, debug=debug_mode)
