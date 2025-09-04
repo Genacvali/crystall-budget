@@ -7,8 +7,12 @@
 select.form-select,.form-modern{position:relative;overflow:hidden;z-index:1}
 select.form-select option,.form-modern option{position:relative;z-index:9999}
 
-/* заголовок: кнопки справа не наезжают */
+/* заголовок */
 .header-row{row-gap:.5rem}
+
+/* кнопка пикера месяца */
+#month-btn{cursor:pointer}
+#month-btn i{pointer-events:none}
 
 /* QUICKBAR */
 .quickbar{border:1px solid var(--bs-border-color);border-radius:12px;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.03)}
@@ -16,7 +20,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 .q-input .bi{position:absolute;left:12px;top:50%;transform:translateY(-50%);opacity:.6}
 .q-input input.form-control,.q-input select.form-select{padding-left:2rem;height:44px}
 .btn-add{height:44px;display:inline-flex;align-items:center;gap:.5rem;justify-content:center}
-.btn-col{min-width:170px}          /* не даём кнопке «съезжать» */
+.btn-col{min-width:170px}
 
 /* карточки источников */
 .source-card .k{color:#6c757d}
@@ -44,19 +48,21 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
       <i class="bi bi-speedometer2"></i> Финансовый дашборд
     </h1>
   </div>
-  <!-- Переключатель месяца (исправленный пикер) -->
+  <!-- Переключатель месяца: кнопка реально открывает пикер -->
   <div class="col-auto">
     <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
       <div class="input-group input-group-sm" style="max-width:190px;">
-        <span class="input-group-text"><i class="bi bi-calendar3"></i></span>
-        <input type="month" name="month" value="{{ current_month }}" class="form-control">
+        <button class="input-group-text" type="button" id="month-btn" aria-label="Выбрать месяц">
+          <i class="bi bi-calendar3"></i>
+        </button>
+        <input type="month" id="month-input" name="month" value="{{ current_month }}" class="form-control">
       </div>
       <button class="btn btn-outline-primary btn-sm">Показать</button>
     </form>
   </div>
 </div>
 
-<!-- Быстрое добавление расхода — компактная панель -->
+<!-- Быстрое добавление расхода -->
 <div class="quickbar p-3 mb-4">
   <div class="d-flex align-items-center justify-content-between mb-2">
     <div class="fw-semibold text-primary d-flex align-items-center gap-2">
@@ -182,6 +188,19 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+  // --- Рабочая кнопка-иконка для month-пикера ---
+  const mBtn = document.getElementById('month-btn');
+  const mInp = document.getElementById('month-input');
+  if (mBtn && mInp) {
+    mBtn.addEventListener('click', () => {
+      try {
+        if (typeof mInp.showPicker === 'function') mInp.showPicker();
+        else mInp.focus();
+      } catch { mInp.focus(); }
+    });
+  }
+
+  // --- Быстрое добавление расхода ---
   const f = document.getElementById('quick-expense-form');
   const dateEl = document.getElementById('qe-date');
   const catEl  = document.getElementById('qe-category');
