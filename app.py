@@ -18,6 +18,25 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
 
+# Валюты
+CURRENCIES = {
+    "RUB": {"symbol": "₽", "label": "Рубль"},
+    "USD": {"symbol": "$", "label": "Доллар"},
+    "EUR": {"symbol": "€", "label": "Евро"},
+    "AMD": {"symbol": "֏", "label": "Драм"},
+    "GEL": {"symbol": "₾", "label": "Лари"},
+}
+DEFAULT_CURRENCY = "RUB"
+
+@app.context_processor
+def inject_currency():
+    code = session.get("currency", DEFAULT_CURRENCY)
+    info = CURRENCIES.get(code, CURRENCIES[DEFAULT_CURRENCY])
+    return dict(currency_code=code, currency_symbol=info["symbol"], currencies=CURRENCIES)
+
+# -----------------------------------------------------------------------------
+# Jinja filters
+# -----------------------------------------------------------------------------
 @app.template_filter("format_amount")
 def format_amount(value):
     """Число с пробелами для тысяч и без .0 у целых."""
@@ -29,17 +48,27 @@ def format_amount(value):
     q = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     s = f"{q:,.2f}".replace(",", " ")
     return s[:-3] if s.endswith("00") else s
-# -----------------------------------------------------------------------------
-# Валюты
-# -----------------------------------------------------------------------------
-CURRENCIES = {
-    "RUB": {"symbol": "₽", "label": "Рубль"},
-    "USD": {"symbol": "$", "label": "Доллар"},
-    "EUR": {"symbol": "€", "label": "Евро"},
-    "AMD": {"symbol": "֏", "label": "Драм"},
-    "GEL": {"symbol": "₾", "label": "Лари"},
-}
-DEFAULT_CURRENCY = "RUB"
+
+@app.template_filter("format_percent")
+def format_percent(value):
+    """Проценты без лишних хвостов, максимум 2 знака после точки."""
+    try:
+        d = Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        s = format(d.normalize(), "f")
+        if "." in s:
+            s = s.rstrip("0").rstrip(".")
+        return s
+    except Exception:
+        return str(value)
+
+@app.template_filter("format_date_with_day")
+def format_date_with_day(value):
+    try:
+        dt = datetime.strptime(value, "%Y-%m-%d")
+        return dt.strftime("%d.%m.%Y")
+    except Exception:
+        return value
+
 # -----------------------------------------------------------------------------
 # DB helpers
 # -----------------------------------------------------------------------------
@@ -209,32 +238,6 @@ def login_required(f):
 
 
 # -----------------------------------------------------------------------------
-# Jinja filters
-# -----------------------------------------------------------------------------
-def format_amount(value):
-    try:
-        v = Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        s = f"{v:,.2f}".replace(",", " ")
-        if s.endswith("00"):
-            return s[:-3]
-        return s
-    except Exception:
-        return str(value)
-
-
-def format_date_with_day(value):
-    try:
-        dt = datetime.strptime(value, "%Y-%m-%d")
-        return dt.strftime("%d.%m.%Y")
-    except Exception:
-        return value
-
-
-app.jinja_env.filters["format_amount"] = format_amount
-app.jinja_env.filters["format_date_with_day"] = format_date_with_day
-
-
-# -----------------------------------------------------------------------------
 # Helpers: sources & rules
 # -----------------------------------------------------------------------------
 def get_default_source_id(conn, user_id):
@@ -251,6 +254,21 @@ def get_source_for_category(conn, user_id, category_id):
         (user_id, category_id)
     ).fetchone()
     return row["source_id"] if row else None
+
+
+# -----------------------------------------------------------------------------
+# Routes: currency switcher
+# -----------------------------------------------------------------------------
+@app.route("/set-currency", methods=["POST"])
+@login_required
+def set_currency():
+    code = (request.form.get("currency") or "").upper()
+    if code in CURRENCIES:
+        session["currency"] = code
+        flash("Валюта обновлена", "success")
+    else:
+        flash("Неизвестная валюта", "error")
+    return redirect(request.referrer or url_for("dashboard"))
 
 
 # -----------------------------------------------------------------------------
@@ -398,7 +416,7 @@ def dashboard():
             dict(category_name=row["name"], limit=limit_val, spent=spent, id=cat_id)
         )
 
-    # ---- НОВОЕ: балансы по источникам в выбранном месяце ----
+    # ---- Балансы по источникам в выбранном месяце ----
     sources = conn.execute(
         "SELECT id, name FROM income_sources WHERE user_id=? ORDER BY name", (uid,)
     ).fetchall()
@@ -458,8 +476,7 @@ def dashboard():
         income=income_sum,
         current_month=month,
         today=today,
-        currency="RUB",
-        source_balances=source_balances,  # можно отрисовать карточки по источникам
+        source_balances=source_balances,
     )
 
 
@@ -618,8 +635,60 @@ def upsert_rule(category_id):
     return redirect(url_for("categories"))
 
 
+@app.route("/rules/bulk", methods=["POST"])
+@login_required
+def rules_bulk_update():
+    """Массовое сохранение привязок 'категория → источник' одной кнопкой."""
+    uid = session["user_id"]
+    conn = get_db()
+
+    cats = conn.execute(
+        "SELECT id FROM categories WHERE user_id=?", (uid,)
+    ).fetchall()
+    cat_ids = [c["id"] for c in cats]
+
+    for cat_id in cat_ids:
+        key = f"rules[{cat_id}]"
+        src_val = request.form.get(key)  # '' -> удалить правило
+        if src_val:
+            ok = conn.execute(
+                "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
+                (src_val, uid)
+            ).fetchone()
+            if not ok:
+                continue
+
+        existing = conn.execute(
+            "SELECT id FROM source_category_rules WHERE user_id=? AND category_id=?",
+            (uid, cat_id)
+        ).fetchone()
+
+        if src_val:
+            if existing:
+                conn.execute(
+                    "UPDATE source_category_rules SET source_id=? WHERE id=?",
+                    (src_val, existing["id"])
+                )
+            else:
+                conn.execute(
+                    "INSERT INTO source_category_rules(user_id, source_id, category_id) VALUES (?,?,?)",
+                    (uid, src_val, cat_id)
+                )
+        else:
+            if existing:
+                conn.execute(
+                    "DELETE FROM source_category_rules WHERE id=?",
+                    (existing["id"],)
+                )
+
+    conn.commit()
+    conn.close()
+    flash("Привязки источников сохранены", "success")
+    return redirect(url_for("categories"))
+
+
 # -----------------------------------------------------------------------------
-# Routes: categories / expenses / income (как раньше, но income учитывает source_id)
+# Routes: categories / expenses / income
 # -----------------------------------------------------------------------------
 @app.route("/categories")
 @login_required
@@ -629,7 +698,6 @@ def categories():
     rows = conn.execute(
         "SELECT * FROM categories WHERE user_id=? ORDER BY name", (uid,)
     ).fetchall()
-    # источники и действующие правила — отдадим в шаблон (если шаблон готов)
     sources = conn.execute(
         "SELECT id, name FROM income_sources WHERE user_id=? ORDER BY name", (uid,)
     ).fetchall()
@@ -838,7 +906,6 @@ def income_add():
         return redirect(url_for("income_page"))
 
     conn = get_db()
-    # если пользователь не выбрал источник — подставим дефолтный, если есть
     if not source_id:
         source_id = get_default_source_id(conn, uid)
     conn.execute(
@@ -892,7 +959,6 @@ def edit_income(income_id):
         return redirect(url_for("income_page"))
 
     conn.close()
-    # простой шаблон инлайн
     return render_template_string(
         """
         {% extends "base.html" %}
@@ -907,7 +973,7 @@ def edit_income(income_id):
             </div>
             <div class="mb-3">
               <label class="form-label">Сумма</label>
-              <input class="form-control" type="number" name="amount" step="0.01" min="0.01" value="{{ income.amount|format_amount }}" required>
+              <input class="form-control" type="number" name="amount" step="0.01" min="0.01" value="{{ income.amount }}" required>
             </div>
             <div class="mb-3">
               <label class="form-label">Источник</label>
@@ -943,7 +1009,7 @@ def delete_income(income_id):
 
 
 # -----------------------------------------------------------------------------
-# Templates (минимальный набор — как раньше + страница источников)
+# Templates
 # -----------------------------------------------------------------------------
 BASE_HTML = """
 <!doctype html>
@@ -966,8 +1032,16 @@ BASE_HTML = """
   <nav class="navbar navbar-dark bg-dark">
     <div class="container">
       <a class="navbar-brand" href="{{ url_for('dashboard') }}">💎 CrystalBudget</a>
-      <div class="d-flex gap-2">
+      <div class="d-flex gap-2 align-items-center">
         {% if session.get('user_id') %}
+          <form class="d-flex align-items-center gap-1" method="post" action="{{ url_for('set_currency') }}">
+            <select class="form-select form-select-sm" name="currency" onchange="this.form.submit()">
+              {% for code, info in currencies.items() %}
+                <option value="{{ code }}" {% if code==currency_code %}selected{% endif %}>{{ info.label }} ({{ info.symbol }})</option>
+              {% endfor %}
+            </select>
+          </form>
+
           <a class="btn btn-sm btn-outline-light" href="{{ url_for('dashboard') }}">Дашборд</a>
           <a class="btn btn-sm btn-outline-light" href="{{ url_for('expenses') }}">Траты</a>
           <a class="btn btn-sm btn-outline-light" href="{{ url_for('categories') }}">Категории</a>
@@ -1034,7 +1108,6 @@ REGISTER_HTML = """
 {% endblock %}
 """
 
-# Минимальные шаблоны, чтобы приложение запустилось.
 DASHBOARD_HTML = """
 {% extends "base.html" %}
 {% block title %}Дашборд — CrystalBudget{% endblock %}
@@ -1049,15 +1122,9 @@ DASHBOARD_HTML = """
     <div class="card">
       <div class="card-body">
         <h6 class="card-title mb-2">{{ s.source_name }}</h6>
-        <div class="d-flex justify-content-between">
-          <span>Пришло</span><strong>{{ s.income|format_amount }} ₽</strong>
-        </div>
-        <div class="d-flex justify-content-between">
-          <span>Ушло</span><strong>{{ s.spent|format_amount }} ₽</strong>
-        </div>
-        <div class="d-flex justify-content-between">
-          <span>Остаток</span><strong>{{ s.rest|format_amount }} ₽</strong>
-        </div>
+        <div class="d-flex justify-content-between"><span>Пришло</span><strong>{{ s.income|format_amount }} {{ currency_symbol }}</strong></div>
+        <div class="d-flex justify-content-between"><span>Ушло</span><strong>{{ s.spent|format_amount }} {{ currency_symbol }}</strong></div>
+        <div class="d-flex justify-content-between"><span>Остаток</span><strong>{{ s.rest|format_amount }} {{ currency_symbol }}</strong></div>
       </div>
     </div>
   </div>
@@ -1074,8 +1141,8 @@ DASHBOARD_HTML = """
         <div class="border rounded p-2">
           <div class="fw-semibold">{{ item.category_name }}</div>
           <div class="small text-muted">
-            Лимит: {{ item.limit|format_amount }} ₽ •
-            Потрачено: {{ item.spent|format_amount }} ₽
+            Лимит: {{ item.limit|format_amount }} {{ currency_symbol }} •
+            Потрачено: {{ item.spent|format_amount }} {{ currency_symbol }}
           </div>
         </div>
       </div>
@@ -1090,63 +1157,205 @@ CATEGORIES_HTML = """
 {% extends "base.html" %}
 {% block title %}Категории — CrystalBudget{% endblock %}
 {% block content %}
+<style>
+select.form-select { position: relative; overflow: hidden; z-index: 1; }
+select.form-select option { position: relative; z-index: 9999; }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h3 class="m-0">Категории</h3>
-  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">Добавить</button>
+  <h2 class="h4 m-0">Категории</h2>
+  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
+    <i class="bi bi-plus-lg me-1"></i> Добавить категорию
+  </button>
 </div>
 
 <div class="collapse mb-3" id="addCategoryForm">
   <div class="card card-body">
-    <form method="POST" action="/categories/add">
+    <form method="POST" action="{{ url_for('categories_add') }}">
       <div class="row g-3">
-        <div class="col-md-4"><label class="form-label">Название</label><input class="form-control" name="name" required></div>
+        <div class="col-md-4">
+          <label class="form-label">Название</label>
+          <input type="text" name="name" class="form-control" placeholder="Например, Продукты" required>
+        </div>
         <div class="col-md-3">
           <label class="form-label">Тип лимита</label>
-          <select class="form-select" name="limit_type" required>
-            <option value="fixed">Фикс</option>
+          <select name="limit_type" class="form-select" required>
+            <option value="fixed">Фиксированная сумма</option>
             <option value="percent">Процент от дохода</option>
           </select>
         </div>
-        <div class="col-md-3"><label class="form-label">Значение</label><input class="form-control" type="number" step="0.01" min="0.01" name="value" required></div>
-        <div class="col-md-2 d-grid"><label class="form-label d-none d-md-block">&nbsp;</label><button class="btn btn-success">Сохранить</button></div>
+        <div class="col-md-3">
+          <label class="form-label">Значение</label>
+          <input type="number" name="value" step="0.01" min="0.01" inputmode="decimal"
+                 class="form-control" placeholder="Сумма или %" required>
+        </div>
+        <div class="col-md-2 d-grid">
+          <label class="form-label d-none d-md-block">&nbsp;</label>
+          <button class="btn btn-success">Сохранить</button>
+        </div>
       </div>
     </form>
   </div>
 </div>
 
-{% if income_sources and income_sources|length > 0 %}
-<div class="alert alert-info">Для каждой категории можно выбрать источник, из которого она оплачивается.</div>
+{% if not income_sources or income_sources|length == 0 %}
+<div class="alert alert-info mb-3">
+  Чтобы привязать категорию к источнику дохода, сначала добавьте источники на странице
+  <a href="{{ url_for('sources_page') }}" class="alert-link">«Источники»</a>.
+</div>
 {% endif %}
 
-<div class="table-responsive">
+<!-- ДЕСКТОП: одна общая форма для ВСЕХ привязок -->
+<form method="POST" action="{{ url_for('rules_bulk_update') }}" class="table-responsive d-none d-md-block">
   <table class="table align-middle">
     <thead class="table-light">
-      <tr><th>Категория</th><th>Тип/значение</th><th style="width:320px">Оплачивать из</th></tr>
+      <tr>
+        <th>Название</th>
+        <th>Тип лимита</th>
+        <th class="text-end">Значение</th>
+        <th style="min-width:280px">Оплачивать из</th>
+        <th class="text-end" style="width:220px">Действия</th>
+      </tr>
     </thead>
     <tbody>
       {% for cat in categories %}
       <tr>
-        <td>{{ cat.name }}</td>
-        <td>{{ 'фикс' if cat.limit_type=='fixed' else 'процент' }} / {{ cat.value }}</td>
-        <td>
-          {% if income_sources and income_sources|length>0 %}
-          <form class="d-flex gap-2" method="POST" action="{{ url_for('upsert_rule', category_id=cat.id) }}">
-            <select class="form-select" name="source_id">
-              {% for s in income_sources %}
-                <option value="{{ s.id }}" {% if rules_map.get(cat.id)==s.id %}selected{% endif %}>{{ s.name }}</option>
-              {% endfor %}
+        <form method="POST" action="{{ url_for('categories_update', cat_id=cat.id) }}" class="d-contents">
+          <td style="min-width:220px">
+            <input type="text" name="name" value="{{ cat.name }}" class="form-control form-control-sm" required>
+          </td>
+          <td style="min-width:180px">
+            <select name="limit_type" class="form-select form-select-sm">
+              <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>Фиксированная сумма</option>
+              <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>Процент от дохода</option>
             </select>
-            <button class="btn btn-outline-primary">Сохранить</button>
-          </form>
-          {% else %}
-          <em class="text-muted">Добавьте источники на странице «Источники»</em>
-          {% endif %}
-        </td>
+          </td>
+          <td class="text-end" style="min-width:160px">
+            <div class="input-group input-group-sm">
+              <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01"
+                     inputmode="decimal" class="form-control form-control-sm text-end" required>
+              <span class="input-group-text">
+                {% if cat.limit_type == 'percent' %}%{% else %}{{ currency_symbol }}{% endif %}
+              </span>
+            </div>
+            <div class="form-text">
+              {% if cat.limit_type == 'percent' %}
+                Текущ.: {{ cat.value|format_percent }}%
+              {% else %}
+                Текущ.: {{ cat.value|format_amount }} {{ currency_symbol }}
+              {% endif %}
+            </div>
+          </td>
+          <td>
+            {% if income_sources and income_sources|length %}
+              <select name="rules[{{ cat.id }}]" class="form-select form-select-sm">
+                <option value="">(не привязано)</option>
+                {% for s in income_sources %}
+                  <option value="{{ s.id }}" {% if rules_map.get(cat.id) == s.id %}selected{% endif %}>{{ s.name }}</option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <span class="text-muted small">Добавьте источники на странице <a href="{{ url_for('sources_page') }}">«Источники»</a></span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm">
+              <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-check-lg me-1"></i> Сохранить категорию
+              </button>
+        </form>
+              <form method="POST" action="{{ url_for('categories_delete', cat_id=cat.id) }}" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Удалить категорию «{{ cat.name }}»?')">
+                  <i class="bi bi-trash3 me-1"></i> Удалить
+                </button>
+              </form>
+            </div>
+          </td>
       </tr>
       {% endfor %}
     </tbody>
+    {% if income_sources and income_sources|length %}
+    <tfoot>
+      <tr>
+        <td colspan="5" class="text-end">
+          <button class="btn btn-primary">
+            <i class="bi bi-plug me-1"></i> Сохранить привязки «Оплачивать из»
+          </button>
+        </td>
+      </tr>
+    </tfoot>
+    {% endif %}
   </table>
-</div>
+</form>
+
+<!-- МОБИЛЬНЫЕ карточки: тоже одна кнопка снизу -->
+<form method="POST" action="{{ url_for('rules_bulk_update') }}" class="d-block d-md-none">
+  {% for cat in categories %}
+  <div class="card mb-2">
+    <div class="card-body">
+      <form method="POST" action="{{ url_for('categories_update', cat_id=cat.id) }}">
+        <div class="row g-2">
+          <div class="col-12">
+            <label class="form-label">Название</label>
+            <input type="text" name="name" value="{{ cat.name }}" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Тип</label>
+            <select name="limit_type" class="form-select">
+              <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>Фиксированная сумма</option>
+              <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>Процент от дохода</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Значение</label>
+            <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01" inputmode="decimal" class="form-control" required>
+            <div class="form-text">
+              {% if cat.limit_type == 'percent' %}
+                Текущ.: {{ cat.value|format_percent }}%
+              {% else %}
+                Текущ.: {{ cat.value|format_amount }} {{ currency_symbol }}
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Оплачивать из</label>
+            {% if income_sources and income_sources|length %}
+              <select name="rules[{{ cat.id }}]" class="form-select">
+                <option value="">(не привязано)</option>
+                {% for s in income_sources %}
+                  <option value="{{ s.id }}" {% if rules_map.get(cat.id) == s.id %}selected{% endif %}>{{ s.name }}</option>
+                {% endfor %}
+              </select>
+            {% else %}
+              <div class="form-text">Нет источников. <a href="{{ url_for('sources_page') }}">Добавить</a></div>
+            {% endif %}
+          </div>
+
+          <div class="col-12 d-flex gap-2 mt-2">
+            <button type="submit" formaction="{{ url_for('categories_update', cat_id=cat.id) }}" class="btn btn-outline-primary flex-fill">
+              <i class="bi bi-check-lg me-1"></i> Сохранить категорию
+            </button>
+            <button type="submit" formaction="{{ url_for('categories_delete', cat_id=cat.id) }}" formmethod="POST"
+                    class="btn btn-outline-danger flex-fill"
+                    onclick="return confirm('Удалить категорию «{{ cat.name }}»?')">
+              <i class="bi bi-trash3 me-1"></i> Удалить
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if income_sources and income_sources|length %}
+  <div class="sticky-bottom bg-white py-2">
+    <button class="btn btn-primary w-100">
+      <i class="bi bi-plug me-1"></i> Сохранить все привязки
+    </button>
+  </div>
+  {% endif %}
+</form>
 {% endblock %}
 """
 
@@ -1161,7 +1370,7 @@ EXPENSES_HTML = """
 
 <div class="collapse mb-3" id="addExpenseForm">
   <div class="card card-body">
-    <form method="POST" action="/expenses">
+    <form method="POST" action="{{ url_for('expenses') }}">
       <div class="row g-3">
         <div class="col-md-3"><label class="form-label">Дата</label><input type="date" name="date" value="{{ today }}" class="form-control" required></div>
         <div class="col-md-3">
@@ -1187,11 +1396,11 @@ EXPENSES_HTML = """
       <tr>
         <td>{{ e.date|format_date_with_day }}</td>
         <td>{{ e.category_name }}</td>
-        <td class="text-end fw-semibold">{{ e.amount|format_amount }} ₽</td>
+        <td class="text-end fw-semibold">{{ e.amount|format_amount }} {{ currency_symbol }}</td>
         <td>{{ e.note or '' }}</td>
         <td class="text-end">
           <form method="POST" action="{{ url_for('delete_expense', expense_id=e.id) }}" class="d-inline">
-            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить расход?\\nДата: {{ e.date|format_date_with_day }}\\nКатегория: {{ e.category_name }}\\nСумма: {{ e.amount|format_amount }} ₽')">Удалить</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить расход?\\nДата: {{ e.date|format_date_with_day }}\\nКатегория: {{ e.category_name }}\\nСумма: {{ e.amount|format_amount }} {{ currency_symbol }}')">Удалить</button>
           </form>
         </td>
       </tr>
@@ -1236,7 +1445,7 @@ INCOME_HTML = """
       {% for i in incomes %}
       <tr>
         <td>{{ i.date|format_date_with_day }}</td>
-        <td class="text-end fw-semibold">{{ i.amount|format_amount }} ₽</td>
+        <td class="text-end fw-semibold">{{ i.amount|format_amount }} {{ currency_symbol }}</td>
         <td>
           {% if i.source_id %}
             {% set nm = (income_sources | selectattr('id','equalto', i.source_id) | list) %}
@@ -1327,7 +1536,6 @@ app.jinja_loader = ChoiceLoader(
         app.jinja_loader,
     ]
 )
-
 
 # -----------------------------------------------------------------------------
 # Main
