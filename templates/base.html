@@ -110,6 +110,11 @@
               <i class="bi bi-cash-coin"></i> Доходы
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint == 'sources_page' %}active{% endif %}" href="{{ url_for('sources_page') }}">
+              <i class="bi bi-piggy-bank"></i> Источники
+            </a>
+          </li>
         </ul>
 
         <ul class="navbar-nav">
@@ -131,7 +136,7 @@
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-              <i class="bi bi-person-circle"></i> {{ session.user_name }}
+              <i class="bi bi-person-circle"></i> {{ session.name or session.email }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end modern-card" style="border:none;">
               <li>
@@ -180,12 +185,23 @@
       'RUB':'₽', 'USD':'$', 'EUR':'€', 'AMD':'֏', 'GEL':'₾'
     };
 
-    function setCurrency(currency){
+    async function setCurrency(currency){
       currentCurrency = currency;
       localStorage.setItem('currency', currency);
       document.querySelectorAll('.currency-option').forEach(o=>o.classList.remove('active'));
       document.getElementById('curr-'+currency.toLowerCase()).classList.add('active');
       updateCurrencyDisplays();
+      
+      // Обновляем на бэкенде
+      try {
+        await fetch('/set-currency', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currency })
+        });
+      } catch (e) {
+        console.log('Currency update failed:', e);
+      }
     }
 
     function updateCurrencyDisplays(){

@@ -260,11 +260,15 @@ def get_source_for_category(conn, user_id, category_id):
 @app.route("/set-currency", methods=["POST"])
 @login_required
 def set_currency():
-    code = (request.form.get("currency") or "").upper()
+    code = (request.form.get("currency") or request.json.get("currency") or "").upper()
     if code in CURRENCIES:
         session["currency"] = code
+        if request.is_json:
+            return {"success": True, "currency": code, "symbol": CURRENCIES[code]["symbol"]}
         flash("Валюта обновлена", "success")
     else:
+        if request.is_json:
+            return {"success": False, "error": "Неизвестная валюта"}, 400
         flash("Неизвестная валюта", "error")
     return redirect(request.referrer or url_for("dashboard"))
 
@@ -837,6 +841,59 @@ def expenses():
     conn.close()
     today = datetime.now().strftime("%Y-%m-%d")
     return render_template("expenses.html", categories=cats, expenses=rows, today=today)
+
+
+@app.route("/expenses/edit/<int:expense_id>", methods=["GET", "POST"])
+@login_required
+def edit_expense(expense_id):
+    uid = session["user_id"]
+    conn = get_db()
+    expense = conn.execute(
+        "SELECT id, date, amount, note, category_id FROM expenses WHERE id=? AND user_id=?",
+        (expense_id, uid),
+    ).fetchone()
+    if not expense:
+        conn.close()
+        flash("Расход не найден", "error")
+        return redirect(url_for("expenses"))
+
+    if request.method == "POST":
+        date_str = (request.form.get("date") or "").strip()
+        category_id = request.form.get("category_id")
+        amount_str = (request.form.get("amount") or "").strip()
+        note = (request.form.get("note") or "").strip()
+
+        if not date_str or not category_id or not amount_str:
+            flash("Пожалуйста, заполните все поля", "error")
+            return redirect(url_for("edit_expense", expense_id=expense_id))
+
+        try:
+            datetime.strptime(date_str, "%Y-%m-%d")
+            amount = float(amount_str)
+            if amount <= 0:
+                raise ValueError
+        except Exception:
+            flash("Неверные значения даты или суммы", "error")
+            return redirect(url_for("edit_expense", expense_id=expense_id))
+
+        conn.execute(
+            """
+            UPDATE expenses 
+            SET date=?, month=?, category_id=?, amount=?, note=?
+            WHERE id=? AND user_id=?
+            """,
+            (date_str, date_str[:7], int(category_id), amount, note, expense_id, uid),
+        )
+        conn.commit()
+        conn.close()
+        flash("Расход обновлён", "success")
+        return redirect(url_for("expenses"))
+
+    categories = conn.execute(
+        "SELECT id, name FROM categories WHERE user_id=? ORDER BY name", (uid,)
+    ).fetchall()
+    conn.close()
+    return render_template("edit_expense.html", expense=expense, categories=categories)
 
 
 @app.route("/expenses/delete/<int:expense_id>", methods=["POST"])
