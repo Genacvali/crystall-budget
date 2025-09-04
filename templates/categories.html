@@ -115,7 +115,8 @@
             {% if source_name %}
               <span class="badge bg-info">{{ source_name }}</span>
             {% else %}
-              <span class="text-warning small">источник удален</span>
+              <span class="text-warning small">источник удален (ID: {{ source_id }})</span>
+              <br><small class="text-muted">Доступные: {% for s in income_sources %}{{ s.id }}:{{ s.name }}{% if not loop.last %}, {% endif %}{% endfor %}</small>
             {% endif %}
           {% else %}
             <span class="text-muted small">не привязано</span>
