@@ -480,6 +480,29 @@ def dashboard():
         (month, uid),
     ).fetchall()
 
+    # правило категория->источник (нужно раньше для расчета лимитов)
+    rule_rows = conn.execute(
+        "SELECT category_id, source_id FROM source_category_rules WHERE user_id=?",
+        (uid,),
+    ).fetchall()
+    rule_map = {r["category_id"]: r["source_id"] for r in rule_rows}
+    
+    # приход по источникам (нужно раньше для расчета процентных лимитов)
+    sources = conn.execute(
+        "SELECT id, name FROM income_sources WHERE user_id=? ORDER BY name", (uid,)
+    ).fetchall()
+    
+    income_by_source = {
+        s["id"]: conn.execute(
+            """
+            SELECT COALESCE(SUM(amount),0) FROM income_daily
+            WHERE user_id=? AND source_id=? AND strftime('%Y-%m', date)=?
+            """,
+            (uid, s["id"], month),
+        ).fetchone()[0]
+        for s in sources
+    }
+
     # расчёт лимитов категорий с учётом процента от дохода
     limits = conn.execute(
         "SELECT id, name, limit_type, value FROM categories WHERE user_id=?",
@@ -493,7 +516,14 @@ def dashboard():
         if row["limit_type"] == "fixed":
             limit_val = float(row["value"])
         else:  # percent
-            limit_val = float(income_sum) * float(row["value"]) / 100.0
+            # Если категория привязана к источнику - используем доход этого источника
+            source_id = rule_map.get(cat_id)
+            if source_id and source_id in income_by_source:
+                source_income = float(income_by_source[source_id])
+                limit_val = source_income * float(row["value"]) / 100.0
+            else:
+                # Если не привязана - используем общий доход
+                limit_val = float(income_sum) * float(row["value"]) / 100.0
 
         spent = 0.0
         for s in spent_by_cat:
@@ -506,28 +536,7 @@ def dashboard():
         )
 
     # ---- Балансы по источникам в выбранном месяце ----
-    sources = conn.execute(
-        "SELECT id, name FROM income_sources WHERE user_id=? ORDER BY name", (uid,)
-    ).fetchall()
-
-    # приход по источнику
-    income_by_source = {
-        s["id"]: conn.execute(
-            """
-            SELECT COALESCE(SUM(amount),0) FROM income_daily
-            WHERE user_id=? AND source_id=? AND strftime('%Y-%m', date)=?
-            """,
-            (uid, s["id"], month),
-        ).fetchone()[0]
-        for s in sources
-    }
-
-    # правило категория->источник
-    rule_rows = conn.execute(
-        "SELECT category_id, source_id FROM source_category_rules WHERE user_id=?",
-        (uid,),
-    ).fetchall()
-    rule_map = {r["category_id"]: r["source_id"] for r in rule_rows}
+    # (источники и доходы уже получены выше)
 
     # расход по источнику (по правилам)
     expense_by_source = {s["id"]: 0.0 for s in sources}
