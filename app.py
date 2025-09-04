@@ -9,6 +9,27 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
 
 DB_PATH = os.environ.get('BUDGET_DB', 'budget.db')
 
+# Custom Jinja filters
+def format_amount(value):
+    """Format amount without unnecessary .00"""
+    if value == int(value):
+        return f"{int(value)}"
+    else:
+        return f"{value:.2f}".rstrip('0').rstrip('.')
+
+def format_date_with_day(date_str):
+    """Format date with day name"""
+    try:
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+        day_names = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+        day_name = day_names[date_obj.weekday()]
+        return f"{date_str} ({day_name})"
+    except:
+        return date_str
+
+app.jinja_env.filters['format_amount'] = format_amount
+app.jinja_env.filters['format_date_with_day'] = format_date_with_day
+
 # HTML Templates
 LAYOUT_TEMPLATE = '''
 <!DOCTYPE html>
@@ -79,7 +100,7 @@ DASHBOARD_TEMPLATE = '''
         <div class="card text-center">
             <div class="card-body">
                 <h5 class="card-title">Доходы</h5>
-                <h3 class="text-success">{{ "%.2f"|format(income) }}</h3>
+                <h3 class="text-success">{{ income|format_amount }}</h3>
             </div>
         </div>
     </div>
@@ -87,7 +108,7 @@ DASHBOARD_TEMPLATE = '''
         <div class="card text-center">
             <div class="card-body">
                 <h5 class="card-title">Расходы</h5>
-                <h3 class="text-danger">{{ "%.2f"|format(expenses) }}</h3>
+                <h3 class="text-danger">{{ expenses|format_amount }}</h3>
             </div>
         </div>
     </div>
@@ -96,7 +117,7 @@ DASHBOARD_TEMPLATE = '''
             <div class="card-body">
                 <h5 class="card-title">Остаток</h5>
                 <h3 class="{% if income - expenses > 0 %}text-success{% else %}text-danger{% endif %}">
-                    {{ "%.2f"|format(income - expenses) }}
+                    {{ (income - expenses)|format_amount }}
                 </h3>
             </div>
         </div>
@@ -148,12 +169,12 @@ DASHBOARD_TEMPLATE = '''
             <tr>
                 <td>{{ item.category_name }}</td>
                 <td class="{% if item.carryover > 0 %}balance-positive{% elif item.carryover < 0 %}balance-negative{% endif %}">
-                    {{ "%.2f"|format(item.carryover) }}
+                    {{ item.carryover|format_amount }}
                 </td>
-                <td>{{ "%.2f"|format(item.limit) }}</td>
-                <td>{{ "%.2f"|format(item.spent) }}</td>
+                <td>{{ item.limit|format_amount }}</td>
+                <td>{{ item.spent|format_amount }}</td>
                 <td class="{% if item.balance > item.limit * 0.2 %}balance-positive{% elif item.balance > 0 %}balance-warning{% else %}balance-negative{% endif %}">
-                    {{ "%.2f"|format(item.balance) }}
+                    {{ item.balance|format_amount }}
                 </td>
             </tr>
             {% endfor %}
@@ -223,9 +244,9 @@ EXPENSES_TEMPLATE = '''
         <tbody>
             {% for expense in expenses %}
             <tr>
-                <td>{{ expense.date }}</td>
+                <td>{{ expense.date|format_date_with_day }}</td>
                 <td>{{ expense.category_name }}</td>
-                <td>{{ "%.2f"|format(expense.amount) }}</td>
+                <td>{{ expense.amount|format_amount }}</td>
                 <td>{{ expense.note or '' }}</td>
                 <td>
                     <form method="POST" action="/expenses/delete/{{ expense.id }}" class="d-inline">
@@ -363,7 +384,7 @@ INCOME_TEMPLATE = '''
             {% for income in incomes %}
             <tr>
                 <td>{{ income.month }}</td>
-                <td>{{ "%.2f"|format(income.amount) }}</td>
+                <td>{{ income.amount|format_amount }}</td>
             </tr>
             {% endfor %}
         </tbody>
