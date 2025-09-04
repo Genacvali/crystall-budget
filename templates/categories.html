@@ -52,6 +52,13 @@ select.form-select option {
   </div>
 </div>
 
+{% if not income_sources or income_sources|length == 0 %}
+<div class="alert alert-info mb-3">
+  Чтобы привязать категорию к источнику дохода, сначала добавьте источники на странице
+  <a href="{{ url_for('sources_page') }}" class="alert-link">«Источники»</a>.
+</div>
+{% endif %}
+
 <!-- Мобильные карточки -->
 <div class="d-block d-md-none">
   {% for cat in categories %}
@@ -75,6 +82,30 @@ select.form-select option {
             <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01"
                    inputmode="decimal" class="form-control" required>
           </div>
+
+          <!-- Привязка источника (правило) -->
+          <div class="col-12">
+            <label class="form-label">Оплачивать из</label>
+            {% if income_sources and income_sources|length %}
+            <div class="input-group">
+              <select name="source_id" class="form-select"
+                      form="rule-form-{{ cat.id }}">
+                {% for s in income_sources %}
+                  <option value="{{ s.id }}" {% if rules_map.get(cat.id) == s.id %}selected{% endif %}>
+                    {{ s.name }}
+                  </option>
+                {% endfor %}
+              </select>
+              <button class="btn btn-outline-primary" type="submit"
+                      form="rule-form-{{ cat.id }}">
+                Сохранить правило
+              </button>
+            </div>
+            {% else %}
+              <div class="form-text">Нет источников. <a href="{{ url_for('sources_page') }}">Добавить</a></div>
+            {% endif %}
+          </div>
+
           <div class="col-12 d-flex gap-2">
             <button type="submit" class="btn btn-outline-primary flex-fill">
               <i class="bi bi-check-lg me-1"></i> Обновить
@@ -90,6 +121,9 @@ select.form-select option {
           </div>
         </div>
       </form>
+
+      <!-- Отдельная форма под правило (чтобы не мешать основной POST /categories/update/..) -->
+      <form id="rule-form-{{ cat.id }}" method="POST" action="{{ url_for('upsert_rule', category_id=cat.id) }}"></form>
     </div>
   </div>
   {% endfor %}
@@ -103,6 +137,7 @@ select.form-select option {
         <th>Название</th>
         <th>Тип лимита</th>
         <th class="text-end">Значение</th>
+        <th style="min-width:280px">Оплачивать из</th>
         <th class="text-end">Действия</th>
       </tr>
     </thead>
@@ -123,12 +158,28 @@ select.form-select option {
             <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01"
                    inputmode="decimal" class="form-control form-control-sm text-end" required>
           </td>
+          <td>
+            {% if income_sources and income_sources|length %}
+            <form method="POST" action="{{ url_for('upsert_rule', category_id=cat.id) }}" class="d-flex gap-2">
+              <select name="source_id" class="form-select form-select-sm">
+                {% for s in income_sources %}
+                  <option value="{{ s.id }}" {% if rules_map.get(cat.id) == s.id %}selected{% endif %}>
+                    {{ s.name }}
+                  </option>
+                {% endfor %}
+              </select>
+              <button class="btn btn-outline-primary btn-sm">Сохранить</button>
+            </form>
+            {% else %}
+              <span class="text-muted small">Добавьте источники на странице <a href="{{ url_for('sources_page') }}">«Источники»</a></span>
+            {% endif %}
+          </td>
           <td class="text-end" style="min-width:200px">
             <div class="btn-group btn-group-sm">
               <button type="submit" class="btn btn-outline-primary">
                 <i class="bi bi-check-lg me-1"></i> Сохранить
               </button>
-            </form>
+        </form>
               <form method="POST" action="/categories/delete/{{ cat.id }}" class="d-inline">
                 <button type="submit" class="btn btn-outline-danger"
                         onclick="return confirm('Удалить категорию?')">
