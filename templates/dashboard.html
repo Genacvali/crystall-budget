@@ -14,14 +14,19 @@ select.form-select option, .form-modern option {
   z-index: 9999;
 }
 
-/* Правим кнопку добавления */
+/* Кнопка "Добавить" */
 .quick-add-btn {
-  height: 100%;
   min-height: 42px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+}
+
+/* Текст кнопки скрыт на мобильных */
+.quick-add-text { display: none; }
+@media (min-width: 768px) {
+  .quick-add-text { display: inline; }
 }
 </style>
 
@@ -93,10 +98,10 @@ select.form-select option, .form-modern option {
             <input type="text" name="note" placeholder="Описание (необязательно)" class="form-modern form-control">
           </div>
           <!-- Кнопка -->
-          <div class="col-12 col-md-1 d-flex align-items-center justify-content-end">
-            <button type="submit" class="btn btn-success quick-add-btn w-100">
-              <i class="bi bi-plus-lg"></i>
-              <span class="d-none d-md-inline">Добавить</span>
+          <div class="col-12 col-md-auto d-flex align-items-center justify-content-end">
+            <button type="submit" class="btn btn-success quick-add-btn w-100 w-md-auto px-3">
+              <i class="bi bi-plus-lg me-1"></i>
+              <span class="quick-add-text">Добавить</span>
             </button>
           </div>
         </div>
