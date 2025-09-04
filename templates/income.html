@@ -6,14 +6,14 @@
   <h2 class="h4 m-0">Мои доходы</h2>
 </div>
 
-<!-- Форма добавления дохода (ПО МЕСЯЦАМ) -->
-<form method="POST" action="/income/add" class="mb-3">
+<!-- Форма добавления дохода (ПО ДНЯМ) -->
+<form method="POST" action="{{ url_for('income_add') }}" class="mb-3">
   <div class="card card-body">
     <div class="row g-3">
       <div class="col-md-4">
-        <label for="month" class="form-label">Месяц</label>
-        <input type="month" id="month" name="month"
-               value="{{ current_month }}" class="form-control" required>
+        <label for="date" class="form-label">Дата</label>
+        <input type="date" id="date" name="date"
+               value="{{ today }}" class="form-control" required>
       </div>
       <div class="col-md-4">
         <label for="amount" class="form-label">Сумма</label>
@@ -22,13 +22,13 @@
       </div>
       <div class="col-md-4 d-grid">
         <label class="form-label d-none d-md-block">&nbsp;</label>
-        <button type="submit" class="btn btn-success">Сохранить</button>
+        <button type="submit" class="btn btn-success">Добавить доход</button>
       </div>
     </div>
   </div>
 </form>
 
-<!-- Мобильные карточки -->
+<!-- Мобильный вид -->
 <div class="d-block d-md-none">
   {% for income in incomes %}
   <div class="card mb-2">
@@ -37,18 +37,18 @@
         <div>
           <h6 class="mb-1">{{ income.amount|format_amount }} ₽</h6>
           <small class="text-muted">
-            <i class="bi bi-calendar3"></i> {{ income.month }}
+            <i class="bi bi-calendar3"></i> {{ income.date|format_date_with_day }}
           </small>
         </div>
       </div>
       <div class="d-flex gap-2 mt-2">
-        <a href="{{ url_for('edit_income', month=income.month) }}"
+        <a href="{{ url_for('edit_income', income_id=income.id) }}"
            class="btn btn-outline-primary flex-fill">
           <i class="bi bi-pencil"></i> Изменить
         </a>
-        <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="flex-fill">
+        <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="flex-fill">
           <button type="submit" class="btn btn-outline-danger w-100"
-                  onclick="return confirm('Удалить доход?\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }}₽')">
+                  onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}₽')">
             <i class="bi bi-trash"></i> Удалить
           </button>
         </form>
@@ -58,12 +58,12 @@
   {% endfor %}
 </div>
 
-<!-- Таблица для десктопа -->
+<!-- Табличный вид для десктопа -->
 <div class="table-responsive d-none d-md-block">
   <table class="table table-striped align-middle">
     <thead class="table-light">
       <tr>
-        <th>Месяц</th>
+        <th>Дата</th>
         <th class="text-end">Сумма</th>
         <th class="text-end">Действия</th>
       </tr>
@@ -71,16 +71,16 @@
     <tbody>
       {% for income in incomes %}
       <tr>
-        <td>{{ income.month }}</td>
+        <td>{{ income.date|format_date_with_day }}</td>
         <td class="text-end fw-bold">{{ income.amount|format_amount }} ₽</td>
         <td class="text-end">
-          <a href="{{ url_for('edit_income', month=income.month) }}"
+          <a href="{{ url_for('edit_income', income_id=income.id) }}"
              class="btn btn-sm btn-outline-primary me-1">
             <i class="bi bi-pencil"></i> Изменить
           </a>
-          <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="d-inline">
+          <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
             <button type="submit" class="btn btn-sm btn-outline-danger"
-                    onclick="return confirm('Удалить доход?\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }}₽')">
+                    onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}₽')">
               <i class="bi bi-trash"></i> Удалить
             </button>
           </form>
@@ -94,8 +94,7 @@
 {% if not incomes %}
 <div class="text-center py-5">
   <p class="text-muted mb-3">Доходов пока нет</p>
-  <button class="btn btn-primary"
-          onclick="document.getElementById('month')?.focus()">
+  <button class="btn btn-primary" onclick="document.getElementById('date')?.focus()">
     <i class="bi bi-plus-lg me-1"></i> Добавить первый доход
   </button>
 </div>
@@ -104,11 +103,11 @@
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const monthInput = document.getElementById('month');
-  if (monthInput && !monthInput.value) {
+document.addEventListener('DOMContentLoaded', function() {
+  const dateInput = document.getElementById('date');
+  if (dateInput && !dateInput.value) {
     const now = new Date();
-    monthInput.value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+    dateInput.value = now.toISOString().slice(0, 10);
   }
 });
 </script>
