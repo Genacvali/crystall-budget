@@ -58,9 +58,8 @@ def init_db():
     conn.commit()
     conn.close()
 
-# ----------------------- LOGIN REQ -----------------------
+# ----------------------- HELPERS -----------------------
 def login_required(f):
-    from functools import wraps
     @wraps(f)
     def wrapper(*args, **kwargs):
         if 'user_id' not in session:
@@ -69,11 +68,12 @@ def login_required(f):
         return f(*args, **kwargs)
     return wrapper
 
-# ----------------------- FILTERS -----------------------
 def format_amount(value):
     try:
         v = Decimal(str(value)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        return f"{v:,.2f}".replace(',', ' ')
+        if v == v.to_integral_value():
+            return f"{int(v)}"
+        return f"{v:.2f}".rstrip("0").rstrip(".")
     except:
         return str(value)
 
@@ -150,7 +150,99 @@ def dashboard():
     expenses = conn.execute('SELECT COALESCE(SUM(amount),0) FROM expenses WHERE user_id=? AND month=?',
                             (session['user_id'], month)).fetchone()[0]
     conn.close()
-    return render_template('dashboard.html', categories=categories, income=income, expenses=expenses, current_month=month)
+    return render_template('dashboard.html',
+                           categories=categories,
+                           income=income,
+                           expenses=expenses,
+                           current_month=month)
+
+# ----------------------- INLINE TEMPLATES -----------------------
+BASE_HTML = """
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CrystalBudget{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="/">💎 CrystalBudget</a>
+      {% if session.get('user_id') %}
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-light btn-sm">Выйти</a>
+      {% endif %}
+    </div>
+  </nav>
+  <div class="container mt-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ 'danger' if cat=='error' else cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>
+"""
+
+LOGIN_HTML = """
+{% extends 'base.html' %}
+{% block title %}Вход{% endblock %}
+{% block content %}
+<h3>Вход</h3>
+<form method="post">
+  <div class="mb-3"><input type="email" name="email" placeholder="Email" class="form-control" required></div>
+  <div class="mb-3"><input type="password" name="password" placeholder="Пароль" class="form-control" required></div>
+  <button class="btn btn-primary w-100">Войти</button>
+</form>
+<div class="mt-3"><a href="{{ url_for('register') }}">Регистрация</a></div>
+{% endblock %}
+"""
+
+REGISTER_HTML = """
+{% extends 'base.html' %}
+{% block title %}Регистрация{% endblock %}
+{% block content %}
+<h3>Регистрация</h3>
+<form method="post">
+  <div class="mb-3"><input name="name" placeholder="Имя" class="form-control" required></div>
+  <div class="mb-3"><input type="email" name="email" placeholder="Email" class="form-control" required></div>
+  <div class="mb-3"><input type="password" name="password" placeholder="Пароль" class="form-control" required></div>
+  <div class="mb-3"><input type="password" name="confirm" placeholder="Повторите пароль" class="form-control" required></div>
+  <button class="btn btn-success w-100">Создать аккаунт</button>
+</form>
+<div class="mt-3"><a href="{{ url_for('login') }}">Уже есть аккаунт</a></div>
+{% endblock %}
+"""
+
+DASHBOARD_HTML = """
+{% extends 'base.html' %}
+{% block title %}Главная{% endblock %}
+{% block content %}
+<h3>Дашборд ({{ current_month }})</h3>
+<p>Доход: <strong>{{ income|format_amount }}</strong></p>
+<p>Расходы: <strong>{{ expenses|format_amount }}</strong></p>
+<hr>
+<h4>Категории</h4>
+<ul>
+  {% for c in categories %}
+  <li>{{ c.name }} ({{ c.limit_type }}: {{ c.value }})</li>
+  {% endfor %}
+</ul>
+{% endblock %}
+"""
+
+app.jinja_loader = ChoiceLoader([
+    DictLoader({
+        'base.html': BASE_HTML,
+        'login.html': LOGIN_HTML,
+        'register.html': REGISTER_HTML,
+        'dashboard.html': DASHBOARD_HTML,
+    }),
+    app.jinja_loader
+])
 
 # ----------------------- MAIN -----------------------
 if __name__ == "__main__":
