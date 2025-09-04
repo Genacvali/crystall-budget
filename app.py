@@ -2,9 +2,11 @@ import os
 import sqlite3
 from datetime import datetime, date
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
-from flask import Flask, render_template_string, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template_string, render_template, request, redirect, url_for, flash, jsonify, session
 from jinja2 import DictLoader, ChoiceLoader
 from markupsafe import escape
+from werkzeug.security import generate_password_hash, check_password_hash
+from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
@@ -65,7 +67,7 @@ LAYOUT_TEMPLATE = '''
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>{% block title %}Личный бюджет{% endblock %}</title>
+    <title>{% block title %}CrystalBudget{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <meta name="theme-color" content="#6c5ce7">
@@ -266,13 +268,23 @@ LAYOUT_TEMPLATE = '''
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="/"><i class="bi bi-wallet2"></i> Бюджет</a>
+            <a class="navbar-brand" href="/"><i class="bi bi-gem"></i> CrystalBudget</a>
+            {% if session.user_id %}
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/"><i class="bi bi-house"></i> <span class="d-none d-md-inline">Главная</span></a>
-                <a class="nav-link" href="/expenses"><i class="bi bi-receipt"></i> <span class="d-none d-md-inline">Траты</span></a>
-                <a class="nav-link" href="/categories"><i class="bi bi-tags"></i> <span class="d-none d-md-inline">Категории</span></a>
-                <a class="nav-link" href="/income"><i class="bi bi-graph-up"></i> <span class="d-none d-md-inline">Доходы</span></a>
+                <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="bi bi-house"></i> <span class="d-none d-md-inline">Главная</span></a>
+                <a class="nav-link" href="{{ url_for('expenses') }}"><i class="bi bi-receipt"></i> <span class="d-none d-md-inline">Траты</span></a>
+                <a class="nav-link" href="{{ url_for('categories') }}"><i class="bi bi-tags"></i> <span class="d-none d-md-inline">Категории</span></a>
+                <a class="nav-link" href="{{ url_for('income') }}"><i class="bi bi-graph-up"></i> <span class="d-none d-md-inline">Доходы</span></a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> <span class="d-none d-md-inline">{{ session.user_name }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
+                    </ul>
+                </div>
             </div>
+            {% endif %}
         </div>
     </nav>
     
@@ -672,10 +684,120 @@ INCOME_TEMPLATE = '''
 {% endblock %}
 '''
 
+LOGIN_TEMPLATE = '''
+{% extends "layout.html" %}
+{% block title %}Вход - CrystalBudget{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-gem" style="font-size: 3rem; color: var(--primary-color);"></i>
+                    <h2 class="mt-3">CrystalBudget</h2>
+                    <p class="text-muted">Войдите в свой аккаунт</p>
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="email" class="form-label"><i class="bi bi-envelope"></i> Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required 
+                               value="{{ request.form.get('email', '') }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label"><i class="bi bi-lock"></i> Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="bi bi-box-arrow-in-right"></i> Войти
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="mb-0">Нет аккаунта? <a href="{{ url_for('register') }}" class="text-decoration-none">Зарегистрироваться</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+'''
+
+REGISTER_TEMPLATE = '''
+{% extends "layout.html" %}
+{% block title %}Регистрация - CrystalBudget{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <i class="bi bi-gem" style="font-size: 3rem; color: var(--primary-color);"></i>
+                    <h2 class="mt-3">CrystalBudget</h2>
+                    <p class="text-muted">Создайте новый аккаунт</p>
+                </div>
+                
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="name" class="form-label"><i class="bi bi-person"></i> Имя</label>
+                        <input type="text" class="form-control" id="name" name="name" required 
+                               value="{{ request.form.get('name', '') }}" minlength="2">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="email" class="form-label"><i class="bi bi-envelope"></i> Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required 
+                               value="{{ request.form.get('email', '') }}">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="password" class="form-label"><i class="bi bi-lock"></i> Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                        <div class="form-text">Минимум 6 символов</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label"><i class="bi bi-lock-fill"></i> Подтвердите пароль</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 mb-3">
+                        <i class="bi bi-person-plus"></i> Зарегистрироваться
+                    </button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="mb-0">Уже есть аккаунт? <a href="{{ url_for('login') }}" class="text-decoration-none">Войти</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Check password confirmation
+document.getElementById('confirm_password').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const confirmPassword = this.value;
+    
+    if (password !== confirmPassword) {
+        this.setCustomValidity('Пароли не совпадают');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}
+'''
+
 # Register templates in Jinja loader
 app.jinja_loader = ChoiceLoader([
     DictLoader({
         "layout.html": LAYOUT_TEMPLATE,
+        "login.html": LOGIN_TEMPLATE,
+        "register.html": REGISTER_TEMPLATE,
         "dashboard.html": DASHBOARD_TEMPLATE,
         "expenses.html": EXPENSES_TEMPLATE,
         "categories.html": CATEGORIES_TEMPLATE,
@@ -696,26 +818,44 @@ def get_db():
 def init_db():
     conn = get_db()
     
-    # Create tables
+    # Create users table
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            name TEXT NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    # Create categories table with user_id
     conn.execute('''
         CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            name TEXT NOT NULL,
             limit_type TEXT NOT NULL CHECK (limit_type IN ('fixed','percent')),
-            value REAL NOT NULL
+            value REAL NOT NULL,
+            UNIQUE(user_id, name)
         )
     ''')
     
+    # Create income table with user_id
     conn.execute('''
         CREATE TABLE IF NOT EXISTS income (
-            month TEXT PRIMARY KEY,
-            amount REAL NOT NULL
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            month TEXT NOT NULL,
+            amount REAL NOT NULL,
+            PRIMARY KEY (user_id, month)
         )
     ''')
     
+    # Create expenses table with user_id
     conn.execute('''
         CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
             date TEXT NOT NULL,
             month TEXT NOT NULL,
             category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
@@ -723,25 +863,25 @@ def init_db():
             note TEXT
         )
     ''')
+
+def create_default_categories(user_id):
+    """Create default categories for new user"""
+    default_categories = [
+        ('Продукты', 'percent', 30),
+        ('Транспорт', 'fixed', 5000),
+        ('Развлечения', 'percent', 15),
+        ('Коммунальные', 'fixed', 8000),
+        ('Здоровье', 'fixed', 3000),
+        ('Одежда', 'percent', 10)
+    ]
     
-    # Insert default categories if none exist
-    cursor = conn.execute('SELECT COUNT(*) FROM categories')
-    if cursor.fetchone()[0] == 0:
-        default_categories = [
-            ('Продукты', 'percent', 30),
-            ('Транспорт', 'fixed', 5000),
-            ('Развлечения', 'percent', 15),
-            ('Коммунальные', 'fixed', 8000),
-            ('Здоровье', 'fixed', 3000),
-            ('Одежда', 'percent', 10)
-        ]
-        
-        for name, limit_type, value in default_categories:
-            conn.execute('INSERT INTO categories (name, limit_type, value) VALUES (?, ?, ?)',
-                        (name, limit_type, value))
+    def add_categories_op(conn, user_id, categories):
+        for name, limit_type, value in categories:
+            conn.execute('INSERT INTO categories (user_id, name, limit_type, value) VALUES (?, ?, ?, ?)',
+                        (user_id, name, limit_type, value))
+        return len(categories)
     
-    conn.commit()
-    conn.close()
+    return safe_db_operation(add_categories_op, user_id, default_categories)
 
 
 def get_current_month():
@@ -796,18 +936,28 @@ def safe_db_operation(operation, *args, **kwargs):
         if conn:
             conn.close()
 
+def login_required(f):
+    """Decorator to require login for routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Необходимо войти в систему', 'error')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
-def calculate_carryover(month, category_id):
+
+def calculate_carryover(month, category_id, user_id):
     conn = get_db()
     
     # Get all previous months
     cursor = conn.execute('''
         SELECT DISTINCT month FROM expenses 
-        WHERE category_id = ? AND month < ?
+        WHERE category_id = ? AND month < ? AND user_id = ?
         UNION
-        SELECT DISTINCT month FROM income WHERE month < ?
+        SELECT DISTINCT month FROM income WHERE month < ? AND user_id = ?
         ORDER BY month
-    ''', (category_id, month, month))
+    ''', (category_id, month, user_id, month, user_id))
     
     previous_months = [row['month'] for row in cursor.fetchall()]
     
@@ -815,12 +965,12 @@ def calculate_carryover(month, category_id):
     
     for prev_month in previous_months:
         # Get income for this month
-        cursor = conn.execute('SELECT amount FROM income WHERE month = ?', (prev_month,))
+        cursor = conn.execute('SELECT amount FROM income WHERE month = ? AND user_id = ?', (prev_month, user_id))
         income_row = cursor.fetchone()
         income_amount = float(income_row['amount']) if income_row else 0.0
         
         # Get category info
-        cursor = conn.execute('SELECT * FROM categories WHERE id = ?', (category_id,))
+        cursor = conn.execute('SELECT * FROM categories WHERE id = ? AND user_id = ?', (category_id, user_id))
         category = cursor.fetchone()
         
         # Calculate limit for this month using proper logic
@@ -828,7 +978,7 @@ def calculate_carryover(month, category_id):
             limit = float(category['value'])
         else:  # percent - need to calculate from remaining income
             # Get all fixed categories total for this month
-            cursor = conn.execute('SELECT * FROM categories WHERE limit_type = "fixed"')
+            cursor = conn.execute('SELECT * FROM categories WHERE limit_type = "fixed" AND user_id = ?', (user_id,))
             fixed_categories = cursor.fetchall()
             total_fixed = sum(float(cat['value']) for cat in fixed_categories)
             
@@ -842,8 +992,8 @@ def calculate_carryover(month, category_id):
         cursor = conn.execute('''
             SELECT COALESCE(SUM(amount), 0) as spent
             FROM expenses 
-            WHERE category_id = ? AND month = ?
-        ''', (category_id, prev_month))
+            WHERE category_id = ? AND month = ? AND user_id = ?
+        ''', (category_id, prev_month, user_id))
         spent = float(cursor.fetchone()['spent'])
         
         total_carryover += (limit - spent)
@@ -901,7 +1051,7 @@ def get_dashboard_data(month):
         spent = float(cursor.fetchone()['spent'])
         
         # Calculate carryover
-        carryover = calculate_carryover(month, category['id'])
+        carryover = calculate_carryover(month, category['id'], user_id)
         
         # Calculate current balance
         balance = carryover + limit - spent
@@ -917,8 +1067,123 @@ def get_dashboard_data(month):
     conn.close()
     return income, expenses, budget_data
 
+# Authentication Routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        try:
+            email = request.form.get('email', '').strip().lower()
+            password = request.form.get('password', '')
+            
+            if not email or not password:
+                flash('Пожалуйста, заполните все поля', 'error')
+                return render_template('login.html')
+            
+            # Find user in database
+            def find_user_op(conn, email):
+                cursor = conn.execute('SELECT id, name, password_hash FROM users WHERE email = ?', (email,))
+                return cursor.fetchone()
+            
+            user = safe_db_operation(find_user_op, email)
+            
+            if user and check_password_hash(user['password_hash'], password):
+                # Login successful
+                session['user_id'] = user['id']
+                session['user_name'] = user['name']
+                session['user_email'] = email
+                
+                flash(f'Добро пожаловать, {user["name"]}!', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                flash('Неверные email или пароль', 'error')
+                
+        except ValueError as e:
+            flash(f'Ошибка: {str(e)}', 'error')
+        except Exception as e:
+            flash('Произошла ошибка при входе', 'error')
+    
+    return render_template('login.html')
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        try:
+            name = escape(request.form.get('name', '').strip())
+            email = request.form.get('email', '').strip().lower()
+            password = request.form.get('password', '')
+            confirm_password = request.form.get('confirm_password', '')
+            
+            # Validation
+            if not all([name, email, password, confirm_password]):
+                flash('Пожалуйста, заполните все поля', 'error')
+                return render_template('register.html')
+            
+            if len(name) < 2:
+                flash('Имя должно содержать минимум 2 символа', 'error')
+                return render_template('register.html')
+                
+            if len(password) < 6:
+                flash('Пароль должен содержать минимум 6 символов', 'error')
+                return render_template('register.html')
+                
+            if password != confirm_password:
+                flash('Пароли не совпадают', 'error')
+                return render_template('register.html')
+            
+            # Email format validation (basic)
+            if '@' not in email or '.' not in email.split('@')[1]:
+                flash('Пожалуйста, введите корректный email', 'error')
+                return render_template('register.html')
+            
+            # Create user
+            password_hash = generate_password_hash(password)
+            
+            def create_user_op(conn, name, email, password_hash):
+                cursor = conn.execute(
+                    'INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)',
+                    (name, email, password_hash)
+                )
+                return cursor.lastrowid
+            
+            user_id = safe_db_operation(create_user_op, name, email, password_hash)
+            
+            # Create default categories for new user
+            create_default_categories(user_id)
+            
+            # Auto-login after registration
+            session['user_id'] = user_id
+            session['user_name'] = name
+            session['user_email'] = email
+            
+            flash(f'Добро пожаловать в CrystalBudget, {name}! Для вас созданы категории по умолчанию.', 'success')
+            return redirect(url_for('dashboard'))
+            
+        except ValueError as e:
+            if "already exists" in str(e):
+                flash('Пользователь с таким email уже существует', 'error')
+            else:
+                flash(f'Ошибка: {str(e)}', 'error')
+        except Exception as e:
+            flash('Произошла ошибка при регистрации', 'error')
+    
+    return render_template('register.html')
+
+@app.route('/logout')
+def logout():
+    name = session.get('user_name', 'Пользователь')
+    session.clear()
+    flash(f'До свидания, {name}!', 'success')
+    return redirect(url_for('login'))
+
+# Main Routes
 @app.route('/')
+def index():
+    if 'user_id' in session:
+        return redirect(url_for('dashboard'))
+    return redirect(url_for('login'))
+
+@app.route('/dashboard')
+@login_required
 def dashboard():
     month = request.args.get('month', get_current_month())
     income, expenses, budget_data = get_dashboard_data(month)
@@ -954,14 +1219,15 @@ def quick_expense():
         month = validated_date.strftime('%Y-%m')
         
         # Database operation
-        def add_expense_op(conn, date_str, month, category_id, amount, note):
+        user_id = session['user_id']
+        def add_expense_op(conn, user_id, date_str, month, category_id, amount, note):
             cursor = conn.execute('''
-                INSERT INTO expenses (date, month, category_id, amount, note)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (date_str, month, int(category_id), float(amount), note))
+                INSERT INTO expenses (user_id, date, month, category_id, amount, note)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (user_id, date_str, month, int(category_id), float(amount), note))
             return cursor.rowcount
         
-        result = safe_db_operation(add_expense_op, date_str, month, category_id, amount, note)
+        result = safe_db_operation(add_expense_op, user_id, date_str, month, category_id, amount, note)
         
         if result > 0:
             flash(f'✓ Трата {amount} руб. добавлена!', 'success')
@@ -977,11 +1243,13 @@ def quick_expense():
 
 
 @app.route('/expenses')
+@login_required
 def expenses():
+    user_id = session['user_id']
     conn = get_db()
     
     # Get categories
-    cursor = conn.execute('SELECT * FROM categories ORDER BY name')
+    cursor = conn.execute('SELECT * FROM categories WHERE user_id = ? ORDER BY name', (user_id,))
     categories = cursor.fetchall()
     
     # Get expenses with category names
@@ -989,8 +1257,9 @@ def expenses():
         SELECT e.*, c.name as category_name
         FROM expenses e
         JOIN categories c ON e.category_id = c.id
+        WHERE e.user_id = ?
         ORDER BY e.date DESC
-    ''')
+    ''', (user_id,))
     expenses_list = cursor.fetchall()
     
     conn.close()
@@ -1002,41 +1271,74 @@ def expenses():
 
 
 @app.route('/expenses', methods=['POST'])
+@login_required
 def add_expense():
-    date_str = request.form['date']
-    category_id = request.form['category_id']
-    amount = float(request.form['amount'])
-    note = request.form.get('note', '')
+    try:
+        user_id = session['user_id']
+        date_str = request.form.get('date', '').strip()
+        category_id = request.form.get('category_id', '').strip()
+        amount_str = request.form.get('amount', '').strip()
+        note = escape(request.form.get('note', '').strip())
+        
+        if not date_str or not category_id or not amount_str:
+            flash('Ошибка: все обязательные поля должны быть заполнены', 'error')
+            return redirect(url_for('expenses'))
+        
+        validated_date = validate_date(date_str)
+        amount = validate_amount(amount_str)
+        month = validated_date.strftime('%Y-%m')
+        
+        def add_expense_op(conn, user_id, date_str, month, category_id, amount, note):
+            cursor = conn.execute('''
+                INSERT INTO expenses (user_id, date, month, category_id, amount, note)
+                VALUES (?, ?, ?, ?, ?, ?)
+            ''', (user_id, date_str, month, int(category_id), float(amount), note))
+            return cursor.rowcount
+        
+        result = safe_db_operation(add_expense_op, user_id, date_str, month, category_id, amount, note)
+        
+        if result > 0:
+            flash(f'✓ Трата {amount} руб. добавлена!', 'success')
+        else:
+            flash('Ошибка при добавлении траты', 'error')
+            
+    except ValueError as e:
+        flash(f'Ошибка: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Неожиданная ошибка: {str(e)}', 'error')
     
-    month = date_str[:7]  # Extract YYYY-MM from YYYY-MM-DD
-    
-    conn = get_db()
-    conn.execute('''
-        INSERT INTO expenses (date, month, category_id, amount, note)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (date_str, month, category_id, amount, note))
-    conn.commit()
-    conn.close()
-    
-    flash('Трата добавлена!')
     return redirect(url_for('expenses'))
 
 
 @app.route('/expenses/delete/<int:expense_id>', methods=['POST'])
+@login_required
 def delete_expense(expense_id):
-    conn = get_db()
-    conn.execute('DELETE FROM expenses WHERE id = ?', (expense_id,))
-    conn.commit()
-    conn.close()
+    try:
+        user_id = session['user_id']
+        
+        def delete_expense_op(conn, user_id, expense_id):
+            cursor = conn.execute('DELETE FROM expenses WHERE id = ? AND user_id = ?', (expense_id, user_id))
+            return cursor.rowcount
+        
+        result = safe_db_operation(delete_expense_op, user_id, expense_id)
+        
+        if result > 0:
+            flash('✓ Трата удалена!', 'success')
+        else:
+            flash('Трата не найдена', 'error')
+            
+    except Exception as e:
+        flash(f'Ошибка при удалении: {str(e)}', 'error')
     
-    flash('Трата удалена!')
     return redirect(url_for('expenses'))
 
 
 @app.route('/categories')
+@login_required
 def categories():
+    user_id = session['user_id']
     conn = get_db()
-    cursor = conn.execute('SELECT * FROM categories ORDER BY name')
+    cursor = conn.execute('SELECT * FROM categories WHERE user_id = ? ORDER BY name', (user_id,))
     categories_list = cursor.fetchall()
     conn.close()
     
@@ -1045,21 +1347,45 @@ def categories():
 
 
 @app.route('/categories/add', methods=['POST'])
+@login_required
 def add_category():
-    name = request.form['name']
-    limit_type = request.form['limit_type']
-    value = float(request.form['value'])
-    
-    conn = get_db()
     try:
-        conn.execute('INSERT INTO categories (name, limit_type, value) VALUES (?, ?, ?)',
-                    (name, limit_type, value))
-        conn.commit()
-        flash('Категория добавлена!')
-    except sqlite3.IntegrityError:
-        flash('Категория с таким названием уже существует!')
-    finally:
-        conn.close()
+        user_id = session['user_id']
+        name = escape(request.form.get('name', '').strip())
+        limit_type = request.form.get('limit_type', '').strip()
+        value_str = request.form.get('value', '').strip()
+        
+        if not name or not limit_type or not value_str:
+            flash('Пожалуйста, заполните все поля', 'error')
+            return redirect(url_for('categories'))
+            
+        if limit_type not in ['fixed', 'percent']:
+            flash('Некорректный тип лимита', 'error')
+            return redirect(url_for('categories'))
+            
+        value = validate_amount(value_str)
+        
+        def add_category_op(conn, user_id, name, limit_type, value):
+            cursor = conn.execute(
+                'INSERT INTO categories (user_id, name, limit_type, value) VALUES (?, ?, ?, ?)',
+                (user_id, name, limit_type, float(value))
+            )
+            return cursor.rowcount
+            
+        result = safe_db_operation(add_category_op, user_id, name, limit_type, value)
+        
+        if result > 0:
+            flash(f'✓ Категория "{name}" добавлена!', 'success')
+        else:
+            flash('Ошибка при добавлении категории', 'error')
+            
+    except ValueError as e:
+        if "already exists" in str(e):
+            flash('Категория с таким названием уже существует!', 'error')
+        else:
+            flash(f'Ошибка: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Неожиданная ошибка: {str(e)}', 'error')
     
     return redirect(url_for('categories'))
 
@@ -1099,9 +1425,11 @@ def delete_category(category_id):
 
 
 @app.route('/income')
+@login_required
 def income():
+    user_id = session['user_id']
     conn = get_db()
-    cursor = conn.execute('SELECT * FROM income ORDER BY month DESC')
+    cursor = conn.execute('SELECT * FROM income WHERE user_id = ? ORDER BY month DESC', (user_id,))
     incomes = cursor.fetchall()
     conn.close()
     
@@ -1112,19 +1440,45 @@ def income():
 
 
 @app.route('/income/add', methods=['POST'])
+@login_required
 def add_income():
-    month = request.form['month']
-    amount = float(request.form['amount'])
+    try:
+        user_id = session['user_id']
+        month = request.form.get('month', '').strip()
+        amount_str = request.form.get('amount', '').strip()
+        
+        if not month or not amount_str:
+            flash('Пожалуйста, заполните все поля', 'error')
+            return redirect(url_for('income'))
+            
+        # Validate month format
+        try:
+            datetime.strptime(month, '%Y-%m')
+        except ValueError:
+            flash('Некорректный формат месяца', 'error')
+            return redirect(url_for('income'))
+            
+        amount = validate_amount(amount_str)
+        
+        def add_income_op(conn, user_id, month, amount):
+            cursor = conn.execute(
+                'INSERT OR REPLACE INTO income (user_id, month, amount) VALUES (?, ?, ?)',
+                (user_id, month, float(amount))
+            )
+            return cursor.rowcount
+            
+        result = safe_db_operation(add_income_op, user_id, month, amount)
+        
+        if result > 0:
+            flash(f'✓ Доход за {month} сохранен: {amount} руб.', 'success')
+        else:
+            flash('Ошибка при сохранении дохода', 'error')
+            
+    except ValueError as e:
+        flash(f'Ошибка: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Неожиданная ошибка: {str(e)}', 'error')
     
-    conn = get_db()
-    conn.execute('''
-        INSERT OR REPLACE INTO income (month, amount)
-        VALUES (?, ?)
-    ''', (month, amount))
-    conn.commit()
-    conn.close()
-    
-    flash('Доход сохранен!')
     return redirect(url_for('income'))
 
 
