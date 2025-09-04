@@ -3,16 +3,20 @@
 
 {% block content %}
 <style>
-  /* выпадашки всегда «вверх» не перекрываются */
-  select.form-select { position: relative; overflow: hidden; z-index: 1; }
-  select.form-select option { position: relative; z-index: 9999; }
-
-  /* исправляем кнопку в футере: текст переносится, нормальные отступы */
-  .btn-save-rules {
-    white-space: normal;      /* разрешить перенос */
-    line-height: 1.2;
-    padding: .6rem 1rem;
+  .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .w-min-220 { min-width: 220px; }
+  .w-min-180 { min-width: 180px; }
+  .w-min-160 { min-width: 160px; }
+  .actions-col { min-width: 220px; }
+  .btn, .btn * { white-space: nowrap; }
+  .save-badge {
+    font-size: .8rem; color: #198754; opacity: 0; transition: opacity .25s ease;
+    margin-left: .5rem;
   }
+  .save-badge.show { opacity: 1; }
+  .saving-dots { display: none; font-size: .8rem; color:#6c757d; }
+  .saving .saving-dots { display: inline; }
+  .input-group-text { min-width: 2.25rem; justify-content: center; }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -44,7 +48,9 @@
         </div>
         <div class="col-md-2 d-grid">
           <label class="form-label d-none d-md-block">&nbsp;</label>
-          <button class="btn btn-success">Сохранить</button>
+          <button class="btn btn-success">
+            <i class="bi bi-check-lg me-1"></i> Сохранить
+          </button>
         </div>
       </div>
     </form>
@@ -58,47 +64,64 @@
 </div>
 {% endif %}
 
-<!-- ОДНА адаптивная таблица + одна общая форма для всех привязок -->
+<!-- ОДНА таблица и ОДНА общая форма для привязок "Оплачивать из" -->
 <form method="POST" action="{{ url_for('rules_bulk_update') }}" class="table-responsive">
   <table class="table align-middle">
     <thead class="table-light">
       <tr>
-        <th>Название</th>
-        <th>Тип лимита</th>
-        <th class="text-end">Значение</th>
+        <th class="w-min-220">Название</th>
+        <th class="w-min-180">Тип лимита</th>
+        <th class="text-end w-min-160">Значение</th>
         <th style="min-width:280px">Оплачивать из</th>
-        <th class="text-end" style="width:160px">Действия</th>
+        <th class="text-end actions-col">Действия</th>
       </tr>
     </thead>
     <tbody>
       {% for cat in categories %}
-      <tr>
-        <!-- Столбец «Название» — просто показываем (без редактирования) -->
-        <td style="min-width:220px">{{ cat.name }}</td>
-
-        <!-- Тип лимита (тоже только отображение) -->
-        <td style="min-width:160px">
-          {% if cat.limit_type == 'fixed' %}Фиксированная сумма{% else %}Процент от дохода{% endif %}
+      <tr id="row-{{ cat.id }}">
+        <!-- Автосохраняемая "форма" категории (без кнопки) -->
+        <td>
+          <input type="text"
+                 class="form-control form-control-sm cat-input"
+                 data-field="name" data-id="{{ cat.id }}"
+                 value="{{ cat.name }}" required>
+          <span class="save-badge" id="saved-{{ cat.id }}-name">Сохранено</span>
+        </td>
+        <td>
+          <select class="form-select form-select-sm cat-input"
+                  data-field="limit_type" data-id="{{ cat.id }}">
+            <option value="fixed" {% if cat.limit_type=='fixed' %}selected{% endif %}>Фиксированная сумма</option>
+            <option value="percent" {% if cat.limit_type=='percent' %}selected{% endif %}>Процент от дохода</option>
+          </select>
+          <span class="save-badge" id="saved-{{ cat.id }}-limit_type">Сохранено</span>
+        </td>
+        <td>
+          <div class="input-group input-group-sm">
+            <input type="number" step="0.01" min="0.01" inputmode="decimal"
+                   class="form-control form-control-sm text-end cat-input"
+                   data-field="value" data-id="{{ cat.id }}"
+                   value="{{ cat.value }}" required>
+            <span class="input-group-text">
+              {% if cat.limit_type == 'percent' %}%{% else %}{{ currency_symbol }}{% endif %}
+            </span>
+          </div>
+          <div class="form-text">
+            {% if cat.limit_type == 'percent' %}
+              Текущ.: {{ cat.value|format_percent }}%
+            {% else %}
+              Текущ.: {{ cat.value|format_amount }} {{ currency_symbol }}
+            {% endif %}
+            <span class="saving-dots" id="saving-{{ cat.id }}"> · сохранение…</span>
+          </div>
         </td>
 
-        <!-- Значение красиво отформатировано -->
-        <td class="text-end" style="min-width:160px">
-          {% if cat.limit_type == 'percent' %}
-            {{ cat.value|format_percent }} %
-          {% else %}
-            {{ cat.value|format_amount }} {{ currency_symbol }}
-          {% endif %}
-        </td>
-
-        <!-- Привязка к источнику: селект попадает в единую форму -->
+        <!-- Привязки "оплачивать из" (копятся в ОДНОЙ общей форме) -->
         <td>
           {% if income_sources and income_sources|length %}
             <select name="rules[{{ cat.id }}]" class="form-select form-select-sm">
               <option value="">(не привязано)</option>
               {% for s in income_sources %}
-                <option value="{{ s.id }}" {% if rules_map.get(cat.id) == s.id %}selected{% endif %}>
-                  {{ s.name }}
-                </option>
+                <option value="{{ s.id }}" {% if rules_map.get(cat.id)==s.id %}selected{% endif %}>{{ s.name }}</option>
               {% endfor %}
             </select>
           {% else %}
@@ -108,10 +131,10 @@
           {% endif %}
         </td>
 
-        <!-- Только удаление категории -->
+        <!-- Только удалить -->
         <td class="text-end">
           <form method="POST" action="{{ url_for('categories_delete', cat_id=cat.id) }}" class="d-inline">
-            <button type="submit" class="btn btn-sm btn-outline-danger"
+            <button type="submit" class="btn btn-outline-danger btn-sm"
                     onclick="return confirm('Удалить категорию «{{ cat.name }}»?')">
               <i class="bi bi-trash3 me-1"></i> Удалить
             </button>
@@ -125,7 +148,7 @@
     <tfoot>
       <tr>
         <td colspan="5" class="text-end">
-          <button class="btn btn-primary btn-save-rules">
+          <button class="btn btn-primary">
             <i class="bi bi-plug me-1"></i> Сохранить привязки «Оплачивать из»
           </button>
         </td>
@@ -134,13 +157,71 @@
     {% endif %}
   </table>
 </form>
+{% endblock %}
 
-{% if not categories %}
-<div class="text-center py-5">
-  <p class="text-muted mb-3">Категории не созданы</p>
-  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
-    <i class="bi bi-plus-lg me-1"></i> Создать категорию
-  </button>
-</div>
-{% endif %}
+{% block scripts %}
+<script>
+(function(){
+  // дебаунсер для экономии запросов
+  function debounce(fn, ms) {
+    let t; return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), ms); };
+  }
+
+  // POST на /categories/update/<id> (без перезагрузки)
+  async function saveField(id, payload) {
+    const row = document.getElementById('row-'+id);
+    const saving = row.querySelector('#saving-'+id);
+    if (saving) row.classList.add('saving');
+
+    try {
+      const form = new FormData();
+      Object.keys(payload).forEach(k=>form.append(k, payload[k]));
+      const resp = await fetch(`{{ url_for('categories_update', cat_id=0) }}`.replace('/0','/'+id), {
+        method: 'POST', body: form, headers: { 'X-Requested-With':'fetch' }
+      });
+      if (!resp.ok) throw new Error('bad status');
+      return true;
+    } catch(e) {
+      console.error(e);
+      alert('Не удалось сохранить. Проверьте значения.');
+      return false;
+    } finally {
+      if (saving) row.classList.remove('saving');
+    }
+  }
+
+  const inputs = document.querySelectorAll('.cat-input');
+  const debounced = debounce(async (el)=>{
+    const id = el.dataset.id;
+    // собрать все поля категории
+    const row = document.getElementById('row-'+id);
+    const name = row.querySelector('[data-field="name"]').value.trim();
+    const limit_type = row.querySelector('[data-field="limit_type"]').value;
+    const value = row.querySelector('[data-field="value"]').value;
+
+    if (!name || !limit_type || !value) return;
+
+    const ok = await saveField(id, { name, limit_type, value });
+    if (ok) {
+      const badge = document.getElementById(`saved-${id}-${el.dataset.field}`) || row.querySelector('.save-badge');
+      if (badge) { badge.classList.add('show'); setTimeout(()=>badge.classList.remove('show'), 1200); }
+    }
+  }, 400);
+
+  inputs.forEach(el=>{
+    el.addEventListener('change', ()=>debounced(el));
+    el.addEventListener('blur', ()=>debounced(el));
+    // при смене типа — сменить значок единицы измерения
+    if (el.dataset.field === 'limit_type') {
+      el.addEventListener('change', ()=>{
+        const id = el.dataset.id;
+        const row = document.getElementById('row-'+id);
+        const unit = row.querySelector('.input-group-text');
+        if (el.value === 'percent') unit.textContent = '%';
+        else unit.textContent = '{{ currency_symbol }}';
+      });
+    }
+  });
+})();
+</script>
 {% endblock %}
