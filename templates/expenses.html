@@ -1,16 +1,19 @@
 {% extends "base.html" %}
-{% block title %}⚔️ Приключения - CrystalBudget FF Edition{% endblock %}
+{% block title %}💳 Расходы - CrystalBudget{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="crystal-pulse"><i class="bi bi-gem"></i> ⚔️ Книга Приключений</h2>
-    <button class="btn btn-primary magic-float" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
-        <i class="bi bi-plus-lg me-1"></i> ✨ Начать квест
+    <h2 class="text-gradient pulse-element d-flex align-items-center gap-3">
+        <i class="bi bi-wallet2"></i>
+        <span>Мои Расходы</span>
+    </h2>
+    <button class="btn-modern floating-element" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
+        <i class="bi bi-plus-lg"></i> Добавить расход
     </button>
 </div>
 
 <div class="collapse mb-4" id="addExpenseForm">
-    <div class="card card-body crystal-card">
+    <div class="card card-body modern-card">
         <form method="POST" action="/expenses">
             <div class="row g-3">
                 <div class="col-md-3">
@@ -21,10 +24,10 @@
                 </div>
                 <div class="col-md-3">
                     <label for="category_id" class="form-label">
-                        <i class="bi bi-gem"></i> Артефакт
+                        <i class="bi bi-tags"></i> Категория
                     </label>
                     <select id="category_id" name="category_id" class="form-select" required>
-                        <option value="">Выберите артефакт</option>
+                        <option value="">Выберите категорию</option>
                         {% for cat in categories %}
                         <option value="{{ cat.id }}">{{ cat.name }}</option>
                         {% endfor %}
@@ -32,21 +35,21 @@
                 </div>
                 <div class="col-md-2">
                     <label for="amount" class="form-label">
-                        <i class="bi bi-currency-exchange"></i> ⚡ Мана
+                        <i class="bi bi-currency-dollar"></i> Сумма
                     </label>
                     <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
                            inputmode="decimal" class="form-control" required>
                 </div>
                 <div class="col-md-3 col-sm-12">
                     <label for="note" class="form-label">
-                        <i class="bi bi-chat-text"></i> 📝 Заметка о квесте
+                        <i class="bi bi-chat-dots"></i> Комментарий
                     </label>
                     <input type="text" id="note" name="note" class="form-control">
                 </div>
                 <div class="col-md-1 col-sm-12 d-flex align-items-end">
                     <label class="form-label d-none d-md-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0 magic-float">
-                        <i class="bi bi-plus-lg me-1"></i> ✨ Сотворить
+                    <button type="submit" class="btn-modern btn-modern-success w-100 mt-2 mt-md-0 floating-element">
+                        <i class="bi bi-plus-lg"></i> Добавить
                     </button>
                 </div>
             </div>
@@ -57,7 +60,7 @@
 <!-- Mobile view -->
 <div class="d-block d-md-none">
     {% for expense in expenses %}
-    <div class="card mb-3 expense-card crystal-card">
+    <div class="card mb-3 expense-card modern-card glow-effect">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
@@ -138,10 +141,10 @@
     <div class="card border-0 bg-transparent">
         <div class="card-body">
             <i class="bi bi-receipt display-4 text-white-50 mb-3"></i>
-            <h5 class="text-white-50">⚔️ Нет приключений</h5>
-            <p class="text-white-50 mb-4">Начните первый квест для получения опыта</p>
-            <button class="btn btn-primary magic-float" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
-                <i class="bi bi-plus-lg me-2"></i> ✨ Начать квест
+            <h5 class="text-gradient">💳 Нет расходов</h5>
+            <p class="text-muted mb-4">Добавьте первый расход для начала учёта</p>
+            <button class="btn-modern floating-element" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
+                <i class="bi bi-plus-lg"></i> Добавить расход
             </button>
         </div>
     </div>
