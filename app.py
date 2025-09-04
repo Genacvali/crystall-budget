@@ -17,8 +17,16 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
-
-
+@app.template_filter("format_amount")
+def format_amount(value):
+    try:
+        value = float(value)
+    except (ValueError, TypeError):
+        return value
+    # Если целое — убираем .0
+    if value.is_integer():
+        return f"{int(value):,}".replace(",", " ")
+    return f"{value:,.2f}".replace(",", " ")
 # -----------------------------------------------------------------------------
 # DB helpers
 # -----------------------------------------------------------------------------
