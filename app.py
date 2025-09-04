@@ -1521,19 +1521,17 @@ SOURCES_HTML = """
 
 app.jinja_loader = ChoiceLoader(
     [
-        DictLoader(
-            {
-                "base.html": BASE_HTML,
-                "login.html": LOGIN_HTML,
-                "register.html": REGISTER_HTML,
-                "dashboard.html": DASHBOARD_HTML,
-                "categories.html": CATEGORIES_HTML,
-                "expenses.html": EXPENSES_HTML,
-                "income.html": INCOME_HTML,
-                "sources.html": SOURCES_HTML,
-            }
-        ),
-        app.jinja_loader,
+        app.jinja_loader,  # ← сначала файловая система
+        DictLoader({
+            "base.html": BASE_HTML,
+            "login.html": LOGIN_HTML,
+            "register.html": REGISTER_HTML,
+            "dashboard.html": DASHBOARD_HTML,
+            # "categories.html": CATEGORIES_HTML,  # ← убрано!
+            "expenses.html": EXPENSES_HTML,
+            "income.html": INCOME_HTML,
+            "sources.html": SOURCES_HTML,
+        }),
     ]
 )
 
