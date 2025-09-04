@@ -4,15 +4,8 @@
 {% block content %}
 <style>
 /* Селекты открываются вниз */
-select.form-select, .form-modern {
-  position: relative;
-  overflow: hidden;
-  z-index: 1;
-}
-select.form-select option, .form-modern option {
-  position: relative;
-  z-index: 9999;
-}
+select.form-select, .form-modern { position: relative; overflow: hidden; z-index: 1; }
+select.form-select option, .form-modern option { position: relative; z-index: 9999; }
 
 /* Кнопка "Добавить" */
 .quick-add-btn {
@@ -22,20 +15,19 @@ select.form-select option, .form-modern option {
   justify-content: center;
   white-space: nowrap;
 }
-
-/* Текст кнопки скрыт на мобильных */
 .quick-add-text { display: none; }
-@media (min-width: 768px) {
-  .quick-add-text { display: inline; }
-}
+@media (min-width: 768px) { .quick-add-text { display: inline; } }
+
+/* Карточки-источники */
+.source-card .k { color: #6c757d; }
+.source-card .v { font-weight: 600; }
 </style>
 
 <!-- Заголовок -->
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
   <div>
     <h1 class="m-0 d-flex align-items-center gap-2">
-      <i class="bi bi-speedometer2"></i>
-      Финансовый дашборд
+      <i class="bi bi-speedometer2"></i> Финансовый дашборд
     </h1>
     <p class="text-secondary mb-0">Управляйте своим бюджетом эффективно</p>
   </div>
@@ -53,8 +45,7 @@ select.form-select option, .form-modern option {
   <div class="card-body">
     <div class="d-flex align-items-center justify-content-between mb-3">
       <h5 class="m-0">
-        <i class="bi bi-plus-circle-fill"></i>
-        Быстрое добавление расхода
+        <i class="bi bi-plus-circle-fill"></i> Быстрое добавление расхода
       </h5>
       <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#quickAddForm">
         <i class="bi bi-chevron-down"></i>
@@ -74,10 +65,10 @@ select.form-select option, .form-modern option {
           <div class="col-12 col-md-3">
             <label class="form-label"><i class="bi bi-tags-fill"></i> Категория</label>
             <div class="d-flex gap-2">
-              <select name="category_id" class="form-modern form-select" required style="flex:1;">
+              <select name="category_id" class="form-modern form-select" required style="flex:1;" id="quick-category">
                 <option value="">Выберите категорию…</option>
                 {% for cat in categories %}
-                <option value="{{ cat.id }}">{{ cat.name }}</option>
+                  <option value="{{ cat.id }}">{{ cat.name }}</option>
                 {% endfor %}
               </select>
               <button type="button" class="btn btn-outline-secondary" style="padding:12px"
@@ -86,14 +77,12 @@ select.form-select option, .form-modern option {
               </button>
             </div>
           </div>
-<!-- Сумма -->
-<div class="col-12 col-md-2">
-    <label class="form-label">
-        <i class="bi bi-calculator"></i> Сумма
-    </label>
-    <input type="number" name="amount" placeholder="0.00" step="0.01" min="0.01"
-           inputmode="decimal" class="form-modern form-control" required>
-</div>
+          <!-- Сумма -->
+          <div class="col-12 col-md-2">
+            <label class="form-label"><i class="bi bi-123"></i> Сумма</label>
+            <input type="number" name="amount" placeholder="0.00" step="0.01" min="0.01"
+                   inputmode="decimal" class="form-modern form-control" required id="quick-amount">
+          </div>
           <!-- Комментарий -->
           <div class="col-12 col-md-3">
             <label class="form-label"><i class="bi bi-chat-dots-fill"></i> Комментарий</label>
@@ -102,8 +91,7 @@ select.form-select option, .form-modern option {
           <!-- Кнопка -->
           <div class="col-12 col-md-auto d-flex align-items-center justify-content-end">
             <button type="submit" class="btn btn-success quick-add-btn w-100 w-md-auto px-3">
-              <i class="bi bi-plus-lg me-1"></i>
-              <span class="quick-add-text">Добавить</span>
+              <i class="bi bi-plus-lg me-1"></i><span class="quick-add-text">Добавить</span>
             </button>
           </div>
         </div>
@@ -111,6 +99,27 @@ select.form-select option, .form-modern option {
     </div>
   </div>
 </div>
+
+<!-- Блок источников (если есть) -->
+{% if source_balances and source_balances|length > 0 %}
+<div class="row g-3 mb-4">
+  {% for s in source_balances %}
+  <div class="col-12 col-md-6 col-lg-4">
+    <div class="card source-card">
+      <div class="card-body">
+        <h6 class="mb-3">{{ s.source_name }}</h6>
+        <div class="d-flex justify-content-between mb-1"><span class="k">Пришло</span><span class="v">{{ s.income|format_amount }}</span></div>
+        <div class="d-flex justify-content-between mb-1"><span class="k">Ушло</span><span class="v">{{ s.spent|format_amount }}</span></div>
+        <div class="d-flex justify-content-between">
+          <span class="k">Остаток</span>
+          <span class="v {% if s.rest < 0 %}text-danger{% endif %}">{{ s.rest|format_amount }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
 
 <!-- Отображение бюджета -->
 {% if budget_data %}
@@ -173,4 +182,17 @@ select.form-select option, .form-modern option {
   {% endfor %}
 </div>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // После выбора категории фокус в поле суммы
+  const cat = document.getElementById('quick-category');
+  const amount = document.getElementById('quick-amount');
+  if (cat && amount) {
+    cat.addEventListener('change', () => { if (cat.value) setTimeout(() => amount.focus(), 50); });
+  }
+});
+</script>
 {% endblock %}

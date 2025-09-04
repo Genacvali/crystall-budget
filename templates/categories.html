@@ -4,15 +4,8 @@
 {% block content %}
 <style>
 /* FIX: dropdown always opens down */
-select.form-select {
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-}
-select.form-select option {
-    position: relative;
-    z-index: 9999;
-}
+select.form-select { position: relative; overflow: hidden; z-index: 1; }
+select.form-select option { position: relative; z-index: 9999; }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -88,16 +81,14 @@ select.form-select option {
             <label class="form-label">Оплачивать из</label>
             {% if income_sources and income_sources|length %}
             <div class="input-group">
-              <select name="source_id" class="form-select"
-                      form="rule-form-{{ cat.id }}">
+              <select name="source_id" class="form-select" form="rule-form-{{ cat.id }}">
                 {% for s in income_sources %}
                   <option value="{{ s.id }}" {% if rules_map.get(cat.id) == s.id %}selected{% endif %}>
                     {{ s.name }}
                   </option>
                 {% endfor %}
               </select>
-              <button class="btn btn-outline-primary" type="submit"
-                      form="rule-form-{{ cat.id }}">
+              <button class="btn btn-outline-primary" type="submit" form="rule-form-{{ cat.id }}">
                 Сохранить правило
               </button>
             </div>
@@ -122,7 +113,7 @@ select.form-select option {
         </div>
       </form>
 
-      <!-- Отдельная форма под правило (чтобы не мешать основной POST /categories/update/..) -->
+      <!-- Отдельная форма под правило -->
       <form id="rule-form-{{ cat.id }}" method="POST" action="{{ url_for('upsert_rule', category_id=cat.id) }}"></form>
     </div>
   </div>
@@ -144,6 +135,7 @@ select.form-select option {
     <tbody>
       {% for cat in categories %}
       <tr>
+        <!-- Форма обновления категории -->
         <form method="POST" action="/categories/update/{{ cat.id }}" class="d-contents">
           <td style="min-width:220px">
             <input type="text" name="name" value="{{ cat.name }}" class="form-control form-control-sm" required>
@@ -160,16 +152,19 @@ select.form-select option {
           </td>
           <td>
             {% if income_sources and income_sources|length %}
-            <form method="POST" action="{{ url_for('upsert_rule', category_id=cat.id) }}" class="d-flex gap-2">
-              <select name="source_id" class="form-select form-select-sm">
-                {% for s in income_sources %}
-                  <option value="{{ s.id }}" {% if rules_map.get(cat.id) == s.id %}selected{% endif %}>
-                    {{ s.name }}
-                  </option>
-                {% endfor %}
-              </select>
-              <button class="btn btn-outline-primary btn-sm">Сохранить</button>
-            </form>
+              <!-- Селект и кнопка привязаны к ОТДЕЛЬНОЙ форме ниже -->
+              <div class="d-flex gap-2">
+                <select name="source_id" class="form-select form-select-sm" form="rule-form-{{ cat.id }}">
+                  {% for s in income_sources %}
+                    <option value="{{ s.id }}" {% if rules_map.get(cat.id) == s.id %}selected{% endif %}>
+                      {{ s.name }}
+                    </option>
+                  {% endfor %}
+                </select>
+                <button class="btn btn-outline-primary btn-sm" type="submit" form="rule-form-{{ cat.id }}">
+                  Сохранить
+                </button>
+              </div>
             {% else %}
               <span class="text-muted small">Добавьте источники на странице <a href="{{ url_for('sources_page') }}">«Источники»</a></span>
             {% endif %}
@@ -179,16 +174,12 @@ select.form-select option {
               <button type="submit" class="btn btn-outline-primary">
                 <i class="bi bi-check-lg me-1"></i> Сохранить
               </button>
-        </form>
-              <form method="POST" action="/categories/delete/{{ cat.id }}" class="d-inline">
-                <button type="submit" class="btn btn-outline-danger"
-                        onclick="return confirm('Удалить категорию?')">
-                  <i class="bi bi-trash3 me-1"></i> Удалить
-                </button>
-              </form>
             </div>
           </td>
+        </form>
       </tr>
+      <!-- ОТДЕЛЬНАЯ форма под правило (вне строки, но с id) -->
+      <form id="rule-form-{{ cat.id }}" method="POST" action="{{ url_for('upsert_rule', category_id=cat.id) }}"></form>
       {% endfor %}
     </tbody>
   </table>

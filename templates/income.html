@@ -6,8 +6,8 @@
   <h2 class="h4 m-0">Мои доходы</h2>
 </div>
 
-<!-- Форма добавления дохода (ПО ДНЯМ) -->
-<form method="POST" action="{{ url_for('income_add') }}" class="mb-3">
+<!-- Форма добавления дохода (по дням) -->
+<form method="POST" action="{{ url_for('income_add') }}" class="mb-3" novalidate>
   <div class="card card-body">
     <div class="row g-3">
       <div class="col-md-3">
@@ -18,8 +18,10 @@
 
       <div class="col-md-3">
         <label for="amount" class="form-label">Сумма</label>
-        <input type="number" id="amount" name="amount" step="0.01" min="0.01"
-               inputmode="decimal" class="form-control" placeholder="Сумма дохода" required>
+        <input type="number" id="amount" name="amount"
+               inputmode="decimal" step="0.01" min="0.01"
+               class="form-control" placeholder="Сумма дохода" required>
+        <div class="form-text">Используйте точку для копеек: 1234.56</div>
       </div>
 
       <div class="col-md-4">
@@ -44,7 +46,7 @@
   </div>
 </form>
 
-<!-- Мобильный вид -->
+<!-- Мобильные карточки -->
 <div class="d-block d-md-none">
   {% for income in incomes %}
   <div class="card mb-2">
@@ -132,11 +134,27 @@
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+  // Если дата не задана — подставляем сегодня
   const dateInput = document.getElementById('date');
   if (dateInput && !dateInput.value) {
     const now = new Date();
     dateInput.value = now.toISOString().slice(0, 10);
+  }
+
+  // После выбора источника — фокус в "Сумма"
+  const source = document.getElementById('source_id');
+  const amount = document.getElementById('amount');
+  if (source && amount) {
+    source.addEventListener('change', () => setTimeout(() => amount.focus(), 60));
+  }
+
+  // Нормализация суммы до двух знаков на blur
+  if (amount) {
+    amount.addEventListener('blur', () => {
+      const v = parseFloat(amount.value);
+      if (!isNaN(v) && v > 0) amount.value = v.toFixed(2);
+    });
   }
 });
 </script>
