@@ -5,14 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
 
-  <!-- iOS Specific Meta Tags -->
+  <!-- PWA: Манифест -->
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <meta name="theme-color" content="#4fb3d9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="CrystalBudget FF">
+  <meta name="apple-mobile-web-app-title" content="CrystalBudget">
+  <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <link rel="apple-touch-icon" sizes="512x512" href="{{ url_for('static', filename='icons/icon-512.png') }}">
   <meta name="format-detection" content="telephone=no">
-
-  <!-- iOS Icon (inline svg) -->
-  <meta name="apple-touch-icon" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='crystal' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234fb3d9'/><stop offset='100%' style='stop-color:%232d1b69'/></linearGradient></defs><rect width='100' height='100' fill='url(%23crystal)'/><text y='70' font-size='50' text-anchor='middle' x='50' fill='%23ffd700'>💎</text></svg>'">
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -23,26 +24,55 @@
   <link href="{{ url_for('static', filename='css/clean-theme.css') }}" rel="stylesheet">
 
   <style>
-    :root{
+    /* iOS Safe Area */
+    :root {
       --safe-area-inset-top: env(safe-area-inset-top, 0px);
       --safe-area-inset-right: env(safe-area-inset-right, 0px);
       --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
       --safe-area-inset-left: env(safe-area-inset-left, 0px);
     }
-    body{ padding-top:var(--safe-area-inset-top); padding-bottom:var(--safe-area-inset-bottom); padding-left:var(--safe-area-inset-left); padding-right:var(--safe-area-inset-right); }
-    .container-fluid{ padding-left:max(15px,var(--safe-area-inset-left)); padding-right:max(15px,var(--safe-area-inset-right)); }
 
-    /* NAV: не наезжать на логотип, перенос на 2 строку при узкой ширине */
-    .navbar-modern .container-fluid{ display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
-    .navbar-brand-modern{ margin-right:auto; white-space:nowrap; }
+    body {
+      padding-top: var(--safe-area-inset-top);
+      padding-bottom: var(--safe-area-inset-bottom);
+      padding-left: var(--safe-area-inset-left);
+      padding-right: var(--safe-area-inset-right);
+    }
+
+    .container-fluid {
+      padding-left: max(15px, var(--safe-area-inset-left));
+      padding-right: max(15px, var(--safe-area-inset-right));
+    }
+
+    /* NAV FIXES */
+    .navbar-modern .container-fluid {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      flex-wrap: wrap;
+    }
+
+    .navbar-brand-modern {
+      margin-right: auto;
+      white-space: nowrap;
+    }
+
     .navbar-modern .navbar-nav .nav-link-modern,
     .navbar-modern .btn,
-    .navbar-modern .currency-selector{ white-space:nowrap; }
+    .navbar-modern .currency-selector {
+      white-space: nowrap;
+    }
 
-    @media (max-width: 992px){
+    @media (max-width: 992px) {
       .navbar-modern .navbar-nav .nav-link-modern,
-      .navbar-modern .btn{ padding:.4rem .6rem; font-size:.95rem; }
-      .currency-selector .currency-option{ padding:.25rem .5rem; min-width:2.25rem; }
+      .navbar-modern .btn {
+        padding: .4rem .6rem;
+        font-size: .95rem;
+      }
+      .currency-selector .currency-option {
+        padding: .25rem .5rem;
+        min-width: 2.25rem;
+      }
     }
   </style>
 </head>
@@ -104,7 +134,11 @@
               <i class="bi bi-person-circle"></i> {{ session.user_name }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end modern-card" style="border:none;">
-              <li><a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
+              <li>
+                <a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}">
+                  <i class="bi bi-box-arrow-right"></i> Выйти
+                </a>
+              </li>
             </ul>
           </li>
         </ul>
@@ -127,102 +161,64 @@
     {% block content %}{% endblock %}
   </div>
 
+  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+  <!-- PWA Service Worker -->
   <script>
-    /* ---------------- CURRENCY ---------------- */
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/static/service-worker.js")
+        .then(() => console.log("✅ Service Worker установлен"))
+        .catch(err => console.error("❌ Ошибка Service Worker:", err));
+    }
+  </script>
+
+  <!-- Theme & Currency -->
+  <script>
     let currentCurrency = 'RUB';
     const currencySymbols = {
-      'RUB':'₽',
-      'USD':'$',
-      'EUR':'€',
-      'AMD':'֏',
-      'GEL':'₾'
+      'RUB':'₽', 'USD':'$', 'EUR':'€', 'AMD':'֏', 'GEL':'₾'
     };
 
     function setCurrency(currency){
       currentCurrency = currency;
       localStorage.setItem('currency', currency);
       document.querySelectorAll('.currency-option').forEach(o=>o.classList.remove('active'));
-      const btn = document.getElementById('curr-'+currency.toLowerCase());
-      if(btn) btn.classList.add('active');
+      document.getElementById('curr-'+currency.toLowerCase()).classList.add('active');
       updateCurrencyDisplays();
     }
 
-    // ВАЖНО: обновляем и .currency, и .currency-display
     function updateCurrencyDisplays(){
       const symbol = currencySymbols[currentCurrency] || '';
-
-      document.querySelectorAll('.currency, .currency-display').forEach(el=>{
-        // Текст внутри (могут быть "25 000 ₽", "Остаток: 25 000 ₽", и т.п.)
-        let txt = el.textContent.trim();
-
-        // если уже есть какой-то символ валюты — заменим его
-        if (/[₽$€֏₾]/.test(txt)) {
-          txt = txt.replace(/[₽$€֏₾]/g, symbol);
-        } else {
-          // иначе просто добавим к числу (ищем последнюю числовую группу)
-          const m = txt.match(/(.+?)([-\d\s.,]+)\s*$/);
-          if (m) {
-            txt = `${m[1]}${m[2]} ${symbol}`.trim();
-          } else {
-            txt = `${txt} ${symbol}`.trim();
-          }
-        }
-
-        el.textContent = txt;
+      document.querySelectorAll('.currency-display').forEach(el=>{
+        const amount = el.textContent.replace(/[₽$€֏₾]/g,'').trim();
+        el.textContent = amount + ' ' + symbol;
       });
     }
 
-    /* ---------------- THEME ---------------- */
     function toggleTheme(){
-      const cur = document.documentElement.getAttribute('data-theme');
-      const next = cur==='dark'?'light':'dark';
-      document.documentElement.setAttribute('data-theme', next);
-      localStorage.setItem('theme', next);
+      const cur=document.documentElement.getAttribute('data-theme');
+      const next=cur==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme',next);
+      localStorage.setItem('theme',next);
       updateThemeToggle(next);
     }
+
     function updateThemeToggle(theme){
-      const lightIcon=document.getElementById('light-icon');
-      const darkIcon=document.getElementById('dark-icon');
-      if(theme==='dark'){ lightIcon.style.opacity='0.5'; darkIcon.style.opacity='1'; }
-      else{ lightIcon.style.opacity='1'; darkIcon.style.opacity='0.5'; }
+      const light=document.getElementById('light-icon');
+      const dark=document.getElementById('dark-icon');
+      light.style.opacity = theme==='dark' ? '0.5' : '1';
+      dark.style.opacity  = theme==='dark' ? '1' : '0.5';
     }
 
-    /* ---------------- INIT ---------------- */
-    document.addEventListener('DOMContentLoaded', function(){
-      // theme
+    document.addEventListener('DOMContentLoaded', ()=>{
       let savedTheme = localStorage.getItem('theme');
-      if(!savedTheme){ savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'; }
-      document.documentElement.setAttribute('data-theme', savedTheme);
+      if(!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
+      document.documentElement.setAttribute('data-theme',savedTheme);
       updateThemeToggle(savedTheme);
 
-      // currency
       const savedCurrency = localStorage.getItem('currency') || 'RUB';
-      setCurrency(savedCurrency);      // включает updateCurrencyDisplays()
-
-      // iOS Safari fix
-      if(/iPad|iPhone|iPod/.test(navigator.userAgent)){
-        document.querySelectorAll('input, select, textarea').forEach(input=>{
-          input.addEventListener('focus', function(){ this.style.fontSize='16px'; });
-        });
-      }
-
-      // auto-hide alerts
-      setTimeout(()=>{
-        document.querySelectorAll('.alert:not(.alert-permanent)').forEach(a=>{
-          try{ new bootstrap.Alert(a).close(); }catch(e){}
-        });
-      }, 5000);
-    });
-
-    // follow system theme if not overridden
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)=>{
-      if(!localStorage.getItem('theme')){
-        const next = e.matches ? 'dark':'light';
-        document.documentElement.setAttribute('data-theme', next);
-        updateThemeToggle(next);
-      }
+      setCurrency(savedCurrency);
     });
   </script>
 
