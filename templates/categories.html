@@ -1,165 +1,141 @@
 {% extends "base.html" %}
-{% block title %}🏷️ Категории - CrystalBudget{% endblock %}
+{% block title %}Категории — CrystalBudget{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-gradient pulse-element d-flex align-items-center gap-3">
-        <i class="bi bi-tags"></i>
-        <span>Мои Категории</span>
-    </h2>
-    <button class="btn-modern floating-element" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
-        <i class="bi bi-plus-lg"></i> Создать категорию
-    </button>
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2 class="h4 m-0">Категории</h2>
+  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
+    <i class="bi bi-plus-lg me-1"></i> Добавить категорию
+  </button>
 </div>
 
-<div class="collapse mb-4" id="addCategoryForm">
-    <div class="card card-body modern-card">
-        <form method="POST" action="/categories/add">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label for="name" class="form-label">
-                        <i class="bi bi-gem"></i> 🏺 Название артефакта
-                    </label>
-                    <input type="text" id="name" name="name" class="form-modern" 
-                           placeholder="Название категории" required>
-                </div>
-                <div class="col-md-3">
-                    <label for="limit_type" class="form-label">
-                        <i class="bi bi-gear"></i> ⚡ Тип магии
-                    </label>
-                    <select id="limit_type" name="limit_type" class="form-modern" required>
-                        <option value="fixed">💎 Мана-кристалл (фикс.)</option>
-                        <option value="percent">🌀 Процент от казны</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="value" class="form-label">
-                        <i class="bi bi-calculator"></i> ⚗️ Мощность
-                    </label>
-                    <input type="number" id="value" name="value" step="0.01" min="0.01" 
-                           inputmode="decimal" class="form-modern" required
-                           placeholder="Сумма или %">
-                </div>
-                <div class="col-md-2 col-sm-12 d-flex align-items-end">
-                    <label class="form-label d-none d-md-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0 magic-float">
-                        <i class="bi bi-plus-lg me-1"></i> ✨ Сотворить
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Mobile view -->
-<div class="d-block d-md-none">
-    {% for cat in categories %}
-    <div class="card mb-3 modern-card glow-effect">
-        <div class="card-body">
-            <form method="POST" action="/categories/update/{{ cat.id }}">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label">
-                            <i class="bi bi-tag"></i> Название
-                        </label>
-                        <input type="text" name="name" value="{{ cat.name }}" class="form-modern">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">
-                            <i class="bi bi-gear"></i> Тип
-                        </label>
-                        <select name="limit_type" class="form-modern">
-                            <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>💎 Мана-кристалл</option>
-                            <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>🌀 % от казны</option>
-                        </select>
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">
-                            <i class="bi bi-calculator"></i> Значение
-                        </label>
-                        <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01" 
-                               inputmode="decimal" class="form-modern">
-                    </div>
-                    <div class="col-12 d-flex gap-2">
-                        <button type="submit" class="btn btn-outline-primary flex-fill magic-float">
-                            <i class="bi bi-check-lg me-1"></i> 🔮 Зачаровать
-                        </button>
-                        <button type="button" class="btn btn-outline-danger flex-fill" 
-                                onclick="if(confirm('Уничтожить артефакт {{ cat.name }}?')) { 
-                                    const form = document.createElement('form'); 
-                                    form.method = 'POST'; 
-                                    form.action = '/categories/delete/{{ cat.id }}'; 
-                                    document.body.appendChild(form); 
-                                    form.submit(); 
-                                }">
-                            <i class="bi bi-trash3 me-1"></i> 💥 Уничтожить
-                        </button>
-                    </div>
-                </div>
-            </form>
+<div class="collapse mb-3" id="addCategoryForm">
+  <div class="card card-body">
+    <form method="POST" action="/categories/add">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label for="name" class="form-label">Название</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="Например, Продукты" required>
         </div>
-    </div>
-    {% endfor %}
+        <div class="col-md-3">
+          <label for="limit_type" class="form-label">Тип лимита</label>
+          <select id="limit_type" name="limit_type" class="form-select" required>
+            <option value="fixed">Фиксированная сумма</option>
+            <option value="percent">Процент от дохода</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="value" class="form-label">Значение</label>
+          <input type="number" id="value" name="value" step="0.01" min="0.01"
+                 inputmode="decimal" class="form-control" placeholder="Сумма или %"
+                 required>
+        </div>
+        <div class="col-md-2 d-grid">
+          <label class="form-label d-none d-md-block">&nbsp;</label>
+          <button type="submit" class="btn btn-success">Сохранить</button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 
-<!-- Desktop table view -->
+<!-- Мобильные карточки -->
+<div class="d-block d-md-none">
+  {% for cat in categories %}
+  <div class="card mb-2">
+    <div class="card-body">
+      <form method="POST" action="/categories/update/{{ cat.id }}">
+        <div class="row g-2">
+          <div class="col-12">
+            <label class="form-label">Название</label>
+            <input type="text" name="name" value="{{ cat.name }}" class="form-control" required>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Тип</label>
+            <select name="limit_type" class="form-select">
+              <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>Фиксированная сумма</option>
+              <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>Процент от дохода</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label">Значение</label>
+            <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01"
+                   inputmode="decimal" class="form-control" required>
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-outline-primary flex-fill">
+              <i class="bi bi-check-lg me-1"></i> Обновить
+            </button>
+            <button type="button" class="btn btn-outline-danger flex-fill"
+                    onclick="if(confirm('Удалить категорию «{{ cat.name }}»?')) { 
+                      const f = document.createElement('form'); 
+                      f.method='POST'; f.action='/categories/delete/{{ cat.id }}'; 
+                      document.body.appendChild(f); f.submit(); 
+                    }">
+              <i class="bi bi-trash3 me-1"></i> Удалить
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Настольная таблица -->
 <div class="table-responsive d-none d-md-block">
-    <table class="table-modern">
-        <thead class="table-dark">
-            <tr>
-                <th><i class="bi bi-gem"></i> 🏺 Артефакт</th>
-                <th><i class="bi bi-gear"></i> ⚡ Тип магии</th>
-                <th><i class="bi bi-calculator"></i> ⚗️ Мощность</th>
-                <th><i class="bi bi-tools"></i> 🔮 Магия</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cat in categories %}
-            <tr>
-                <form method="POST" action="/categories/update/{{ cat.id }}" class="d-contents">
-                    <td>
-                        <input type="text" name="name" value="{{ cat.name }}" class="form-control form-control-sm">
-                    </td>
-                    <td>
-                        <select name="limit_type" class="form-select form-select-sm">
-                            <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>💎 Мана-кристалл</option>
-                            <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>🌀 % от казны</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01" 
-                               inputmode="decimal" class="form-control form-control-sm">
-                    </td>
-                    <td>
-                        <button type="submit" class="btn btn-sm btn-outline-primary me-2 magic-float">
-                            <i class="bi bi-check-lg me-1"></i> 🔮 Зачаровать
-                        </button>
-                </form>
-                        <form method="POST" action="/categories/delete/{{ cat.id }}" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirm('Уничтожить артефакт?')">
-                                <i class="bi bi-trash3 me-1"></i> 💥 Уничтожить
-                            </button>
-                        </form>
-                    </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <table class="table align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Название</th>
+        <th>Тип лимита</th>
+        <th class="text-end">Значение</th>
+        <th class="text-end">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for cat in categories %}
+      <tr>
+        <form method="POST" action="/categories/update/{{ cat.id }}" class="d-contents">
+          <td style="min-width:220px">
+            <input type="text" name="name" value="{{ cat.name }}" class="form-control form-control-sm" required>
+          </td>
+          <td style="min-width:180px">
+            <select name="limit_type" class="form-select form-select-sm">
+              <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>Фиксированная сумма</option>
+              <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>Процент от дохода</option>
+            </select>
+          </td>
+          <td class="text-end" style="min-width:160px">
+            <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01"
+                   inputmode="decimal" class="form-control form-control-sm text-end" required>
+          </td>
+          <td class="text-end" style="min-width:200px">
+            <div class="btn-group btn-group-sm">
+              <button type="submit" class="btn btn-outline-primary">
+                <i class="bi bi-check-lg me-1"></i> Сохранить
+              </button>
+            </form>
+              <form method="POST" action="/categories/delete/{{ cat.id }}" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger"
+                        onclick="return confirm('Удалить категорию?')">
+                  <i class="bi bi-trash3 me-1"></i> Удалить
+                </button>
+              </form>
+            </div>
+          </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
 {% if not categories %}
 <div class="text-center py-5">
-    <div class="card border-0 bg-transparent">
-        <div class="card-body">
-            <i class="bi bi-tags display-4 text-white-50 mb-3"></i>
-            <h5 class="text-white-50">🏺 Нет артефактов</h5>
-            <p class="text-white-50 mb-4">Создайте первый артефакт для начала магического планирования</p>
-            <button class="btn btn-primary magic-float" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
-                <i class="bi bi-plus-lg me-2"></i> ✨ Создать артефакт
-            </button>
-        </div>
-    </div>
+  <p class="text-muted mb-3">Категории не созданы</p>
+  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
+    <i class="bi bi-plus-lg me-1"></i> Создать категорию
+  </button>
 </div>
 {% endif %}
 {% endblock %}
@@ -167,33 +143,31 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Update placeholder text based on limit type
-    function updateValuePlaceholder(limitTypeSelect, valueInput) {
-        if (limitTypeSelect.value === 'percent') {
-            valueInput.placeholder = 'Процент (например, 30)';
-            valueInput.max = '100';
-        } else {
-            valueInput.placeholder = 'Сумма (например, 5000)';
-            valueInput.removeAttribute('max');
-        }
+  function updatePlaceholder(selectEl, inputEl) {
+    if (!selectEl || !inputEl) return;
+    if (selectEl.value === 'percent') {
+      inputEl.placeholder = 'Процент (например, 30)';
+      inputEl.max = '100';
+    } else {
+      inputEl.placeholder = 'Сумма (например, 5000)';
+      inputEl.removeAttribute('max');
     }
-    
-    // For add form
-    const addLimitType = document.getElementById('limit_type');
-    const addValueInput = document.getElementById('value');
-    if (addLimitType && addValueInput) {
-        addLimitType.addEventListener('change', () => updateValuePlaceholder(addLimitType, addValueInput));
-        updateValuePlaceholder(addLimitType, addValueInput);
-    }
-    
-    // For existing category forms
-    document.querySelectorAll('select[name="limit_type"]').forEach(select => {
-        const valueInput = select.closest('form').querySelector('input[name="value"]');
-        if (valueInput) {
-            select.addEventListener('change', () => updateValuePlaceholder(select, valueInput));
-            updateValuePlaceholder(select, valueInput);
-        }
-    });
+  }
+
+  // Форма добавления
+  const addType = document.getElementById('limit_type');
+  const addValue = document.getElementById('value');
+  if (addType && addValue) {
+    addType.addEventListener('change', () => updatePlaceholder(addType, addValue));
+    updatePlaceholder(addType, addValue);
+  }
+
+  // Формы редактирования
+  document.querySelectorAll('form select[name="limit_type"]').forEach(sel => {
+    const valInput = sel.closest('form').querySelector('input[name="value"]');
+    sel.addEventListener('change', () => updatePlaceholder(sel, valInput));
+    updatePlaceholder(sel, valInput);
+  });
 });
 </script>
 {% endblock %}
