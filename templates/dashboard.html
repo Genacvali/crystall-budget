@@ -175,22 +175,40 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 {% if budget_data %}
 <div class="modern-card">
   <div class="card-body">
-    <table class="table-modern w-100">
+    <table class="table-modern w-100" id="categoriesTable">
       <thead>
         <tr>
-          <th>Категория</th>
-          <th class="text-end">Лимит</th>
-          <th class="text-end">Потрачено</th>
-          <th style="min-width:220px">Прогресс</th>
-          <th class="text-end">Остаток</th>
-          <th class="text-end">Статус</th>
+          <th class="sortable" data-sort="category">
+            Категория <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+          </th>
+          <th class="text-end sortable" data-sort="limit">
+            Лимит <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+          </th>
+          <th class="text-end sortable" data-sort="spent">
+            Потрачено <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+          </th>
+          <th style="min-width:220px" class="sortable" data-sort="progress">
+            Прогресс <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+          </th>
+          <th class="text-end sortable" data-sort="remaining">
+            Остаток <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+          </th>
+          <th class="text-end sortable" data-sort="status">
+            Статус <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+          </th>
         </tr>
       </thead>
       <tbody>
         {% for item in budget_data %}
           {% set progress_percent = (item.limit > 0 and (item.spent / item.limit * 100) or 0) | round(1) %}
           {% set rest = item.limit - item.spent %}
-          <tr>
+          {% set status_order = 3 if item.spent > item.limit else (2 if item.limit > 0 and (item.spent / item.limit) > 0.8 else 1) %}
+          <tr data-category="{{ item.category_name }}" 
+              data-limit="{{ item.limit }}" 
+              data-spent="{{ item.spent }}" 
+              data-progress="{{ progress_percent }}"
+              data-remaining="{{ rest }}"
+              data-status="{{ status_order }}">
             <td class="cell-title">{{ item.category_name }}</td>
             <td class="text-end currency">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
             <td class="text-end currency {{ 'text-danger' if item.spent > item.limit else '' }}">{{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
@@ -270,6 +288,86 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   if (amtEl) amtEl.addEventListener('wheel',(e)=>{ e.preventDefault(); },{passive:false});
+
+  // --- Сортировка таблицы категорий ---
+  document.querySelectorAll('.sortable').forEach(header => {
+    header.style.cursor = 'pointer';
+    header.style.userSelect = 'none';
+    
+    header.addEventListener('click', () => {
+      const table = document.getElementById('categoriesTable');
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.querySelectorAll('tr'));
+      const sortKey = header.dataset.sort;
+      const icon = header.querySelector('.sort-icon');
+      
+      // Определяем направление сортировки
+      let ascending = true;
+      if (header.classList.contains('sort-asc')) {
+        ascending = false;
+        header.classList.remove('sort-asc');
+        header.classList.add('sort-desc');
+      } else {
+        ascending = true;
+        header.classList.remove('sort-desc');
+        header.classList.add('sort-asc');
+      }
+      
+      // Убираем классы сортировки с других заголовков
+      document.querySelectorAll('.sortable').forEach(h => {
+        if (h !== header) {
+          h.classList.remove('sort-asc', 'sort-desc');
+          h.querySelector('.sort-icon').className = 'bi bi-arrow-down-up ms-1 sort-icon';
+        }
+      });
+      
+      // Обновляем иконку
+      if (ascending) {
+        icon.className = 'bi bi-arrow-up ms-1 sort-icon';
+      } else {
+        icon.className = 'bi bi-arrow-down ms-1 sort-icon';
+      }
+      
+      // Сортируем строки
+      rows.sort((a, b) => {
+        let aVal = a.dataset[sortKey];
+        let bVal = b.dataset[sortKey];
+        
+        // Для числовых значений преобразуем в числа
+        if (['limit', 'spent', 'progress', 'remaining', 'status'].includes(sortKey)) {
+          aVal = parseFloat(aVal);
+          bVal = parseFloat(bVal);
+        }
+        
+        if (aVal < bVal) return ascending ? -1 : 1;
+        if (aVal > bVal) return ascending ? 1 : -1;
+        return 0;
+      });
+      
+      // Перестраиваем таблицу
+      rows.forEach(row => tbody.appendChild(row));
+    });
+  });
 });
 </script>
+
+<style>
+.sortable {
+  transition: background-color 0.2s ease;
+}
+
+.sortable:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.sort-icon {
+  font-size: 0.8em;
+  opacity: 0.6;
+}
+
+.sortable.sort-asc .sort-icon,
+.sortable.sort-desc .sort-icon {
+  opacity: 1;
+}
+</style>
 {% endblock %}
