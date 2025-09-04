@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Доходы - CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <h2><i class="bi bi-graph-up-arrow"></i> Доходы</h2>
+        <form method="POST" action="/income/add" class="mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="bi bi-plus-circle"></i> Добавить доход
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="month" class="form-label">
+                                <i class="bi bi-calendar"></i> Месяц
+                            </label>
+                            <input type="month" id="month" name="month" value="{{ current_month }}" 
+                                   class="form-control" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="amount" class="form-label">
+                                <i class="bi bi-currency-exchange"></i> Сумма
+                            </label>
+                            <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
+                                   inputmode="decimal" class="form-control" required
+                                   placeholder="Сумма дохода">
+                        </div>
+                        <div class="col-md-2 col-sm-12 d-flex align-items-end">
+                            <label class="form-label d-none d-md-block">&nbsp;</label>
+                            <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
+                                <i class="bi bi-check-lg me-1"></i> Сохранить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Mobile view -->
+<div class="d-block d-md-none">
+    {% for income in incomes %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h6 class="card-title mb-1">{{ income.amount|format_amount }} ₽</h6>
+                    <small class="text-muted">
+                        <i class="bi bi-calendar3"></i> {{ income.month }}
+                    </small>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('edit_income', month=income.month) }}" 
+                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center">
+                    <i class="bi bi-pencil me-2"></i> Изменить
+                </a>
+                <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="flex-fill">
+                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center" 
+                            onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
+                        <i class="bi bi-trash3 me-2"></i> Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Desktop table view -->
+<div class="table-responsive d-none d-md-block">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th><i class="bi bi-calendar"></i> Месяц</th>
+                <th><i class="bi bi-currency-exchange"></i> Сумма</th>
+                <th><i class="bi bi-gear"></i> Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for income in incomes %}
+            <tr>
+                <td>{{ income.month }}</td>
+                <td class="fw-bold">{{ income.amount|format_amount }} ₽</td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('edit_income', month=income.month) }}" 
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil me-1"></i> Изменить
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                    onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
+                                <i class="bi bi-trash3 me-1"></i> Удалить
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if not incomes %}
+<div class="text-center py-5">
+    <div class="card border-0 bg-transparent">
+        <div class="card-body">
+            <i class="bi bi-graph-up-arrow display-4 text-white-50 mb-3"></i>
+            <h5 class="text-white-50">Нет доходов</h5>
+            <p class="text-white-50 mb-4">Добавьте свой доход, чтобы начать планирование бюджета</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus amount input after month selection
+    const monthInput = document.getElementById('month');
+    const amountInput = document.getElementById('amount');
+    
+    if (monthInput && amountInput) {
+        monthInput.addEventListener('change', function() {
+            if (this.value) {
+                setTimeout(() => amountInput.focus(), 100);
+            }
+        });
+    }
+    
+    // Set current month as default
+    if (monthInput && !monthInput.value) {
+        const now = new Date();
+        const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+        monthInput.value = currentMonth;
+    }
+});
+</script>
+{% endblock %}

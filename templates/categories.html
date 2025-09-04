@@ -1,0 +1,196 @@
+{% extends "base.html" %}
+{% block title %}Категории - CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-tags"></i> Категории</h2>
+    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
+        <i class="bi bi-plus-lg me-1"></i> Добавить категорию
+    </button>
+</div>
+
+<div class="collapse mb-4" id="addCategoryForm">
+    <div class="card card-body">
+        <form method="POST" action="/categories/add">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="name" class="form-label">
+                        <i class="bi bi-tag"></i> Название
+                    </label>
+                    <input type="text" id="name" name="name" class="form-control" 
+                           placeholder="Название категории" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="limit_type" class="form-label">
+                        <i class="bi bi-gear"></i> Тип лимита
+                    </label>
+                    <select id="limit_type" name="limit_type" class="form-select" required>
+                        <option value="fixed">Фиксированная сумма</option>
+                        <option value="percent">Процент от дохода</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="value" class="form-label">
+                        <i class="bi bi-calculator"></i> Значение
+                    </label>
+                    <input type="number" id="value" name="value" step="0.01" min="0.01" 
+                           inputmode="decimal" class="form-control" required
+                           placeholder="Сумма или %">
+                </div>
+                <div class="col-md-2 col-sm-12 d-flex align-items-end">
+                    <label class="form-label d-none d-md-block">&nbsp;</label>
+                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
+                        <i class="bi bi-plus-lg me-1"></i> Добавить
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Mobile view -->
+<div class="d-block d-md-none">
+    {% for cat in categories %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <form method="POST" action="/categories/update/{{ cat.id }}">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">
+                            <i class="bi bi-tag"></i> Название
+                        </label>
+                        <input type="text" name="name" value="{{ cat.name }}" class="form-control">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">
+                            <i class="bi bi-gear"></i> Тип
+                        </label>
+                        <select name="limit_type" class="form-select">
+                            <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>Фикс. сумма</option>
+                            <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>% от дохода</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">
+                            <i class="bi bi-calculator"></i> Значение
+                        </label>
+                        <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01" 
+                               inputmode="decimal" class="form-control">
+                    </div>
+                    <div class="col-12 d-flex gap-2">
+                        <button type="submit" class="btn btn-outline-primary flex-fill">
+                            <i class="bi bi-check-lg me-1"></i> Сохранить
+                        </button>
+                        <button type="button" class="btn btn-outline-danger flex-fill" 
+                                onclick="if(confirm('Удалить категорию {{ cat.name }}?')) { 
+                                    const form = document.createElement('form'); 
+                                    form.method = 'POST'; 
+                                    form.action = '/categories/delete/{{ cat.id }}'; 
+                                    document.body.appendChild(form); 
+                                    form.submit(); 
+                                }">
+                            <i class="bi bi-trash3 me-1"></i> Удалить
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Desktop table view -->
+<div class="table-responsive d-none d-md-block">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th><i class="bi bi-tag"></i> Название</th>
+                <th><i class="bi bi-gear"></i> Тип лимита</th>
+                <th><i class="bi bi-calculator"></i> Значение</th>
+                <th><i class="bi bi-tools"></i> Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cat in categories %}
+            <tr>
+                <form method="POST" action="/categories/update/{{ cat.id }}" class="d-contents">
+                    <td>
+                        <input type="text" name="name" value="{{ cat.name }}" class="form-control form-control-sm">
+                    </td>
+                    <td>
+                        <select name="limit_type" class="form-select form-select-sm">
+                            <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>Фикс. сумма</option>
+                            <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>% от дохода</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01" 
+                               inputmode="decimal" class="form-control form-control-sm">
+                    </td>
+                    <td>
+                        <button type="submit" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="bi bi-check-lg me-1"></i> Сохранить
+                        </button>
+                </form>
+                        <form method="POST" action="/categories/delete/{{ cat.id }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                    onclick="return confirm('Удалить категорию?')">
+                                <i class="bi bi-trash3 me-1"></i> Удалить
+                            </button>
+                        </form>
+                    </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if not categories %}
+<div class="text-center py-5">
+    <div class="card border-0 bg-transparent">
+        <div class="card-body">
+            <i class="bi bi-tags display-4 text-white-50 mb-3"></i>
+            <h5 class="text-white-50">Нет категорий</h5>
+            <p class="text-white-50 mb-4">Создайте первую категорию для начала планирования бюджета</p>
+            <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
+                <i class="bi bi-plus-lg me-2"></i> Создать категорию
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Update placeholder text based on limit type
+    function updateValuePlaceholder(limitTypeSelect, valueInput) {
+        if (limitTypeSelect.value === 'percent') {
+            valueInput.placeholder = 'Процент (например, 30)';
+            valueInput.max = '100';
+        } else {
+            valueInput.placeholder = 'Сумма (например, 5000)';
+            valueInput.removeAttribute('max');
+        }
+    }
+    
+    // For add form
+    const addLimitType = document.getElementById('limit_type');
+    const addValueInput = document.getElementById('value');
+    if (addLimitType && addValueInput) {
+        addLimitType.addEventListener('change', () => updateValuePlaceholder(addLimitType, addValueInput));
+        updateValuePlaceholder(addLimitType, addValueInput);
+    }
+    
+    // For existing category forms
+    document.querySelectorAll('select[name="limit_type"]').forEach(select => {
+        const valueInput = select.closest('form').querySelector('input[name="value"]');
+        if (valueInput) {
+            select.addEventListener('change', () => updateValuePlaceholder(select, valueInput));
+            updateValuePlaceholder(select, valueInput);
+        }
+    });
+});
+</script>
+{% endblock %}

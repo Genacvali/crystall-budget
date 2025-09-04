@@ -10,7 +10,8 @@
       "Bash(python:*)",
       "Bash(where python)",
       "WebSearch",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

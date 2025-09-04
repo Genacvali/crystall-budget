@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+{% block title %}Траты - CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cash-stack"></i> Траты</h2>
+    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
+        <i class="bi bi-plus-lg me-1"></i> Добавить трату
+    </button>
+</div>
+
+<div class="collapse mb-4" id="addExpenseForm">
+    <div class="card card-body">
+        <form method="POST" action="/expenses">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <label for="date" class="form-label">
+                        <i class="bi bi-calendar"></i> Дата
+                    </label>
+                    <input type="date" id="date" name="date" value="{{ today }}" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label for="category_id" class="form-label">
+                        <i class="bi bi-tag"></i> Категория
+                    </label>
+                    <select id="category_id" name="category_id" class="form-select" required>
+                        <option value="">Выберите категорию</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label for="amount" class="form-label">
+                        <i class="bi bi-currency-exchange"></i> Сумма
+                    </label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
+                           inputmode="decimal" class="form-control" required>
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <label for="note" class="form-label">
+                        <i class="bi bi-chat-text"></i> Комментарий
+                    </label>
+                    <input type="text" id="note" name="note" class="form-control">
+                </div>
+                <div class="col-md-1 col-sm-12 d-flex align-items-end">
+                    <label class="form-label d-none d-md-block">&nbsp;</label>
+                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
+                        <i class="bi bi-plus-lg me-1"></i> Добавить
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Mobile view -->
+<div class="d-block d-md-none">
+    {% for expense in expenses %}
+    <div class="card mb-3 expense-card">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div>
+                    <h6 class="card-title mb-1">{{ expense.amount|format_amount }} ₽</h6>
+                    <small class="text-muted">
+                        <i class="bi bi-calendar3"></i> {{ expense.date|format_date_with_day }}
+                    </small>
+                </div>
+                <span class="badge bg-primary">{{ expense.category_name }}</span>
+            </div>
+            
+            {% if expense.note %}
+            <p class="card-text text-muted mb-2" style="font-size: 0.9rem;">
+                <i class="bi bi-chat-text"></i> {{ expense.note }}
+            </p>
+            {% endif %}
+            
+            <div class="d-flex gap-2 mt-2">
+                <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
+                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center">
+                    <i class="bi bi-pencil me-2"></i> Изменить
+                </a>
+                <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="flex-fill">
+                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center" 
+                            onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')">
+                        <i class="bi bi-trash3 me-2"></i> Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Desktop table view -->
+<div class="table-responsive d-none d-md-block">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th><i class="bi bi-calendar"></i> Дата</th>
+                <th><i class="bi bi-tag"></i> Категория</th>
+                <th><i class="bi bi-currency-exchange"></i> Сумма</th>
+                <th><i class="bi bi-chat-text"></i> Комментарий</th>
+                <th><i class="bi bi-gear"></i> Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.date|format_date_with_day }}</td>
+                <td>
+                    <span class="badge bg-primary">{{ expense.category_name }}</span>
+                </td>
+                <td class="fw-bold">{{ expense.amount|format_amount }} ₽</td>
+                <td>{{ expense.note or '' }}</td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil me-1"></i> Изменить
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                    onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')">
+                                <i class="bi bi-trash3 me-1"></i> Удалить
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if not expenses %}
+<div class="text-center py-5">
+    <div class="card border-0 bg-transparent">
+        <div class="card-body">
+            <i class="bi bi-receipt display-4 text-white-50 mb-3"></i>
+            <h5 class="text-white-50">Нет трат</h5>
+            <p class="text-white-50 mb-4">Добавьте первую трату для начала учёта расходов</p>
+            <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
+                <i class="bi bi-plus-lg me-2"></i> Добавить трату
+            </button>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-focus amount after category selection
+    const categorySelect = document.getElementById('category_id');
+    const amountInput = document.getElementById('amount');
+    
+    if (categorySelect && amountInput) {
+        categorySelect.addEventListener('change', function() {
+            if (this.value) {
+                setTimeout(() => amountInput.focus(), 100);
+            }
+        });
+    }
+    
+    // Confirm delete with detailed info
+    const deleteButtons = document.querySelectorAll('button[onclick*="confirm"]');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const confirmed = confirm(this.getAttribute('onclick').match(/'([^']+)'/)[1]);
+            if (confirmed) {
+                this.closest('form').submit();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

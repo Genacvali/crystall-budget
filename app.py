@@ -2,8 +2,7 @@ import os
 import sqlite3
 from datetime import datetime, date
 from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
-from flask import Flask, render_template_string, render_template, request, redirect, url_for, flash, jsonify, session
-from jinja2 import DictLoader, ChoiceLoader
+from flask import Flask, render_template, request, redirect, url_for, flash, session
 from markupsafe import escape
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -60,1295 +59,7 @@ app.jinja_env.filters['format_amount'] = format_amount
 app.jinja_env.filters['format_date_with_day'] = format_date_with_day
 app.jinja_env.filters['format_category_value'] = format_category_value
 
-# HTML Templates
-LAYOUT_TEMPLATE = '''
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>{% block title %}CrystalBudget{% endblock %}</title>
-    
-    <!-- iOS Specific Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CrystalBudget">
-    <meta name="format-detection" content="telephone=no">
-    
-    <!-- Theme Colors -->
-    <meta name="theme-color" content="#6c5ce7">
-    <meta name="msapplication-navbutton-color" content="#6c5ce7">
-    <meta name="apple-mobile-web-app-status-bar-style" content="#6c5ce7">
-    
-    <!-- Favicon and Icons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjE4MCIgdmlld0JveD0iMCAwIDE4MCAxODAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxODAiIGhlaWdodD0iMTgwIiByeD0iNDAiIGZpbGw9InVybCgjZ3JhZGllbnQpIi8+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzZjNWNlNyIvPgo8c3RvcCBvZmZzZXQ9IjEwMCUiIHN0eWxlPSJzdG9wLWNvbG9yOiM3NjRiYTIiLz4KPC9saW5lYXJHcmFkaWVudD4KPC9kZWZzPgo8L3N2Zz4K">
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #6c5ce7;
-            --success-color: #00b894;
-            --warning-color: #fdcb6e;
-            --danger-color: #e17055;
-            --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-            --border-radius: 12px;
-            --safe-area-top: env(safe-area-inset-top);
-            --safe-area-bottom: env(safe-area-inset-bottom);
-            --safe-area-left: env(safe-area-inset-left);
-            --safe-area-right: env(safe-area-inset-right);
-        }
-        
-        * { 
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        
-        input, textarea, select {
-            -webkit-user-select: text;
-            user-select: text;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            min-height: -webkit-fill-available;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            padding-top: var(--safe-area-top);
-            padding-bottom: var(--safe-area-bottom);
-            padding-left: var(--safe-area-left);
-            padding-right: var(--safe-area-right);
-            overflow-x: hidden;
-        }
-        
-        .main-content {
-            background: #f8f9fa;
-            min-height: 100vh;
-            border-radius: 20px 20px 0 0;
-            margin-top: 1rem;
-            padding-top: 1.5rem;
-        }
-        
-        .btn {
-            min-height: 44px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary {
-            background: var(--primary-color);
-            border: none;
-            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
-        }
-        
-        .btn-primary:hover {
-            background: #5f4fcf;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
-        }
-        
-        .btn-success {
-            background: var(--success-color);
-            border: none;
-        }
-        
-        input, select, textarea {
-            min-height: 44px;
-            border-radius: var(--border-radius);
-            border: 2px solid #e9ecef;
-            transition: all 0.2s ease;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.15);
-        }
-        
-        .card {
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            transition: transform 0.2s ease;
-        }
-        
-        .card:hover {
-            transform: translateY(-2px);
-        }
-        
-        .kpi-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .kpi-value {
-            font-size: 2rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .kpi-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-            margin: 0;
-        }
-        
-        .quick-expense {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--card-shadow);
-        }
-        
-        .quick-expense h5 {
-            color: var(--primary-color);
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        
-        .table-responsive {
-            overflow-x: auto;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-            background: white;
-        }
-        
-        .table {
-            margin-bottom: 0;
-        }
-        
-        .table th {
-            background: #f8f9fa;
-            border: none;
-            font-weight: 600;
-            padding: 1rem 0.75rem;
-        }
-        
-        .table td {
-            border: none;
-            border-bottom: 1px solid #f1f3f4;
-            padding: 1rem 0.75rem;
-            vertical-align: middle;
-        }
-        
-        .balance-positive { color: var(--success-color); font-weight: 600; }
-        .balance-negative { color: var(--danger-color); font-weight: 600; }
-        .balance-warning { color: var(--warning-color); font-weight: 600; }
-        
-        .navbar {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            padding: 0.75rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .navbar-nav {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 0.25rem 0.5rem;
-        }
-        
-        .navbar-brand {
-            color: white !important;
-            font-weight: 700;
-            font-size: 1.5rem;
-        }
-        
-        .nav-link {
-            color: rgba(255, 255, 255, 0.9) !important;
-            font-weight: 500;
-        }
-        
-        .alert {
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: var(--card-shadow);
-        }
-        
-        .month-selector {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--card-shadow);
-        }
-        
-        .expense-item {
-            background: white;
-            border-radius: var(--border-radius);
-            padding: 1rem;
-            margin-bottom: 0.5rem;
-            box-shadow: var(--card-shadow);
-            border-left: 4px solid var(--primary-color);
-        }
-        
-        .category-badge {
-            background: var(--primary-color);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        /* iOS Safari specific fixes */
-        @supports (-webkit-appearance: none) {
-            body {
-                min-height: -webkit-fill-available;
-            }
-        }
-        
-        /* Mobile optimizations */
-        @media (max-width: 768px) {
-            .main-content { 
-                margin-top: 0; 
-                border-radius: 0;
-                min-height: calc(100vh - 80px);
-                min-height: calc(100dvh - 80px); /* Dynamic viewport height */
-            }
-            
-            .container { 
-                padding-left: max(1rem, var(--safe-area-left));
-                padding-right: max(1rem, var(--safe-area-right));
-            }
-            
-            .kpi-value { font-size: 1.5rem; }
-            .quick-expense { 
-                padding: 1rem;
-                margin-bottom: 2rem;
-            }
-            
-            /* Better touch targets */
-            .btn {
-                min-height: 48px;
-                min-width: 48px;
-                font-size: 16px; /* Prevents zoom on iOS */
-            }
-            
-            input, select, textarea {
-                min-height: 48px;
-                font-size: 16px; /* Prevents zoom on iOS */
-                border-radius: 12px;
-            }
-            
-            /* Sticky bottom for forms */
-            .mobile-sticky-bottom {
-                position: sticky;
-                bottom: max(1rem, var(--safe-area-bottom));
-                background: white;
-                padding: 1rem;
-                border-radius: 12px 12px 0 0;
-                box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
-                margin-top: 1rem;
-            }
-            
-            /* Improved card layout */
-            .expense-card {
-                border-left: 4px solid var(--primary-color);
-                margin-bottom: 0.75rem;
-                transition: transform 0.2s ease;
-            }
-            
-            .expense-card:active {
-                transform: scale(0.98);
-            }
-            
-            /* Better navigation */
-            .navbar-nav {
-                width: auto;
-                margin: 0 auto;
-            }
-            
-            .nav-link {
-                padding: 0.5rem 1rem !important;
-                border-radius: 12px;
-                margin: 0 0.25rem;
-                transition: all 0.2s ease;
-            }
-            
-            .nav-link:active {
-                background: rgba(255, 255, 255, 0.2) !important;
-            }
-        }
-        
-        /* iPhone specific optimizations */
-        @media (max-width: 430px) {
-            .row.g-3 > * {
-                margin-bottom: 0.75rem;
-            }
-            
-            .quick-expense .row {
-                flex-direction: column;
-            }
-            
-            .quick-expense .col-12 {
-                width: 100%;
-                margin-bottom: 0.5rem;
-            }
-            
-            .table-responsive {
-                display: none; /* Hide table on very small screens */
-            }
-            
-            .mobile-card-view {
-                display: block;
-            }
-        }
-        
-        /* Landscape iPhone */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .kpi-card {
-                padding: 1rem;
-            }
-            
-            .kpi-value {
-                font-size: 1.25rem;
-            }
-            
-            .main-content {
-                padding-top: 0.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg">
-        <div class="container">
-            <a class="navbar-brand" href="/" style="font-weight: 700; font-size: 1.25rem;">
-                <i class="bi bi-gem" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>
-                <span class="d-none d-sm-inline">CrystalBudget</span>
-                <span class="d-sm-none">💎</span>
-            </a>
-            {% if session.user_id %}
-            <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="{{ url_for('dashboard') }}"><i class="bi bi-house"></i> <span class="d-none d-md-inline">Главная</span></a>
-                <a class="nav-link" href="{{ url_for('expenses') }}"><i class="bi bi-receipt"></i> <span class="d-none d-md-inline">Траты</span></a>
-                <a class="nav-link" href="{{ url_for('categories') }}"><i class="bi bi-tags"></i> <span class="d-none d-md-inline">Категории</span></a>
-                <a class="nav-link" href="{{ url_for('income') }}"><i class="bi bi-graph-up"></i> <span class="d-none d-md-inline">Доходы</span></a>
-                <div class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle"></i> <span class="d-none d-md-inline">{{ session.user_name }}</span>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
-                    </ul>
-                </div>
-            </div>
-            {% endif %}
-        </div>
-    </nav>
-    
-    <div class="main-content">
-    <div class="container">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    {% set alert_class = 'alert-success' if category == 'success' else ('alert-danger' if category == 'error' else 'alert-info') %}
-                    {% set icon = 'check-circle-fill' if category == 'success' else ('exclamation-triangle-fill' if category == 'error' else 'info-circle-fill') %}
-                    <div class="alert {{ alert_class }} alert-dismissible fade show d-flex align-items-center" role="alert">
-                        <i class="bi bi-{{ icon }} me-2"></i>
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        {% block content %}{% endblock %}
-    </div>
-    </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // iOS Safari optimizations
-        document.addEventListener('DOMContentLoaded', function() {
-            // Fix iOS viewport height issues
-            function setVH() {
-                let vh = window.innerHeight * 0.01;
-                document.documentElement.style.setProperty('--vh', `${vh}px`);
-            }
-            
-            setVH();
-            window.addEventListener('resize', setVH);
-            window.addEventListener('orientationchange', function() {
-                setTimeout(setVH, 100);
-            });
-            
-            // Prevent zoom on input focus (iOS)
-            const inputs = document.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.style.fontSize = '16px';
-                });
-                
-                input.addEventListener('blur', function() {
-                    this.style.fontSize = '';
-                });
-            });
-            
-            // Touch feedback for cards
-            const cards = document.querySelectorAll('.expense-card');
-            cards.forEach(card => {
-                let touchStartY = 0;
-                
-                card.addEventListener('touchstart', function(e) {
-                    touchStartY = e.touches[0].clientY;
-                    this.style.transform = 'scale(0.98)';
-                    this.style.transition = 'transform 0.1s ease';
-                });
-                
-                card.addEventListener('touchend', function() {
-                    this.style.transform = '';
-                });
-                
-                card.addEventListener('touchcancel', function() {
-                    this.style.transform = '';
-                });
-            });
-            
-            // Auto-submit form optimization
-            const quickForm = document.getElementById('quickExpenseForm');
-            if (quickForm) {
-                const submitBtn = quickForm.querySelector('button[type="submit"]');
-                
-                quickForm.addEventListener('submit', function(e) {
-                    submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i> Добавляю...';
-                    submitBtn.disabled = true;
-                });
-            }
-            
-            // Smart number input for amounts
-            const amountInputs = document.querySelectorAll('input[type="number"][inputmode="decimal"]');
-            amountInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    // Remove non-numeric characters except dots and commas
-                    let value = this.value.replace(/[^0-9.,]/g, '');
-                    
-                    // Replace comma with dot
-                    value = value.replace(',', '.');
-                    
-                    // Ensure only one decimal point
-                    const parts = value.split('.');
-                    if (parts.length > 2) {
-                        value = parts[0] + '.' + parts.slice(1).join('');
-                    }
-                    
-                    // Limit to 2 decimal places
-                    if (parts[1] && parts[1].length > 2) {
-                        value = parts[0] + '.' + parts[1].substring(0, 2);
-                    }
-                    
-                    this.value = value;
-                });
-                
-                // Add currency formatting on blur
-                input.addEventListener('blur', function() {
-                    if (this.value) {
-                        const num = parseFloat(this.value);
-                        if (!isNaN(num)) {
-                            this.value = num.toFixed(2);
-                        }
-                    }
-                });
-            });
-            
-            // Haptic feedback simulation
-            function vibrateIfSupported(duration = 10) {
-                if ('vibrate' in navigator) {
-                    navigator.vibrate(duration);
-                }
-            }
-            
-            // Add haptic feedback to buttons
-            document.querySelectorAll('.btn').forEach(btn => {
-                btn.addEventListener('touchstart', () => vibrateIfSupported(10));
-            });
-            
-            // Quick category selection
-            const categorySelect = document.querySelector('select[name="category_id"]');
-            if (categorySelect) {
-                // Add quick access buttons for frequent categories
-                const frequentCategories = ['Продукты', 'Транспорт', 'Развлечения'];
-                const quickCategoryDiv = document.createElement('div');
-                quickCategoryDiv.className = 'd-flex gap-2 mb-3 d-md-none';
-                
-                frequentCategories.forEach(catName => {
-                    const option = Array.from(categorySelect.options).find(opt => opt.text === catName);
-                    if (option) {
-                        const btn = document.createElement('button');
-                        btn.type = 'button';
-                        btn.className = 'btn btn-outline-primary btn-sm flex-fill';
-                        btn.textContent = catName;
-                        btn.style.fontSize = '0.8rem';
-                        
-                        btn.addEventListener('click', () => {
-                            categorySelect.value = option.value;
-                            vibrateIfSupported(5);
-                            
-                            // Visual feedback
-                            btn.classList.add('btn-primary');
-                            btn.classList.remove('btn-outline-primary');
-                            
-                            // Reset other buttons
-                            quickCategoryDiv.querySelectorAll('.btn').forEach(b => {
-                                if (b !== btn) {
-                                    b.classList.add('btn-outline-primary');
-                                    b.classList.remove('btn-primary');
-                                }
-                            });
-                        });
-                        
-                        quickCategoryDiv.appendChild(btn);
-                    }
-                });
-                
-                if (quickCategoryDiv.children.length > 0) {
-                    categorySelect.parentNode.insertBefore(quickCategoryDiv, categorySelect);
-                }
-            }
-        });
-    </script>
-</body>
-</html>
-'''
-
-DASHBOARD_TEMPLATE = '''
-{% extends "layout.html" %}
-{% block content %}
-<div class="month-selector">
-    <form method="GET" class="row align-items-center">
-        <div class="col-auto">
-            <label for="month" class="form-label mb-0 fw-bold">Месяц:</label>
-        </div>
-        <div class="col">
-            <input type="month" id="month" name="month" value="{{ current_month }}" class="form-control">
-        </div>
-        <div class="col-auto">
-            <button type="submit" class="btn btn-primary">
-                <i class="bi bi-search"></i> Показать
-            </button>
-        </div>
-    </form>
-</div>
-
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="kpi-card">
-            <div class="row text-center">
-                <div class="col-4">
-                    <p class="kpi-label"><i class="bi bi-arrow-down-circle"></i> Доходы</p>
-                    <p class="kpi-value">{{ income|format_amount }}</p>
-                </div>
-                <div class="col-4">
-                    <p class="kpi-label"><i class="bi bi-arrow-up-circle"></i> Расходы</p>
-                    <p class="kpi-value">{{ expenses|format_amount }}</p>
-                </div>
-                <div class="col-4">
-                    <p class="kpi-label"><i class="bi bi-wallet"></i> Остаток</p>
-                    <p class="kpi-value">{{ (income - expenses)|format_amount }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="quick-expense">
-    <h5><i class="bi bi-plus-circle"></i> Быстрая трата</h5>
-    <form method="POST" action="/quick-expense" id="quickExpenseForm">
-        <div class="row g-3">
-            <div class="col-12 col-md-3">
-                <label class="form-label text-muted"><i class="bi bi-calendar"></i> Дата</label>
-                <input type="date" name="date" value="{{ today }}" class="form-control" required 
-                       data-touch="true">
-            </div>
-            <div class="col-12 col-md-3">
-                <label class="form-label text-muted"><i class="bi bi-tag"></i> Категория</label>
-                <select name="category_id" class="form-select" required data-touch="true">
-                    <option value="">Выберите категорию</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat.id }}">{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-12 col-md-2">
-                <label class="form-label text-muted"><i class="bi bi-currency-exchange"></i> Сумма</label>
-                <input type="number" name="amount" placeholder="0" step="0.01" min="0.01" 
-                       inputmode="decimal" pattern="[0-9]*" class="form-control" required 
-                       data-touch="true" autocomplete="off">
-            </div>
-            <div class="col-12 col-md-2">
-                <label class="form-label text-muted"><i class="bi bi-chat"></i> Комментарий</label>
-                <input type="text" name="note" placeholder="Описание" class="form-control" 
-                       data-touch="true" autocomplete="off">
-            </div>
-            <div class="col-12 col-md-2">
-                <label class="form-label d-none d-md-block" style="opacity: 0;">&nbsp;</label>
-                <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center" 
-                        style="height: 48px;">
-                    <i class="bi bi-plus-lg me-2"></i> Добавить
-                </button>
-            </div>
-        </div>
-    </form>
-</div>
-
-<div class="d-block d-md-none mobile-card-view">
-    <!-- Mobile card view -->
-    {% for item in budget_data %}
-    <div class="card mb-3 expense-card" data-category="{{ item.category_name }}">
-        <div class="card-body" style="padding: 1rem;">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="card-title mb-0 fw-bold" style="font-size: 1.1rem;">{{ item.category_name }}</h6>
-                <div class="d-flex align-items-center">
-                    {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
-                    <small class="text-muted me-2">{{ progress_percent }}%</small>
-                    <div class="progress" style="height: 4px; width: 40px;">
-                        <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
-                             style="width: {{ [progress_percent, 100] | min }}%"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row text-center g-2">
-                <div class="col-6">
-                    <div class="border rounded p-2" style="background: #f8f9fa;">
-                        <small class="text-muted d-block" style="font-size: 0.75rem;">🎯 Лимит</small>
-                        <span class="fw-bold d-block" style="font-size: 1rem; color: #6c5ce7;">{{ item.limit|format_amount }}</span>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="border rounded p-2" style="background: #f8f9fa;">
-                        <small class="text-muted d-block" style="font-size: 0.75rem;">💳 Траты</small>
-                        <span class="fw-bold d-block" style="font-size: 1rem;">{{ item.spent|format_amount }}</span>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row text-center g-2 mt-2">
-                <div class="col-6">
-                    <div class="border rounded p-2" style="background: #f8f9fa;">
-                        <small class="text-muted d-block" style="font-size: 0.75rem;">⬅️ Прошлое</small>
-                        <span class="fw-bold d-block {% if item.carryover > 0 %}balance-positive{% elif item.carryover < 0 %}balance-negative{% endif %}" style="font-size: 0.9rem;">
-                            {{ item.carryover|format_amount }}
-                        </span>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="border rounded p-2" style="background: {{ 'linear-gradient(135deg, #00b894 0%, #00a085 100%)' if item.balance > item.limit * 0.2 else ('linear-gradient(135deg, #fdcb6e 0%, #e17055 100%)' if item.balance > 0 else 'linear-gradient(135deg, #e17055 0%, #d63031 100%)') }}; color: white;">
-                        <small class="d-block" style="font-size: 0.75rem; opacity: 0.9;">💰 Остаток</small>
-                        <span class="fw-bold d-block" style="font-size: 1.1rem;">{{ item.balance|format_amount }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<div class="table-responsive d-none d-md-block">
-    <!-- Desktop table view -->
-    <table class="table">
-        <thead>
-            <tr>
-                <th><i class="bi bi-tag"></i> Категория</th>
-                <th class="text-center"><i class="bi bi-arrow-left"></i> Прошлое</th>
-                <th class="text-center"><i class="bi bi-bullseye"></i> Лимит</th>
-                <th class="text-center"><i class="bi bi-receipt"></i> Траты</th>
-                <th class="text-center"><i class="bi bi-wallet"></i> Остаток</th>
-                <th class="text-center">Прогресс</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in budget_data %}
-            <tr>
-                <td class="fw-bold">{{ item.category_name }}</td>
-                <td class="text-center {% if item.carryover > 0 %}balance-positive{% elif item.carryover < 0 %}balance-negative{% endif %}">
-                    {{ item.carryover|format_amount }}
-                </td>
-                <td class="text-center">{{ item.limit|format_amount }}</td>
-                <td class="text-center">{{ item.spent|format_amount }}</td>
-                <td class="text-center {% if item.balance > item.limit * 0.2 %}balance-positive{% elif item.balance > 0 %}balance-warning{% else %}balance-negative{% endif %}">
-                    {{ item.balance|format_amount }}
-                </td>
-                <td class="text-center">
-                    {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
-                    <div class="progress" style="height: 6px; width: 60px;">
-                        <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
-                             style="width: {{ [progress_percent, 100] | min }}%"></div>
-                    </div>
-                    <small>{{ progress_percent }}%</small>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
-'''
-
-EXPENSES_TEMPLATE = '''
-{% extends "layout.html" %}
-{% block title %}Траты - Личный бюджет{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Траты</h2>
-    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
-        Добавить трату
-    </button>
-</div>
-
-<div class="collapse mb-4" id="addExpenseForm">
-    <div class="card card-body">
-        <form method="POST" action="/expenses">
-            <div class="row g-3">
-                <div class="col-md-3">
-                    <label for="date" class="form-label">Дата</label>
-                    <input type="date" id="date" name="date" value="{{ today }}" class="form-control" required>
-                </div>
-                <div class="col-md-3">
-                    <label for="category_id" class="form-label">Категория</label>
-                    <select id="category_id" name="category_id" class="form-select" required>
-                        <option value="">Выберите категорию</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.id }}">{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label for="amount" class="form-label">Сумма</label>
-                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
-                           inputmode="decimal" class="form-control" required>
-                </div>
-                <div class="col-md-3 col-sm-12">
-                    <label for="note" class="form-label">Комментарий</label>
-                    <input type="text" id="note" name="note" class="form-control">
-                </div>
-                <div class="col-md-1 col-sm-12 d-flex align-items-end">
-                    <label class="form-label d-none d-md-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
-                        <i class="bi bi-plus-lg me-1"></i> Добавить
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Mobile view -->
-<div class="d-block d-md-none">
-    {% for expense in expenses %}
-    <div class="card mb-3 expense-card">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                    <h6 class="card-title mb-1">{{ expense.amount|format_amount }} ₽</h6>
-                    <small class="text-muted">
-                        <i class="bi bi-calendar3"></i> {{ expense.date|format_date_with_day }}
-                    </small>
-                </div>
-                <span class="badge bg-primary">{{ expense.category_name }}</span>
-            </div>
-            
-            {% if expense.note %}
-            <p class="card-text text-muted mb-2" style="font-size: 0.9rem;">
-                <i class="bi bi-chat-text"></i> {{ expense.note }}
-            </p>
-            {% endif %}
-            
-            <div class="d-flex gap-2 mt-2">
-                <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
-                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center">
-                    <i class="bi bi-pencil me-2"></i> Изменить
-                </a>
-                <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="flex-fill">
-                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center" 
-                            onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')">
-                        <i class="bi bi-trash3 me-2"></i> Удалить
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<!-- Desktop table view -->
-<div class="table-responsive d-none d-md-block">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Категория</th>
-                <th>Сумма</th>
-                <th>Комментарий</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for expense in expenses %}
-            <tr>
-                <td>{{ expense.date|format_date_with_day }}</td>
-                <td>{{ expense.category_name }}</td>
-                <td>{{ expense.amount|format_amount }}</td>
-                <td>{{ expense.note or '' }}</td>
-                <td>
-                    <div class="d-flex gap-2">
-                        <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
-                           class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil me-1"></i> Изменить
-                        </a>
-                        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')">
-                                <i class="bi bi-trash3 me-1"></i> Удалить
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
-'''
-
-CATEGORIES_TEMPLATE = '''
-{% extends "layout.html" %}
-{% block title %}Категории - Личный бюджет{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2>Категории</h2>
-    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
-        Добавить категорию
-    </button>
-</div>
-
-<div class="collapse mb-4" id="addCategoryForm">
-    <div class="card card-body">
-        <form method="POST" action="/categories/add">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label for="name" class="form-label">Название</label>
-                    <input type="text" id="name" name="name" class="form-control" required>
-                </div>
-                <div class="col-md-3">
-                    <label for="limit_type" class="form-label">Тип лимита</label>
-                    <select id="limit_type" name="limit_type" class="form-select" required>
-                        <option value="fixed">Фиксированная сумма</option>
-                        <option value="percent">Процент от дохода</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label for="value" class="form-label">Значение</label>
-                    <input type="number" id="value" name="value" step="0.01" min="0.01" 
-                           inputmode="decimal" class="form-control" required>
-                </div>
-                <div class="col-md-2 col-sm-12 d-flex align-items-end">
-                    <label class="form-label d-none d-md-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
-                        <i class="bi bi-plus-lg me-1"></i> Добавить
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<div class="table-responsive">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Название</th>
-                <th>Тип лимита</th>
-                <th>Значение</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cat in categories %}
-            <tr>
-                <form method="POST" action="/categories/update/{{ cat.id }}" class="d-contents">
-                    <td>
-                        <input type="text" name="name" value="{{ cat.name }}" class="form-control form-control-sm">
-                    </td>
-                    <td>
-                        <select name="limit_type" class="form-select form-select-sm">
-                            <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>Фикс. сумма</option>
-                            <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>% от дохода</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="number" name="value" value="{{ cat.value }}" step="0.01" min="0.01" 
-                               inputmode="decimal" class="form-control form-control-sm">
-                    </td>
-                    <td>
-                        <button type="submit" class="btn btn-sm btn-outline-primary me-2">
-                            <i class="bi bi-check-lg me-1"></i> Сохранить
-                        </button>
-                </form>
-                        <form method="POST" action="/categories/delete/{{ cat.id }}" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirm('Удалить категорию?')">
-                                <i class="bi bi-trash3 me-1"></i> Удалить
-                            </button>
-                        </form>
-                    </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
-'''
-
-EDIT_EXPENSE_TEMPLATE = '''
-{% extends "layout.html" %}
-{% block title %}Редактирование траты - CrystalBudget{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-pencil-square"></i> Редактирование траты</h2>
-    <a href="{{ url_for('expenses') }}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> <span class="d-none d-md-inline">Назад</span>
-    </a>
-</div>
-
-<div class="card">
-    <div class="card-body">
-        <form method="POST">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <label for="date" class="form-label"><i class="bi bi-calendar"></i> Дата</label>
-                    <input type="date" id="date" name="date" value="{{ expense.date }}" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="category_id" class="form-label"><i class="bi bi-tag"></i> Категория</label>
-                    <select id="category_id" name="category_id" class="form-select" required>
-                        <option value="">Выберите категорию</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.id }}" {% if cat.id == expense.category_id %}selected{% endif %}>
-                            {{ cat.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label for="amount" class="form-label"><i class="bi bi-currency-exchange"></i> Сумма</label>
-                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
-                           inputmode="decimal" value="{{ expense.amount }}" class="form-control" required>
-                </div>
-                <div class="col-12">
-                    <label for="note" class="form-label"><i class="bi bi-chat-text"></i> Комментарий</label>
-                    <input type="text" id="note" name="note" value="{{ expense.note or '' }}" class="form-control" 
-                           placeholder="Описание траты (необязательно)">
-                </div>
-            </div>
-            
-            <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-success flex-fill">
-                    <i class="bi bi-check-lg"></i> Сохранить изменения
-                </button>
-                <a href="{{ url_for('expenses') }}" class="btn btn-outline-secondary flex-fill">
-                    <i class="bi bi-x-lg"></i> Отмена
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Delete section -->
-<div class="card mt-3 border-danger">
-    <div class="card-body">
-        <h6 class="card-title text-danger"><i class="bi bi-exclamation-triangle"></i> Опасная зона</h6>
-        <p class="card-text text-muted mb-3">Удаление траты нельзя отменить. Будьте осторожны!</p>
-        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-            <button type="submit" class="btn btn-danger" 
-                    onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.\n{% if expense.note %}Комментарий: {{ expense.note }}{% endif %}')">
-                <i class="bi bi-trash3"></i> Удалить трату
-            </button>
-        </form>
-    </div>
-</div>
-{% endblock %}
-'''
-
-EDIT_INCOME_TEMPLATE = '''
-{% extends "layout.html" %}
-{% block title %}Редактирование дохода - CrystalBudget{% endblock %}
-{% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-pencil-square"></i> Редактирование дохода</h2>
-    <a href="{{ url_for('income') }}" class="btn btn-outline-secondary">
-        <i class="bi bi-arrow-left"></i> <span class="d-none d-md-inline">Назад</span>
-    </a>
-</div>
-
-<div class="card">
-    <div class="card-body">
-        <form method="POST">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="month" class="form-label">
-                        <i class="bi bi-calendar"></i> Месяц
-                    </label>
-                    <input type="month" id="month" name="month" value="{{ income.month }}" 
-                           class="form-control" required>
-                </div>
-                <div class="col-md-6">
-                    <label for="amount" class="form-label">
-                        <i class="bi bi-currency-exchange"></i> Сумма
-                    </label>
-                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
-                           inputmode="decimal" value="{{ income.amount }}" class="form-control" required>
-                </div>
-            </div>
-            
-            <div class="d-flex gap-2 mt-4">
-                <button type="submit" class="btn btn-success flex-fill">
-                    <i class="bi bi-check-lg"></i> Сохранить изменения
-                </button>
-                <a href="{{ url_for('income') }}" class="btn btn-outline-secondary flex-fill">
-                    <i class="bi bi-x-lg"></i> Отмена
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
-{% endblock %}
-'''
-
-INCOME_TEMPLATE = '''
-{% extends "layout.html" %}
-{% block title %}Доходы - Личный бюджет{% endblock %}
-{% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <h2>Доходы</h2>
-        <form method="POST" action="/income/add" class="mb-4">
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="month" class="form-label">Месяц</label>
-                    <input type="month" id="month" name="month" value="{{ current_month }}" class="form-control" required>
-                </div>
-                <div class="col-md-4">
-                    <label for="amount" class="form-label">Сумма</label>
-                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
-                           inputmode="decimal" class="form-control" required>
-                </div>
-                <div class="col-md-2 col-sm-12 d-flex align-items-end">
-                    <label class="form-label d-none d-md-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
-                        <i class="bi bi-check-lg me-1"></i> Сохранить
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Mobile view -->
-<div class="d-block d-md-none">
-    {% for income in incomes %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <div>
-                    <h6 class="card-title mb-1">{{ income.amount|format_amount }} ₽</h6>
-                    <small class="text-muted">
-                        <i class="bi bi-calendar3"></i> {{ income.month }}
-                    </small>
-                </div>
-            </div>
-            
-            <div class="d-flex gap-2">
-                <a href="{{ url_for('edit_income', month=income.month) }}" 
-                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center">
-                    <i class="bi bi-pencil me-2"></i> Изменить
-                </a>
-                <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="flex-fill">
-                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center" 
-                            onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
-                        <i class="bi bi-trash3 me-2"></i> Удалить
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-<!-- Desktop table view -->
-<div class="table-responsive d-none d-md-block">
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Месяц</th>
-                <th>Сумма</th>
-                <th>Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for income in incomes %}
-            <tr>
-                <td>{{ income.month }}</td>
-                <td>{{ income.amount|format_amount }} ₽</td>
-                <td>
-                    <div class="d-flex gap-2">
-                        <a href="{{ url_for('edit_income', month=income.month) }}" 
-                           class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil me-1"></i> Изменить
-                        </a>
-                        <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
-                                <i class="bi bi-trash3 me-1"></i> Удалить
-                            </button>
-                        </form>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-{% endblock %}
-'''
-
-LOGIN_TEMPLATE = '''
-{% extends "layout.html" %}
-{% block title %}Вход - CrystalBudget{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card" style="margin-top: 2rem;">
-            <div class="card-body p-4">
-                <div class="text-center mb-4">
-                    <i class="bi bi-gem" style="font-size: 3rem; color: var(--primary-color);"></i>
-                    <h2 class="mt-3">CrystalBudget</h2>
-                    <p class="text-muted">Войдите в свой аккаунт</p>
-                </div>
-                
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="email" class="form-label"><i class="bi bi-envelope"></i> Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required 
-                               value="{{ request.form.get('email', '') }}">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="password" class="form-label"><i class="bi bi-lock"></i> Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100 mb-3">
-                        <i class="bi bi-box-arrow-in-right"></i> Войти
-                    </button>
-                </form>
-                
-                <div class="text-center">
-                    <p class="mb-0">Нет аккаунта? <a href="{{ url_for('register') }}" class="text-decoration-none">Зарегистрироваться</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-'''
-
-REGISTER_TEMPLATE = '''
-{% extends "layout.html" %}
-{% block title %}Регистрация - CrystalBudget{% endblock %}
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card" style="margin-top: 2rem;">
-            <div class="card-body p-4">
-                <div class="text-center mb-4">
-                    <i class="bi bi-gem" style="font-size: 3rem; color: var(--primary-color);"></i>
-                    <h2 class="mt-3">CrystalBudget</h2>
-                    <p class="text-muted">Создайте новый аккаунт</p>
-                </div>
-                
-                <form method="POST">
-                    <div class="mb-3">
-                        <label for="name" class="form-label"><i class="bi bi-person"></i> Имя</label>
-                        <input type="text" class="form-control" id="name" name="name" required 
-                               value="{{ request.form.get('name', '') }}" minlength="2">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="email" class="form-label"><i class="bi bi-envelope"></i> Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required 
-                               value="{{ request.form.get('email', '') }}">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="password" class="form-label"><i class="bi bi-lock"></i> Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password" required minlength="6">
-                        <div class="form-text">Минимум 6 символов</div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="confirm_password" class="form-label"><i class="bi bi-lock-fill"></i> Подтвердите пароль</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100 mb-3">
-                        <i class="bi bi-person-plus"></i> Зарегистрироваться
-                    </button>
-                </form>
-                
-                <div class="text-center">
-                    <p class="mb-0">Уже есть аккаунт? <a href="{{ url_for('login') }}" class="text-decoration-none">Войти</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-// Check password confirmation
-document.getElementById('confirm_password').addEventListener('input', function() {
-    const password = document.getElementById('password').value;
-    const confirmPassword = this.value;
-    
-    if (password !== confirmPassword) {
-        this.setCustomValidity('Пароли не совпадают');
-    } else {
-        this.setCustomValidity('');
-    }
-});
-</script>
-{% endblock %}
-'''
-
-# Register templates in Jinja loader
-app.jinja_loader = ChoiceLoader([
-    DictLoader({
-        "layout.html": LAYOUT_TEMPLATE,
-        "login.html": LOGIN_TEMPLATE,
-        "register.html": REGISTER_TEMPLATE,
-        "dashboard.html": DASHBOARD_TEMPLATE,
-        "expenses.html": EXPENSES_TEMPLATE,
-        "categories.html": CATEGORIES_TEMPLATE,
-        "income.html": INCOME_TEMPLATE,
-        "edit_expense.html": EDIT_EXPENSE_TEMPLATE,
-        "edit_income.html": EDIT_INCOME_TEMPLATE,
-    }),
-    app.jinja_loader,
-])
-
+# Templates are now loaded from templates/ directory using Flask's default template loader
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
@@ -1356,7 +67,6 @@ def get_db():
     # Enable foreign key constraints for data integrity
     conn.execute('PRAGMA foreign_keys = ON')
     return conn
-
 
 def check_and_migrate_db():
     """Check database schema and migrate if needed"""
@@ -1545,24 +255,9 @@ def init_db():
     check_and_migrate_db()
 
 def create_default_categories(user_id):
-    """Create default categories for new user"""
-    default_categories = [
-        ('Продукты', 'percent', 30),
-        ('Транспорт', 'fixed', 5000),
-        ('Развлечения', 'percent', 15),
-        ('Коммунальные', 'fixed', 8000),
-        ('Здоровье', 'fixed', 3000),
-        ('Одежда', 'percent', 10)
-    ]
-    
-    def add_categories_op(conn, user_id, categories):
-        for name, limit_type, value in categories:
-            conn.execute('INSERT INTO categories (user_id, name, limit_type, value) VALUES (?, ?, ?, ?)',
-                        (user_id, name, limit_type, value))
-        return len(categories)
-    
-    return safe_db_operation(add_categories_op, user_id, default_categories)
-
+    """Create default categories for new user - disabled"""
+    # No default categories - users create their own
+    return 0
 
 def get_current_month():
     return datetime.now().strftime('%Y-%m')
@@ -1626,7 +321,6 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-
 def calculate_carryover(month, category_id, user_id):
     conn = get_db()
     
@@ -1681,25 +375,24 @@ def calculate_carryover(month, category_id, user_id):
     conn.close()
     return total_carryover
 
-
 def get_dashboard_data(month, user_id):
     conn = get_db()
     
-    # Get income for month
-    cursor = conn.execute('SELECT amount FROM income WHERE month = ?', (month,))
+    # Get income for month - FIXED: added user_id filter
+    cursor = conn.execute('SELECT amount FROM income WHERE month = ? AND user_id = ?', (month, user_id))
     income_row = cursor.fetchone()
     income = float(income_row['amount']) if income_row else 0.0
     
-    # Get total expenses for month
+    # Get total expenses for month - FIXED: added user_id filter
     cursor = conn.execute('''
         SELECT COALESCE(SUM(amount), 0) as total_expenses
         FROM expenses 
-        WHERE month = ?
-    ''', (month,))
+        WHERE month = ? AND user_id = ?
+    ''', (month, user_id))
     expenses = float(cursor.fetchone()['total_expenses'])
     
-    # Get categories and calculate budget data
-    cursor = conn.execute('SELECT * FROM categories ORDER BY name')
+    # Get categories and calculate budget data - FIXED: added user_id filter
+    cursor = conn.execute('SELECT * FROM categories WHERE user_id = ? ORDER BY name', (user_id,))
     categories = cursor.fetchall()
     
     # First pass: calculate total fixed limits
@@ -1722,12 +415,12 @@ def get_dashboard_data(month, user_id):
                 percent_value = percent_value / 100
             limit = remaining_income * percent_value
         
-        # Calculate spent this month
+        # Calculate spent this month - FIXED: added user_id filter
         cursor = conn.execute('''
             SELECT COALESCE(SUM(amount), 0) as spent
             FROM expenses 
-            WHERE category_id = ? AND month = ?
-        ''', (category['id'], month))
+            WHERE category_id = ? AND month = ? AND user_id = ?
+        ''', (category['id'], month, user_id))
         spent = float(cursor.fetchone()['spent'])
         
         # Calculate carryover
@@ -1791,10 +484,9 @@ def register():
             name = escape(request.form.get('name', '').strip())
             email = request.form.get('email', '').strip().lower()
             password = request.form.get('password', '')
-            confirm_password = request.form.get('confirm_password', '')
             
             # Validation
-            if not all([name, email, password, confirm_password]):
+            if not all([name, email, password]):
                 flash('Пожалуйста, заполните все поля', 'error')
                 return render_template('register.html')
             
@@ -1804,10 +496,6 @@ def register():
                 
             if len(password) < 6:
                 flash('Пароль должен содержать минимум 6 символов', 'error')
-                return render_template('register.html')
-                
-            if password != confirm_password:
-                flash('Пароли не совпадают', 'error')
                 return render_template('register.html')
             
             # Email format validation (basic)
@@ -1835,7 +523,7 @@ def register():
             session['user_name'] = name
             session['user_email'] = email
             
-            flash(f'Добро пожаловать в CrystalBudget, {name}! Для вас созданы категории по умолчанию.', 'success')
+            flash(f'Добро пожаловать в CrystalBudget, {name}!', 'success')
             return redirect(url_for('dashboard'))
             
         except ValueError as e:
@@ -1880,9 +568,9 @@ def dashboard():
                          current_month=month, income=income, expenses=expenses,
                          budget_data=budget_data, categories=categories, today=today)
 
-
-@app.route('/quick-expense', methods=['POST'])
-def quick_expense():
+@app.route('/add-expense', methods=['POST'])
+@login_required
+def add_expense_quick():
     try:
         # Validate inputs
         date_str = request.form.get('date', '').strip()
@@ -1922,7 +610,6 @@ def quick_expense():
     
     return redirect(url_for('dashboard'))
 
-
 @app.route('/expenses')
 @login_required
 def expenses():
@@ -1949,7 +636,6 @@ def expenses():
     
     return render_template("expenses.html",
                          expenses=expenses_list, categories=categories, today=today)
-
 
 @app.route('/expenses', methods=['POST'])
 @login_required
@@ -1989,7 +675,6 @@ def add_expense():
         flash(f'Неожиданная ошибка: {str(e)}', 'error')
     
     return redirect(url_for('expenses'))
-
 
 @app.route('/expenses/edit/<int:expense_id>', methods=['GET', 'POST'])
 @login_required
@@ -2083,7 +768,6 @@ def delete_expense(expense_id):
     
     return redirect(url_for('expenses'))
 
-
 @app.route('/categories')
 @login_required
 def categories():
@@ -2093,9 +777,7 @@ def categories():
     categories_list = cursor.fetchall()
     conn.close()
     
-    return render_template("categories.html",
-                         categories=categories_list)
-
+    return render_template("categories.html", categories=categories_list)
 
 @app.route('/categories/add', methods=['POST'])
 @login_required
@@ -2139,7 +821,6 @@ def add_category():
         flash(f'Неожиданная ошибка: {str(e)}', 'error')
     
     return redirect(url_for('categories'))
-
 
 @app.route('/categories/update/<int:category_id>', methods=['POST'])
 @login_required
@@ -2185,7 +866,6 @@ def update_category(category_id):
     
     return redirect(url_for('categories'))
 
-
 @app.route('/categories/delete/<int:category_id>', methods=['POST'])
 @login_required
 def delete_category(category_id):
@@ -2208,7 +888,6 @@ def delete_category(category_id):
     
     return redirect(url_for('categories'))
 
-
 @app.route('/income')
 @login_required
 def income():
@@ -2220,9 +899,7 @@ def income():
     
     current_month = get_current_month()
     
-    return render_template("income.html",
-                         incomes=incomes, current_month=current_month)
-
+    return render_template("income.html", incomes=incomes, current_month=current_month)
 
 @app.route('/income/add', methods=['POST'])
 @login_required
@@ -2356,7 +1033,6 @@ def delete_income(month):
         flash(f'Ошибка при удалении: {str(e)}', 'error')
     
     return redirect(url_for('income'))
-
 
 if __name__ == '__main__':
     # For testing: delete existing database to start fresh
