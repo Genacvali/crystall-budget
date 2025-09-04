@@ -110,7 +110,7 @@
         </thead>
         <tbody>
             {% for item in budget_data %}
-            <tr class="{% if item.spent > item.limit %}table-danger{% elif (item.spent / item.limit) > 0.8 %}table-warning{% endif %}">
+            <tr class="{% if item.spent > item.limit %}table-danger{% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}table-warning{% endif %}">
                 <td class="fw-bold">{{ item.category_name }}</td>
                 <td>{{ item.limit|format_amount }} ₽</td>
                 <td>{{ item.spent|format_amount }} ₽</td>
@@ -130,7 +130,7 @@
                 <td>
                     {% if item.spent > item.limit %}
                         <span class="badge bg-danger">⚠️ Перерасход</span>
-                    {% elif (item.spent / item.limit) > 0.8 %}
+                    {% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}
                         <span class="badge bg-warning">⚡ Внимание</span>
                     {% else %}
                         <span class="badge bg-success">✨ Стабильно</span>
