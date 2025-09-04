@@ -3,24 +3,30 @@
 
 {% block content %}
 <style>
-/* Селекты открываются вниз */
+/* Селекты открываются вниз, не клипуемся */
 select.form-select, .form-modern { position: relative; overflow: hidden; z-index: 1; }
 select.form-select option, .form-modern option { position: relative; z-index: 9999; }
 
 /* Кнопка "Добавить" */
-.quick-add-btn {
-  min-height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  white-space: nowrap;
-}
-.quick-add-text { display: none; }
-@media (min-width: 768px) { .quick-add-text { display: inline; } }
+.quick-add-btn{min-height:42px;display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;}
+.quick-add-text{display:none;} @media (min-width:768px){.quick-add-text{display:inline;}}
 
-/* Карточки-источники */
-.source-card .k { color: #6c757d; }
-.source-card .v { font-weight: 600; }
+/* Источники */
+.source-card .k{color:#6c757d;} .source-card .v{font-weight:600;}
+
+/* Таблица категорий */
+.table-modern{width:100%; border-collapse:separate; border-spacing:0 8px;}
+.table-modern thead th{font-weight:600; color:#6c757d; border:0; padding:.25rem .75rem;}
+.table-modern tbody tr{background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.04); border-radius:10px;}
+.table-modern tbody td{border:0; padding:.75rem .75rem; vertical-align:middle;}
+.table-modern .cell-title{font-weight:700;}
+.table-modern .progress{height:8px; background:#eef1f4;}
+.table-modern .progress-bar{transition:width .3s ease;}
+.badge-soft{border-radius:999px; padding:.35rem .6rem; font-weight:600;}
+.badge-soft-success{background:#e8f6ee;color:#198754;}
+.badge-soft-warning{background:#fff3cd;color:#b58100;}
+.badge-soft-danger{background:#fde2e2;color:#c03a3a;}
+.currency{white-space:nowrap;}
 </style>
 
 <!-- Заголовок -->
@@ -31,11 +37,10 @@ select.form-select option, .form-modern option { position: relative; z-index: 99
     </h1>
     <p class="text-secondary mb-0">Управляйте своим бюджетом эффективно</p>
   </div>
-
   <!-- Переключатель месяца -->
   <form method="get" class="d-flex align-items-center gap-2">
     <i class="bi bi-calendar3 text-primary"></i>
-    <input type="month" name="month" value="{{ current_month }}" class="form-control form-control-sm" style="max-width: 180px;">
+    <input type="month" name="month" value="{{ current_month }}" class="form-control form-control-sm" style="max-width:160px">
     <button class="btn btn-outline-primary btn-sm">Показать</button>
   </form>
 </div>
@@ -44,32 +49,25 @@ select.form-select option, .form-modern option { position: relative; z-index: 99
 <div class="modern-card mb-4">
   <div class="card-body">
     <div class="d-flex align-items-center justify-content-between mb-3">
-      <h5 class="m-0">
-        <i class="bi bi-plus-circle-fill"></i> Быстрое добавление расхода
-      </h5>
+      <h5 class="m-0"><i class="bi bi-plus-circle-fill"></i> Быстрое добавление расхода</h5>
       <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#quickAddForm">
         <i class="bi bi-chevron-down"></i>
       </button>
     </div>
-
     <div class="collapse show" id="quickAddForm">
       <form method="POST" action="/quick-expense" class="quick-expense-form">
         <input type="hidden" name="return_month" value="{{ current_month }}">
         <div class="row g-3">
-          <!-- Дата -->
           <div class="col-12 col-md-3">
             <label class="form-label"><i class="bi bi-calendar3"></i> Дата</label>
             <input type="date" name="date" value="{{ today }}" class="form-modern form-control" required>
           </div>
-          <!-- Категория -->
           <div class="col-12 col-md-3">
             <label class="form-label"><i class="bi bi-tags-fill"></i> Категория</label>
             <div class="d-flex gap-2">
-              <select name="category_id" class="form-modern form-select" required style="flex:1;" id="quick-category">
+              <select name="category_id" id="quick-category" class="form-modern form-select" required style="flex:1;">
                 <option value="">Выберите категорию…</option>
-                {% for cat in categories %}
-                  <option value="{{ cat.id }}">{{ cat.name }}</option>
-                {% endfor %}
+                {% for cat in categories %}<option value="{{ cat.id }}">{{ cat.name }}</option>{% endfor %}
               </select>
               <button type="button" class="btn btn-outline-secondary" style="padding:12px"
                       data-bs-toggle="modal" data-bs-target="#quickCategoryModal" title="Создать новую категорию">
@@ -77,18 +75,15 @@ select.form-select option, .form-modern option { position: relative; z-index: 99
               </button>
             </div>
           </div>
-          <!-- Сумма -->
           <div class="col-12 col-md-2">
             <label class="form-label"><i class="bi bi-123"></i> Сумма</label>
-            <input type="number" name="amount" placeholder="0.00" step="0.01" min="0.01"
-                   inputmode="decimal" class="form-modern form-control" required id="quick-amount">
+            <input type="number" id="quick-amount" name="amount" placeholder="0.00" step="0.01" min="0.01"
+                   inputmode="decimal" class="form-modern form-control" required>
           </div>
-          <!-- Комментарий -->
           <div class="col-12 col-md-3">
             <label class="form-label"><i class="bi bi-chat-dots-fill"></i> Комментарий</label>
             <input type="text" name="note" placeholder="Описание (необязательно)" class="form-modern form-control">
           </div>
-          <!-- Кнопка -->
           <div class="col-12 col-md-auto d-flex align-items-center justify-content-end">
             <button type="submit" class="btn btn-success quick-add-btn w-100 w-md-auto px-3">
               <i class="bi bi-plus-lg me-1"></i><span class="quick-add-text">Добавить</span>
@@ -100,7 +95,7 @@ select.form-select option, .form-modern option { position: relative; z-index: 99
   </div>
 </div>
 
-<!-- Блок источников (если есть) -->
+<!-- Источники (если есть) -->
 {% if source_balances and source_balances|length > 0 %}
 <div class="row g-3 mb-4">
   {% for s in source_balances %}
@@ -108,11 +103,11 @@ select.form-select option, .form-modern option { position: relative; z-index: 99
     <div class="card source-card">
       <div class="card-body">
         <h6 class="mb-3">{{ s.source_name }}</h6>
-        <div class="d-flex justify-content-between mb-1"><span class="k">Пришло</span><span class="v">{{ s.income|format_amount }}</span></div>
-        <div class="d-flex justify-content-between mb-1"><span class="k">Ушло</span><span class="v">{{ s.spent|format_amount }}</span></div>
+        <div class="d-flex justify-content-between mb-1"><span class="k">Пришло</span><span class="v currency">{{ s.income|format_amount }}</span></div>
+        <div class="d-flex justify-content-between mb-1"><span class="k">Ушло</span><span class="v currency">{{ s.spent|format_amount }}</span></div>
         <div class="d-flex justify-content-between">
           <span class="k">Остаток</span>
-          <span class="v {% if s.rest < 0 %}text-danger{% endif %}">{{ s.rest|format_amount }}</span>
+          <span class="v currency {% if s.rest < 0 %}text-danger{% endif %}">{{ s.rest|format_amount }}</span>
         </div>
       </div>
     </div>
@@ -121,78 +116,67 @@ select.form-select option, .form-modern option { position: relative; z-index: 99
 </div>
 {% endif %}
 
-<!-- Отображение бюджета -->
+<!-- Категории — СПИСКОМ -->
 {% if budget_data %}
-<div class="card-grid mb-4">
-  {% for item in budget_data %}
-  {% set progress_percent = (item.limit > 0 and (item.spent / item.limit * 100) or 0) | round(1) %}
-  <div class="modern-card">
-    <div class="card-body">
-      <!-- Заголовок -->
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h6 class="fw-bold text-primary m-0">{{ item.category_name }}</h6>
-        <div class="d-flex align-items-center gap-2">
-          <small class="text-muted">{{ progress_percent }}%</small>
-          <div class="progress-modern" style="width:40px">
-            <div class="progress-bar-modern {% if progress_percent < 50 %}progress-success{% elif progress_percent < 80 %}progress-warning{% else %}progress-danger{% endif %}"
-                 style="width: {{ [progress_percent, 100] | min }}%;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Данные -->
-      <div class="row g-2 text-center">
-        <div class="col-6">
-          <div class="p-2 rounded" style="background: var(--bg-secondary);">
-            <small class="text-muted d-block">Лимит</small>
-            <strong class="text-primary">{{ item.limit|format_amount }} ₽</strong>
-          </div>
-        </div>
-        <div class="col-6">
-          <div class="p-2 rounded" style="background: var(--bg-secondary);">
-            <small class="text-muted d-block">Потрачено</small>
-            <strong class="{% if item.spent > item.limit %}text-danger{% else %}text-success{% endif %}">
-              {{ item.spent|format_amount }} ₽
-            </strong>
-          </div>
-        </div>
-      </div>
-
-      <!-- Остаток -->
-      <div class="mt-3 text-center">
-        {% set rest = item.limit - item.spent %}
-        <small class="text-muted">Остаток:</small>
-        <div class="fs-5 fw-bold {% if rest < 0 %}text-danger{% else %}text-success{% endif %}">
-          {{ rest|format_amount }} ₽
-        </div>
-      </div>
-
-      <!-- Статус -->
-      <div class="text-center mt-2">
-        {% if item.spent > item.limit %}
-          <span class="badge-modern badge-modern-danger">Превышен лимит</span>
-        {% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}
-          <span class="badge-modern badge-modern-warning">Почти на пределе</span>
-        {% else %}
-          <span class="badge-modern badge-modern-success">В норме</span>
-        {% endif %}
-      </div>
-    </div>
+<div class="modern-card">
+  <div class="card-body">
+    <table class="table-modern w-100">
+      <thead>
+        <tr>
+          <th>Категория</th>
+          <th class="text-end">Лимит</th>
+          <th class="text-end">Потрачено</th>
+          <th style="min-width:220px">Прогресс</th>
+          <th class="text-end">Остаток</th>
+          <th class="text-end">Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in budget_data %}
+          {% set progress_percent = (item.limit > 0 and (item.spent / item.limit * 100) or 0) | round(1) %}
+          {% set rest = item.limit - item.spent %}
+          <tr>
+            <td class="cell-title">{{ item.category_name }}</td>
+            <td class="text-end currency">{{ item.limit|format_amount }} ₽</td>
+            <td class="text-end currency {{ 'text-danger' if item.spent>item.limit else '' }}">{{ item.spent|format_amount }} ₽</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="flex-grow-1">
+                  <div class="progress">
+                    <div class="progress-bar
+                      {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
+                      role="progressbar" style="width: {{ [progress_percent, 100] | min }}%;">
+                    </div>
+                  </div>
+                </div>
+                <small class="text-muted" style="width:48px; text-align:right;">{{ progress_percent }}%</small>
+              </div>
+            </td>
+            <td class="text-end currency {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} ₽</td>
+            <td class="text-end">
+              {% if item.spent > item.limit %}
+                <span class="badge-soft badge-soft-danger">Превышен</span>
+              {% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}
+                <span class="badge-soft badge-soft-warning">Почти предел</span>
+              {% else %}
+                <span class="badge-soft badge-soft-success">В норме</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-  {% endfor %}
 </div>
 {% endif %}
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // После выбора категории фокус в поле суммы
+document.addEventListener('DOMContentLoaded', function () {
   const cat = document.getElementById('quick-category');
   const amount = document.getElementById('quick-amount');
-  if (cat && amount) {
-    cat.addEventListener('change', () => { if (cat.value) setTimeout(() => amount.focus(), 50); });
-  }
+  if (cat && amount) { cat.addEventListener('change', () => { if (cat.value) setTimeout(()=>amount.focus(), 50); }); }
 });
 </script>
 {% endblock %}
