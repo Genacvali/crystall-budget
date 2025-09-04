@@ -1,242 +1,240 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
-    
-    <!-- iOS Specific Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="CrystalBudget FF">
-    <meta name="format-detection" content="telephone=no">
-    
-    <!-- iOS Icons -->
-    <meta name="apple-touch-icon" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='crystal' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234fb3d9'/><stop offset='100%' style='stop-color:%232d1b69'/></linearGradient></defs><rect width='100' height='100' fill='url(%23crystal)'/><text y='70' font-size='50' text-anchor='middle' x='50' fill='%23ffd700'>💎</text></svg>">
-    
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    
-    <!-- Clean Modern Theme CSS -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/clean-theme.css') }}" rel="stylesheet">
-    
-    <style>
-        /* iOS Safe Area Support for Modern Theme */
-        :root {
-            --safe-area-inset-top: env(safe-area-inset-top, 0px);
-            --safe-area-inset-right: env(safe-area-inset-right, 0px);
-            --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
-            --safe-area-inset-left: env(safe-area-inset-left, 0px);
-        }
-        
-        body {
-            padding-top: var(--safe-area-inset-top);
-            padding-bottom: var(--safe-area-inset-bottom);
-            padding-left: var(--safe-area-inset-left);
-            padding-right: var(--safe-area-inset-right);
-        }
-        
-        .container-fluid {
-            padding-left: max(15px, var(--safe-area-inset-left));
-            padding-right: max(15px, var(--safe-area-inset-right));
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
+
+  <!-- iOS Specific Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CrystalBudget FF">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- iOS Icon (inline svg) -->
+  <meta name="apple-touch-icon" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='crystal' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234fb3d9'/><stop offset='100%' style='stop-color:%232d1b69'/></linearGradient></defs><rect width='100' height='100' fill='url(%23crystal)'/><text y='70' font-size='50' text-anchor='middle' x='50' fill='%23ffd700'>💎</text></svg>'">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Theme -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/clean-theme.css') }}" rel="stylesheet">
+
+  <style>
+    /* Safe area for iOS */
+    :root{
+      --safe-area-inset-top: env(safe-area-inset-top, 0px);
+      --safe-area-inset-right: env(safe-area-inset-right, 0px);
+      --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-area-inset-left: env(safe-area-inset-left, 0px);
+    }
+    body{
+      padding-top:var(--safe-area-inset-top);
+      padding-bottom:var(--safe-area-inset-bottom);
+      padding-left:var(--safe-area-inset-left);
+      padding-right:var(--safe-area-inset-right);
+    }
+    .container-fluid{
+      padding-left:max(15px,var(--safe-area-inset-left));
+      padding-right:max(15px,var(--safe-area-inset-right));
+    }
+
+    /* ---------- NAV FIXES: не налезать на логотип, красиво переноситься ---------- */
+    .navbar-modern .container-fluid{
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      flex-wrap:wrap;               /* разрешаем перенос на 2 строку */
+    }
+    .navbar-brand-modern{
+      margin-right:auto;            /* бренд уходит влево, остальное вправо */
+      white-space:nowrap;
+    }
+    .navbar-modern .navbar-nav .nav-link-modern,
+    .navbar-modern .btn,
+    .navbar-modern .currency-selector{ white-space:nowrap; }
+
+    @media (max-width: 992px){
+      .navbar-modern .navbar-nav .nav-link-modern,
+      .navbar-modern .btn{
+        padding:.4rem .6rem;
+        font-size:.95rem;
+      }
+      /* компактнее валюта на узких экранах */
+      .currency-selector .currency-option{ padding:.25rem .5rem; min-width:2.25rem; }
+    }
+  </style>
 </head>
 <body>
-    <!-- Navigation -->
-    {% if session.user_id %}
-    <nav class="navbar navbar-expand-lg navbar-modern">
-        <div class="container-fluid">
-            <a class="navbar-brand-modern" href="{{ url_for('dashboard') }}">
-                <i class="bi bi-gem"></i> CrystalBudget
+  {% if session.user_id %}
+  <nav class="navbar navbar-expand-lg navbar-modern">
+    <div class="container-fluid">
+      <a class="navbar-brand-modern" href="{{ url_for('dashboard') }}">
+        <i class="bi bi-gem"></i> CrystalBudget
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+              <i class="bi bi-house-door"></i> Дашборд
             </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
-                            <i class="bi bi-house-door"></i> Дашборд
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}">
-                            <i class="bi bi-wallet2"></i> Расходы
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}">
-                            <i class="bi bi-tags"></i> Категории
-                        </a>
-                    </li>
-                    <li class="nav-item">
-<a class="nav-link-modern {% if request.endpoint in ['income_page', 'edit_income'] %}active{% endif %}"
-   href="{{ url_for('income_page') }}">
-  Доходы
-</a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item me-3">
-                        <div class="currency-selector">
-                            <button class="currency-option active rub" onclick="setCurrency('RUB')" id="curr-rub">₽</button>
-                            <button class="currency-option usd" onclick="setCurrency('USD')" id="curr-usd">$</button>
-                            <button class="currency-option eur" onclick="setCurrency('EUR')" id="curr-eur">€</button>
-                        </div>
-                    </li>
-                    <li class="nav-item me-3">
-                        <div class="theme-toggle" onclick="toggleTheme()">
-                            <i class="bi bi-sun-fill" id="light-icon"></i>
-                            <div class="theme-switch" id="theme-switch"></div>
-                            <i class="bi bi-moon-fill" id="dark-icon"></i>
-                        </div>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i> {{ session.user_name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end modern-card" style="border: none;">
-                            <li><a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}">
-                                <i class="bi bi-box-arrow-right"></i> Выйти
-                            </a></li>
-                        </ul>
-                    </li>
-                </ul>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}">
+              <i class="bi bi-wallet2"></i> Расходы
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}">
+              <i class="bi bi-tags"></i> Категории
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('income_page') }}">
+              <i class="bi bi-cash-coin"></i> Доходы
+            </a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav">
+          <li class="nav-item me-3">
+            <!-- Расширенный выбор валют -->
+            <div class="currency-selector">
+              <button class="currency-option active rub" onclick="setCurrency('RUB')" id="curr-rub">₽</button>
+              <button class="currency-option usd" onclick="setCurrency('USD')" id="curr-usd">$</button>
+              <button class="currency-option eur" onclick="setCurrency('EUR')" id="curr-eur">€</button>
+              <button class="currency-option amd" onclick="setCurrency('AMD')" id="curr-amd">֏</button>
+              <button class="currency-option gel" onclick="setCurrency('GEL')" id="curr-gel">₾</button>
             </div>
-        </div>
-    </nav>
-    {% endif %}
-
-    <!-- Main Content -->
-    <div class="container-modern py-4">
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        
-        {% block content %}{% endblock %}
+          </li>
+          <li class="nav-item me-3">
+            <div class="theme-toggle" onclick="toggleTheme()">
+              <i class="bi bi-sun-fill" id="light-icon"></i>
+              <div class="theme-switch" id="theme-switch"></div>
+              <i class="bi bi-moon-fill" id="dark-icon"></i>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle"></i> {{ session.user_name }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end modern-card" style="border:none;">
+              <li>
+                <a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}">
+                  <i class="bi bi-box-arrow-right"></i> Выйти
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
     </div>
+  </nav>
+  {% endif %}
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Theme Toggle, Currency and Custom JS -->
-    <script>
-        // Global currency symbol
-        let currentCurrency = 'RUB';
-        const currencySymbols = {
-            'RUB': '₽',
-            'USD': '$',
-            'EUR': '€'
-        };
-        
-        // Currency Management
-        function setCurrency(currency) {
-            currentCurrency = currency;
-            localStorage.setItem('currency', currency);
-            
-            // Update all currency options appearance
-            document.querySelectorAll('.currency-option').forEach(option => {
-                option.classList.remove('active');
-            });
-            document.getElementById('curr-' + currency.toLowerCase()).classList.add('active');
-            
-            // Update all currency displays on the page
-            updateCurrencyDisplays();
-        }
-        
-        function updateCurrencyDisplays() {
-            const symbol = currencySymbols[currentCurrency];
-            // Update all elements with currency symbols
-            document.querySelectorAll('.currency-display').forEach(element => {
-                const amount = element.textContent.replace(/[₽$€]/g, '').trim();
-                element.textContent = amount + ' ' + symbol;
-            });
-        }
-        
-        // Theme Management
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
-            document.documentElement.setAttribute('data-theme', newTheme);
-            localStorage.setItem('theme', newTheme);
-            
-            // Update theme toggle appearance
-            updateThemeToggle(newTheme);
-        }
-        
-        function updateThemeToggle(theme) {
-            const lightIcon = document.getElementById('light-icon');
-            const darkIcon = document.getElementById('dark-icon');
-            
-            if (theme === 'dark') {
-                lightIcon.style.opacity = '0.5';
-                darkIcon.style.opacity = '1';
-            } else {
-                lightIcon.style.opacity = '1';
-                darkIcon.style.opacity = '0.5';
-            }
-        }
-        
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Load saved theme or detect system preference
-            let savedTheme = localStorage.getItem('theme');
-            if (!savedTheme) {
-                savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-            }
-            
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeToggle(savedTheme);
-            
-            // Load saved currency
-            const savedCurrency = localStorage.getItem('currency') || 'RUB';
-            setCurrency(savedCurrency);
-            
-            // iOS Safari fixes
-            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                const inputs = document.querySelectorAll('input, select, textarea');
-                inputs.forEach(input => {
-                    input.addEventListener('focus', function() {
-                        this.style.fontSize = '16px';
-                    });
-                });
-            }
-            
-            // Auto-hide alerts after 5 seconds
-            setTimeout(function() {
-                const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
-                alerts.forEach(alert => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                });
-            }, 5000);
+  <div class="container-modern py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /* ---------------- CURRENCY ---------------- */
+    let currentCurrency = 'RUB';
+    const currencySymbols = {
+      'RUB':'₽',
+      'USD':'$',
+      'EUR':'€',
+      'AMD':'֏',
+      'GEL':'₾'
+    };
+
+    function setCurrency(currency){
+      currentCurrency = currency;
+      localStorage.setItem('currency', currency);
+      document.querySelectorAll('.currency-option').forEach(o=>o.classList.remove('active'));
+      const btn = document.getElementById('curr-'+currency.toLowerCase());
+      if(btn) btn.classList.add('active');
+      updateCurrencyDisplays();
+    }
+
+    function updateCurrencyDisplays(){
+      const symbol = currencySymbols[currentCurrency] || '';
+      document.querySelectorAll('.currency-display').forEach(el=>{
+        const amount = el.textContent.replace(/[₽$€֏₾]/g,'').trim();
+        el.textContent = amount + ' ' + symbol;
+      });
+    }
+
+    /* ---------------- THEME ---------------- */
+    function toggleTheme(){
+      const cur = document.documentElement.getAttribute('data-theme');
+      const next = cur==='dark'?'light':'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateThemeToggle(next);
+    }
+    function updateThemeToggle(theme){
+      const lightIcon=document.getElementById('light-icon');
+      const darkIcon=document.getElementById('dark-icon');
+      if(theme==='dark'){ lightIcon.style.opacity='0.5'; darkIcon.style.opacity='1'; }
+      else{ lightIcon.style.opacity='1'; darkIcon.style.opacity='0.5'; }
+    }
+
+    /* ---------------- INIT ---------------- */
+    document.addEventListener('DOMContentLoaded', function(){
+      // theme
+      let savedTheme = localStorage.getItem('theme');
+      if(!savedTheme){ savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light'; }
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      updateThemeToggle(savedTheme);
+
+      // currency
+      const savedCurrency = localStorage.getItem('currency') || 'RUB';
+      setCurrency(savedCurrency);
+
+      // iOS Safari fix
+      if(/iPad|iPhone|iPod/.test(navigator.userAgent)){
+        document.querySelectorAll('input, select, textarea').forEach(input=>{
+          input.addEventListener('focus', function(){ this.style.fontSize='16px'; });
         });
-        
-        // Listen for system theme changes
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
-            if (!localStorage.getItem('theme')) {
-                const newTheme = e.matches ? 'dark' : 'light';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                updateThemeToggle(newTheme);
-            }
+      }
+
+      // auto-hide alerts
+      setTimeout(()=>{
+        document.querySelectorAll('.alert:not(.alert-permanent)').forEach(a=>{
+          try{ new bootstrap.Alert(a).close(); }catch(e){}
         });
-    </script>
-    
-    {% block scripts %}{% endblock %}
+      }, 5000);
+    });
+
+    // follow system theme if not overridden
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e)=>{
+      if(!localStorage.getItem('theme')){
+        const next = e.matches ? 'dark':'light';
+        document.documentElement.setAttribute('data-theme', next);
+        updateThemeToggle(next);
+      }
+    });
+  </script>
+
+  {% block scripts %}{% endblock %}
 </body>
 </html>
