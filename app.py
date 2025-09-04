@@ -589,6 +589,24 @@ def sources_update(source_id):
 def sources_delete(source_id):
     uid = session["user_id"]
     conn = get_db()
+    
+    # Проверим, есть ли связанные записи
+    income_count = conn.execute(
+        "SELECT COUNT(*) FROM income_daily WHERE user_id=? AND source_id=?",
+        (uid, source_id)
+    ).fetchone()[0]
+    
+    rule_count = conn.execute(
+        "SELECT COUNT(*) FROM source_category_rules WHERE user_id=? AND source_id=?", 
+        (uid, source_id)
+    ).fetchone()[0]
+    
+    if income_count > 0 or rule_count > 0:
+        conn.close()
+        flash(f"Нельзя удалить источник: с ним связано {income_count} записей доходов и {rule_count} привязок к категориям. Сначала удалите связанные записи.", "error")
+        return redirect(url_for("sources_page"))
+    
+    # Удаляем источник
     conn.execute("DELETE FROM income_sources WHERE id=? AND user_id=?", (source_id, uid))
     conn.commit()
     conn.close()

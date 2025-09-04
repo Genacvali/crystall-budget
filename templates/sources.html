@@ -51,7 +51,7 @@
             </button>
           </form>
           <form class="d-inline" method="POST" action="{{ url_for('sources_delete', source_id=s.id) }}">
-            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить источник?')">
+            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить источник «{{ s.name }}»?\n\nВнимание: Удаление невозможно, если с источником связаны записи доходов или привязки к категориям.')">
               Удалить
             </button>
           </form>
