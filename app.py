@@ -1139,7 +1139,7 @@ def calculate_carryover(month, category_id, user_id):
     return total_carryover
 
 
-def get_dashboard_data(month):
+def get_dashboard_data(month, user_id):
     conn = get_db()
     
     # Get income for month
@@ -1323,10 +1323,11 @@ def index():
 @login_required
 def dashboard():
     month = request.args.get('month', get_current_month())
-    income, expenses, budget_data = get_dashboard_data(month)
+    user_id = session['user_id']
+    income, expenses, budget_data = get_dashboard_data(month, user_id)
     
     conn = get_db()
-    cursor = conn.execute('SELECT * FROM categories ORDER BY name')
+    cursor = conn.execute('SELECT * FROM categories WHERE user_id = ? ORDER BY name', (user_id,))
     categories = cursor.fetchall()
     conn.close()
     
@@ -1528,36 +1529,70 @@ def add_category():
 
 
 @app.route('/categories/update/<int:category_id>', methods=['POST'])
+@login_required
 def update_category(category_id):
-    name = request.form['name']
-    limit_type = request.form['limit_type']
-    value = float(request.form['value'])
-    
-    conn = get_db()
     try:
-        conn.execute('''
-            UPDATE categories 
-            SET name = ?, limit_type = ?, value = ?
-            WHERE id = ?
-        ''', (name, limit_type, value, category_id))
-        conn.commit()
-        flash('Категория обновлена!')
-    except sqlite3.IntegrityError:
-        flash('Категория с таким названием уже существует!')
-    finally:
-        conn.close()
+        user_id = session['user_id']
+        name = escape(request.form.get('name', '').strip())
+        limit_type = request.form.get('limit_type', '').strip()
+        value_str = request.form.get('value', '').strip()
+        
+        if not name or not limit_type or not value_str:
+            flash('Пожалуйста, заполните все поля', 'error')
+            return redirect(url_for('categories'))
+            
+        if limit_type not in ['fixed', 'percent']:
+            flash('Некорректный тип лимита', 'error')
+            return redirect(url_for('categories'))
+            
+        value = validate_amount(value_str)
+        
+        def update_category_op(conn, user_id, category_id, name, limit_type, value):
+            cursor = conn.execute('''
+                UPDATE categories 
+                SET name = ?, limit_type = ?, value = ?
+                WHERE id = ? AND user_id = ?
+            ''', (name, limit_type, float(value), category_id, user_id))
+            return cursor.rowcount
+            
+        result = safe_db_operation(update_category_op, user_id, category_id, name, limit_type, value)
+        
+        if result > 0:
+            flash(f'✓ Категория "{name}" обновлена!', 'success')
+        else:
+            flash('Категория не найдена', 'error')
+            
+    except ValueError as e:
+        if "already exists" in str(e):
+            flash('Категория с таким названием уже существует!', 'error')
+        else:
+            flash(f'Ошибка: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Неожиданная ошибка: {str(e)}', 'error')
     
     return redirect(url_for('categories'))
 
 
 @app.route('/categories/delete/<int:category_id>', methods=['POST'])
+@login_required
 def delete_category(category_id):
-    conn = get_db()
-    conn.execute('DELETE FROM categories WHERE id = ?', (category_id,))
-    conn.commit()
-    conn.close()
+    try:
+        user_id = session['user_id']
+        
+        def delete_category_op(conn, user_id, category_id):
+            cursor = conn.execute('DELETE FROM categories WHERE id = ? AND user_id = ?', (category_id, user_id))
+            return cursor.rowcount
+        
+        result = safe_db_operation(delete_category_op, user_id, category_id)
+        
+        if result > 0:
+            flash('✓ Категория удалена!', 'success')
+        else:
+            flash('Категория не найдена', 'error')
+            
+    except Exception as e:
+        flash(f'Ошибка при удалении: {str(e)}', 'error')
     
-    flash('Категория удалена!')
     return redirect(url_for('categories'))
 
 
