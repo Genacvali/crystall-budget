@@ -71,13 +71,6 @@
   Чтобы привязать категорию к источнику дохода, сначала добавьте источники на странице
   <a href="{{ url_for('sources_page') }}" class="alert-link">«Источники»</a>.
 </div>
-{% else %}
-<div class="alert alert-info mb-3">
-  <strong>Отладка:</strong> 
-  Источников: {{ income_sources|length }}, 
-  Привязок: {{ rules_map|length }}, 
-  Правила: {{ rules_map }}
-</div>
 {% endif %}
 
 <!-- Таблица категорий -->
@@ -113,11 +106,16 @@
         <td>
           {% set source_id = rules_map.get(cat.id) %}
           {% if source_id %}
-            {% set source_found = income_sources|selectattr('id', 'equalto', source_id)|list %}
-            {% if source_found %}
-              <span class="badge bg-info">{{ source_found[0].name }}</span>
+            {% set source_name = none %}
+            {% for s in income_sources %}
+              {% if s.id == source_id %}
+                {% set source_name = s.name %}
+              {% endif %}
+            {% endfor %}
+            {% if source_name %}
+              <span class="badge bg-info">{{ source_name }}</span>
             {% else %}
-              <span class="text-warning small">источник удален (ID: {{ source_id }})</span>
+              <span class="text-warning small">источник удален</span>
             {% endif %}
           {% else %}
             <span class="text-muted small">не привязано</span>
