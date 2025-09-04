@@ -830,13 +830,15 @@ EXPENSES_TEMPLATE = '''
                     <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
                            inputmode="decimal" class="form-control" required>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-12">
                     <label for="note" class="form-label">Комментарий</label>
                     <input type="text" id="note" name="note" class="form-control">
                 </div>
-                <div class="col-md-1">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100">Добавить</button>
+                <div class="col-md-1 col-sm-12 d-flex align-items-end">
+                    <label class="form-label d-none d-md-block">&nbsp;</label>
+                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
+                        <i class="bi bi-plus-lg me-1"></i> Добавить
+                    </button>
                 </div>
             </div>
         </form>
@@ -864,17 +866,15 @@ EXPENSES_TEMPLATE = '''
             </p>
             {% endif %}
             
-            <div class="d-flex gap-2 justify-content-end">
+            <div class="d-flex gap-2 mt-2">
                 <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
-                   class="btn btn-sm btn-outline-primary d-flex align-items-center" 
-                   style="font-size: 0.8rem;">
-                    <i class="bi bi-pencil me-1"></i> Изменить
+                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center">
+                    <i class="bi bi-pencil me-2"></i> Изменить
                 </a>
-                <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-                    <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center" 
-                            onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')" 
-                            style="font-size: 0.8rem;">
-                        <i class="bi bi-trash3 me-1"></i> Удалить
+                <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="flex-fill">
+                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center" 
+                            onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')">
+                        <i class="bi bi-trash3 me-2"></i> Удалить
                     </button>
                 </form>
             </div>
@@ -906,12 +906,12 @@ EXPENSES_TEMPLATE = '''
                     <div class="d-flex gap-2">
                         <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
                            class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i> Изменить
+                            <i class="bi bi-pencil me-1"></i> Изменить
                         </a>
                         <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-danger" 
                                     onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')">
-                                <i class="bi bi-trash3"></i> Удалить
+                                <i class="bi bi-trash3 me-1"></i> Удалить
                             </button>
                         </form>
                     </div>
@@ -955,9 +955,11 @@ CATEGORIES_TEMPLATE = '''
                     <input type="number" id="value" name="value" step="0.01" min="0.01" 
                            inputmode="decimal" class="form-control" required>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100">Добавить</button>
+                <div class="col-md-2 col-sm-12 d-flex align-items-end">
+                    <label class="form-label d-none d-md-block">&nbsp;</label>
+                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
+                        <i class="bi bi-plus-lg me-1"></i> Добавить
+                    </button>
                 </div>
             </div>
         </form>
@@ -992,11 +994,15 @@ CATEGORIES_TEMPLATE = '''
                                inputmode="decimal" class="form-control form-control-sm">
                     </td>
                     <td>
-                        <button type="submit" class="btn btn-sm btn-outline-primary me-2">Сохранить</button>
+                        <button type="submit" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="bi bi-check-lg me-1"></i> Сохранить
+                        </button>
                 </form>
                         <form method="POST" action="/categories/delete/{{ cat.id }}" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirm('Удалить категорию?')">Удалить</button>
+                                    onclick="return confirm('Удалить категорию?')">
+                                <i class="bi bi-trash3 me-1"></i> Удалить
+                            </button>
                         </form>
                     </td>
             </tr>
@@ -1140,16 +1146,50 @@ INCOME_TEMPLATE = '''
                     <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
                            inputmode="decimal" class="form-control" required>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100">Сохранить</button>
+                <div class="col-md-2 col-sm-12 d-flex align-items-end">
+                    <label class="form-label d-none d-md-block">&nbsp;</label>
+                    <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
+                        <i class="bi bi-check-lg me-1"></i> Сохранить
+                    </button>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
-<div class="table-responsive">
+<!-- Mobile view -->
+<div class="d-block d-md-none">
+    {% for income in incomes %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h6 class="card-title mb-1">{{ income.amount|format_amount }} ₽</h6>
+                    <small class="text-muted">
+                        <i class="bi bi-calendar3"></i> {{ income.month }}
+                    </small>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('edit_income', month=income.month) }}" 
+                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center">
+                    <i class="bi bi-pencil me-2"></i> Изменить
+                </a>
+                <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="flex-fill">
+                    <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center" 
+                            onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
+                        <i class="bi bi-trash3 me-2"></i> Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Desktop table view -->
+<div class="table-responsive d-none d-md-block">
     <table class="table table-striped">
         <thead>
             <tr>
@@ -1167,12 +1207,12 @@ INCOME_TEMPLATE = '''
                     <div class="d-flex gap-2">
                         <a href="{{ url_for('edit_income', month=income.month) }}" 
                            class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Изменить</span>
+                            <i class="bi bi-pencil me-1"></i> Изменить
                         </a>
                         <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-danger" 
                                     onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
-                                <i class="bi bi-trash3"></i> <span class="d-none d-md-inline">Удалить</span>
+                                <i class="bi bi-trash3 me-1"></i> Удалить
                             </button>
                         </form>
                     </div>
