@@ -1,7 +1,8 @@
 import os
 import sqlite3
 from datetime import datetime, date
-from flask import Flask, render_template_string, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template_string, render_template, request, redirect, url_for, flash, jsonify
+from jinja2 import DictLoader, ChoiceLoader
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
@@ -61,7 +62,7 @@ LAYOUT_TEMPLATE = '''
 '''
 
 DASHBOARD_TEMPLATE = '''
-{% extends layout %}
+{% extends "layout.html" %}
 {% block content %}
 <div class="row mb-4">
     <div class="col-12">
@@ -163,7 +164,7 @@ DASHBOARD_TEMPLATE = '''
 '''
 
 EXPENSES_TEMPLATE = '''
-{% extends layout %}
+{% extends "layout.html" %}
 {% block title %}Траты - Личный бюджет{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -241,7 +242,7 @@ EXPENSES_TEMPLATE = '''
 '''
 
 CATEGORIES_TEMPLATE = '''
-{% extends layout %}
+{% extends "layout.html" %}
 {% block title %}Категории - Личный бюджет{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -324,7 +325,7 @@ CATEGORIES_TEMPLATE = '''
 '''
 
 INCOME_TEMPLATE = '''
-{% extends layout %}
+{% extends "layout.html" %}
 {% block title %}Доходы - Личный бюджет{% endblock %}
 {% block content %}
 <div class="row">
@@ -370,6 +371,18 @@ INCOME_TEMPLATE = '''
 </div>
 {% endblock %}
 '''
+
+# Register templates in Jinja loader
+app.jinja_loader = ChoiceLoader([
+    DictLoader({
+        "layout.html": LAYOUT_TEMPLATE,
+        "dashboard.html": DASHBOARD_TEMPLATE,
+        "expenses.html": EXPENSES_TEMPLATE,
+        "categories.html": CATEGORIES_TEMPLATE,
+        "income.html": INCOME_TEMPLATE,
+    }),
+    app.jinja_loader,
+])
 
 
 def get_db():
@@ -546,9 +559,9 @@ def dashboard():
     
     today = date.today().isoformat()
     
-    return render_template_string(DASHBOARD_TEMPLATE, layout=LAYOUT_TEMPLATE,
-                                current_month=month, income=income, expenses=expenses,
-                                budget_data=budget_data, categories=categories, today=today)
+    return render_template("dashboard.html",
+                         current_month=month, income=income, expenses=expenses,
+                         budget_data=budget_data, categories=categories, today=today)
 
 
 @app.route('/quick-expense', methods=['POST'])
@@ -593,8 +606,8 @@ def expenses():
     
     today = date.today().isoformat()
     
-    return render_template_string(EXPENSES_TEMPLATE, layout=LAYOUT_TEMPLATE,
-                                expenses=expenses_list, categories=categories, today=today)
+    return render_template("expenses.html",
+                         expenses=expenses_list, categories=categories, today=today)
 
 
 @app.route('/expenses', methods=['POST'])
@@ -636,8 +649,8 @@ def categories():
     categories_list = cursor.fetchall()
     conn.close()
     
-    return render_template_string(CATEGORIES_TEMPLATE, layout=LAYOUT_TEMPLATE,
-                                categories=categories_list)
+    return render_template("categories.html",
+                         categories=categories_list)
 
 
 @app.route('/categories/add', methods=['POST'])
@@ -703,8 +716,8 @@ def income():
     
     current_month = get_current_month()
     
-    return render_template_string(INCOME_TEMPLATE, layout=LAYOUT_TEMPLATE,
-                                incomes=incomes, current_month=current_month)
+    return render_template("income.html",
+                         incomes=incomes, current_month=current_month)
 
 
 @app.route('/income/add', methods=['POST'])
