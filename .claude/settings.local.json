@@ -9,7 +9,8 @@
       "Bash(chmod:*)",
       "Bash(python:*)",
       "Bash(where python)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(sqlite3:*)"
     ],
     "deny": [],
     "ask": []
