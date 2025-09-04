@@ -2,6 +2,19 @@
 {% block title %}Категории — CrystalBudget{% endblock %}
 
 {% block content %}
+<style>
+/* FIX: dropdown always opens down */
+select.form-select {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+select.form-select option {
+    position: relative;
+    z-index: 9999;
+}
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-3">
   <h2 class="h4 m-0">Категории</h2>
   <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
