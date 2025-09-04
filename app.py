@@ -540,11 +540,16 @@ def dashboard():
 
     # расход по источнику (по правилам)
     expense_by_source = {s["id"]: 0.0 for s in sources}
+    # лимиты по источнику (сумма всех лимитов категорий, привязанных к источнику)
+    limits_by_source = {s["id"]: 0.0 for s in sources}
+    
     for cat in limits:
         cat_id = cat["id"]
         src_id = rule_map.get(cat_id)
         if not src_id:
             continue
+            
+        # Считаем потраченное
         spent_val = conn.execute(
             """
             SELECT COALESCE(SUM(amount),0) FROM expenses
@@ -553,14 +558,25 @@ def dashboard():
             (uid, month, cat_id),
         ).fetchone()[0]
         expense_by_source[src_id] += float(spent_val)
+        
+        # Считаем лимит этой категории
+        if cat["limit_type"] == "fixed":
+            limit_val = float(cat["value"])
+        else:  # percent
+            source_income = float(income_by_source.get(src_id, 0))
+            limit_val = source_income * float(cat["value"]) / 100.0
+        limits_by_source[src_id] += limit_val
 
     source_balances = []
     for s in sources:
         sid = s["id"]
         inc = float(income_by_source.get(sid, 0.0))
         sp = float(expense_by_source.get(sid, 0.0))
+        limits_total = float(limits_by_source.get(sid, 0.0))
+        remaining_after_limits = inc - limits_total  # остается после всех запланированных лимитов
         source_balances.append(
-            dict(source_id=sid, source_name=s["name"], income=inc, spent=sp, rest=inc - sp)
+            dict(source_id=sid, source_name=s["name"], income=inc, spent=sp, 
+                 rest=inc - sp, limits_total=limits_total, remaining_after_limits=remaining_after_limits)
         )
 
     conn.close()

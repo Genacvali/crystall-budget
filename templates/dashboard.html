@@ -154,6 +154,12 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
         <h6 class="mb-3">{{ s.source_name }}</h6>
         <div class="d-flex justify-content-between mb-1"><span class="k">Пришло</span><span class="v currency">{{ s.income|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></span></div>
         <div class="d-flex justify-content-between mb-1"><span class="k">Ушло</span><span class="v currency">{{ s.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></span></div>
+        {% if s.limits_total > 0 %}
+        <div class="d-flex justify-content-between mb-1">
+          <span class="k text-muted small">Остается после лимитов</span>
+          <span class="v currency small {% if s.remaining_after_limits < 0 %}text-danger{% else %}text-success{% endif %}">{{ s.remaining_after_limits|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></span>
+        </div>
+        {% endif %}
         <div class="d-flex justify-content-between">
           <span class="k">Остаток</span>
           <span class="v currency {% if s.rest < 0 %}text-danger{% endif %}">{{ s.rest|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></span>
