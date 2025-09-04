@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Оффлайн — CrystalBudget{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+  <h3>Нет сети</h3>
+  <p class="text-muted">Данные и интерфейс частично доступны офлайн.</p>
+  <a class="btn btn-primary" href="{{ url_for('dashboard') }}">На дашборд</a>
+</div>
+{% endblock %}
