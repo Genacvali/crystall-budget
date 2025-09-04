@@ -10,21 +10,21 @@
 <form method="POST" action="{{ url_for('income_add') }}" class="mb-3" novalidate>
   <div class="card card-body">
     <div class="row g-3">
-      <div class="col-md-3">
+      <div class="col-6 col-md-3">
         <label for="date" class="form-label">Дата</label>
         <input type="date" id="date" name="date"
                value="{{ today }}" class="form-control" required>
       </div>
 
-      <div class="col-md-3">
+      <div class="col-6 col-md-3">
         <label for="amount" class="form-label">Сумма</label>
         <input type="number" id="amount" name="amount"
                inputmode="decimal" step="0.01" min="0.01"
                class="form-control" placeholder="Сумма дохода" required>
-        <div class="form-text">Используйте точку для копеек: 1234.56</div>
+        <div class="form-text d-none d-md-block">Используйте точку для копеек: 1234.56</div>
       </div>
 
-      <div class="col-md-4">
+      <div class="col-12 col-md-4">
         <label for="source_id" class="form-label">Источник</label>
         <select id="source_id" name="source_id" class="form-select">
           {% if income_sources and income_sources|length %}
@@ -38,7 +38,7 @@
         </select>
       </div>
 
-      <div class="col-md-2 d-grid">
+      <div class="col-12 col-md-2 d-grid">
         <label class="form-label d-none d-md-block">&nbsp;</label>
         <button type="submit" class="btn btn-success">
           <i class="bi bi-check-lg me-1"></i> Добавить доход

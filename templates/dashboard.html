@@ -49,32 +49,37 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
     </h1>
   </div>
   <!-- Переключатель месяца и дата -->
-  <div class="col-auto">
-    <div class="d-flex align-items-center gap-3 flex-wrap">
+  <div class="col-12 col-md-auto">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
       <!-- Текущая дата и день недели -->
       <div class="text-center">
         <div class="fw-bold text-primary" id="current-date-display"></div>
         <small class="text-muted" id="current-day-display"></small>
       </div>
       
-      <!-- Навигация по месяцам -->
-      <div class="btn-group" role="group">
-        <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm">
-          <i class="bi bi-chevron-left"></i>
-        </a>
-        <span class="btn btn-outline-primary btn-sm disabled" style="min-width: 120px;">
-          {{ current_month_name }}
-        </span>
-        <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm">
-          <i class="bi bi-chevron-right"></i>
-        </a>
-      </div>
-      
-      <!-- Быстрый выбор -->
-      <div class="dropdown">
-        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          <i class="bi bi-calendar3"></i> Выбрать месяц
-        </button>
+      <div class="d-flex align-items-center gap-2">
+        <!-- Навигация по месяцам -->
+        <div class="btn-group" role="group">
+          <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-chevron-left"></i>
+          </a>
+          <span class="btn btn-outline-primary btn-sm disabled d-none d-sm-inline" style="min-width: 120px;">
+            {{ current_month_name }}
+          </span>
+          <span class="btn btn-outline-primary btn-sm disabled d-sm-none" style="min-width: 80px;">
+            {{ current_month_name.split()[0][:3] }}
+          </span>
+          <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm">
+            <i class="bi bi-chevron-right"></i>
+          </a>
+        </div>
+        
+        <!-- Быстрый выбор -->
+        <div class="dropdown">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-calendar3 d-md-none"></i>
+            <span class="d-none d-md-inline"><i class="bi bi-calendar3"></i> Выбрать месяц</span>
+          </button>
         <div class="dropdown-menu">
           {% for i in range(12) %}
             {% set month_num = (loop.index) %}
@@ -109,9 +114,15 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
     <input type="hidden" name="return_month" value="{{ current_month }}">
     <div class="row g-2 align-items-stretch">
       <!-- дата -->
-      <div class="col-12 col-md-2 q-input">
+      <div class="col-6 col-md-2 q-input">
         <i class="bi bi-calendar3"></i>
         <input type="date" name="date" id="qe-date" value="{{ today }}" class="form-control" required>
+      </div>
+      <!-- сумма -->
+      <div class="col-6 col-md-2 q-input">
+        <i class="bi bi-123"></i>
+        <input type="number" name="amount" id="qe-amount" step="0.01" min="0.01" placeholder="0.00"
+               inputmode="decimal" class="form-control" required>
       </div>
       <!-- категория -->
       <div class="col-12 col-md-4 q-input">
@@ -123,14 +134,8 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
           {% endfor %}
         </select>
       </div>
-      <!-- сумма -->
-      <div class="col-6 col-md-2 q-input">
-        <i class="bi bi-123"></i>
-        <input type="number" name="amount" id="qe-amount" step="0.01" min="0.01" placeholder="0.00"
-               inputmode="decimal" class="form-control" required>
-      </div>
       <!-- комментарий -->
-      <div class="col-6 col-md-3 q-input">
+      <div class="col-12 col-md-3 q-input">
         <i class="bi bi-chat-dots"></i>
         <input type="text" name="note" id="qe-note" class="form-control" placeholder="Комментарий (необязательно)">
       </div>
@@ -148,7 +153,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 {% if source_balances and source_balances|length > 0 %}
 <div class="row g-3 mb-4">
   {% for s in source_balances %}
-  <div class="col-12 col-md-6 col-lg-4">
+  <div class="col-12 col-sm-6 col-lg-4">
     <div class="card source-card">
       <div class="card-body">
         <h6 class="mb-3">{{ s.source_name }}</h6>

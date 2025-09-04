@@ -19,14 +19,16 @@
   .input-group-text { min-width: 2.25rem; justify-content: center; }
 </style>
 
-<div class="d-flex justify-content-between align-items-center mb-3">
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
   <h2 class="h4 m-0">Категории</h2>
-  <div class="btn-group">
-    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm">
-      <i class="bi bi-dash-circle me-1"></i> Добавить категорию трат
+  <div class="btn-group" role="group">
+    <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm">
+      <i class="bi bi-dash-circle me-1"></i>
+      <span class="d-none d-md-inline">Добавить категорию </span>Трат
     </button>
-    <button class="btn btn-success" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm">
-      <i class="bi bi-plus-circle me-1"></i> Добавить категорию доходов
+    <button class="btn btn-success btn-sm" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm">
+      <i class="bi bi-plus-circle me-1"></i>
+      <span class="d-none d-md-inline">Добавить категорию </span>Доходов
     </button>
   </div>
 </div>
@@ -40,23 +42,23 @@
     <form method="POST" action="{{ url_for('categories_add') }}">
       <input type="hidden" name="category_type" value="expense">
       <div class="row g-3">
-        <div class="col-md-3">
+        <div class="col-12 col-md-4">
           <label class="form-label">Название</label>
           <input type="text" name="name" class="form-control" placeholder="Например, Продукты" required>
         </div>
-        <div class="col-md-2">
+        <div class="col-6 col-md-2">
           <label class="form-label">Тип лимита</label>
           <select name="limit_type" class="form-select" required>
             <option value="fixed">Фиксированная сумма</option>
             <option value="percent">Процент от дохода</option>
           </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-6 col-md-2">
           <label class="form-label">Значение</label>
           <input type="number" name="value" step="0.01" min="0.01" inputmode="decimal"
                  class="form-control" placeholder="Сумма или %" required>
         </div>
-        <div class="col-md-3">
+        <div class="col-12 col-md-3">
           <label class="form-label">Привязать к источнику</label>
           <select name="source_id" class="form-select">
             <option value="">(не привязывать)</option>
@@ -65,7 +67,7 @@
             {% endfor %}
           </select>
         </div>
-        <div class="col-md-2 d-grid">
+        <div class="col-12 col-md-1 d-grid">
           <label class="form-label d-none d-md-block">&nbsp;</label>
           <button class="btn btn-primary">
             <i class="bi bi-check-lg me-1"></i> Добавить
