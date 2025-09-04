@@ -41,10 +41,19 @@
             <option value="percent">Процент от дохода</option>
           </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <label class="form-label">Значение</label>
           <input type="number" name="value" step="0.01" min="0.01" inputmode="decimal"
                  class="form-control" placeholder="Сумма или %" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Привязать к источнику</label>
+          <select name="source_id" class="form-select">
+            <option value="">(не привязывать)</option>
+            {% for s in income_sources %}
+              <option value="{{ s.id }}">{{ s.name }}</option>
+            {% endfor %}
+          </select>
         </div>
         <div class="col-md-2 d-grid">
           <label class="form-label d-none d-md-block">&nbsp;</label>

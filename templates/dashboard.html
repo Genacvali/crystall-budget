@@ -50,22 +50,49 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   </div>
   <!-- Переключатель месяца и дата -->
   <div class="col-auto">
-    <div class="d-flex align-items-center gap-3">
+    <div class="d-flex align-items-center gap-3 flex-wrap">
       <!-- Текущая дата и день недели -->
       <div class="text-center">
         <div class="fw-bold text-primary" id="current-date-display"></div>
         <small class="text-muted" id="current-day-display"></small>
       </div>
       
-      <!-- Выбор месяца -->
-      <form method="get" class="d-flex align-items-center gap-2">
-        <div class="input-group input-group-sm" style="min-width:180px;">
-          <button class="input-group-text" type="button" id="month-btn" aria-label="Выбрать месяц">
-            <i class="bi bi-calendar3"></i>
-          </button>
-          <input type="month" id="month-input" name="month" value="{{ current_month }}" class="form-control" onchange="this.form.submit()">
+      <!-- Навигация по месяцам -->
+      <div class="btn-group" role="group">
+        <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+        <span class="btn btn-outline-primary btn-sm disabled" style="min-width: 120px;">
+          {{ current_month_name }}
+        </span>
+        <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-chevron-right"></i>
+        </a>
+      </div>
+      
+      <!-- Быстрый выбор -->
+      <div class="dropdown">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-calendar3"></i> Выбрать месяц
+        </button>
+        <div class="dropdown-menu">
+          {% for i in range(12) %}
+            {% set month_num = (loop.index) %}
+            {% set month_val = "2024-%02d"|format(month_num) %}
+            <a class="dropdown-item" href="?month={{ month_val }}">
+              {{ month_names[month_num - 1] }} 2024
+            </a>
+          {% endfor %}
+          <div class="dropdown-divider"></div>
+          {% for i in range(12) %}
+            {% set month_num = (loop.index) %}
+            {% set month_val = "2025-%02d"|format(month_num) %}
+            <a class="dropdown-item" href="?month={{ month_val }}">
+              {{ month_names[month_num - 1] }} 2025
+            </a>
+          {% endfor %}
         </div>
-      </form>
+      </div>
     </div>
   </div>
 </div>
@@ -207,26 +234,6 @@ document.addEventListener('DOMContentLoaded', function () {
     
     dateDisplay.textContent = dateStr;
     dayDisplay.textContent = dayStr;
-  }
-
-  // --- Рабочая кнопка-иконка для month-пикера ---
-  const mBtn = document.getElementById('month-btn');
-  const mInp = document.getElementById('month-input');
-  if (mBtn && mInp) {
-    mBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      try {
-        if (mInp.showPicker && typeof mInp.showPicker === 'function') {
-          mInp.showPicker();
-        } else {
-          mInp.focus();
-          mInp.click();
-        }
-      } catch (err) {
-        mInp.focus();
-        mInp.click();
-      }
-    });
   }
 
   // --- Быстрое добавление расхода ---

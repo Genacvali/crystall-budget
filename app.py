@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
 
@@ -353,6 +353,35 @@ def dashboard():
     month = request.args.get("month") or datetime.now().strftime("%Y-%m")
     conn = get_db()
     uid = session["user_id"]
+    
+    # Подготовка данных для навигации по месяцам
+    try:
+        current_date = datetime.strptime(month, "%Y-%m")
+        prev_month = (current_date.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+        next_month = (current_date.replace(day=28) + timedelta(days=4)).replace(day=1).strftime("%Y-%m")
+        current_month_name = current_date.strftime("%B %Y")
+        
+        # Переводим название месяца на русский
+        month_names_ru = {
+            "January": "Январь", "February": "Февраль", "March": "Март", "April": "Апрель",
+            "May": "Май", "June": "Июнь", "July": "Июль", "August": "Август",
+            "September": "Сентябрь", "October": "Октябрь", "November": "Ноябрь", "December": "Декабрь"
+        }
+        
+        eng_month_name = current_date.strftime("%B")
+        current_month_name = f"{month_names_ru.get(eng_month_name, eng_month_name)} {current_date.year}"
+        
+        month_names = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", 
+                       "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
+    except ValueError:
+        # Если формат месяца некорректный, используем текущий
+        month = datetime.now().strftime("%Y-%m")
+        current_date = datetime.now()
+        prev_month = (current_date.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+        next_month = (current_date.replace(day=28) + timedelta(days=4)).replace(day=1).strftime("%Y-%m")
+        current_month_name = "Текущий месяц"
+        month_names = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", 
+                       "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
 
     # категории пользователя
     categories = conn.execute(
@@ -477,6 +506,10 @@ def dashboard():
         budget_data=data,
         income=income_sum,
         current_month=month,
+        current_month_name=current_month_name,
+        prev_month=prev_month,
+        next_month=next_month,
+        month_names=month_names,
         today=today,
         source_balances=source_balances,
     )
@@ -757,6 +790,7 @@ def categories_add():
     name = (request.form.get("name") or "").strip()
     limit_type = request.form.get("limit_type")
     value = request.form.get("value")
+    source_id = request.form.get("source_id")
 
     if not name or not limit_type or not value:
         flash("Пожалуйста, заполните все поля", "error")
@@ -772,17 +806,34 @@ def categories_add():
 
     conn = get_db()
     try:
-        conn.execute(
+        # Создаем категорию
+        cursor = conn.execute(
             "INSERT INTO categories (user_id, name, limit_type, value) VALUES (?,?,?,?)",
             (uid, name, limit_type, val),
         )
+        category_id = cursor.lastrowid
+        
+        # Если выбран источник, создаем привязку
+        if source_id:
+            # Проверяем, что источник принадлежит пользователю
+            valid_source = conn.execute(
+                "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
+                (source_id, uid)
+            ).fetchone()
+            
+            if valid_source:
+                conn.execute(
+                    "INSERT INTO source_category_rules(user_id, source_id, category_id) VALUES (?,?,?)",
+                    (uid, source_id, category_id)
+                )
+        
         conn.commit()
+        flash("Категория добавлена", "success")
     except sqlite3.IntegrityError:
         flash("Категория с таким названием уже существует", "error")
     finally:
         conn.close()
 
-    flash("Категория добавлена", "success")
     return redirect(url_for("categories"))
 
 
