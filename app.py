@@ -264,6 +264,22 @@ def add_source_id_column_if_missing():
     conn.close()
 
 
+def add_category_type_column_if_missing():
+    """Добавляет колонку category_type в categories, если её нет."""
+    conn = get_db()
+    cur = conn.cursor()
+    cur.execute("PRAGMA table_info(categories)")
+    cols = [r[1] for r in cur.fetchall()]
+    if "category_type" not in cols:
+        try:
+            cur.execute("ALTER TABLE categories ADD COLUMN category_type TEXT DEFAULT 'expense' CHECK(category_type IN ('expense','income'))")
+            conn.commit()
+            print("Added category_type column to categories table")
+        except sqlite3.OperationalError as e:
+            print(f"Failed to add category_type column: {e}")
+    conn.close()
+
+
 # -----------------------------------------------------------------------------
 # Auth helpers
 # -----------------------------------------------------------------------------
@@ -811,9 +827,12 @@ def rules_bulk_update():
 def categories():
     uid = session["user_id"]
     conn = get_db()
+    
+    # Получаем все категории с типами
     rows = conn.execute(
-        "SELECT * FROM categories WHERE user_id=? ORDER BY name", (uid,)
+        "SELECT *, COALESCE(category_type, 'expense') as category_type FROM categories WHERE user_id=? ORDER BY category_type, name", (uid,)
     ).fetchall()
+    
     sources = conn.execute(
         "SELECT id, name FROM income_sources WHERE user_id=? ORDER BY name", (uid,)
     ).fetchall()
@@ -821,28 +840,39 @@ def categories():
         "SELECT category_id, source_id FROM source_category_rules WHERE user_id=?", (uid,)
     ).fetchall()
     rules_map = {r["category_id"]: r["source_id"] for r in rules}
+    
+    # Разделяем категории по типам
+    expense_categories = [cat for cat in rows if cat["category_type"] == "expense"]
+    income_categories = [cat for cat in rows if cat["category_type"] == "income"]
+    
     conn.close()
-    return render_template("categories.html", categories=rows, income_sources=sources, rules_map=rules_map)
+    return render_template("categories.html", 
+                         categories=rows, 
+                         expense_categories=expense_categories,
+                         income_categories=income_categories,
+                         income_sources=sources, 
+                         rules_map=rules_map)
 
 
 @app.route("/categories/add", methods=["POST"])
 @login_required
 def categories_add():
     uid = session["user_id"]
-    name = (request.form.get("name") or "").strip()
+    name = sanitize_string(request.form.get("name"))
     limit_type = request.form.get("limit_type")
     value = request.form.get("value")
     source_id = request.form.get("source_id")
+    category_type = request.form.get("category_type", "expense")  # по умолчанию тратная категория
 
     if not name or not limit_type or not value:
         flash("Пожалуйста, заполните все поля", "error")
         return redirect(url_for("categories"))
+        
+    if category_type not in ["expense", "income"]:
+        category_type = "expense"
 
-    try:
-        val = float(value)
-        if val <= 0:
-            raise ValueError
-    except Exception:
+    amount = validate_amount(value)
+    if amount is None:
         flash("Введите корректное значение лимита", "error")
         return redirect(url_for("categories"))
 
@@ -850,8 +880,8 @@ def categories_add():
     try:
         # Создаем категорию
         cursor = conn.execute(
-            "INSERT INTO categories (user_id, name, limit_type, value) VALUES (?,?,?,?)",
-            (uid, name, limit_type, val),
+            "INSERT INTO categories (user_id, name, limit_type, value, category_type) VALUES (?,?,?,?,?)",
+            (uid, name, limit_type, amount, category_type),
         )
         category_id = cursor.lastrowid
         
@@ -1769,4 +1799,5 @@ if __name__ == "__main__":
     ensure_income_sources_tables()
     migrate_income_to_daily_if_needed()
     add_source_id_column_if_missing()
+    add_category_type_column_if_missing()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=os.environ.get("FLASK_ENV") == "development")
