@@ -1,16 +1,16 @@
 {% extends "base.html" %}
-{% block title %}Личный бюджет - CrystalBudget{% endblock %}
+{% block title %}🏰 Цитадель - CrystalBudget FF Edition{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-speedometer2"></i> Мой бюджет</h2>
+    <h2 class="crystal-pulse"><i class="bi bi-gem"></i> ⚔️ Магическая Цитадель</h2>
     <small class="text-muted">{{ current_month }}</small>
 </div>
 
 <!-- Quick Add Form -->
-<div class="card mb-4">
+<div class="card mb-4 crystal-card">
     <div class="card-body">
-        <h6 class="card-title"><i class="bi bi-plus-circle"></i> Быстрое добавление</h6>
+        <h6 class="card-title"><i class="bi bi-plus-circle"></i> 🌟 Заклинание расхода</h6>
         <form method="POST" action="/add-expense" class="quick-expense-form">
             <div class="row g-2">
                 <div class="col-12 col-md-3">
@@ -18,7 +18,7 @@
                     <input type="date" name="date" value="{{ today }}" class="form-control" required>
                 </div>
                 <div class="col-12 col-md-3">
-                    <label class="form-label text-muted"><i class="bi bi-tag"></i> Категория</label>
+                    <label class="form-label text-muted"><i class="bi bi-gem"></i> Артефакт</label>
                     <select name="category_id" class="form-select" required>
                         <option value="">Выберите...</option>
                         {% for cat in categories %}
@@ -27,21 +27,21 @@
                     </select>
                 </div>
                 <div class="col-12 col-md-2">
-                    <label class="form-label text-muted"><i class="bi bi-currency-exchange"></i> Сумма</label>
+                    <label class="form-label text-muted"><i class="bi bi-currency-exchange"></i> ⚡ Мана</label>
                     <input type="number" name="amount" placeholder="0" step="0.01" min="0.01" 
                            inputmode="decimal" pattern="[0-9]*" class="form-control" required 
                            data-touch="true" autocomplete="off">
                 </div>
                 <div class="col-12 col-md-2">
-                    <label class="form-label text-muted"><i class="bi bi-chat"></i> Комментарий</label>
-                    <input type="text" name="note" placeholder="Описание" class="form-control" 
+                    <label class="form-label text-muted"><i class="bi bi-chat"></i> 📝 Заметка</label>
+                    <input type="text" name="note" placeholder="Описание квеста" class="form-control" 
                            data-touch="true" autocomplete="off">
                 </div>
                 <div class="col-12 col-md-2">
                     <label class="form-label d-none d-md-block" style="opacity: 0;">&nbsp;</label>
-                    <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center" 
+                    <button type="submit" class="btn btn-success w-100 d-flex align-items-center justify-content-center magic-float" 
                             style="height: 48px;">
-                        <i class="bi bi-plus-lg me-2"></i> Добавить
+                        <i class="bi bi-plus-lg me-2"></i> ✨ Сотворить
                     </button>
                 </div>
             </div>
@@ -49,11 +49,11 @@
     </div>
 </div>
 
-<!-- Budget Overview -->
+<!-- Magical Treasury Overview -->
 <div class="d-block d-md-none mobile-card-view">
     <!-- Mobile card view -->
     {% for item in budget_data %}
-    <div class="card mb-3 expense-card" data-category="{{ item.category_name }}">
+    <div class="card mb-3 expense-card crystal-card" data-category="{{ item.category_name }}">
         <div class="card-body" style="padding: 1rem;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="card-title mb-0 fw-bold" style="font-size: 1.1rem;">{{ item.category_name }}</h6>
@@ -70,13 +70,13 @@
             <div class="row text-center g-2">
                 <div class="col-6">
                     <div class="border rounded p-2" style="background: #f8f9fa;">
-                        <small class="text-muted d-block" style="font-size: 0.75rem;">🎯 Лимит</small>
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">⚡ Мощность</small>
                         <span class="fw-bold d-block" style="font-size: 1rem; color: #6c5ce7;">{{ item.limit|format_amount }}</span>
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="border rounded p-2" style="background: #f8f9fa;">
-                        <small class="text-muted d-block" style="font-size: 0.75rem;">💸 Потрачено</small>
+                        <small class="text-muted d-block" style="font-size: 0.75rem;">🔥 Израсходовано</small>
                         <span class="fw-bold d-block" style="font-size: 1rem; color: {% if item.spent > item.limit %}#e74c3c{% else %}#2ecc71{% endif %};">{{ item.spent|format_amount }}</span>
                     </div>
                 </div>
@@ -84,7 +84,7 @@
             
             <div class="mt-3">
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Остаток:</small>
+                    <small class="text-muted">💎 Кристаллы:</small>
                     <span class="fw-bold {% if (item.limit - item.spent) < 0 %}status-danger{% else %}status-good{% endif %}">
                         {{ (item.limit - item.spent)|format_amount }} ₽
                     </span>
@@ -100,12 +100,12 @@
     <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
-                <th>Категория</th>
-                <th>Лимит</th>
-                <th>Потрачено</th>
-                <th>Остаток</th>
-                <th>%</th>
-                <th>Статус</th>
+                <th>🏺 Артефакт</th>
+                <th>⚡ Мощность</th>
+                <th>🔥 Израсходовано</th>
+                <th>💎 Кристаллы</th>
+                <th>📊 Магия</th>
+                <th>🛡️ Статус</th>
             </tr>
         </thead>
         <tbody>
@@ -129,11 +129,11 @@
                 </td>
                 <td>
                     {% if item.spent > item.limit %}
-                        <span class="badge bg-danger">Превышен</span>
+                        <span class="badge bg-danger">⚠️ Перерасход</span>
                     {% elif (item.spent / item.limit) > 0.8 %}
-                        <span class="badge bg-warning">Осторожно</span>
+                        <span class="badge bg-warning">⚡ Внимание</span>
                     {% else %}
-                        <span class="badge bg-success">В норме</span>
+                        <span class="badge bg-success">✨ Стабильно</span>
                     {% endif %}
                 </td>
             </tr>
@@ -147,10 +147,10 @@
     <div class="card border-0 bg-transparent">
         <div class="card-body">
             <i class="bi bi-inbox display-4 text-muted mb-3"></i>
-            <h5 class="text-white-50">Нет категорий</h5>
-            <p class="text-white-50 mb-4">Создайте первую категорию для начала работы с бюджетом</p>
-            <a href="{{ url_for('categories') }}" class="btn btn-primary">
-                <i class="bi bi-plus-lg me-2"></i> Создать категорию
+            <h5 class="text-white-50">🏺 Нет артефактов</h5>
+            <p class="text-white-50 mb-4">Создайте первый артефакт для начала магического путешествия</p>
+            <a href="{{ url_for('categories') }}" class="btn btn-primary magic-float">
+                <i class="bi bi-plus-lg me-2"></i> ✨ Создать артефакт
             </a>
         </div>
     </div>

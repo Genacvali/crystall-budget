@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>{% block title %}CrystalBudget{% endblock %}</title>
+    <title>{% block title %}⚔️ CrystalBudget - Final Fantasy Edition{% endblock %}</title>
     
     <!-- iOS Specific Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="CrystalBudget">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="CrystalBudget FF">
     <meta name="format-detection" content="telephone=no">
     
     <!-- iOS Icons -->
-    <meta name="apple-touch-icon" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%236f42c1'/><text y='70' font-size='60' text-anchor='middle' x='50' fill='white'>💎</text></svg>">
+    <meta name="apple-touch-icon" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='crystal' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' style='stop-color:%234fb3d9'/><stop offset='100%' style='stop-color:%232d1b69'/></linearGradient></defs><rect width='100' height='100' fill='url(%23crystal)'/><text y='70' font-size='50' text-anchor='middle' x='50' fill='%23ffd700'>💎</text></svg>">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     
+    <!-- Final Fantasy Theme CSS -->
+    <link href="{{ url_for('static', filename='css/ff-theme.css') }}" rel="stylesheet">
+    
     <style>
-        /* iOS Safe Area Support */
+        /* iOS Safe Area Support for Final Fantasy Theme */
         :root {
             --safe-area-inset-top: env(safe-area-inset-top, 0px);
             --safe-area-inset-right: env(safe-area-inset-right, 0px);
@@ -28,9 +31,6 @@
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
             padding-top: var(--safe-area-inset-top);
             padding-bottom: var(--safe-area-inset-bottom);
             padding-left: var(--safe-area-inset-left);
@@ -41,62 +41,6 @@
             padding-left: max(15px, var(--safe-area-inset-left));
             padding-right: max(15px, var(--safe-area-inset-right));
         }
-        
-        /* Mobile Optimizations */
-        .btn {
-            min-height: 44px;
-            touch-action: manipulation;
-        }
-        
-        .form-control, .form-select {
-            min-height: 44px;
-            font-size: 16px; /* Prevents zoom on iOS */
-        }
-        
-        .card {
-            border: none;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.9);
-        }
-        
-        /* Navigation */
-        .navbar {
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95) !important;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Progress bars */
-        .progress {
-            border-radius: 10px;
-            background: rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Touch-friendly buttons */
-        @media (max-width: 768px) {
-            .btn-sm {
-                min-height: 38px;
-            }
-            
-            .table td {
-                padding: 1rem 0.5rem;
-            }
-            
-            .card-body {
-                padding: 1rem;
-            }
-        }
-        
-        /* Status indicators */
-        .status-good { color: #28a745; }
-        .status-warning { color: #ffc107; }
-        .status-danger { color: #dc3545; }
-        
-        /* Loading states */
-        .btn:disabled {
-            opacity: 0.6;
-        }
     </style>
 </head>
 <body>
@@ -104,8 +48,8 @@
     {% if session.user_id %}
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold text-primary" href="{{ url_for('dashboard') }}">
-                💎 CrystalBudget
+            <a class="navbar-brand crystal-pulse" href="{{ url_for('dashboard') }}">
+                🔮 CrystalBudget
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -115,23 +59,23 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">
-                            <i class="bi bi-house"></i> Главная
+                        <a class="nav-link magic-float" href="{{ url_for('dashboard') }}">
+                            <i class="bi bi-house-door"></i> Цитадель
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('expenses') }}">
-                            <i class="bi bi-cash-stack"></i> Траты
+                            <i class="bi bi-coin"></i> Расходы
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('categories') }}">
-                            <i class="bi bi-tags"></i> Категории
+                            <i class="bi bi-gem"></i> Артефакты
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{{ url_for('income') }}">
-                            <i class="bi bi-graph-up-arrow"></i> Доходы
+                            <i class="bi bi-currency-exchange"></i> Казна
                         </a>
                     </li>
                 </ul>
@@ -139,11 +83,11 @@
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="bi bi-person-circle"></i> {{ session.user_name }}
+                            <i class="bi bi-person-arms-up"></i> {{ session.user_name }}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ url_for('logout') }}">
-                                <i class="bi bi-box-arrow-right"></i> Выход
+                                <i class="bi bi-door-open"></i> Покинуть мир
                             </a></li>
                         </ul>
                     </li>

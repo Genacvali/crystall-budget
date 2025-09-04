@@ -1,15 +1,15 @@
 {% extends "base.html" %}
-{% block title %}Доходы - CrystalBudget{% endblock %}
+{% block title %}💰 Казна - CrystalBudget FF Edition{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-6">
-        <h2><i class="bi bi-graph-up-arrow"></i> Доходы</h2>
+        <h2 class="crystal-pulse"><i class="bi bi-gem"></i> 💰 Королевская Казна</h2>
         <form method="POST" action="/income/add" class="mb-4">
-            <div class="card">
+            <div class="card crystal-card">
                 <div class="card-body">
                     <h6 class="card-title mb-3">
-                        <i class="bi bi-plus-circle"></i> Добавить доход
+                        <i class="bi bi-plus-circle"></i> ✨ Пополнить казну
                     </h6>
                     <div class="row g-3">
                         <div class="col-md-6">
@@ -21,16 +21,16 @@
                         </div>
                         <div class="col-md-4">
                             <label for="amount" class="form-label">
-                                <i class="bi bi-currency-exchange"></i> Сумма
+                                <i class="bi bi-currency-exchange"></i> 💰 Золото
                             </label>
                             <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
                                    inputmode="decimal" class="form-control" required
-                                   placeholder="Сумма дохода">
+                                   placeholder="Количество золота">
                         </div>
                         <div class="col-md-2 col-sm-12 d-flex align-items-end">
                             <label class="form-label d-none d-md-block">&nbsp;</label>
-                            <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0">
-                                <i class="bi bi-check-lg me-1"></i> Сохранить
+                            <button type="submit" class="btn btn-success w-100 mt-2 mt-md-0 magic-float">
+                                <i class="bi bi-check-lg me-1"></i> ✨ Пополнить
                             </button>
                         </div>
                     </div>
@@ -43,7 +43,7 @@
 <!-- Mobile view -->
 <div class="d-block d-md-none">
     {% for income in incomes %}
-    <div class="card mb-3">
+    <div class="card mb-3 crystal-card">
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
@@ -56,13 +56,13 @@
             
             <div class="d-flex gap-2">
                 <a href="{{ url_for('edit_income', month=income.month) }}" 
-                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center">
-                    <i class="bi bi-pencil me-2"></i> Изменить
+                   class="btn btn-outline-primary flex-fill d-flex align-items-center justify-content-center magic-float">
+                    <i class="bi bi-pencil me-2"></i> 🪄 Пересчитать
                 </a>
                 <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="flex-fill">
                     <button type="submit" class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center" 
-                            onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
-                        <i class="bi bi-trash3 me-2"></i> Удалить
+                            onclick="return confirm('Вы уверены, что хотите списать золото?\n\nМесяц: {{ income.month }}\nЗолото: {{ income.amount|format_amount }} монет.')">
+                        <i class="bi bi-trash3 me-2"></i> ☠️ Списать
                     </button>
                 </form>
             </div>
@@ -76,9 +76,9 @@
     <table class="table table-striped table-hover">
         <thead class="table-dark">
             <tr>
-                <th><i class="bi bi-calendar"></i> Месяц</th>
-                <th><i class="bi bi-currency-exchange"></i> Сумма</th>
-                <th><i class="bi bi-gear"></i> Действия</th>
+                <th><i class="bi bi-calendar"></i> 📅 Месяц</th>
+                <th><i class="bi bi-currency-exchange"></i> 💰 Золото</th>
+                <th><i class="bi bi-gear"></i> ⚙️ Магия</th>
             </tr>
         </thead>
         <tbody>
@@ -89,13 +89,13 @@
                 <td>
                     <div class="d-flex gap-2">
                         <a href="{{ url_for('edit_income', month=income.month) }}" 
-                           class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil me-1"></i> Изменить
+                           class="btn btn-sm btn-outline-primary magic-float">
+                            <i class="bi bi-pencil me-1"></i> 🪄 Пересчитать
                         </a>
                         <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
-                                <i class="bi bi-trash3 me-1"></i> Удалить
+                                    onclick="return confirm('Вы уверены, что хотите списать золото?\n\nМесяц: {{ income.month }}\nЗолото: {{ income.amount|format_amount }} монет.')">
+                                <i class="bi bi-trash3 me-1"></i> ☠️ Списать
                             </button>
                         </form>
                     </div>
@@ -111,8 +111,8 @@
     <div class="card border-0 bg-transparent">
         <div class="card-body">
             <i class="bi bi-graph-up-arrow display-4 text-white-50 mb-3"></i>
-            <h5 class="text-white-50">Нет доходов</h5>
-            <p class="text-white-50 mb-4">Добавьте свой доход, чтобы начать планирование бюджета</p>
+            <h5 class="text-white-50">💰 Пустая казна</h5>
+            <p class="text-white-50 mb-4">Пополните королевскую казну для начала магического планирования</p>
         </div>
     </div>
 </div>
