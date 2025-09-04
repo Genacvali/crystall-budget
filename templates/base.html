@@ -18,9 +18,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
     
-    <!-- Modern Theme CSS -->
+    <!-- Improved Modern Theme CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/modern-theme.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/improved-theme.css') }}" rel="stylesheet">
     
     <style>
         /* iOS Safe Area Support for Modern Theme */
@@ -82,12 +82,19 @@
                 </ul>
                 
                 <ul class="navbar-nav">
+                    <li class="nav-item me-3">
+                        <div class="theme-toggle" onclick="toggleTheme()">
+                            <i class="bi bi-sun-fill" id="light-icon"></i>
+                            <div class="theme-switch" id="theme-switch"></div>
+                            <i class="bi bi-moon-fill" id="dark-icon"></i>
+                        </div>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             <i class="bi bi-person-circle"></i> {{ session.user_name }}
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end modern-card" style="border: none; background: var(--bg-glass); backdrop-filter: blur(20px);">
-                            <li><a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}" style="color: var(--text-secondary);">
+                        <ul class="dropdown-menu dropdown-menu-end modern-card" style="border: none;">
+                            <li><a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}">
                                 <i class="bi bi-box-arrow-right"></i> Выйти
                             </a></li>
                         </ul>
@@ -99,7 +106,7 @@
     {% endif %}
 
     <!-- Main Content -->
-    <div class="container-fluid py-4">
+    <div class="container-modern py-4">
         <!-- Flash Messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
@@ -118,11 +125,46 @@
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JS -->
+    <!-- Theme Toggle and Custom JS -->
     <script>
-        // iOS Safari fixes
+        // Theme Management
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update theme toggle appearance
+            updateThemeToggle(newTheme);
+        }
+        
+        function updateThemeToggle(theme) {
+            const lightIcon = document.getElementById('light-icon');
+            const darkIcon = document.getElementById('dark-icon');
+            const themeSwitch = document.getElementById('theme-switch');
+            
+            if (theme === 'dark') {
+                lightIcon.style.opacity = '0.5';
+                darkIcon.style.opacity = '1';
+            } else {
+                lightIcon.style.opacity = '1';
+                darkIcon.style.opacity = '0.5';
+            }
+        }
+        
+        // Initialize theme on page load
         document.addEventListener('DOMContentLoaded', function() {
-            // Fix iOS form focus zoom
+            // Load saved theme or detect system preference
+            let savedTheme = localStorage.getItem('theme');
+            if (!savedTheme) {
+                savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+            
+            // iOS Safari fixes
             if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
                 const inputs = document.querySelectorAll('input, select, textarea');
                 inputs.forEach(input => {
@@ -140,6 +182,18 @@
                     bsAlert.close();
                 });
             }, 5000);
+            
+            // Add smooth scroll behavior
+            document.documentElement.style.scrollBehavior = 'smooth';
+        });
+        
+        // Listen for system theme changes
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(e) {
+            if (!localStorage.getItem('theme')) {
+                const newTheme = e.matches ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                updateThemeToggle(newTheme);
+            }
         });
     </script>
     

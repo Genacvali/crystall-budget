@@ -20,13 +20,13 @@
                     <label for="date" class="form-label">
                         <i class="bi bi-calendar"></i> Дата
                     </label>
-                    <input type="date" id="date" name="date" value="{{ today }}" class="form-control" required>
+                    <input type="date" id="date" name="date" value="{{ today }}" class="form-modern" required>
                 </div>
                 <div class="col-md-3">
                     <label for="category_id" class="form-label">
                         <i class="bi bi-tags"></i> Категория
                     </label>
-                    <select id="category_id" name="category_id" class="form-select" required>
+                    <select id="category_id" name="category_id" class="form-modern" required>
                         <option value="">Выберите категорию</option>
                         {% for cat in categories %}
                         <option value="{{ cat.id }}">{{ cat.name }}</option>
@@ -38,13 +38,13 @@
                         <i class="bi bi-currency-dollar"></i> Сумма
                     </label>
                     <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
-                           inputmode="decimal" class="form-control" required>
+                           inputmode="decimal" class="form-modern" required>
                 </div>
                 <div class="col-md-3 col-sm-12">
                     <label for="note" class="form-label">
                         <i class="bi bi-chat-dots"></i> Комментарий
                     </label>
-                    <input type="text" id="note" name="note" class="form-control">
+                    <input type="text" id="note" name="note" class="form-modern">
                 </div>
                 <div class="col-md-1 col-sm-12 d-flex align-items-end">
                     <label class="form-label d-none d-md-block">&nbsp;</label>
@@ -97,7 +97,7 @@
 
 <!-- Desktop table view -->
 <div class="table-responsive d-none d-md-block">
-    <table class="table table-striped table-hover">
+    <table class="table-modern">
         <thead class="table-dark">
             <tr>
                 <th><i class="bi bi-calendar"></i> 📅 Дата</th>

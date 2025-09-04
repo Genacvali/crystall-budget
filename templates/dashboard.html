@@ -2,158 +2,217 @@
 {% block title %}📊 Дашборд - CrystalBudget{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-gradient pulse-element d-flex align-items-center gap-3">
-        <i class="bi bi-speedometer2"></i>
-        <span>Финансовая Панель</span>
-    </h2>
-    <small class="text-muted">{{ current_month }}</small>
+<!-- Header Section -->
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+        <h1 class="text-gradient m-0 d-flex align-items-center gap-2">
+            <i class="bi bi-speedometer2"></i>
+            Финансовый Дашборд
+        </h1>
+        <p class="text-secondary mb-0">Управляйте своим бюджетом эффективно</p>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-calendar3 text-primary"></i>
+        <span class="text-secondary">{{ current_month }}</span>
+    </div>
 </div>
 
 <!-- Quick Add Form -->
-<div class="card mb-4 modern-card">
+<div class="modern-card mb-4">
     <div class="card-body">
-        <h6 class="card-title text-gradient"><i class="bi bi-plus-circle"></i> Быстрое добавление</h6>
-        <form method="POST" action="/add-expense" class="quick-expense-form">
-            <div class="row g-2">
-                <div class="col-12 col-md-3">
-                    <label class="form-label text-muted"><i class="bi bi-calendar"></i> Дата</label>
-                    <input type="date" name="date" value="{{ today }}" class="form-modern" required>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h5 class="text-gradient m-0">
+                <i class="bi bi-plus-circle-fill"></i>
+                Быстрое добавление расхода
+            </h5>
+            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#quickAddForm">
+                <i class="bi bi-chevron-down"></i>
+            </button>
+        </div>
+        
+        <div class="collapse show" id="quickAddForm">
+            <form method="POST" action="/add-expense" class="quick-expense-form">
+                <div class="row g-3">
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">
+                            <i class="bi bi-calendar3"></i> Дата
+                        </label>
+                        <input type="date" name="date" value="{{ today }}" class="form-modern" required>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">
+                            <i class="bi bi-tags-fill"></i> Категория
+                        </label>
+                        <select name="category_id" class="form-modern" required>
+                            <option value="">Выберите категорию...</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <label class="form-label">
+                            <i class="bi bi-currency-dollar"></i> Сумма
+                        </label>
+                        <input type="number" 
+                               name="amount" 
+                               placeholder="0.00" 
+                               step="0.01" 
+                               min="0.01" 
+                               inputmode="decimal" 
+                               class="form-modern" 
+                               required>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label">
+                            <i class="bi bi-chat-dots-fill"></i> Комментарий
+                        </label>
+                        <input type="text" 
+                               name="note" 
+                               placeholder="Описание (необязательно)" 
+                               class="form-modern">
+                    </div>
+                    <div class="col-12 col-md-1 d-flex align-items-end">
+                        <button type="submit" class="btn-modern btn-modern-success w-100">
+                            <i class="bi bi-plus-lg"></i>
+                            <span class="d-none d-md-inline">Добавить</span>
+                        </button>
+                    </div>
                 </div>
-                <div class="col-12 col-md-3">
-                    <label class="form-label"><i class="bi bi-tags"></i> Категория</label>
-                    <select name="category_id" class="form-modern" required>
-                        <option value="">Выберите...</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.id }}">{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label"><i class="bi bi-currency-dollar"></i> Сумма</label>
-                    <input type="number" name="amount" placeholder="0" step="0.01" min="0.01" 
-                           inputmode="decimal" pattern="[0-9]*" class="form-modern" required 
-                           data-touch="true" autocomplete="off">
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label"><i class="bi bi-chat-dots"></i> Комментарий</label>
-                    <input type="text" name="note" placeholder="Описание" class="form-modern" 
-                           data-touch="true" autocomplete="off">
-                </div>
-                <div class="col-12 col-md-2">
-                    <label class="form-label d-none d-md-block" style="opacity: 0;">&nbsp;</label>
-                    <button type="submit" class="btn-modern btn-modern-success w-100 floating-element" 
-                            style="height: 48px;">
-                        <i class="bi bi-plus-lg"></i> Добавить
-                    </button>
-                </div>
-            </div>
-        </form>
+            </form>
+        </div>
     </div>
 </div>
 
 <!-- Budget Overview -->
-<div class="d-block d-md-none mobile-card-view">
-    <!-- Mobile card view -->
+{% if budget_data %}
+<!-- Stats Cards (Mobile and Desktop) -->
+<div class="card-grid mb-4">
     {% for item in budget_data %}
-    <div class="card mb-3 expense-card modern-card glow-effect" data-category="{{ item.category_name }}">
-        <div class="card-body" style="padding: 1rem;">
+    <div class="modern-card">
+        <div class="card-body">
+            <!-- Category Header -->
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="card-title mb-0 fw-bold" style="font-size: 1.1rem;">{{ item.category_name }}</h6>
-                <div class="d-flex align-items-center">
+                <h6 class="fw-bold text-primary m-0">{{ item.category_name }}</h6>
+                <div class="d-flex align-items-center gap-2">
                     {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
-                    <small class="text-muted me-2">{{ progress_percent }}%</small>
-                    <div class="progress" style="height: 4px; width: 40px;">
-                        <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
-                             style="width: {{ [progress_percent, 100] | min }}%"></div>
+                    <small class="text-muted">{{ progress_percent }}%</small>
+                    <div class="progress-modern" style="width: 40px;">
+                        <div class="progress-bar-modern {% if progress_percent < 50 %}progress-success{% elif progress_percent < 80 %}progress-warning{% else %}progress-danger{% endif %}" 
+                             style="width: {{ [progress_percent, 100] | min }}%;"></div>
                     </div>
                 </div>
             </div>
             
-            <div class="row text-center g-2">
+            <!-- Financial Data -->
+            <div class="row g-2 text-center">
                 <div class="col-6">
-                    <div class="border rounded p-2" style="background: #f8f9fa;">
-                        <small class="text-muted d-block" style="font-size: 0.75rem;">💯 Лимит</small>
-                        <span class="fw-bold d-block" style="font-size: 1rem; color: #6c5ce7;">{{ item.limit|format_amount }}</span>
+                    <div class="p-2 rounded" style="background: var(--bg-secondary);">
+                        <small class="text-muted d-block">💰 Лимит</small>
+                        <strong class="text-primary">{{ item.limit|format_amount }} ₽</strong>
                     </div>
                 </div>
                 <div class="col-6">
-                    <div class="border rounded p-2" style="background: #f8f9fa;">
-                        <small class="text-muted d-block" style="font-size: 0.75rem;">💸 Потрачено</small>
-                        <span class="fw-bold d-block" style="font-size: 1rem; color: {% if item.spent > item.limit %}#e74c3c{% else %}#2ecc71{% endif %};">{{ item.spent|format_amount }}</span>
+                    <div class="p-2 rounded" style="background: var(--bg-secondary);">
+                        <small class="text-muted d-block">💸 Потрачено</small>
+                        <strong class="{% if item.spent > item.limit %}text-danger{% else %}text-success{% endif %}">
+                            {{ item.spent|format_amount }} ₽
+                        </strong>
                     </div>
                 </div>
             </div>
             
-            <div class="mt-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">💰 Осталось:</small>
-                    <span class="fw-bold {% if (item.limit - item.spent) < 0 %}status-danger{% else %}status-good{% endif %}">
-                        {{ (item.limit - item.spent)|format_amount }} ₽
-                    </span>
+            <!-- Remaining Amount -->
+            <div class="mt-3 text-center">
+                <small class="text-muted">Остаток:</small>
+                <div class="fs-5 fw-bold {% if (item.limit - item.spent) < 0 %}text-danger{% else %}text-success{% endif %}">
+                    {{ (item.limit - item.spent)|format_amount }} ₽
                 </div>
+            </div>
+            
+            <!-- Status Badge -->
+            <div class="text-center mt-2">
+                {% if item.spent > item.limit %}
+                    <span class="badge-modern badge-modern-danger">⚠️ Превышен лимит</span>
+                {% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}
+                    <span class="badge-modern badge-modern-warning">⚡ Осторожно</span>
+                {% else %}
+                    <span class="badge-modern badge-modern-success">✅ В норме</span>
+                {% endif %}
             </div>
         </div>
     </div>
     {% endfor %}
 </div>
 
-<!-- Desktop table view -->
-<div class="table-responsive d-none d-md-block">
-    <table class="table table-modern">
-        <thead class="table-dark">
-            <tr>
-                <th>🏷️ Категория</th>
-                <th>💯 Лимит</th>
-                <th>💸 Потрачено</th>
-                <th>💰 Осталось</th>
-                <th>📊 Прогресс</th>
-                <th>🎯 Статус</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in budget_data %}
-            <tr class="{% if item.spent > item.limit %}table-danger{% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}table-warning{% endif %}">
-                <td class="fw-bold">{{ item.category_name }}</td>
-                <td>{{ item.limit|format_amount }} ₽</td>
-                <td>{{ item.spent|format_amount }} ₽</td>
-                <td class="{% if (item.limit - item.spent) < 0 %}status-danger{% else %}status-good{% endif %}">
-                    {{ (item.limit - item.spent)|format_amount }} ₽
-                </td>
-                <td>
-                    {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
-                    <div class="d-flex align-items-center">
-                        <span class="me-2">{{ progress_percent }}%</span>
-                        <div class="progress-modern flex-fill" style="min-width: 60px;">
-                            <div class="progress-bar-modern" 
-                                 style="width: {{ [progress_percent, 100] | min }}%; background: {% if progress_percent < 50 %}var(--success-gradient){% elif progress_percent < 80 %}var(--warning-gradient){% else %}var(--danger-gradient){% endif %};"></div>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    {% if item.spent > item.limit %}
-                        <span class="badge-modern badge-modern-danger">⚠️ Превышен</span>
-                    {% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}
-                        <span class="badge-modern badge-modern-warning">⚠️ Осторожно</span>
-                    {% else %}
-                        <span class="badge-modern badge-modern-success">✅ В норме</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<!-- Detailed Table (Desktop Only) -->
+<div class="d-none d-lg-block">
+    <div class="modern-card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table-modern mb-0">
+                    <thead>
+                        <tr>
+                            <th>📁 Категория</th>
+                            <th>💰 Лимит</th>
+                            <th>💸 Потрачено</th>
+                            <th>💵 Остаток</th>
+                            <th>📊 Прогресс</th>
+                            <th>🏷️ Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in budget_data %}
+                        <tr>
+                            <td class="fw-bold">{{ item.category_name }}</td>
+                            <td>{{ item.limit|format_amount }} ₽</td>
+                            <td>{{ item.spent|format_amount }} ₽</td>
+                            <td class="{% if (item.limit - item.spent) < 0 %}text-danger{% else %}text-success{% endif %}">
+                                {{ (item.limit - item.spent)|format_amount }} ₽
+                            </td>
+                            <td>
+                                {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="text-muted" style="min-width: 40px;">{{ progress_percent }}%</span>
+                                    <div class="progress-modern flex-fill">
+                                        <div class="progress-bar-modern {% if progress_percent < 50 %}progress-success{% elif progress_percent < 80 %}progress-warning{% else %}progress-danger{% endif %}" 
+                                             style="width: {{ [progress_percent, 100] | min }}%;"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if item.spent > item.limit %}
+                                    <span class="badge-modern badge-modern-danger">⚠️ Превышен</span>
+                                {% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}
+                                    <span class="badge-modern badge-modern-warning">⚡ Внимание</span>
+                                {% else %}
+                                    <span class="badge-modern badge-modern-success">✅ Норма</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 
-{% if not budget_data %}
+{% else %}
+<!-- Empty State -->
 <div class="text-center py-5">
-    <div class="card border-0 bg-transparent">
-        <div class="card-body">
-            <i class="bi bi-inbox display-4 text-muted mb-3"></i>
-            <h5 class="text-gradient">📊 Нет категорий</h5>
-            <p class="text-muted mb-4">Создайте первую категорию для начала учёта бюджета</p>
+    <div class="modern-card">
+        <div class="card-body py-5">
+            <div class="mb-4">
+                <i class="bi bi-wallet2 display-1 text-muted opacity-50"></i>
+            </div>
+            <h4 class="text-gradient mb-3">Добро пожаловать в CrystalBudget!</h4>
+            <p class="text-secondary mb-4 mx-auto" style="max-width: 400px;">
+                У вас пока нет категорий бюджета. Создайте первую категорию, чтобы начать управлять своими финансами.
+            </p>
             <a href="{{ url_for('categories') }}" class="btn-modern floating-element">
-                <i class="bi bi-plus-lg"></i> Создать категорию
+                <i class="bi bi-plus-circle-fill"></i>
+                Создать первую категорию
             </a>
         </div>
     </div>
@@ -164,47 +223,62 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Quick category buttons for mobile
+    // Enhanced mobile UX for quick add form
     const categorySelect = document.querySelector('select[name="category_id"]');
-    if (categorySelect && window.innerWidth <= 768) {
-        const form = document.querySelector('.quick-expense-form');
-        const frequentCategories = ['Продукты', 'Транспорт', 'Развлечения'];
-        const quickCategoryDiv = document.createElement('div');
-        quickCategoryDiv.className = 'd-flex gap-2 mb-3 d-md-none';
-        
-        frequentCategories.forEach(catName => {
-            const option = Array.from(categorySelect.options).find(opt => opt.text === catName);
-            if (option) {
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'btn btn-outline-primary btn-sm flex-fill';
-                btn.textContent = catName;
-                btn.addEventListener('click', function() {
-                    categorySelect.value = option.value;
-                    // Visual feedback
-                    quickCategoryDiv.querySelectorAll('button').forEach(b => b.classList.remove('btn-primary'));
-                    this.classList.remove('btn-outline-primary');
-                    this.classList.add('btn-primary');
-                });
-                quickCategoryDiv.appendChild(btn);
-            }
-        });
-        
-        if (quickCategoryDiv.children.length > 0) {
-            form.insertBefore(quickCategoryDiv, form.firstChild);
-        }
-    }
+    const amountInput = document.querySelector('input[name="amount"]');
     
-    // Auto-focus amount input after category selection on mobile
-    if (categorySelect && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+    if (categorySelect && amountInput) {
+        // Auto-focus amount after category selection on mobile
         categorySelect.addEventListener('change', function() {
-            if (this.value) {
+            if (this.value && window.innerWidth <= 768) {
                 setTimeout(() => {
-                    document.querySelector('input[name="amount"]').focus();
+                    amountInput.focus();
                 }, 100);
             }
         });
     }
+    
+    // Format number inputs
+    if (amountInput) {
+        amountInput.addEventListener('blur', function() {
+            if (this.value) {
+                const value = parseFloat(this.value);
+                if (!isNaN(value)) {
+                    this.value = value.toFixed(2);
+                }
+            }
+        });
+    }
+    
+    // Add loading state to submit button
+    const form = document.querySelector('.quick-expense-form');
+    const submitBtn = form?.querySelector('button[type="submit"]');
+    
+    if (form && submitBtn) {
+        form.addEventListener('submit', function() {
+            const originalContent = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> <span class="d-none d-md-inline">Добавляем...</span>';
+            submitBtn.disabled = true;
+            
+            // Re-enable button after 3 seconds as fallback
+            setTimeout(() => {
+                submitBtn.innerHTML = originalContent;
+                submitBtn.disabled = false;
+            }, 3000);
+        });
+    }
+    
+    // Enhanced card interactions
+    const cards = document.querySelectorAll('.modern-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
 });
 </script>
 {% endblock %}
