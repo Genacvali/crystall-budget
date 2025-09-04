@@ -864,10 +864,15 @@ EXPENSES_TEMPLATE = '''
             </p>
             {% endif %}
             
-            <div class="d-flex justify-content-end">
-                <form method="POST" action="/expenses/delete/{{ expense.id }}" class="d-inline">
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
+                   class="btn btn-sm btn-outline-primary d-flex align-items-center" 
+                   style="font-size: 0.8rem;">
+                    <i class="bi bi-pencil me-1"></i> Изменить
+                </a>
+                <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
                     <button type="submit" class="btn btn-sm btn-outline-danger d-flex align-items-center" 
-                            onclick="return confirm('Удалить трату?')" 
+                            onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')" 
                             style="font-size: 0.8rem;">
                         <i class="bi bi-trash3 me-1"></i> Удалить
                     </button>
@@ -898,10 +903,18 @@ EXPENSES_TEMPLATE = '''
                 <td>{{ expense.amount|format_amount }}</td>
                 <td>{{ expense.note or '' }}</td>
                 <td>
-                    <form method="POST" action="/expenses/delete/{{ expense.id }}" class="d-inline">
-                        <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                onclick="return confirm('Удалить трату?')">Удалить</button>
-                    </form>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i> Изменить
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                    onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.{% if expense.note %}\nКомментарий: {{ expense.note }}{% endif %}')">
+                                <i class="bi bi-trash3"></i> Удалить
+                            </button>
+                        </form>
+                    </div>
                 </td>
             </tr>
             {% endfor %}
@@ -994,6 +1007,121 @@ CATEGORIES_TEMPLATE = '''
 {% endblock %}
 '''
 
+EDIT_EXPENSE_TEMPLATE = '''
+{% extends "layout.html" %}
+{% block title %}Редактирование траты - CrystalBudget{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-pencil-square"></i> Редактирование траты</h2>
+    <a href="{{ url_for('expenses') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> <span class="d-none d-md-inline">Назад</span>
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="date" class="form-label"><i class="bi bi-calendar"></i> Дата</label>
+                    <input type="date" id="date" name="date" value="{{ expense.date }}" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="category_id" class="form-label"><i class="bi bi-tag"></i> Категория</label>
+                    <select id="category_id" name="category_id" class="form-select" required>
+                        <option value="">Выберите категорию</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if cat.id == expense.category_id %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="amount" class="form-label"><i class="bi bi-currency-exchange"></i> Сумма</label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
+                           inputmode="decimal" value="{{ expense.amount }}" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label for="note" class="form-label"><i class="bi bi-chat-text"></i> Комментарий</label>
+                    <input type="text" id="note" name="note" value="{{ expense.note or '' }}" class="form-control" 
+                           placeholder="Описание траты (необязательно)">
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success flex-fill">
+                    <i class="bi bi-check-lg"></i> Сохранить изменения
+                </button>
+                <a href="{{ url_for('expenses') }}" class="btn btn-outline-secondary flex-fill">
+                    <i class="bi bi-x-lg"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Delete section -->
+<div class="card mt-3 border-danger">
+    <div class="card-body">
+        <h6 class="card-title text-danger"><i class="bi bi-exclamation-triangle"></i> Опасная зона</h6>
+        <p class="card-text text-muted mb-3">Удаление траты нельзя отменить. Будьте осторожны!</p>
+        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-danger" 
+                    onclick="return confirm('Вы уверены, что хотите удалить эту трату?\n\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }} руб.\n{% if expense.note %}Комментарий: {{ expense.note }}{% endif %}')">
+                <i class="bi bi-trash3"></i> Удалить трату
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+'''
+
+EDIT_INCOME_TEMPLATE = '''
+{% extends "layout.html" %}
+{% block title %}Редактирование дохода - CrystalBudget{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-pencil-square"></i> Редактирование дохода</h2>
+    <a href="{{ url_for('income') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> <span class="d-none d-md-inline">Назад</span>
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="month" class="form-label">
+                        <i class="bi bi-calendar"></i> Месяц
+                    </label>
+                    <input type="month" id="month" name="month" value="{{ income.month }}" 
+                           class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="amount" class="form-label">
+                        <i class="bi bi-currency-exchange"></i> Сумма
+                    </label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
+                           inputmode="decimal" value="{{ income.amount }}" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success flex-fill">
+                    <i class="bi bi-check-lg"></i> Сохранить изменения
+                </button>
+                <a href="{{ url_for('income') }}" class="btn btn-outline-secondary flex-fill">
+                    <i class="bi bi-x-lg"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+'''
+
 INCOME_TEMPLATE = '''
 {% extends "layout.html" %}
 {% block title %}Доходы - Личный бюджет{% endblock %}
@@ -1027,13 +1155,28 @@ INCOME_TEMPLATE = '''
             <tr>
                 <th>Месяц</th>
                 <th>Сумма</th>
+                <th>Действия</th>
             </tr>
         </thead>
         <tbody>
             {% for income in incomes %}
             <tr>
                 <td>{{ income.month }}</td>
-                <td>{{ income.amount|format_amount }}</td>
+                <td>{{ income.amount|format_amount }} ₽</td>
+                <td>
+                    <div class="d-flex gap-2">
+                        <a href="{{ url_for('edit_income', income_id=income.id) }}" 
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Изменить</span>
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                    onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
+                                <i class="bi bi-trash3"></i> <span class="d-none d-md-inline">Удалить</span>
+                            </button>
+                        </form>
+                    </div>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
@@ -1160,6 +1303,8 @@ app.jinja_loader = ChoiceLoader([
         "expenses.html": EXPENSES_TEMPLATE,
         "categories.html": CATEGORIES_TEMPLATE,
         "income.html": INCOME_TEMPLATE,
+        "edit_expense.html": EDIT_EXPENSE_TEMPLATE,
+        "edit_income.html": EDIT_INCOME_TEMPLATE,
     }),
     app.jinja_loader,
 ])
@@ -1806,6 +1951,76 @@ def add_expense():
     return redirect(url_for('expenses'))
 
 
+@app.route('/expenses/edit/<int:expense_id>', methods=['GET', 'POST'])
+@login_required
+def edit_expense(expense_id):
+    user_id = session['user_id']
+    
+    if request.method == 'GET':
+        # Get expense data
+        def get_expense_op(conn, user_id, expense_id):
+            cursor = conn.execute('''
+                SELECT e.*, c.name as category_name
+                FROM expenses e
+                JOIN categories c ON e.category_id = c.id
+                WHERE e.id = ? AND e.user_id = ?
+            ''', (expense_id, user_id))
+            return cursor.fetchone()
+        
+        expense = safe_db_operation(get_expense_op, user_id, expense_id)
+        
+        if not expense:
+            flash('Трата не найдена', 'error')
+            return redirect(url_for('expenses'))
+        
+        # Get categories for dropdown
+        def get_categories_op(conn, user_id):
+            cursor = conn.execute('SELECT * FROM categories WHERE user_id = ? ORDER BY name', (user_id,))
+            return cursor.fetchall()
+        
+        categories = safe_db_operation(get_categories_op, user_id)
+        
+        return render_template('edit_expense.html', expense=expense, categories=categories)
+    
+    else:  # POST
+        try:
+            date_str = request.form.get('date', '').strip()
+            category_id = request.form.get('category_id', '').strip()
+            amount_str = request.form.get('amount', '').strip()
+            note = escape(request.form.get('note', '').strip())
+            
+            if not date_str or not category_id or not amount_str:
+                flash('Ошибка: все обязательные поля должны быть заполнены', 'error')
+                return redirect(url_for('edit_expense', expense_id=expense_id))
+            
+            validated_date = validate_date(date_str)
+            amount = validate_amount(amount_str)
+            month = validated_date.strftime('%Y-%m')
+            
+            def update_expense_op(conn, user_id, expense_id, date_str, month, category_id, amount, note):
+                cursor = conn.execute('''
+                    UPDATE expenses 
+                    SET date = ?, month = ?, category_id = ?, amount = ?, note = ?
+                    WHERE id = ? AND user_id = ?
+                ''', (date_str, month, int(category_id), float(amount), note, expense_id, user_id))
+                return cursor.rowcount
+            
+            result = safe_db_operation(update_expense_op, user_id, expense_id, date_str, month, category_id, amount, note)
+            
+            if result > 0:
+                flash(f'✓ Трата обновлена: {amount} руб.', 'success')
+            else:
+                flash('Трата не найдена', 'error')
+            
+            return redirect(url_for('expenses'))
+            
+        except ValueError as e:
+            flash(f'Ошибка: {str(e)}', 'error')
+            return redirect(url_for('edit_expense', expense_id=expense_id))
+        except Exception as e:
+            flash(f'Неожиданная ошибка: {str(e)}', 'error')
+            return redirect(url_for('edit_expense', expense_id=expense_id))
+
 @app.route('/expenses/delete/<int:expense_id>', methods=['POST'])
 @login_required
 def delete_expense(expense_id):
@@ -2008,6 +2223,97 @@ def add_income():
         flash(f'Ошибка: {str(e)}', 'error')
     except Exception as e:
         flash(f'Неожиданная ошибка: {str(e)}', 'error')
+    
+    return redirect(url_for('income'))
+
+@app.route('/income/edit/<string:month>', methods=['GET', 'POST'])
+@login_required
+def edit_income(month):
+    user_id = session['user_id']
+    
+    if request.method == 'GET':
+        # Get income data
+        def get_income_op(conn, user_id, month):
+            cursor = conn.execute('SELECT * FROM income WHERE user_id = ? AND month = ?', (user_id, month))
+            return cursor.fetchone()
+        
+        income_data = safe_db_operation(get_income_op, user_id, month)
+        
+        if not income_data:
+            flash('Доход не найден', 'error')
+            return redirect(url_for('income'))
+        
+        return render_template('edit_income.html', income=income_data)
+    
+    else:  # POST
+        try:
+            new_month = request.form.get('month', '').strip()
+            amount_str = request.form.get('amount', '').strip()
+            
+            if not new_month or not amount_str:
+                flash('Пожалуйста, заполните все поля', 'error')
+                return redirect(url_for('edit_income', month=month))
+            
+            # Validate month format
+            try:
+                datetime.strptime(new_month, '%Y-%m')
+            except ValueError:
+                flash('Некорректный формат месяца', 'error')
+                return redirect(url_for('edit_income', month=month))
+                
+            amount = validate_amount(amount_str)
+            
+            def update_income_op(conn, user_id, old_month, new_month, amount):
+                if old_month != new_month:
+                    # Delete old record and insert new one
+                    conn.execute('DELETE FROM income WHERE user_id = ? AND month = ?', (user_id, old_month))
+                    cursor = conn.execute(
+                        'INSERT INTO income (user_id, month, amount) VALUES (?, ?, ?)',
+                        (user_id, new_month, float(amount))
+                    )
+                else:
+                    # Update existing record
+                    cursor = conn.execute(
+                        'UPDATE income SET amount = ? WHERE user_id = ? AND month = ?',
+                        (float(amount), user_id, old_month)
+                    )
+                return cursor.rowcount
+            
+            result = safe_db_operation(update_income_op, user_id, month, new_month, amount)
+            
+            if result > 0:
+                flash(f'✓ Доход за {new_month} обновлен: {amount} руб.', 'success')
+            else:
+                flash('Доход не найден', 'error')
+            
+            return redirect(url_for('income'))
+            
+        except ValueError as e:
+            flash(f'Ошибка: {str(e)}', 'error')
+            return redirect(url_for('edit_income', month=month))
+        except Exception as e:
+            flash(f'Неожиданная ошибка: {str(e)}', 'error')
+            return redirect(url_for('edit_income', month=month))
+
+@app.route('/income/delete/<string:month>', methods=['POST'])
+@login_required
+def delete_income(month):
+    try:
+        user_id = session['user_id']
+        
+        def delete_income_op(conn, user_id, month):
+            cursor = conn.execute('DELETE FROM income WHERE user_id = ? AND month = ?', (user_id, month))
+            return cursor.rowcount
+        
+        result = safe_db_operation(delete_income_op, user_id, month)
+        
+        if result > 0:
+            flash(f'✓ Доход за {month} удален!', 'success')
+        else:
+            flash('Доход не найден', 'error')
+            
+    except Exception as e:
+        flash(f'Ошибка при удалении: {str(e)}', 'error')
     
     return redirect(url_for('income'))
 
