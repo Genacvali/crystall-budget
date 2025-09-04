@@ -11,7 +11,8 @@
       "Bash(where python)",
       "WebSearch",
       "Bash(sqlite3:*)",
-      "Bash(tree:*)"
+      "Bash(tree:*)",
+      "mcp__ide__getDiagnostics"
     ],
     "deny": [],
     "ask": []

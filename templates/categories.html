@@ -108,15 +108,14 @@
           {% if source_id %}
             {% set source_name = none %}
             {% for s in income_sources %}
-              {% if s.id == source_id %}
+              {% if s.id|int == source_id|int %}
                 {% set source_name = s.name %}
               {% endif %}
             {% endfor %}
             {% if source_name %}
               <span class="badge bg-info">{{ source_name }}</span>
             {% else %}
-              <span class="text-warning small">источник удален (ID: {{ source_id }})</span>
-              <br><small class="text-muted">Доступные: {% for s in income_sources %}{{ s.id }}:{{ s.name }}{% if not loop.last %}, {% endif %}{% endfor %}</small>
+              <span class="text-warning small">источник удален</span>
             {% endif %}
           {% else %}
             <span class="text-muted small">не привязано</span>
@@ -140,6 +139,15 @@
     </tbody>
   </table>
 </div>
+
+{% if not categories %}
+<div class="text-center py-5">
+  <p class="text-muted mb-3">Категорий пока нет</p>
+  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addCategoryForm">
+    <i class="bi bi-plus-lg me-1"></i> Добавить первую категорию
+  </button>
+</div>
+{% endif %}
 
 <!-- Модальные окна для редактирования категорий -->
 {% for cat in categories %}

@@ -22,7 +22,9 @@
       </div>
       <div class="col-md-2 d-grid">
         <label class="form-label d-none d-md-block">&nbsp;</label>
-        <button class="btn btn-success">Добавить</button>
+        <button class="btn btn-success">
+          <i class="bi bi-plus-lg me-1"></i> Добавить
+        </button>
       </div>
     </div>
   </form>
@@ -61,4 +63,13 @@
     </tbody>
   </table>
 </div>
+
+{% if not sources %}
+<div class="text-center py-5">
+  <p class="text-muted mb-3">Источников дохода пока нет</p>
+  <button class="btn btn-primary" onclick="document.getElementById('name')?.focus()">
+    <i class="bi bi-plus-lg me-1"></i> Добавить первый источник
+  </button>
+</div>
+{% endif %}
 {% endblock %}

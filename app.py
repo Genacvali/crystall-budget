@@ -15,7 +15,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # App config
 # -----------------------------------------------------------------------------
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev-secret")
+app.secret_key = os.environ.get("SECRET_KEY") or "dev-only-insecure-key-change-in-production"
+if app.secret_key == "dev-only-insecure-key-change-in-production":
+    print("WARNING: Using insecure default secret key. Set SECRET_KEY environment variable for production!")
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
 
 # Валюты
@@ -68,6 +70,35 @@ def format_date_with_day(value):
         return value
 
 # -----------------------------------------------------------------------------
+# Validation helpers
+# -----------------------------------------------------------------------------
+def validate_amount(amount_str):
+    """Validate and return amount as float, or None if invalid."""
+    if not amount_str or not amount_str.strip():
+        return None
+    try:
+        amount = float(amount_str.strip())
+        return amount if amount > 0 else None
+    except (ValueError, TypeError):
+        return None
+
+def validate_date(date_str):
+    """Validate and return date string in YYYY-MM-DD format, or None if invalid."""
+    if not date_str or not date_str.strip():
+        return None
+    try:
+        datetime.strptime(date_str.strip(), "%Y-%m-%d")
+        return date_str.strip()
+    except ValueError:
+        return None
+
+def sanitize_string(s, max_length=255):
+    """Sanitize and limit string length."""
+    if not s:
+        return ""
+    return str(s).strip()[:max_length]
+
+# -----------------------------------------------------------------------------
 # DB helpers
 # -----------------------------------------------------------------------------
 def get_db():
@@ -114,6 +145,13 @@ def init_db():
             amount REAL NOT NULL,
             note TEXT
         );
+
+        -- Performance indexes
+        CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, date DESC);
+        CREATE INDEX IF NOT EXISTS idx_expenses_user_month ON expenses(user_id, month);
+        CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id);
+        CREATE INDEX IF NOT EXISTS idx_categories_user ON categories(user_id);
+        CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
         """
     )
     conn.commit()
@@ -150,6 +188,10 @@ def migrate_income_to_daily_if_needed():
             amount REAL NOT NULL,
             source_id INTEGER REFERENCES income_sources(id)
         );
+
+        -- Income indexes
+        CREATE INDEX IF NOT EXISTS idx_income_daily_user_date ON income_daily(user_id, date DESC);
+        CREATE INDEX IF NOT EXISTS idx_income_daily_source ON income_daily(source_id);
         """
     )
 
@@ -926,35 +968,38 @@ def expenses():
     uid = session["user_id"]
 
     if request.method == "POST":
-        date_str = (request.form.get("date") or "").strip()
+        date_str = validate_date(request.form.get("date"))
         category_id = request.form.get("category_id")
-        amount_str = (request.form.get("amount") or "").strip()
-        note = (request.form.get("note") or "").strip()
+        amount = validate_amount(request.form.get("amount"))
+        note = sanitize_string(request.form.get("note"), 500)
 
-        if not date_str or not category_id or not amount_str:
-            flash("Пожалуйста, заполните все поля", "error")
+        if not date_str or not category_id or amount is None:
+            flash("Пожалуйста, заполните все обязательные поля корректно", "error")
             return redirect(url_for("expenses"))
 
         try:
-            datetime.strptime(date_str, "%Y-%m-%d")
-            amount = float(amount_str)
-            if amount <= 0:
-                raise ValueError
-        except Exception:
-            flash("Неверные значения даты или суммы", "error")
+            category_id = int(category_id)
+        except (ValueError, TypeError):
+            flash("Некорректная категория", "error")
             return redirect(url_for("expenses"))
 
         conn = get_db()
-        conn.execute(
-            """
-            INSERT INTO expenses (user_id, date, month, category_id, amount, note)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (uid, date_str, date_str[:7], int(category_id), amount, note),
-        )
-        conn.commit()
-        conn.close()
-        flash("Расход добавлен", "success")
+        try:
+            conn.execute(
+                """
+                INSERT INTO expenses (user_id, date, month, category_id, amount, note)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (uid, date_str, date_str[:7], category_id, amount, note),
+            )
+            conn.commit()
+            flash("Расход добавлен", "success")
+        except sqlite3.IntegrityError:
+            flash("Ошибка: выбранная категория не существует", "error")
+        except Exception as e:
+            flash("Произошла ошибка при добавлении расхода", "error")
+        finally:
+            conn.close()
         return redirect(url_for("expenses"))
 
     # GET
@@ -1724,4 +1769,4 @@ if __name__ == "__main__":
     ensure_income_sources_tables()
     migrate_income_to_daily_if_needed()
     add_source_id_column_if_missing()
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=os.environ.get("FLASK_ENV") == "development")
