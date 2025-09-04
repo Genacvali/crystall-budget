@@ -1165,11 +1165,11 @@ INCOME_TEMPLATE = '''
                 <td>{{ income.amount|format_amount }} ₽</td>
                 <td>
                     <div class="d-flex gap-2">
-                        <a href="{{ url_for('edit_income', income_id=income.id) }}" 
+                        <a href="{{ url_for('edit_income', month=income.month) }}" 
                            class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-pencil"></i> <span class="d-none d-md-inline">Изменить</span>
                         </a>
-                        <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+                        <form method="POST" action="{{ url_for('delete_income', month=income.month) }}" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-danger" 
                                     onclick="return confirm('Вы уверены, что хотите удалить доход?\n\nМесяц: {{ income.month }}\nСумма: {{ income.amount|format_amount }} руб.')">
                                 <i class="bi bi-trash3"></i> <span class="d-none d-md-inline">Удалить</span>
