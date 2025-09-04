@@ -477,17 +477,6 @@ def get_current_month():
     return datetime.now().strftime('%Y-%m')
 
 
-def calculate_limit(month, category, income_amount):
-    if category['limit_type'] == 'fixed':
-        return float(category['value'])
-    else:  # percent
-        # Convert percentage to decimal (40 -> 0.40)
-        percent_value = float(category['value'])
-        if percent_value > 1:
-            percent_value = percent_value / 100
-        return income_amount * percent_value
-
-
 def calculate_carryover(month, category_id):
     conn = get_db()
     
@@ -514,8 +503,20 @@ def calculate_carryover(month, category_id):
         cursor = conn.execute('SELECT * FROM categories WHERE id = ?', (category_id,))
         category = cursor.fetchone()
         
-        # Calculate limit for this month
-        limit = calculate_limit(prev_month, category, income_amount)
+        # Calculate limit for this month using proper logic
+        if category['limit_type'] == 'fixed':
+            limit = float(category['value'])
+        else:  # percent - need to calculate from remaining income
+            # Get all fixed categories total for this month
+            cursor = conn.execute('SELECT * FROM categories WHERE limit_type = "fixed"')
+            fixed_categories = cursor.fetchall()
+            total_fixed = sum(float(cat['value']) for cat in fixed_categories)
+            
+            remaining_income = max(0, income_amount - total_fixed)
+            percent_value = float(category['value'])
+            if percent_value > 1:
+                percent_value = percent_value / 100
+            limit = remaining_income * percent_value
         
         # Calculate spent for this month
         cursor = conn.execute('''
@@ -551,10 +552,25 @@ def get_dashboard_data(month):
     cursor = conn.execute('SELECT * FROM categories ORDER BY name')
     categories = cursor.fetchall()
     
+    # First pass: calculate total fixed limits
+    total_fixed = 0.0
+    for category in categories:
+        if category['limit_type'] == 'fixed':
+            total_fixed += float(category['value'])
+    
+    # Remaining income for percentage categories
+    remaining_income = max(0, income - total_fixed)
+    
     budget_data = []
     for category in categories:
-        # Calculate limit
-        limit = calculate_limit(month, category, income)
+        # Calculate limit using remaining income for percentages
+        if category['limit_type'] == 'fixed':
+            limit = float(category['value'])
+        else:  # percent
+            percent_value = float(category['value'])
+            if percent_value > 1:
+                percent_value = percent_value / 100
+            limit = remaining_income * percent_value
         
         # Calculate spent this month
         cursor = conn.execute('''
