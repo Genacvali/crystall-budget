@@ -27,8 +27,18 @@ def format_date_with_day(date_str):
     except:
         return date_str
 
+def format_category_value(value, limit_type):
+    """Format category value for display"""
+    if limit_type == 'percent':
+        # Show as percentage (30 -> 30%)
+        return f"{int(value) if value == int(value) else value}%"
+    else:
+        # Show as amount
+        return format_amount(value)
+
 app.jinja_env.filters['format_amount'] = format_amount
 app.jinja_env.filters['format_date_with_day'] = format_date_with_day
+app.jinja_env.filters['format_category_value'] = format_category_value
 
 # HTML Templates
 LAYOUT_TEMPLATE = '''
@@ -447,12 +457,12 @@ def init_db():
     cursor = conn.execute('SELECT COUNT(*) FROM categories')
     if cursor.fetchone()[0] == 0:
         default_categories = [
-            ('Продукты', 'percent', 0.30),
-            ('Транспорт', 'fixed', 5000.00),
-            ('Развлечения', 'percent', 0.15),
-            ('Коммунальные', 'fixed', 8000.00),
-            ('Здоровье', 'fixed', 3000.00),
-            ('Одежда', 'percent', 0.10)
+            ('Продукты', 'percent', 30),
+            ('Транспорт', 'fixed', 5000),
+            ('Развлечения', 'percent', 15),
+            ('Коммунальные', 'fixed', 8000),
+            ('Здоровье', 'fixed', 3000),
+            ('Одежда', 'percent', 10)
         ]
         
         for name, limit_type, value in default_categories:
@@ -471,7 +481,11 @@ def calculate_limit(month, category, income_amount):
     if category['limit_type'] == 'fixed':
         return float(category['value'])
     else:  # percent
-        return income_amount * float(category['value'])
+        # Convert percentage to decimal (40 -> 0.40)
+        percent_value = float(category['value'])
+        if percent_value > 1:
+            percent_value = percent_value / 100
+        return income_amount * percent_value
 
 
 def calculate_carryover(month, category_id):
