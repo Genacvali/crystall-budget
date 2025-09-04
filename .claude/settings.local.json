@@ -8,7 +8,8 @@
       "Bash(mkdir:*)",
       "Bash(chmod:*)",
       "Bash(python:*)",
-      "Bash(where python)"
+      "Bash(where python)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []

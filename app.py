@@ -1,8 +1,10 @@
 import os
 import sqlite3
 from datetime import datetime, date
+from decimal import Decimal, ROUND_HALF_UP, InvalidOperation
 from flask import Flask, render_template_string, render_template, request, redirect, url_for, flash, jsonify
 from jinja2 import DictLoader, ChoiceLoader
+from markupsafe import escape
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
@@ -12,20 +14,36 @@ DB_PATH = os.environ.get('BUDGET_DB', 'budget.db')
 # Custom Jinja filters
 def format_amount(value):
     """Format amount without unnecessary .00"""
-    if value == int(value):
-        return f"{int(value)}"
-    else:
-        return f"{value:.2f}".rstrip('0').rstrip('.')
+    try:
+        # Convert to Decimal for precise financial calculations
+        if isinstance(value, (int, float, str)):
+            decimal_value = Decimal(str(value)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+            if decimal_value == decimal_value.to_integral_value():
+                return f"{int(decimal_value):,}"
+            else:
+                formatted = f"{decimal_value:.2f}".rstrip('0').rstrip('.')
+                # Add thousand separators
+                parts = formatted.split('.')
+                parts[0] = f"{int(parts[0]):,}"
+                return '.'.join(parts) if len(parts) > 1 else parts[0]
+        return "0"
+    except (ValueError, TypeError):
+        return "0"
 
 def format_date_with_day(date_str):
     """Format date with day name"""
     try:
-        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+        date_obj = datetime.strptime(str(date_str), '%Y-%m-%d').date()
         day_names = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
         day_name = day_names[date_obj.weekday()]
-        return f"{date_str} ({day_name})"
-    except:
-        return date_str
+        
+        # Format as "15 янв (Пн)" for better mobile readability
+        month_names = ['янв', 'фев', 'мар', 'апр', 'май', 'июн',
+                      'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
+        month_name = month_names[date_obj.month - 1]
+        return f"{date_obj.day} {month_name} ({day_name})"
+    except (ValueError, TypeError, AttributeError) as e:
+        return str(date_str)
 
 def format_category_value(value, limit_type):
     """Format category value for display"""
@@ -46,37 +64,227 @@ LAYOUT_TEMPLATE = '''
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>{% block title %}Личный бюджет{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <meta name="theme-color" content="#6c5ce7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
-        .btn { min-height: 44px; }
-        input, select, textarea { min-height: 44px; }
-        .table-responsive { overflow-x: auto; }
-        .quick-expense { background-color: #f8f9fa; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; }
-        .balance-positive { color: #198754; }
-        .balance-negative { color: #dc3545; }
-        .balance-warning { color: #fd7e14; }
+        :root {
+            --primary-color: #6c5ce7;
+            --success-color: #00b894;
+            --warning-color: #fdcb6e;
+            --danger-color: #e17055;
+            --card-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --border-radius: 12px;
+        }
+        
+        * { -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .main-content {
+            background: #f8f9fa;
+            min-height: 100vh;
+            border-radius: 20px 20px 0 0;
+            margin-top: 1rem;
+            padding-top: 1.5rem;
+        }
+        
+        .btn {
+            min-height: 44px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            border: none;
+            box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+        }
+        
+        .btn-primary:hover {
+            background: #5f4fcf;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(108, 92, 231, 0.4);
+        }
+        
+        .btn-success {
+            background: var(--success-color);
+            border: none;
+        }
+        
+        input, select, textarea {
+            min-height: 44px;
+            border-radius: var(--border-radius);
+            border: 2px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.15);
+        }
+        
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            transition: transform 0.2s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .kpi-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .kpi-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin: 0;
+        }
+        
+        .quick-expense {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .quick-expense h5 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+            background: white;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            border: none;
+            font-weight: 600;
+            padding: 1rem 0.75rem;
+        }
+        
+        .table td {
+            border: none;
+            border-bottom: 1px solid #f1f3f4;
+            padding: 1rem 0.75rem;
+            vertical-align: middle;
+        }
+        
+        .balance-positive { color: var(--success-color); font-weight: 600; }
+        .balance-negative { color: var(--danger-color); font-weight: 600; }
+        .balance-warning { color: var(--warning-color); font-weight: 600; }
+        
+        .navbar {
+            background: transparent !important;
+            padding: 1rem 0;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+        }
+        
+        .alert {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--card-shadow);
+        }
+        
+        .month-selector {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .expense-item {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .category-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content { margin-top: 0; border-radius: 0; }
+            .container { padding-left: 1rem; padding-right: 1rem; }
+            .kpi-value { font-size: 1.5rem; }
+            .quick-expense { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg">
         <div class="container">
-            <a class="navbar-brand" href="/">💰 Бюджет</a>
+            <a class="navbar-brand" href="/"><i class="bi bi-wallet2"></i> Бюджет</a>
             <div class="navbar-nav ms-auto">
-                <a class="nav-link" href="/">Главная</a>
-                <a class="nav-link" href="/expenses">Траты</a>
-                <a class="nav-link" href="/categories">Категории</a>
-                <a class="nav-link" href="/income">Доходы</a>
+                <a class="nav-link" href="/"><i class="bi bi-house"></i> <span class="d-none d-md-inline">Главная</span></a>
+                <a class="nav-link" href="/expenses"><i class="bi bi-receipt"></i> <span class="d-none d-md-inline">Траты</span></a>
+                <a class="nav-link" href="/categories"><i class="bi bi-tags"></i> <span class="d-none d-md-inline">Категории</span></a>
+                <a class="nav-link" href="/income"><i class="bi bi-graph-up"></i> <span class="d-none d-md-inline">Доходы</span></a>
             </div>
         </div>
     </nav>
     
-    <div class="container mt-4">
-        {% with messages = get_flashed_messages() %}
+    <div class="main-content">
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                {% for category, message in messages %}
+                    {% set alert_class = 'alert-success' if category == 'success' else ('alert-danger' if category == 'error' else 'alert-info') %}
+                    {% set icon = 'check-circle-fill' if category == 'success' else ('exclamation-triangle-fill' if category == 'error' else 'info-circle-fill') %}
+                    <div class="alert {{ alert_class }} alert-dismissible fade show d-flex align-items-center" role="alert">
+                        <i class="bi bi-{{ icon }} me-2"></i>
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
@@ -85,6 +293,7 @@ LAYOUT_TEMPLATE = '''
         {% endwith %}
         
         {% block content %}{% endblock %}
+    </div>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -95,96 +304,156 @@ LAYOUT_TEMPLATE = '''
 DASHBOARD_TEMPLATE = '''
 {% extends "layout.html" %}
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <form method="GET" class="d-flex align-items-center gap-3">
-            <label for="month" class="form-label mb-0">Месяц:</label>
-            <input type="month" id="month" name="month" value="{{ current_month }}" class="form-control" style="width: auto;">
-            <button type="submit" class="btn btn-primary">Показать</button>
-        </form>
-    </div>
+<div class="month-selector">
+    <form method="GET" class="row align-items-center">
+        <div class="col-auto">
+            <label for="month" class="form-label mb-0 fw-bold">Месяц:</label>
+        </div>
+        <div class="col">
+            <input type="month" id="month" name="month" value="{{ current_month }}" class="form-control">
+        </div>
+        <div class="col-auto">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Показать
+            </button>
+        </div>
+    </form>
 </div>
 
 <div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Доходы</h5>
-                <h3 class="text-success">{{ income|format_amount }}</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Расходы</h5>
-                <h3 class="text-danger">{{ expenses|format_amount }}</h3>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card text-center">
-            <div class="card-body">
-                <h5 class="card-title">Остаток</h5>
-                <h3 class="{% if income - expenses > 0 %}text-success{% else %}text-danger{% endif %}">
-                    {{ (income - expenses)|format_amount }}
-                </h3>
+    <div class="col-12">
+        <div class="kpi-card">
+            <div class="row text-center">
+                <div class="col-4">
+                    <p class="kpi-label"><i class="bi bi-arrow-down-circle"></i> Доходы</p>
+                    <p class="kpi-value">{{ income|format_amount }}</p>
+                </div>
+                <div class="col-4">
+                    <p class="kpi-label"><i class="bi bi-arrow-up-circle"></i> Расходы</p>
+                    <p class="kpi-value">{{ expenses|format_amount }}</p>
+                </div>
+                <div class="col-4">
+                    <p class="kpi-label"><i class="bi bi-wallet"></i> Остаток</p>
+                    <p class="kpi-value">{{ (income - expenses)|format_amount }}</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <div class="quick-expense">
-    <h5>Быстрая трата</h5>
+    <h5><i class="bi bi-plus-circle"></i> Быстрая трата</h5>
     <form method="POST" action="/quick-expense">
         <div class="row g-3">
             <div class="col-12 col-md-3">
+                <label class="form-label text-muted"><i class="bi bi-calendar"></i> Дата</label>
                 <input type="date" name="date" value="{{ today }}" class="form-control" required>
             </div>
             <div class="col-12 col-md-3">
+                <label class="form-label text-muted"><i class="bi bi-tag"></i> Категория</label>
                 <select name="category_id" class="form-select" required>
-                    <option value="">Категория</option>
+                    <option value="">Выберите категорию</option>
                     {% for cat in categories %}
                     <option value="{{ cat.id }}">{{ cat.name }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-12 col-md-2">
-                <input type="number" name="amount" placeholder="Сумма" step="0.01" min="0.01" 
+                <label class="form-label text-muted"><i class="bi bi-currency-exchange"></i> Сумма</label>
+                <input type="number" name="amount" placeholder="0" step="0.01" min="0.01" 
                        inputmode="decimal" class="form-control" required>
             </div>
             <div class="col-12 col-md-2">
-                <input type="text" name="note" placeholder="Комментарий" class="form-control">
+                <label class="form-label text-muted"><i class="bi bi-chat"></i> Комментарий</label>
+                <input type="text" name="note" placeholder="Описание" class="form-control">
             </div>
             <div class="col-12 col-md-2">
-                <button type="submit" class="btn btn-success w-100">Добавить</button>
+                <label class="form-label" style="opacity: 0;">&nbsp;</label>
+                <button type="submit" class="btn btn-success w-100">
+                    <i class="bi bi-plus-lg"></i> Добавить
+                </button>
             </div>
         </div>
     </form>
 </div>
 
-<div class="table-responsive">
-    <table class="table table-striped">
+<div class="d-block d-md-none">
+    <!-- Mobile card view -->
+    {% for item in budget_data %}
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="card-title mb-0 fw-bold">{{ item.category_name }}</h6>
+                <span class="category-badge">{{ item.category_name[:3] }}</span>
+            </div>
+            <div class="row text-center">
+                <div class="col-3">
+                    <small class="text-muted d-block">Прошлое</small>
+                    <span class="fw-bold {% if item.carryover > 0 %}balance-positive{% elif item.carryover < 0 %}balance-negative{% endif %}">
+                        {{ item.carryover|format_amount }}
+                    </span>
+                </div>
+                <div class="col-3">
+                    <small class="text-muted d-block">Лимит</small>
+                    <span class="fw-bold">{{ item.limit|format_amount }}</span>
+                </div>
+                <div class="col-3">
+                    <small class="text-muted d-block">Траты</small>
+                    <span class="fw-bold">{{ item.spent|format_amount }}</span>
+                </div>
+                <div class="col-3">
+                    <small class="text-muted d-block">Остаток</small>
+                    <span class="fw-bold {% if item.balance > item.limit * 0.2 %}balance-positive{% elif item.balance > 0 %}balance-warning{% else %}balance-negative{% endif %}">
+                        {{ item.balance|format_amount }}
+                    </span>
+                </div>
+            </div>
+            <!-- Progress bar -->
+            <div class="mt-3">
+                {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
+                <div class="progress" style="height: 6px;">
+                    <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
+                         style="width: {{ [progress_percent, 100] | min }}%"></div>
+                </div>
+                <small class="text-muted">{{ progress_percent }}% использовано</small>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="table-responsive d-none d-md-block">
+    <!-- Desktop table view -->
+    <table class="table">
         <thead>
             <tr>
-                <th>Категория</th>
-                <th>Остаток прошлого</th>
-                <th>Лимит</th>
-                <th>Факт</th>
-                <th>Остаток текущий</th>
+                <th><i class="bi bi-tag"></i> Категория</th>
+                <th class="text-center"><i class="bi bi-arrow-left"></i> Прошлое</th>
+                <th class="text-center"><i class="bi bi-bullseye"></i> Лимит</th>
+                <th class="text-center"><i class="bi bi-receipt"></i> Траты</th>
+                <th class="text-center"><i class="bi bi-wallet"></i> Остаток</th>
+                <th class="text-center">Прогресс</th>
             </tr>
         </thead>
         <tbody>
             {% for item in budget_data %}
             <tr>
-                <td>{{ item.category_name }}</td>
-                <td class="{% if item.carryover > 0 %}balance-positive{% elif item.carryover < 0 %}balance-negative{% endif %}">
+                <td class="fw-bold">{{ item.category_name }}</td>
+                <td class="text-center {% if item.carryover > 0 %}balance-positive{% elif item.carryover < 0 %}balance-negative{% endif %}">
                     {{ item.carryover|format_amount }}
                 </td>
-                <td>{{ item.limit|format_amount }}</td>
-                <td>{{ item.spent|format_amount }}</td>
-                <td class="{% if item.balance > item.limit * 0.2 %}balance-positive{% elif item.balance > 0 %}balance-warning{% else %}balance-negative{% endif %}">
+                <td class="text-center">{{ item.limit|format_amount }}</td>
+                <td class="text-center">{{ item.spent|format_amount }}</td>
+                <td class="text-center {% if item.balance > item.limit * 0.2 %}balance-positive{% elif item.balance > 0 %}balance-warning{% else %}balance-negative{% endif %}">
                     {{ item.balance|format_amount }}
+                </td>
+                <td class="text-center">
+                    {% set progress_percent = ((item.spent / item.limit * 100) if item.limit > 0 else 0) | round(1) %}
+                    <div class="progress" style="height: 6px; width: 60px;">
+                        <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" 
+                             style="width: {{ [progress_percent, 100] | min }}%"></div>
+                    </div>
+                    <small>{{ progress_percent }}%</small>
                 </td>
             </tr>
             {% endfor %}
@@ -419,6 +688,8 @@ app.jinja_loader = ChoiceLoader([
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    # Enable foreign key constraints for data integrity
+    conn.execute('PRAGMA foreign_keys = ON')
     return conn
 
 
@@ -475,6 +746,55 @@ def init_db():
 
 def get_current_month():
     return datetime.now().strftime('%Y-%m')
+
+def validate_amount(amount_str):
+    """Validate and convert amount to Decimal"""
+    try:
+        amount = Decimal(str(amount_str).replace(',', ''))
+        if amount <= 0:
+            raise ValueError("Amount must be positive")
+        return amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    except (ValueError, TypeError, InvalidOperation):
+        raise ValueError("Invalid amount format")
+
+def validate_date(date_str):
+    """Validate date format and check if not in future"""
+    try:
+        date_obj = datetime.strptime(str(date_str), '%Y-%m-%d').date()
+        if date_obj > date.today():
+            raise ValueError("Date cannot be in the future")
+        return date_obj
+    except (ValueError, TypeError) as e:
+        raise ValueError(f"Invalid date: {e}")
+
+def safe_db_operation(operation, *args, **kwargs):
+    """Safely execute database operation with error handling"""
+    conn = None
+    try:
+        conn = get_db()
+        result = operation(conn, *args, **kwargs)
+        conn.commit()
+        return result
+    except sqlite3.IntegrityError as e:
+        if conn:
+            conn.rollback()
+        if "UNIQUE constraint" in str(e):
+            raise ValueError("This item already exists")
+        elif "FOREIGN KEY constraint" in str(e):
+            raise ValueError("Referenced item does not exist")
+        else:
+            raise ValueError(f"Database constraint error: {e}")
+    except sqlite3.Error as e:
+        if conn:
+            conn.rollback()
+        raise ValueError(f"Database error: {e}")
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        raise ValueError(f"Unexpected error: {e}")
+    finally:
+        if conn:
+            conn.close()
 
 
 def calculate_carryover(month, category_id):
@@ -617,22 +937,42 @@ def dashboard():
 
 @app.route('/quick-expense', methods=['POST'])
 def quick_expense():
-    date_str = request.form['date']
-    category_id = request.form['category_id']
-    amount = float(request.form['amount'])
-    note = request.form.get('note', '')
+    try:
+        # Validate inputs
+        date_str = request.form.get('date', '').strip()
+        category_id = request.form.get('category_id', '').strip()
+        amount_str = request.form.get('amount', '').strip()
+        note = escape(request.form.get('note', '').strip())
+        
+        if not date_str or not category_id or not amount_str:
+            flash('Ошибка: все обязательные поля должны быть заполнены', 'error')
+            return redirect(url_for('dashboard'))
+        
+        # Validate and convert data
+        validated_date = validate_date(date_str)
+        amount = validate_amount(amount_str)
+        month = validated_date.strftime('%Y-%m')
+        
+        # Database operation
+        def add_expense_op(conn, date_str, month, category_id, amount, note):
+            cursor = conn.execute('''
+                INSERT INTO expenses (date, month, category_id, amount, note)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (date_str, month, int(category_id), float(amount), note))
+            return cursor.rowcount
+        
+        result = safe_db_operation(add_expense_op, date_str, month, category_id, amount, note)
+        
+        if result > 0:
+            flash(f'✓ Трата {amount} руб. добавлена!', 'success')
+        else:
+            flash('Ошибка при добавлении траты', 'error')
+            
+    except ValueError as e:
+        flash(f'Ошибка: {str(e)}', 'error')
+    except Exception as e:
+        flash(f'Неожиданная ошибка: {str(e)}', 'error')
     
-    month = date_str[:7]  # Extract YYYY-MM from YYYY-MM-DD
-    
-    conn = get_db()
-    conn.execute('''
-        INSERT INTO expenses (date, month, category_id, amount, note)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (date_str, month, category_id, amount, note))
-    conn.commit()
-    conn.close()
-    
-    flash('Трата добавлена!')
     return redirect(url_for('dashboard'))
 
 
@@ -790,4 +1130,5 @@ def add_income():
 
 if __name__ == '__main__':
     init_db()
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    app.run(host='0.0.0.0', port=5000, debug=debug_mode)
