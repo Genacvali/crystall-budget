@@ -1,5 +1,3 @@
-Flask==3.0.0
-Flask-CORS==4.0.0
-psycopg2-binary==2.9.9
-PyJWT==2.8.0
-argon2-cffi==23.1.0
+flask>=3.0,<4.0
+# для прод-запуска без Docker:
+gunicorn>=21.0,<22.0

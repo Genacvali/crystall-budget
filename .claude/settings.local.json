@@ -6,7 +6,9 @@
       "Bash(cat:*)",
       "Bash(rm:*)",
       "Bash(mkdir:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(python:*)",
+      "Bash(where python)"
     ],
     "deny": [],
     "ask": []
