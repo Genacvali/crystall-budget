@@ -117,11 +117,11 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
     <div class="card source-card">
       <div class="card-body">
         <h6 class="mb-3">{{ s.source_name }}</h6>
-        <div class="d-flex justify-content-between mb-1"><span class="k">Пришло</span><span class="v currency">{{ s.income|format_amount }} {{ currency_symbol|default("₽") }}</span></div>
-        <div class="d-flex justify-content-between mb-1"><span class="k">Ушло</span><span class="v currency">{{ s.spent|format_amount }} {{ currency_symbol|default("₽") }}</span></div>
+        <div class="d-flex justify-content-between mb-1"><span class="k">Пришло</span><span class="v currency">{{ s.income|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></span></div>
+        <div class="d-flex justify-content-between mb-1"><span class="k">Ушло</span><span class="v currency">{{ s.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></span></div>
         <div class="d-flex justify-content-between">
           <span class="k">Остаток</span>
-          <span class="v currency {% if s.rest < 0 %}text-danger{% endif %}">{{ s.rest|format_amount }} {{ currency_symbol|default("₽") }}</span>
+          <span class="v currency {% if s.rest < 0 %}text-danger{% endif %}">{{ s.rest|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></span>
         </div>
       </div>
     </div>
@@ -151,8 +151,8 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
           {% set rest = item.limit - item.spent %}
           <tr>
             <td class="cell-title">{{ item.category_name }}</td>
-            <td class="text-end currency">{{ item.limit|format_amount }} {{ currency_symbol|default("₽") }}</td>
-            <td class="text-end currency {{ 'text-danger' if item.spent > item.limit else '' }}">{{ item.spent|format_amount }} {{ currency_symbol|default("₽") }}</td>
+            <td class="text-end currency">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
+            <td class="text-end currency {{ 'text-danger' if item.spent > item.limit else '' }}">{{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
             <td>
               <div class="d-flex align-items-center gap-2">
                 <div class="flex-grow-1">
@@ -166,7 +166,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
                 <small class="text-muted" style="width:48px;text-align:right;">{{ progress_percent }}%</small>
               </div>
             </td>
-            <td class="text-end currency {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} {{ currency_symbol|default("₽") }}</td>
+            <td class="text-end currency {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
             <td class="text-end">
               {% if item.spent > item.limit %}
                 <span class="badge-soft badge-soft-danger">Превышен</span>

@@ -6,7 +6,7 @@
   <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
 
   <!-- PWA: Манифест -->
-  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
   <meta name="theme-color" content="#4fb3d9">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -166,10 +166,10 @@
 
   <!-- PWA Service Worker -->
   <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("/static/service-worker.js")
-        .then(() => console.log("✅ Service Worker установлен"))
-        .catch(err => console.error("❌ Ошибка Service Worker:", err));
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js').catch(console.error);
+      });
     }
   </script>
 
@@ -189,10 +189,9 @@
     }
 
     function updateCurrencyDisplays(){
-      const symbol = currencySymbols[currentCurrency] || '';
+      const symbol = currencySymbols[currentCurrency] || '₽';
       document.querySelectorAll('.currency-display').forEach(el=>{
-        const amount = el.textContent.replace(/[₽$€֏₾]/g,'').trim();
-        el.textContent = amount + ' ' + symbol;
+        el.textContent = symbol;
       });
     }
 
@@ -207,8 +206,8 @@
     function updateThemeToggle(theme){
       const light=document.getElementById('light-icon');
       const dark=document.getElementById('dark-icon');
-      light.style.opacity = theme==='dark' ? '0.5' : '1';
-      dark.style.opacity  = theme==='dark' ? '1' : '0.5';
+      if(light) light.style.opacity = theme==='dark' ? '0.5' : '1';
+      if(dark) dark.style.opacity  = theme==='dark' ? '1' : '0.5';
     }
 
     document.addEventListener('DOMContentLoaded', ()=>{

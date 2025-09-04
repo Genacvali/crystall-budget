@@ -53,12 +53,10 @@ def format_amount(value):
 def format_percent(value):
     """Проценты без лишних хвостов, максимум 2 знака после точки."""
     try:
-        d = Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
-        s = format(d.normalize(), "f")
-        if "." in s:
-            s = s.rstrip("0").rstrip(".")
-        return s
-    except Exception:
+        v = float(value)
+        # целые без .0, иначе до 2 знаков
+        return f"{int(v)}" if abs(v - int(v)) < 1e-9 else f"{v:.2f}".rstrip('0').rstrip('.')
+    except:
         return str(value)
 
 @app.template_filter("format_date_with_day")
@@ -635,55 +633,47 @@ def upsert_rule(category_id):
     return redirect(url_for("categories"))
 
 
-@app.route("/rules/bulk", methods=["POST"])
+@app.route("/rules/bulk-update", methods=["POST"])
 @login_required
 def rules_bulk_update():
     """Массовое сохранение привязок 'категория → источник' одной кнопкой."""
     uid = session["user_id"]
+    # В форме придёт rules[<category_id>] = <source_id or ''>
+    pairs = {}
+    for k, v in request.form.items():
+        if not k.startswith("rules["):
+            continue
+        cat_id = int(k.split("[", 1)[1].rstrip("]"))
+        source_id = int(v) if v.strip() else None
+        pairs[cat_id] = source_id
+
     conn = get_db()
-
-    cats = conn.execute(
-        "SELECT id FROM categories WHERE user_id=?", (uid,)
-    ).fetchall()
-    cat_ids = [c["id"] for c in cats]
-
-    for cat_id in cat_ids:
-        key = f"rules[{cat_id}]"
-        src_val = request.form.get(key)  # '' -> удалить правило
-        if src_val:
-            ok = conn.execute(
-                "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
-                (src_val, uid)
-            ).fetchone()
-            if not ok:
-                continue
-
+    # Проверка, что категории и источники принадлежат пользователю
+    for cat_id, source_id in pairs.items():
+        ok_cat = conn.execute("SELECT 1 FROM categories WHERE id=? AND user_id=?", (cat_id, uid)).fetchone()
+        if not ok_cat:
+            continue
         existing = conn.execute(
             "SELECT id FROM source_category_rules WHERE user_id=? AND category_id=?",
             (uid, cat_id)
         ).fetchone()
-
-        if src_val:
+        if source_id:
+            ok_src = conn.execute("SELECT 1 FROM income_sources WHERE id=? AND user_id=?", (source_id, uid)).fetchone()
+            if not ok_src:
+                continue
             if existing:
-                conn.execute(
-                    "UPDATE source_category_rules SET source_id=? WHERE id=?",
-                    (src_val, existing["id"])
-                )
+                conn.execute("UPDATE source_category_rules SET source_id=? WHERE id=?", (source_id, existing["id"]))
             else:
                 conn.execute(
                     "INSERT INTO source_category_rules(user_id, source_id, category_id) VALUES (?,?,?)",
-                    (uid, src_val, cat_id)
+                    (uid, source_id, cat_id)
                 )
         else:
             if existing:
-                conn.execute(
-                    "DELETE FROM source_category_rules WHERE id=?",
-                    (existing["id"],)
-                )
-
+                conn.execute("DELETE FROM source_category_rules WHERE id=?", (existing["id"],))
     conn.commit()
     conn.close()
-    flash("Привязки источников сохранены", "success")
+    flash("Привязки обновлены", "success")
     return redirect(url_for("categories"))
 
 

@@ -53,7 +53,7 @@
     <div class="card-body">
       <div class="d-flex justify-content-between align-items-start mb-2">
         <div>
-          <h6 class="mb-1">{{ income.amount|format_amount }} ₽</h6>
+          <h6 class="mb-1">{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></h6>
           <small class="text-muted">
             <i class="bi bi-calendar3"></i> {{ income.date|format_date_with_day }}
           </small>
@@ -72,7 +72,7 @@
         </a>
         <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="flex-fill">
           <button type="submit" class="btn btn-outline-danger w-100"
-                  onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}₽')">
+                  onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
             <i class="bi bi-trash"></i> Удалить
           </button>
         </form>
@@ -97,7 +97,7 @@
       {% for income in incomes %}
       <tr>
         <td>{{ income.date|format_date_with_day }}</td>
-        <td class="text-end fw-bold">{{ income.amount|format_amount }} ₽</td>
+        <td class="text-end fw-bold">{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
         <td>
           {% if income.source_id %}
             {% set src = (income_sources | selectattr('id','equalto', income.source_id) | list) %}
@@ -111,7 +111,7 @@
           </a>
           <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
             <button type="submit" class="btn btn-sm btn-outline-danger"
-                    onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}₽')">
+                    onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
               <i class="bi bi-trash"></i> Удалить
             </button>
           </form>
