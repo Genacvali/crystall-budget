@@ -34,6 +34,32 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 .table-modern .cell-title{font-weight:700}
 .table-modern .progress{height:8px;background:#eef1f4}
 .table-modern .progress-bar{transition:width .3s ease}
+
+/* Mobile responsive table */
+@media (max-width: 768px) {
+  .table-modern thead th {
+    padding: .25rem .5rem;
+    font-size: 0.85rem;
+  }
+  .table-modern tbody td {
+    padding: .5rem .5rem;
+    font-size: 0.9rem;
+  }
+  .table-modern .hide-mobile {
+    display: none;
+  }
+  .table-modern .mobile-compact {
+    font-size: 0.8rem;
+    padding: .25rem .5rem !important;
+  }
+  .currency {
+    font-size: 0.85rem;
+  }
+  .badge-soft {
+    font-size: 0.75rem;
+    padding: .2rem .4rem;
+  }
+}
 .badge-soft{border-radius:999px;padding:.35rem .6rem;font-weight:600}
 .badge-soft-success{background:#e8f6ee;color:#198754}
 .badge-soft-warning{background:#fff3cd;color:#b58100}
@@ -186,20 +212,26 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
           <th class="sortable" data-sort="category">
             Категория <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
           </th>
-          <th class="text-end sortable" data-sort="limit">
+          <th class="text-end sortable hide-mobile" data-sort="limit">
             Лимит <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
           </th>
           <th class="text-end sortable" data-sort="spent">
-            Потрачено <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+            <span class="d-none d-md-inline">Потрачено</span>
+            <span class="d-md-none">Трат</span>
+            <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
           </th>
-          <th style="min-width:220px" class="sortable" data-sort="progress">
+          <th class="sortable hide-mobile" data-sort="progress" style="min-width:200px">
             Прогресс <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
           </th>
           <th class="text-end sortable" data-sort="remaining">
-            Остаток <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+            <span class="d-none d-md-inline">Остаток</span>
+            <span class="d-md-none">Ост</span>
+            <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
           </th>
-          <th class="text-end sortable" data-sort="status">
-            Статус <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
+          <th class="text-end sortable mobile-compact" data-sort="status">
+            <span class="d-none d-md-inline">Источник дохода</span>
+            <span class="d-md-none">Стат</span>
+            <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
           </th>
         </tr>
       </thead>
@@ -214,10 +246,28 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
               data-progress="{{ progress_percent }}"
               data-remaining="{{ rest }}"
               data-status="{{ status_order }}">
-            <td class="cell-title">{{ item.category_name }}</td>
-            <td class="text-end currency">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
-            <td class="text-end currency {{ 'text-danger' if item.spent > item.limit else '' }}">{{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
-            <td>
+            <td class="cell-title">
+              {{ item.category_name }}
+              <!-- Мобильная версия: показываем лимит под названием -->
+              <div class="d-md-none small text-muted mt-1">
+                Лимит: {{ item.limit|format_amount }} {{ currency_symbol|default("₽") }}
+              </div>
+            </td>
+            <td class="text-end currency hide-mobile">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
+            <td class="text-end currency {{ 'text-danger' if item.spent > item.limit else '' }}">
+              {{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span>
+              <!-- Мобильная версия: показываем прогресс под суммой -->
+              <div class="d-md-none mt-1">
+                <div class="progress" style="height: 6px;">
+                  <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
+                       role="progressbar"
+                       style="width: {{ [progress_percent, 100] | min }}%;">
+                  </div>
+                </div>
+                <small class="text-muted">{{ progress_percent }}%</small>
+              </div>
+            </td>
+            <td class="hide-mobile">
               <div class="d-flex align-items-center gap-2">
                 <div class="flex-grow-1">
                   <div class="progress">
@@ -231,13 +281,22 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
               </div>
             </td>
             <td class="text-end currency {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
-            <td class="text-end">
+            <td class="text-end mobile-compact">
               {% if item.spent > item.limit %}
-                <span class="badge-soft badge-soft-danger">Превышен</span>
+                <span class="badge-soft badge-soft-danger">
+                  <span class="d-none d-md-inline">Превышен</span>
+                  <span class="d-md-none">❌</span>
+                </span>
               {% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}
-                <span class="badge-soft badge-soft-warning">Почти предел</span>
+                <span class="badge-soft badge-soft-warning">
+                  <span class="d-none d-md-inline">Почти предел</span>
+                  <span class="d-md-none">⚠️</span>
+                </span>
               {% else %}
-                <span class="badge-soft badge-soft-success">В норме</span>
+                <span class="badge-soft badge-soft-success">
+                  <span class="d-none d-md-inline">В норме</span>
+                  <span class="d-md-none">✅</span>
+                </span>
               {% endif %}
             </td>
           </tr>
