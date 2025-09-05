@@ -374,6 +374,23 @@ def get_source_for_category(conn, user_id, category_id):
 def make_session_permanent():
     session.permanent = True
 
+# Обработка плохих запросов
+@app.before_request
+def validate_request():
+    # Логируем все POST запросы для отладки
+    if request.method == 'POST':
+        app.logger.info(f'POST request to {request.endpoint} from {request.remote_addr}')
+        app.logger.debug(f'Content-Type: {request.content_type}')
+        app.logger.debug(f'Form keys: {list(request.form.keys())}')
+    
+    # Проверяем Content-Type для POST запросов к формам
+    if request.method == 'POST' and request.endpoint in ['register', 'login']:
+        content_type = request.content_type or ''
+        if not content_type.startswith('application/x-www-form-urlencoded') and \
+           not content_type.startswith('multipart/form-data'):
+            app.logger.warning(f'Invalid Content-Type for form: {content_type} from {request.remote_addr}')
+            # Не блокируем, но логируем
+
 # -----------------------------------------------------------------------------
 # Routes: favicon and static files
 # -----------------------------------------------------------------------------
@@ -505,16 +522,32 @@ def index():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        email = request.form["email"].lower().strip()
-        name = request.form["name"].strip()
-        password = request.form["password"]
-        confirm = request.form["confirm"]
-        
-        app.logger.info(f'Registration attempt for email: {email}, name: {name}')
+        try:
+            email = request.form.get("email", "").lower().strip()
+            name = request.form.get("name", "").strip()
+            password = request.form.get("password", "")
+            
+            app.logger.info(f'Registration attempt for email: {email}, name: {name}')
 
-        if password != confirm:
-            app.logger.warning(f'Registration failed - password mismatch for email: {email}')
-            flash("Пароли не совпадают", "error")
+            # Валидация на сервере
+            if not email or not name or not password:
+                app.logger.warning(f'Registration failed - missing fields for email: {email}')
+                flash("Все поля обязательны для заполнения", "error")
+                return render_template("register.html")
+            
+            if len(password) < 6:
+                app.logger.warning(f'Registration failed - password too short for email: {email}')
+                flash("Пароль должен содержать минимум 6 символов", "error")
+                return render_template("register.html")
+            
+            if ' ' in password:
+                app.logger.warning(f'Registration failed - password contains spaces for email: {email}')
+                flash("Пароль не должен содержать пробелы", "error")
+                return render_template("register.html")
+                
+        except Exception as e:
+            app.logger.error(f'Registration form parsing error: {e} - {request.remote_addr}')
+            flash("Ошибка обработки формы. Попробуйте еще раз", "error")
             return render_template("register.html")
 
         conn = get_db()
@@ -527,18 +560,28 @@ def register():
             user = conn.execute(
                 "SELECT id FROM users WHERE email=?", (email,)
             ).fetchone()
+            
+            if not user:
+                raise Exception("Failed to retrieve user after insertion")
+                
             app.logger.info(f'Successful registration for user: {email} (ID: {user["id"]})')
-        except sqlite3.IntegrityError:
-            app.logger.warning(f'Registration failed - email already exists: {email}')
+            
+            session["user_id"] = user["id"]
+            session["email"] = email
+            session["name"] = name
+            conn.close()
+            return redirect(url_for("dashboard"))
+            
+        except sqlite3.IntegrityError as e:
+            app.logger.warning(f'Registration failed - email already exists: {email} - {e}')
             flash("Email уже зарегистрирован", "error")
             conn.close()
             return render_template("register.html")
-        conn.close()
-
-        session["user_id"] = user["id"]
-        session["email"] = email
-        session["name"] = name
-        return redirect(url_for("dashboard"))
+        except Exception as e:
+            app.logger.error(f'Database error during registration for {email}: {e}')
+            flash("Ошибка сервера. Попробуйте позже", "error")
+            conn.close()
+            return render_template("register.html")
 
     return render_template("register.html")
 
