@@ -1,8 +1,10 @@
 import os
 import sqlite3
+import logging
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
+from logging.handlers import RotatingFileHandler
 
 from flask import (
     Flask, render_template, render_template_string, request, redirect,
@@ -32,6 +34,48 @@ app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Для обычного слу�
 # app.config['SESSION_COOKIE_DOMAIN'] = '.yourdomain.com'
 
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
+
+# -----------------------------------------------------------------------------
+# Logging setup
+# -----------------------------------------------------------------------------
+def setup_logging():
+    # Создаем папку для логов если её нет
+    log_dir = os.path.join(os.path.dirname(__file__), 'logs')
+    os.makedirs(log_dir, exist_ok=True)
+    
+    # Настройка ротации логов (максимум 10MB на файл, 5 файлов)
+    log_file = os.path.join(log_dir, 'crystalbudget.log')
+    file_handler = RotatingFileHandler(
+        log_file, 
+        maxBytes=10*1024*1024,  # 10MB
+        backupCount=5
+    )
+    
+    # Формат логов
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s [%(name)s] %(message)s'
+    )
+    file_handler.setFormatter(formatter)
+    
+    # Настройка уровня логирования
+    log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
+    file_handler.setLevel(getattr(logging, log_level))
+    
+    # Добавляем обработчик к Flask приложению
+    app.logger.addHandler(file_handler)
+    app.logger.setLevel(getattr(logging, log_level))
+    
+    # Логирование Werkzeug (встроенный сервер Flask)
+    werkzeug_logger = logging.getLogger('werkzeug')
+    werkzeug_logger.addHandler(file_handler)
+    werkzeug_logger.setLevel(logging.INFO)
+    
+    app.logger.info('Logging system initialized')
+    app.logger.info(f'Log level: {log_level}')
+    app.logger.info(f'Log file: {log_file}')
+
+# Инициализируем логирование
+setup_logging()
 
 # Валюты
 CURRENCIES = {
@@ -337,9 +381,68 @@ def make_session_permanent():
 def favicon():
     return redirect(url_for('static', filename='icons/icon-192.png'))
 
+@app.route('/logs')
+@login_required  
+def view_logs():
+    try:
+        log_file = os.path.join(os.path.dirname(__file__), 'logs', 'crystalbudget.log')
+        if os.path.exists(log_file):
+            with open(log_file, 'r', encoding='utf-8') as f:
+                # Читаем последние 100 строк
+                lines = f.readlines()[-100:]
+            log_content = ''.join(lines)
+        else:
+            log_content = 'Лог файл не найден'
+        
+        return render_template_string('''
+        <!DOCTYPE html>
+        <html lang="ru">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Логи - CrystalBudget</title>
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <style>
+                .log-content {
+                    background-color: #1a1a1a;
+                    color: #00ff00;
+                    font-family: 'Courier New', monospace;
+                    font-size: 12px;
+                    padding: 20px;
+                    border-radius: 8px;
+                    max-height: 70vh;
+                    overflow-y: auto;
+                    white-space: pre-wrap;
+                    word-break: break-word;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2>💎 Логи приложения</h2>
+                    <div>
+                        <a href="{{ url_for('dashboard') }}" class="btn btn-primary">← Назад</a>
+                        <a href="{{ url_for('view_logs') }}" class="btn btn-success">🔄 Обновить</a>
+                    </div>
+                </div>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> 
+                    Показаны последние 100 строк из файла: logs/crystalbudget.log
+                </div>
+                <div class="log-content">{{ log_content }}</div>
+            </div>
+        </body>
+        </html>
+        ''', log_content=log_content)
+    except Exception as e:
+        app.logger.error(f'Error reading logs: {e}')
+        return f'Ошибка чтения логов: {e}'
+
 # Error handlers
 @app.errorhandler(400)
 def bad_request(error):
+    app.logger.error(f'400 Bad Request: {request.url} - {request.remote_addr}')
     return render_template_string('''
     <div style="text-align: center; padding: 2rem; font-family: Arial, sans-serif;">
         <h2>🚫 Плохой запрос</h2>
@@ -350,6 +453,7 @@ def bad_request(error):
 
 @app.errorhandler(404)
 def page_not_found(error):
+    app.logger.warning(f'404 Not Found: {request.url} - {request.remote_addr}')
     return render_template_string('''
     <div style="text-align: center; padding: 2rem; font-family: Arial, sans-serif;">
         <h2>💎 Страница не найдена</h2>
@@ -357,6 +461,17 @@ def page_not_found(error):
         <a href="{{ url_for('dashboard') }}" style="color: #0d6efd;">← Вернуться на главную</a>
     </div>
     '''), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    app.logger.error(f'500 Internal Server Error: {request.url} - {error}')
+    return render_template_string('''
+    <div style="text-align: center; padding: 2rem; font-family: Arial, sans-serif;">
+        <h2>💥 Внутренняя ошибка сервера</h2>
+        <p>Произошла ошибка на сервере. Попробуйте позже.</p>
+        <a href="{{ url_for('dashboard') }}" style="color: #0d6efd;">← Вернуться на главную</a>
+    </div>
+    '''), 500
 
 # -----------------------------------------------------------------------------
 # Routes: currency switcher
@@ -394,8 +509,11 @@ def register():
         name = request.form["name"].strip()
         password = request.form["password"]
         confirm = request.form["confirm"]
+        
+        app.logger.info(f'Registration attempt for email: {email}, name: {name}')
 
         if password != confirm:
+            app.logger.warning(f'Registration failed - password mismatch for email: {email}')
             flash("Пароли не совпадают", "error")
             return render_template("register.html")
 
@@ -409,7 +527,9 @@ def register():
             user = conn.execute(
                 "SELECT id FROM users WHERE email=?", (email,)
             ).fetchone()
+            app.logger.info(f'Successful registration for user: {email} (ID: {user["id"]})')
         except sqlite3.IntegrityError:
+            app.logger.warning(f'Registration failed - email already exists: {email}')
             flash("Email уже зарегистрирован", "error")
             conn.close()
             return render_template("register.html")
@@ -428,6 +548,8 @@ def login():
     if request.method == "POST":
         email = request.form["email"].lower().strip()
         password = request.form["password"]
+        
+        app.logger.info(f'Login attempt for email: {email}')
 
         conn = get_db()
         user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
@@ -436,7 +558,10 @@ def login():
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = user["name"]
+            app.logger.info(f'Successful login for user: {email} (ID: {user["id"]})')
             return redirect(url_for("dashboard"))
+        
+        app.logger.warning(f'Failed login attempt for email: {email}')
         flash("Неверный email или пароль", "error")
 
     return render_template("login.html")
@@ -444,6 +569,8 @@ def login():
 
 @app.route("/logout")
 def logout():
+    user_email = session.get("email", "unknown")
+    app.logger.info(f'User logout: {user_email}')
     session.clear()
     return redirect(url_for("login"))
 
