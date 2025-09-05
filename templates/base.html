@@ -45,11 +45,16 @@
     }
 
     /* NAV FIXES */
+    .navbar-modern {
+      position: relative;
+    }
+    
     .navbar-modern .container-fluid {
       display: flex;
       align-items: center;
       gap: .5rem;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
+      position: relative;
     }
 
     .navbar-brand-modern {
@@ -74,24 +79,77 @@
         min-width: 2.25rem;
       }
       
-      /* Мобильное меню */
+      /* Улучшенное мобильное меню */
       .navbar-collapse {
-        margin-top: 1rem;
-        border-top: 1px solid rgba(0,0,0,0.1);
-        padding-top: 1rem;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--bs-body-bg);
+        border: 1px solid var(--bs-border-color);
+        border-top: none;
+        border-radius: 0 0 0.75rem 0.75rem;
+        padding: 1rem;
+        margin: 0;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        z-index: 1000;
+      }
+      
+      .navbar-nav {
+        margin-bottom: 1rem;
       }
       
       .navbar-nav .nav-item {
-        margin: 0.25rem 0;
-      }
-      
-      .navbar-nav .nav-link-modern {
-        border-radius: 0.375rem;
         margin: 0.125rem 0;
       }
       
+      .navbar-nav .nav-link-modern {
+        border-radius: 0.5rem;
+        margin: 0;
+        padding: 0.75rem 1rem;
+        display: block;
+        width: 100%;
+        text-align: left;
+        background: var(--bs-secondary-bg);
+        border: 1px solid var(--bs-border-color);
+      }
+      
+      .navbar-nav .nav-link-modern:hover {
+        background: var(--bs-primary);
+        color: var(--bs-white);
+        transform: none;
+        box-shadow: none;
+      }
+      
       .navbar-nav .nav-link-modern.active {
-        background-color: rgba(13,110,253,0.1);
+        background: var(--bs-primary);
+        color: var(--bs-white);
+        border-color: var(--bs-primary);
+        font-weight: 600;
+      }
+      
+      /* Улучшения для селекторов валют и темы */
+      .navbar-nav:last-child {
+        border-top: 1px solid var(--bs-border-color);
+        padding-top: 1rem;
+        margin-bottom: 0;
+      }
+      
+      .currency-selector {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+      
+      .currency-option {
+        flex: 1;
+        padding: 0.5rem;
+        text-align: center;
+      }
+      
+      .theme-toggle {
+        justify-content: center;
+        width: 100%;
+        padding: 0.75rem;
       }
       
       /* Общие мобильные улучшения */
@@ -257,9 +315,9 @@
     }
 
     function toggleTheme(){
-      const cur=document.documentElement.getAttribute('data-theme');
+      const cur=document.documentElement.getAttribute('data-bs-theme');
       const next=cur==='dark'?'light':'dark';
-      document.documentElement.setAttribute('data-theme',next);
+      document.documentElement.setAttribute('data-bs-theme',next);
       localStorage.setItem('theme',next);
       updateThemeToggle(next);
     }
@@ -274,7 +332,7 @@
     document.addEventListener('DOMContentLoaded', ()=>{
       let savedTheme = localStorage.getItem('theme');
       if(!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
-      document.documentElement.setAttribute('data-theme',savedTheme);
+      document.documentElement.setAttribute('data-bs-theme',savedTheme);
       updateThemeToggle(savedTheme);
 
       const savedCurrency = localStorage.getItem('currency') || 'RUB';

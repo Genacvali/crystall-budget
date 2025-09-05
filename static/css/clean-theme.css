@@ -46,21 +46,29 @@
   --transition-fast: all 0.15s ease-in-out;
 }
 
-/* Dark theme */
+/* Dark theme - Bootstrap compatible */
+[data-bs-theme="dark"],
 [data-theme="dark"] {
-  --bg-primary: #1a202c;
-  --bg-secondary: #2d3748;
-  --bg-card: rgba(45, 55, 72, 0.95);
-  --bg-nav: rgba(26, 32, 44, 0.95);
+  --bg-primary: #212529;
+  --bg-secondary: #343a40;
+  --bg-card: rgba(52, 58, 64, 0.95);
+  --bg-nav: rgba(33, 37, 41, 0.95);
   
-  --text-primary: #f7fafc;
-  --text-secondary: #e2e8f0;
-  --text-muted: #a0aec0;
+  --text-primary: #f8f9fa;
+  --text-secondary: #e9ecef;
+  --text-muted: #adb5bd;
   
-  --border-color: rgba(255, 255, 255, 0.1);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.4);
+  --border-color: rgba(255, 255, 255, 0.125);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6);
+  
+  /* Bootstrap overrides for dark theme */
+  --bs-body-bg: #212529;
+  --bs-body-color: #f8f9fa;
+  --bs-border-color: rgba(255, 255, 255, 0.125);
+  --bs-secondary-bg: #343a40;
+  --bs-tertiary-bg: #495057;
 }
 
 /* Base Styles */
@@ -201,10 +209,12 @@ body {
   box-shadow: var(--shadow-sm);
 }
 
+[data-bs-theme="dark"] .theme-switch,
 [data-theme="dark"] .theme-switch {
   background: var(--primary-color);
 }
 
+[data-bs-theme="dark"] .theme-switch::after,
 [data-theme="dark"] .theme-switch::after {
   transform: translateX(24px);
 }
@@ -592,6 +602,7 @@ body {
     height: 16px;
   }
   
+  [data-bs-theme="dark"] .theme-switch::after,
   [data-theme="dark"] .theme-switch::after {
     transform: translateX(20px);
   }
@@ -637,6 +648,7 @@ body {
     --text-muted: #666;
   }
   
+  [data-bs-theme="dark"],
   [data-theme="dark"] {
     --border-color: rgba(255, 255, 255, 0.3);
     --text-muted: #999;
