@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
   <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
 
   <!-- PWA: Манифест -->
@@ -22,6 +23,21 @@
   <!-- Theme -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="{{ url_for('static', filename='css/clean-theme.css') }}" rel="stylesheet">
+
+  <!-- Instant theme application to prevent flash -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('theme') || 
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      
+      // Update theme-color meta tag
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeColorMeta) {
+        themeColorMeta.content = savedTheme === 'dark' ? '#212529' : '#4fb3d9';
+      }
+    })();
+  </script>
 
   <style>
     /* iOS Safe Area */
@@ -577,6 +593,12 @@
       document.documentElement.setAttribute('data-bs-theme',next);
       localStorage.setItem('theme',next);
       updateThemeToggle(next);
+      
+      // Update theme-color meta tag
+      const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+      if (themeColorMeta) {
+        themeColorMeta.content = next === 'dark' ? '#212529' : '#4fb3d9';
+      }
     }
 
     function updateThemeToggle(theme){
@@ -610,10 +632,9 @@
     }
 
     document.addEventListener('DOMContentLoaded', ()=>{
-      let savedTheme = localStorage.getItem('theme');
-      if(!savedTheme) savedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark':'light';
-      document.documentElement.setAttribute('data-bs-theme',savedTheme);
-      updateThemeToggle(savedTheme);
+      // Theme is already applied, just update UI
+      const currentTheme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+      updateThemeToggle(currentTheme);
 
       const savedCurrency = localStorage.getItem('currency') || 'RUB';
       setCurrency(savedCurrency);
