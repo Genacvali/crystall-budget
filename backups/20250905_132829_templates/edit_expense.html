@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Редактирование траты - CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-pencil-square"></i> Редактирование траты</h2>
+    <a href="{{ url_for('expenses') }}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> <span class="d-none d-md-inline">Назад</span>
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="date" class="form-label">
+                        <i class="bi bi-calendar"></i> Дата
+                    </label>
+                    <input type="date" id="date" name="date" value="{{ expense.date }}" class="form-control" required>
+                </div>
+                <div class="col-md-4">
+                    <label for="category_id" class="form-label">
+                        <i class="bi bi-tag"></i> Категория
+                    </label>
+                    <select id="category_id" name="category_id" class="form-select" required>
+                        <option value="">Выберите категорию</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.id }}" {% if cat.id == expense.category_id %}selected{% endif %}>
+                            {{ cat.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="amount" class="form-label">
+                        <i class="bi bi-currency-exchange"></i> Сумма
+                    </label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
+                           inputmode="decimal" value="{{ expense.amount }}" class="form-control" required>
+                </div>
+                <div class="col-12">
+                    <label for="note" class="form-label">
+                        <i class="bi bi-chat-text"></i> Комментарий
+                    </label>
+                    <input type="text" id="note" name="note" value="{{ expense.note or '' }}" class="form-control" 
+                           placeholder="Описание траты (необязательно)">
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-success flex-fill">
+                    <i class="bi bi-check-lg"></i> Сохранить изменения
+                </button>
+                <a href="{{ url_for('expenses') }}" class="btn btn-outline-secondary flex-fill">
+                    <i class="bi bi-x-lg"></i> Отмена
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

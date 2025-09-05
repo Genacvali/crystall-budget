@@ -26,173 +26,6 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 .source-card .k{color:var(--bs-secondary)}
 .source-card .v{font-weight:600;color:var(--bs-body-color)}
 
-/* Главная карточка баланса */
-.balance-hero{
-  background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-dark, #0d6efd) 100%);
-  border-radius: 1rem;
-  color: white;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(13,110,253,0.3);
-}
-.balance-hero::before{
-  content:'';
-  position:absolute;
-  top:0;right:0;
-  width:200px;height:200px;
-  background:rgba(255,255,255,0.1);
-  border-radius:50%;
-  transform:translate(30%,-30%);
-}
-.balance-amount{
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1;
-  margin: 0;
-}
-@media (max-width: 576px){
-  .balance-amount{font-size: 2rem;}
-}
-.balance-label{
-  opacity: 0.9;
-  font-size: 1rem;
-  margin-bottom: 0.5rem;
-}
-.balance-actions{
-  display: flex;
-  gap: 0.75rem;
-  margin-top: 1.5rem;
-}
-.btn-balance{
-  background: rgba(255,255,255,0.2);
-  border: 1px solid rgba(255,255,255,0.3);
-  color: white;
-  border-radius: 0.5rem;
-  padding: 0.75rem 1rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-  flex: 1;
-  text-align: center;
-}
-.btn-balance:hover{
-  background: rgba(255,255,255,0.3);
-  color: white;
-  transform: translateY(-1px);
-}
-
-/* Кольцевые индикаторы */
-.progress-ring{
-  transform: rotate(-90deg);
-  width: 80px;
-  height: 80px;
-}
-.progress-ring circle{
-  stroke-width: 6;
-  fill: transparent;
-  stroke-dasharray: 251.3;
-  stroke-dashoffset: 251.3;
-  transition: stroke-dashoffset 0.5s ease-in-out;
-}
-.progress-ring .bg{stroke: var(--bs-secondary-bg);}
-.progress-ring .progress{stroke-linecap: round;}
-.progress-success{stroke: var(--bs-success);}
-.progress-warning{stroke: var(--bs-warning);}
-.progress-danger{stroke: var(--bs-danger);}
-
-/* Карточки категорий */
-.category-card{
-  border-radius: 0.75rem;
-  border: none;
-  transition: all 0.2s ease;
-  position: relative;
-  overflow: hidden;
-}
-.category-card:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
-.category-color{
-  width: 4px;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  border-radius: 0 2px 2px 0;
-}
-.category-icon{
-  width: 48px;
-  height: 48px;
-  border-radius: 0.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  margin-right: 1rem;
-}
-.category-stats{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 1rem;
-}
-.progress-circle-wrapper{
-  position: relative;
-  width: 80px;
-  height: 80px;
-}
-.progress-circle-text{
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 0.875rem;
-  font-weight: 600;
-}
-
-/* Toast уведомления */
-.toast-container{
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1060;
-}
-.toast-custom{
-  background: white;
-  border: none;
-  border-radius: 0.75rem;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-  border-left: 4px solid var(--bs-primary);
-}
-.toast-success{border-left-color: var(--bs-success);}
-.toast-warning{border-left-color: var(--bs-warning);}
-.toast-danger{border-left-color: var(--bs-danger);}
-
-/* Пустые состояния */
-.empty-state{
-  text-align: center;
-  padding: 3rem 1rem;
-  color: var(--bs-secondary);
-}
-.empty-state-icon{
-  font-size: 4rem;
-  opacity: 0.3;
-  margin-bottom: 1rem;
-}
-.empty-state h3{
-  color: var(--bs-body-color);
-  margin-bottom: 0.5rem;
-}
-.empty-state p{
-  margin-bottom: 2rem;
-  font-size: 1.1rem;
-}
-.empty-state .btn{
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-  border-radius: 0.75rem;
-}
-
 /* таблица категорий (список) */
 .table-modern{width:100%;border-collapse:separate;border-spacing:0 8px}
 .table-modern thead th{font-weight:600;color:var(--bs-secondary);border:0;padding:.25rem .75rem}
@@ -313,8 +146,8 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 </div>
 
 <!-- Быстрое добавление расхода -->
-<div class="quickbar p-4 mb-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
+<div class="quickbar p-3 mb-4">
+  <div class="d-flex align-items-center justify-content-between mb-2">
     <div class="fw-semibold text-primary d-flex align-items-center gap-2">
       <i class="bi bi-lightning-charge-fill"></i> Быстрое добавление расхода
     </div>
@@ -322,110 +155,41 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 
   <form id="quick-expense-form" method="POST" action="/quick-expense">
     <input type="hidden" name="return_month" value="{{ current_month }}">
-    
-    <!-- Мобильная версия - по одному полю на строку -->
-    <div class="d-md-none">
-      <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label fw-semibold">Сумма</label>
-          <div class="input-group input-group-lg">
-            <span class="input-group-text">₽</span>
-            <input type="number" name="amount" id="qe-amount-mobile" step="0.01" min="0.01" 
-                   placeholder="0.00" inputmode="decimal" class="form-control" required>
-          </div>
-        </div>
-        <div class="col-12">
-          <label class="form-label fw-semibold">Категория</label>
-          <select name="category_id" id="qe-category-mobile" class="form-select form-select-lg" required>
-            <option value="">Выберите категорию...</option>
-            {% for cat in categories %}
-              <option value="{{ cat.id }}">{{ cat.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-6">
-          <label class="form-label fw-semibold">Дата</label>
-          <input type="date" name="date" id="qe-date-mobile" value="{{ today }}" class="form-control" required>
-        </div>
-        <div class="col-6">
-          <label class="form-label fw-semibold">Комментарий</label>
-          <input type="text" name="note" id="qe-note-mobile" class="form-control" placeholder="Необязательно">
-        </div>
-        <div class="col-12 d-grid">
-          <button type="submit" id="qe-submit-mobile" class="btn btn-success btn-lg" disabled>
-            <i class="bi bi-plus-lg me-2"></i>Добавить расход
-          </button>
-        </div>
+    <div class="row g-2 align-items-stretch">
+      <!-- дата -->
+      <div class="col-6 col-md-2 q-input">
+        <i class="bi bi-calendar3"></i>
+        <input type="date" name="date" id="qe-date" value="{{ today }}" class="form-control" required>
       </div>
-    </div>
-    
-    <!-- Десктопная версия - компактная форма -->
-    <div class="d-none d-md-block">
-      <div class="row g-2 align-items-stretch">
-        <div class="col-md-2 q-input">
-          <i class="bi bi-calendar3"></i>
-          <input type="date" name="date" id="qe-date" value="{{ today }}" class="form-control" required>
-        </div>
-        <div class="col-md-2 q-input">
-          <i class="bi bi-123"></i>
-          <input type="number" name="amount" id="qe-amount" step="0.01" min="0.01" placeholder="0.00"
-                 inputmode="decimal" class="form-control" required>
-        </div>
-        <div class="col-md-4 q-input">
-          <i class="bi bi-tag"></i>
-          <select name="category_id" id="qe-category" class="form-select" required>
-            <option value="">Категория…</option>
-            {% for cat in categories %}
-              <option value="{{ cat.id }}">{{ cat.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-3 q-input">
-          <i class="bi bi-chat-dots"></i>
-          <input type="text" name="note" id="qe-note" class="form-control" placeholder="Комментарий">
-        </div>
-        <div class="col-md-1 btn-col d-grid">
-          <button type="submit" id="qe-submit" class="btn btn-success btn-add" disabled>
-            <i class="bi bi-plus-lg"></i>
-          </button>
-        </div>
+      <!-- сумма -->
+      <div class="col-6 col-md-2 q-input">
+        <i class="bi bi-123"></i>
+        <input type="number" name="amount" id="qe-amount" step="0.01" min="0.01" placeholder="0.00"
+               inputmode="decimal" class="form-control" required>
+      </div>
+      <!-- категория -->
+      <div class="col-12 col-md-4 q-input">
+        <i class="bi bi-tag"></i>
+        <select name="category_id" id="qe-category" class="form-select" required>
+          <option value="">Категория…</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <!-- комментарий -->
+      <div class="col-12 col-md-3 q-input">
+        <i class="bi bi-chat-dots"></i>
+        <input type="text" name="note" id="qe-note" class="form-control" placeholder="Комментарий (необязательно)">
+      </div>
+      <!-- кнопка -->
+      <div class="col-12 col-md-1 btn-col d-grid">
+        <button type="submit" id="qe-submit" class="btn btn-success btn-add" disabled>
+          <i class="bi bi-plus-lg"></i><span class="d-none d-md-inline">Добавить</span>
+        </button>
       </div>
     </div>
   </form>
-</div>
-
-<!-- Главная карточка баланса -->
-<div class="balance-hero p-4 mb-4">
-  <div class="row align-items-center">
-    <div class="col-md-8">
-      <div class="balance-label">Общий баланс за {{ current_month_name.split()[0] }}</div>
-      <h1 class="balance-amount">{{ (income - budget_data|sum(attribute='spent'))|format_amount }} <small style="font-size:0.6em">₽</small></h1>
-      <div class="d-flex gap-3 mt-3">
-        <div>
-          <small class="d-block opacity-75">Доход:</small>
-          <strong>{{ income|format_amount }} ₽</strong>
-        </div>
-        <div>
-          <small class="d-block opacity-75">Траты:</small>
-          <strong>{{ budget_data|sum(attribute='spent')|format_amount }} ₽</strong>
-        </div>
-        <div>
-          <small class="d-block opacity-75">Лимиты:</small>
-          <strong>{{ budget_data|sum(attribute='limit')|format_amount }} ₽</strong>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4 text-md-end">
-      <div class="balance-actions flex-column flex-md-row">
-        <a href="{{ url_for('expenses') }}" class="btn btn-balance">
-          <i class="bi bi-plus-lg me-2"></i>Добавить расход
-        </a>
-        <a href="{{ url_for('income_page') }}" class="btn btn-balance">
-          <i class="bi bi-arrow-up-circle me-2"></i>Доходы
-        </a>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Источники (если есть) -->
@@ -455,61 +219,9 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 </div>
 {% endif %}
 
-<!-- Категории карточками (мобильная версия) -->
+<!-- Категории списком -->
 {% if budget_data %}
-<div class="d-md-none mb-4">
-  <h5 class="mb-3">Категории ({{ budget_data|length }})</h5>
-  <div class="row g-3">
-    {% for item in budget_data %}
-      {% set progress_percent = (item.limit > 0 and (item.spent / item.limit * 100) or 0) | round(1) %}
-      {% set rest = item.limit - item.spent %}
-      {% set color_class = 'success' if progress_percent < 50 else ('warning' if progress_percent < 80 else 'danger') %}
-      <div class="col-12">
-        <div class="card category-card">
-          <div class="category-color bg-{{ color_class }}"></div>
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div class="category-icon bg-{{ color_class }}-subtle text-{{ color_class }}">
-                <i class="bi bi-tag"></i>
-              </div>
-              <div class="flex-grow-1">
-                <h6 class="mb-1 fw-bold">{{ item.category_name }}</h6>
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-muted small">{{ item.spent|format_amount }} / {{ item.limit|format_amount }} ₽</span>
-                  <span class="badge bg-{{ color_class }}-subtle text-{{ color_class }}">{{ progress_percent }}%</span>
-                </div>
-              </div>
-              <div class="progress-circle-wrapper">
-                <svg class="progress-ring" viewBox="0 0 84 84">
-                  <circle class="bg" cx="42" cy="42" r="40"></circle>
-                  <circle class="progress progress-{{ color_class }}" cx="42" cy="42" r="40" 
-                          style="stroke-dashoffset: {{ 251.3 * (1 - progress_percent / 100) }}"></circle>
-                </svg>
-                <div class="progress-circle-text">{{ progress_percent }}%</div>
-              </div>
-            </div>
-            
-            <div class="category-stats">
-              <div>
-                <small class="text-muted">Осталось:</small>
-                <div class="fw-semibold {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} ₽</div>
-              </div>
-              {% if item.source_name %}
-              <div class="text-end">
-                <small class="text-muted">Источник:</small>
-                <div class="text-primary small fw-semibold">{{ item.source_name }}</div>
-              </div>
-              {% endif %}
-            </div>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-</div>
-
-<!-- Категории таблицей (десктоп) -->
-<div class="d-none d-md-block modern-card">
+<div class="modern-card">
   <div class="card-body table-wrap">
     <table class="table-modern w-100" id="categoriesTable">
       <thead>
@@ -604,73 +316,12 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
     </table>
   </div>
 </div>
-{% else %}
-<!-- Пустое состояние -->
-<div class="empty-state">
-  <div class="empty-state-icon">
-    <i class="bi bi-wallet2"></i>
-  </div>
-  <h3>Начните с создания категорий</h3>
-  <p>Создайте категории для учёта ваших доходов и расходов</p>
-  <a href="{{ url_for('categories') }}" class="btn btn-primary btn-lg">
-    <i class="bi bi-plus-circle me-2"></i>Создать категории
-  </a>
-</div>
 {% endif %}
-
-<!-- Toast контейнер -->
-<div class="toast-container"></div>
 {% endblock %}
 
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // --- Toast уведомления ---
-  function showToast(message, type = 'success') {
-    const toastContainer = document.querySelector('.toast-container');
-    const toastId = 'toast-' + Date.now();
-    
-    const toastHTML = `
-      <div class="toast toast-custom toast-${type}" id="${toastId}" role="alert">
-        <div class="toast-header">
-          <i class="bi bi-${
-            type === 'success' ? 'check-circle-fill text-success' : 
-            type === 'warning' ? 'exclamation-triangle-fill text-warning' : 
-            type === 'danger' ? 'x-circle-fill text-danger' : 
-            'info-circle-fill text-primary'
-          } me-2"></i>
-          <strong class="me-auto">CrystalBudget</strong>
-          <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body">${message}</div>
-      </div>
-    `;
-    
-    toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-    const toastElement = document.getElementById(toastId);
-    const toast = new bootstrap.Toast(toastElement, { delay: 4000 });
-    toast.show();
-    
-    // Удаляем элемент после скрытия
-    toastElement.addEventListener('hidden.bs.toast', () => {
-      toastElement.remove();
-    });
-  }
-  
-  // Показываем toast для flash сообщений
-  const alerts = document.querySelectorAll('.alert');
-  alerts.forEach(alert => {
-    const message = alert.textContent.trim();
-    const type = alert.classList.contains('alert-success') ? 'success' : 
-                 alert.classList.contains('alert-danger') ? 'danger' : 
-                 alert.classList.contains('alert-warning') ? 'warning' : 'info';
-    
-    if (message) {
-      setTimeout(() => showToast(message, type), 100);
-      alert.style.display = 'none';
-    }
-  });
-
   // --- Отображение текущей даты и дня недели ---
   const dateDisplay = document.getElementById('current-date-display');
   const dayDisplay = document.getElementById('current-day-display');
@@ -686,97 +337,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // --- Быстрое добавление расхода ---
   const f = document.getElementById('quick-expense-form');
-  
-  // Элементы десктопной формы
   const dateEl = document.getElementById('qe-date');
   const catEl  = document.getElementById('qe-category');
   const amtEl  = document.getElementById('qe-amount');
   const noteEl = document.getElementById('qe-note');
   const btn    = document.getElementById('qe-submit');
-  
-  // Элементы мобильной формы
-  const dateElMobile = document.getElementById('qe-date-mobile');
-  const catElMobile  = document.getElementById('qe-category-mobile');
-  const amtElMobile  = document.getElementById('qe-amount-mobile');
-  const noteElMobile = document.getElementById('qe-note-mobile');
-  const btnMobile    = document.getElementById('qe-submit-mobile');
 
-  // Устанавливаем текущую дату если не задана
-  [dateEl, dateElMobile].forEach(el => {
-    if (el && !el.value) { 
-      const d = new Date(); 
-      el.value = d.toISOString().slice(0,10); 
-    }
-  });
+  if (dateEl && !dateEl.value) { const d=new Date(); dateEl.value=d.toISOString().slice(0,10); }
 
-  // Функция валидации для обеих форм
+  if (catEl && amtEl) { catEl.addEventListener('change', () => { if (catEl.value) setTimeout(()=>amtEl.focus(),50); }); }
+
   function validate(){
-    // Десктопная форма
-    if (dateEl && catEl && amtEl && btn) {
-      const ok = !!(dateEl.value && catEl.value && parseFloat(amtEl.value) > 0);
-      btn.disabled = !ok;
-    }
-    
-    // Мобильная форма
-    if (dateElMobile && catElMobile && amtElMobile && btnMobile) {
-      const ok = !!(dateElMobile.value && catElMobile.value && parseFloat(amtElMobile.value) > 0);
-      btnMobile.disabled = !ok;
-    }
+    const ok = !!(dateEl.value && catEl.value && parseFloat(amtEl.value) > 0);
+    btn.disabled = !ok;
   }
-
-  // Добавляем обработчики для всех элементов
-  [dateEl, catEl, amtEl, dateElMobile, catElMobile, amtElMobile].forEach(el => {
-    if (el) {
-      ['input','change'].forEach(ev => {
-        el.addEventListener(ev, validate);
-      });
-    }
+  ['input','change'].forEach(ev=>{
+    dateEl.addEventListener(ev,validate);
+    catEl.addEventListener(ev,validate);
+    amtEl.addEventListener(ev,validate);
   });
-  
-  // Enter для отправки формы
-  [amtEl, noteEl, amtElMobile, noteElMobile].forEach(el=>{
-    if (el) {
-      el.addEventListener('keydown',(e)=>{ 
-        if(e.key==='Enter'){ 
-          e.preventDefault(); 
-          const currentBtn = el.id.includes('mobile') ? btnMobile : btn;
-          if(currentBtn && !currentBtn.disabled) f.requestSubmit(); 
-        }
-      });
-    }
-  });
-
-  // Отключаем скролл на числовых полях
-  [amtEl, amtElMobile].forEach(el => {
-    if (el) el.addEventListener('wheel',(e)=>{ e.preventDefault(); },{passive:false});
-  });
-
-  // Фокус на следующее поле после выбора категории
-  if (catEl && amtEl) { 
-    catEl.addEventListener('change', () => { 
-      if (catEl.value) setTimeout(()=>amtEl.focus(),50); 
-    }); 
-  }
-  if (catElMobile && amtElMobile) { 
-    catElMobile.addEventListener('change', () => { 
-      if (catElMobile.value) setTimeout(()=>amtElMobile.focus(),50); 
-    }); 
-  }
-  
-  // Анимация успешного добавления
-  f.addEventListener('submit', function() {
-    const activeBtn = window.innerWidth >= 768 ? btn : btnMobile;
-    if (activeBtn && !activeBtn.disabled) {
-      activeBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Добавляется...';
-      activeBtn.disabled = true;
-      
-      setTimeout(() => {
-        showToast('Расход добавлен!', 'success');
-      }, 100);
-    }
-  });
-
   validate();
+
+  [amtEl, noteEl].forEach(el=>{
+    el.addEventListener('keydown',(e)=>{ if(e.key==='Enter'){ e.preventDefault(); if(!btn.disabled) f.requestSubmit(); }});
+  });
+
+  if (amtEl) amtEl.addEventListener('wheel',(e)=>{ e.preventDefault(); },{passive:false});
 
   // --- Сортировка таблицы категорий ---
   document.querySelectorAll('.sortable').forEach(header => {
