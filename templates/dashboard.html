@@ -282,20 +282,13 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
             </td>
             <td class="text-end currency {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
             <td class="text-end mobile-compact">
-              {% if item.spent > item.limit %}
-                <span class="badge-soft badge-soft-danger">
-                  <span class="d-none d-md-inline">Превышен</span>
-                  <span class="d-md-none">❌</span>
-                </span>
-              {% elif item.limit > 0 and (item.spent / item.limit) > 0.8 %}
-                <span class="badge-soft badge-soft-warning">
-                  <span class="d-none d-md-inline">Почти предел</span>
-                  <span class="d-md-none">⚠️</span>
-                </span>
+              {% if item.source_name %}
+                <span class="d-none d-md-inline text-primary small">{{ item.source_name }}</span>
+                <span class="d-md-none text-primary small">{{ item.source_name[:8] }}{{ '...' if item.source_name|length > 8 else '' }}</span>
               {% else %}
-                <span class="badge-soft badge-soft-success">
-                  <span class="d-none d-md-inline">В норме</span>
-                  <span class="d-md-none">✅</span>
+                <span class="text-muted small">
+                  <span class="d-none d-md-inline">Не привязано</span>
+                  <span class="d-md-none">—</span>
                 </span>
               {% endif %}
             </td>

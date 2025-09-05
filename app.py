@@ -531,8 +531,17 @@ def dashboard():
                 spent = float(s["spent"])
                 break
 
+        # Получаем информацию об источнике дохода для категории
+        source_id = rule_map.get(cat_id)
+        source_name = None
+        if source_id:
+            for s in sources:
+                if s["id"] == source_id:
+                    source_name = s["name"]
+                    break
+        
         data.append(
-            dict(category_name=row["name"], limit=limit_val, spent=spent, id=cat_id)
+            dict(category_name=row["name"], limit=limit_val, spent=spent, id=cat_id, source_name=source_name)
         )
 
     # ---- Балансы по источникам в выбранном месяце ----
