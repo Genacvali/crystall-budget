@@ -2043,6 +2043,32 @@ app.jinja_loader = ChoiceLoader(
 )
 
 # -----------------------------------------------------------------------------
+# Health check endpoint для мониторинга
+# -----------------------------------------------------------------------------
+@app.route('/health')
+def health_check():
+    """Simple health check endpoint for monitoring."""
+    try:
+        # Проверяем подключение к базе данных
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT 1")
+        conn.close()
+        
+        return {
+            "status": "healthy",
+            "timestamp": datetime.now().isoformat(),
+            "version": "1.0"
+        }, 200
+    except Exception as e:
+        app.logger.error(f"Health check failed: {e}")
+        return {
+            "status": "unhealthy", 
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        }, 503
+
+# -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
 if __name__ == "__main__":

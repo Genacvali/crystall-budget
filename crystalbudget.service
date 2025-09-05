@@ -1,0 +1,43 @@
+[Unit]
+Description=CrystalBudget Flask Application
+After=network.target
+
+[Service]
+Type=exec
+User=www-data
+Group=www-data
+WorkingDirectory=/opt/crystalbudget
+Environment="SECRET_KEY=your-production-secret-key-change-this"
+Environment="BUDGET_DB=/opt/crystalbudget/budget.db"
+Environment="HTTPS_MODE=true"
+Environment="LOG_LEVEL=INFO"
+ExecStart=/opt/crystalbudget/.venv/bin/gunicorn \
+    --bind 127.0.0.1:5000 \
+    --workers 2 \
+    --timeout 120 \
+    --keep-alive 5 \
+    --max-requests 1000 \
+    --max-requests-jitter 100 \
+    --preload \
+    --access-logfile /var/log/crystalbudget/access.log \
+    --error-logfile /var/log/crystalbudget/error.log \
+    --log-level info \
+    app:app
+
+# Автоматический перезапуск при падении
+Restart=always
+RestartSec=10
+
+# Безопасность
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/crystalbudget /var/log/crystalbudget
+PrivateTmp=true
+
+# Лимиты ресурсов
+LimitNOFILE=65536
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target
