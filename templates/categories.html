@@ -9,6 +9,8 @@
   .w-min-160 { min-width: 160px; }
   .actions-col { min-width: 220px; }
   .btn, .btn * { white-space: nowrap; }
+  .btn-col{ min-width: 160px; }
+  .btn-col .btn{ white-space: nowrap; }
   .save-badge {
     font-size: .8rem; color: #198754; opacity: 0; transition: opacity .25s ease;
     margin-left: .5rem;
@@ -41,24 +43,27 @@
     </h5>
     <form method="POST" action="{{ url_for('categories_add') }}">
       <input type="hidden" name="category_type" value="expense">
-      <div class="row g-3">
-        <div class="col-12 col-md-4">
+      <div class="row g-2 g-md-3 align-items-end">
+        <div class="col-12 col-lg-4">
           <label class="form-label">Название</label>
           <input type="text" name="name" class="form-control" placeholder="Например, Продукты" required>
         </div>
-        <div class="col-6 col-md-2">
+
+        <div class="col-6 col-lg-2">
           <label class="form-label">Тип лимита</label>
           <select name="limit_type" class="form-select" required>
             <option value="fixed">Фиксированная сумма</option>
             <option value="percent">Процент от дохода</option>
           </select>
         </div>
-        <div class="col-6 col-md-2">
+
+        <div class="col-6 col-lg-2">
           <label class="form-label">Значение</label>
           <input type="number" name="value" step="0.01" min="0.01" inputmode="decimal"
                  class="form-control" placeholder="Сумма или %" required>
         </div>
-        <div class="col-12 col-md-3">
+
+        <div class="col-12 col-lg-3">
           <label class="form-label">Привязать к источнику</label>
           <select name="source_id" class="form-select">
             <option value="">(не привязывать)</option>
@@ -67,8 +72,9 @@
             {% endfor %}
           </select>
         </div>
-        <div class="col-12 col-md-1 d-grid">
-          <label class="form-label d-none d-md-block">&nbsp;</label>
+
+        <div class="col-12 col-lg-auto d-grid btn-col">
+          <label class="form-label d-none d-lg-block">&nbsp;</label>
           <button class="btn btn-primary">
             <i class="bi bi-check-lg me-1"></i> Добавить
           </button>
@@ -86,12 +92,13 @@
     </h5>
     <form method="POST" action="{{ url_for('categories_add') }}">
       <input type="hidden" name="category_type" value="income">
-      <div class="row g-3">
-        <div class="col-md-4">
+      <div class="row g-2 g-md-3 align-items-end">
+        <div class="col-12 col-lg-4">
           <label class="form-label">Название</label>
           <input type="text" name="name" class="form-control" placeholder="Например, Зарплата" required>
         </div>
-        <div class="col-md-3">
+
+        <div class="col-12 col-lg-3">
           <label class="form-label">Привязать к источнику</label>
           <select name="source_id" class="form-select">
             <option value="">(не привязывать)</option>
@@ -100,14 +107,16 @@
             {% endfor %}
           </select>
         </div>
-        <div class="col-md-2">
+
+        <div class="col-6 col-lg-2">
           <label class="form-label">Целевая сумма</label>
           <input type="number" name="value" step="0.01" min="0.01" inputmode="decimal"
                  class="form-control" placeholder="Ожидаемая сумма" required>
           <input type="hidden" name="limit_type" value="fixed">
         </div>
-        <div class="col-md-2 d-grid">
-          <label class="form-label d-none d-md-block">&nbsp;</label>
+
+        <div class="col-12 col-lg-auto d-grid btn-col">
+          <label class="form-label d-none d-lg-block">&nbsp;</label>
           <button class="btn btn-success">
             <i class="bi bi-check-lg me-1"></i> Добавить
           </button>
