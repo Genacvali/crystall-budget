@@ -15,9 +15,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # App config
 # -----------------------------------------------------------------------------
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY") or "dev-only-insecure-key-change-in-production"
-if app.secret_key == "dev-only-insecure-key-change-in-production":
+
+# Стабильный секретный ключ (вынесен в переменную окружения)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-only-insecure-key-change-in-production')
+if app.config['SECRET_KEY'] == 'dev-only-insecure-key-change-in-production':
     print("WARNING: Using insecure default secret key. Set SECRET_KEY environment variable for production!")
+
+# Долгая "постоянная" сессия (30 дней)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
+
+# Атрибуты куки для безопасности и PWA
+# Для dev-сервера на http оставляем False, для prod на https - True
+app.config['SESSION_COOKIE_SECURE'] = os.environ.get('HTTPS_MODE', 'False').lower() == 'true'
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Для обычного случая
+# Если нужны поддомены, раскомментируй:
+# app.config['SESSION_COOKIE_DOMAIN'] = '.yourdomain.com'
+
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
 
 # Валюты
@@ -311,6 +324,11 @@ def get_source_for_category(conn, user_id, category_id):
     ).fetchone()
     return row["source_id"] if row else None
 
+
+# Делаем все сессии permanent по умолчанию
+@app.before_request
+def make_session_permanent():
+    session.permanent = True
 
 # -----------------------------------------------------------------------------
 # Routes: currency switcher
