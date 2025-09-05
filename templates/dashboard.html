@@ -35,29 +35,35 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 .table-modern .progress{height:8px;background:#eef1f4}
 .table-modern .progress-bar{transition:width .3s ease}
 
-/* Mobile responsive table */
-@media (max-width: 768px) {
-  .table-modern thead th {
-    padding: .25rem .5rem;
-    font-size: 0.85rem;
+/* --- Мобильно-адаптивная таблица категорий --- */
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+@media (max-width: 768px){
+  /* Скрыть «Лимит» и «Прогресс» на телефоне */
+  .hide-mobile{display:none !important;}
+
+  /* Чуть компактнее таблицу */
+  .table-modern thead th{padding:.25rem .45rem;font-size:.9rem}
+  .table-modern tbody td{padding:.5rem .45rem;font-size:.95rem}
+
+  /* Название категории — обрезать с эллипсисом, чтобы влезало */
+  .table-modern .cell-title{
+    max-width: 52vw;             /* под iPhone 390–430px */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .table-modern tbody td {
-    padding: .5rem .5rem;
-    font-size: 0.9rem;
-  }
-  .table-modern .hide-mobile {
-    display: none;
-  }
-  .table-modern .mobile-compact {
+
+  /* Суммы: разрешить перенос знака валюты/разрядов при нехватке места */
+  .currency{white-space:normal; word-break:break-word}
+
+  /* Бейджи поменьше */
+  .badge-soft{font-size:.75rem; padding:.2rem .4rem}
+  
+  /* Компактные стили */
+  .mobile-compact {
     font-size: 0.8rem;
-    padding: .25rem .5rem !important;
-  }
-  .currency {
-    font-size: 0.85rem;
-  }
-  .badge-soft {
-    font-size: 0.75rem;
-    padding: .2rem .4rem;
+    padding: .25rem .45rem !important;
   }
 }
 .badge-soft{border-radius:999px;padding:.35rem .6rem;font-weight:600}
@@ -205,7 +211,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 <!-- Категории списком -->
 {% if budget_data %}
 <div class="modern-card">
-  <div class="card-body">
+  <div class="card-body table-wrap">
     <table class="table-modern w-100" id="categoriesTable">
       <thead>
         <tr>
@@ -230,7 +236,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
           </th>
           <th class="text-end sortable mobile-compact" data-sort="status">
             <span class="d-none d-md-inline">Источник дохода</span>
-            <span class="d-md-none">Стат</span>
+            <span class="d-md-none">Источник</span>
             <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
           </th>
         </tr>
