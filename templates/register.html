@@ -11,13 +11,14 @@
                     <p class="text-muted">Создайте свой аккаунт CrystalBudget</p>
                 </div>
                 
-                <form method="POST" novalidate>
+                <form method="POST" novalidate id="registerForm">
                     <div class="mb-3">
                         <label for="name" class="form-label">
                             <i class="bi bi-person"></i> Имя
                         </label>
                         <input type="text" id="name" name="name" class="form-control" 
                                placeholder="Ваше имя" required autocomplete="name">
+                        <div class="invalid-feedback">Пожалуйста, введите ваше имя</div>
                     </div>
                     
                     <div class="mb-3">
@@ -26,6 +27,7 @@
                         </label>
                         <input type="email" id="email" name="email" class="form-control" 
                                placeholder="your@email.com" required autocomplete="email">
+                        <div class="invalid-feedback">Пожалуйста, введите корректный email адрес</div>
                     </div>
                     
                     <div class="mb-4">
@@ -35,10 +37,11 @@
                         <input type="password" id="password" name="password" class="form-control" 
                                placeholder="Создайте пароль" required autocomplete="new-password"
                                minlength="6">
-                        <div class="form-text">Минимум 6 символов</div>
+                        <div class="form-text">Минимум 6 символов, без пробелов</div>
+                        <div class="invalid-feedback">Пароль должен содержать минимум 6 символов и не содержать пробелов</div>
                     </div>
                     
-                    <button type="submit" class="btn btn-success w-100 mb-3">
+                    <button type="submit" class="btn btn-success w-100 mb-3" id="submitBtn">
                         <i class="bi bi-person-plus"></i> Создать аккаунт
                     </button>
                 </form>
@@ -69,4 +72,116 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('registerForm');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    
+    // Email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    function validateName(value) {
+        return value.trim().length > 0;
+    }
+    
+    function validateEmail(value) {
+        return emailRegex.test(value.trim());
+    }
+    
+    function validatePassword(value) {
+        return value.length >= 6 && !value.includes(' ');
+    }
+    
+    function showError(input, message) {
+        input.classList.add('is-invalid');
+        input.classList.remove('is-valid');
+    }
+    
+    function showSuccess(input) {
+        input.classList.add('is-valid');
+        input.classList.remove('is-invalid');
+    }
+    
+    function clearValidation(input) {
+        input.classList.remove('is-valid', 'is-invalid');
+    }
+    
+    // Real-time validation
+    nameInput.addEventListener('input', function() {
+        const value = this.value;
+        if (value.length === 0) {
+            clearValidation(this);
+        } else if (validateName(value)) {
+            showSuccess(this);
+        } else {
+            showError(this);
+        }
+    });
+    
+    emailInput.addEventListener('input', function() {
+        const value = this.value;
+        if (value.length === 0) {
+            clearValidation(this);
+        } else if (validateEmail(value)) {
+            showSuccess(this);
+        } else {
+            showError(this);
+        }
+    });
+    
+    passwordInput.addEventListener('input', function() {
+        const value = this.value;
+        if (value.length === 0) {
+            clearValidation(this);
+        } else if (validatePassword(value)) {
+            showSuccess(this);
+        } else {
+            showError(this);
+        }
+    });
+    
+    // Form submission validation
+    form.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        const nameValue = nameInput.value;
+        const emailValue = emailInput.value;
+        const passwordValue = passwordInput.value;
+        
+        // Validate name
+        if (!validateName(nameValue)) {
+            showError(nameInput);
+            isValid = false;
+        } else {
+            showSuccess(nameInput);
+        }
+        
+        // Validate email
+        if (!validateEmail(emailValue)) {
+            showError(emailInput);
+            isValid = false;
+        } else {
+            showSuccess(emailInput);
+        }
+        
+        // Validate password
+        if (!validatePassword(passwordValue)) {
+            showError(passwordInput);
+            isValid = false;
+        } else {
+            showSuccess(passwordInput);
+        }
+        
+        if (!isValid) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    });
+});
+</script>
 {% endblock %}
