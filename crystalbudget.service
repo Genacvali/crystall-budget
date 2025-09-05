@@ -4,14 +4,14 @@ After=network.target
 
 [Service]
 Type=exec
-User=www-data
-Group=www-data
-WorkingDirectory=/opt/crystalbudget
+User=root
+Group=root
+WorkingDirectory=/root/crystall-budget
 Environment="SECRET_KEY=your-production-secret-key-change-this"
-Environment="BUDGET_DB=/opt/crystalbudget/budget.db"
+Environment="BUDGET_DB=/root/crystall-budget/budget.db"
 Environment="HTTPS_MODE=true"
 Environment="LOG_LEVEL=INFO"
-ExecStart=/opt/crystalbudget/.venv/bin/gunicorn \
+ExecStart=/root/crystall-budget/.venv/bin/gunicorn \
     --bind 127.0.0.1:5000 \
     --workers 2 \
     --timeout 120 \
@@ -31,8 +31,7 @@ RestartSec=10
 # Безопасность
 NoNewPrivileges=true
 ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/opt/crystalbudget /var/log/crystalbudget
+ReadWritePaths=/root/crystall-budget /var/log/crystalbudget
 PrivateTmp=true
 
 # Лимиты ресурсов
