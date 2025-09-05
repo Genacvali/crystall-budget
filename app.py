@@ -331,6 +331,34 @@ def make_session_permanent():
     session.permanent = True
 
 # -----------------------------------------------------------------------------
+# Routes: favicon and static files
+# -----------------------------------------------------------------------------
+@app.route('/favicon.ico')
+def favicon():
+    return redirect(url_for('static', filename='icons/icon-192.png'))
+
+# Error handlers
+@app.errorhandler(400)
+def bad_request(error):
+    return render_template_string('''
+    <div style="text-align: center; padding: 2rem; font-family: Arial, sans-serif;">
+        <h2>🚫 Плохой запрос</h2>
+        <p>Браузер отправил запрос, который сервер не смог понять.</p>
+        <a href="{{ url_for('dashboard') }}" style="color: #0d6efd;">← Вернуться на главную</a>
+    </div>
+    '''), 400
+
+@app.errorhandler(404)
+def page_not_found(error):
+    return render_template_string('''
+    <div style="text-align: center; padding: 2rem; font-family: Arial, sans-serif;">
+        <h2>💎 Страница не найдена</h2>
+        <p>Запрашиваемая страница не существует.</p>
+        <a href="{{ url_for('dashboard') }}" style="color: #0d6efd;">← Вернуться на главную</a>
+    </div>
+    '''), 404
+
+# -----------------------------------------------------------------------------
 # Routes: currency switcher
 # -----------------------------------------------------------------------------
 @app.route("/set-currency", methods=["POST"])
