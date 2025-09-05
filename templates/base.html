@@ -373,7 +373,48 @@
   <nav class="navbar navbar-expand-lg navbar-modern">
     <div class="container-fluid">
       <a class="navbar-brand-modern" href="{{ url_for('dashboard') }}">
-        <i class="bi bi-gem"></i> CrystalBudget
+        <svg class="ff-crystal" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="crystalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
+              <stop offset="25%" style="stop-color:#3B82F6;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#1D4ED8;stop-opacity:1" />
+              <stop offset="75%" style="stop-color:#1E40AF;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="crystalHighlight" x1="0%" y1="0%" x2="100%" y2="50%">
+              <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.8" />
+              <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0.1" />
+            </linearGradient>
+            <filter id="crystalGlow">
+              <feGaussianBlur stdDeviation="1" result="coloredBlur"/>
+              <feMerge> 
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- Main crystal body -->
+          <path d="M12 2L16 6L20 10L16 18L12 22L8 18L4 10L8 6L12 2Z" 
+                fill="url(#crystalGradient)" 
+                stroke="url(#crystalGradient)" 
+                stroke-width="0.5" 
+                filter="url(#crystalGlow)"/>
+          
+          <!-- Crystal facets -->
+          <path d="M12 2L16 6L12 10L8 6Z" fill="url(#crystalHighlight)" opacity="0.4"/>
+          <path d="M8 6L12 10L4 10Z" fill="#1E40AF" opacity="0.6"/>
+          <path d="M16 6L20 10L12 10Z" fill="#1E40AF" opacity="0.6"/>
+          <path d="M12 10L16 18L12 22Z" fill="#1E3A8A" opacity="0.8"/>
+          <path d="M12 10L8 18L12 22Z" fill="#1E3A8A" opacity="0.8"/>
+          
+          <!-- Highlight lines -->
+          <path d="M12 2L12 22" stroke="#60A5FA" stroke-width="0.5" opacity="0.6"/>
+          <path d="M8 6L16 18" stroke="#3B82F6" stroke-width="0.3" opacity="0.4"/>
+          <path d="M16 6L8 18" stroke="#3B82F6" stroke-width="0.3" opacity="0.4"/>
+        </svg>
+        CrystalBudget
       </a>
 
       <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
@@ -448,7 +489,37 @@
   <div class="sidebar d-lg-none" id="sidebar">
     <div class="sidebar-header">
       <a class="sidebar-brand" href="{{ url_for('dashboard') }}">
-        <i class="bi bi-gem"></i> CrystalBudget
+        <svg class="ff-crystal" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="crystalGradientSidebar" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1" />
+              <stop offset="25%" style="stop-color:#3B82F6;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#1D4ED8;stop-opacity:1" />
+              <stop offset="75%" style="stop-color:#1E40AF;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="crystalHighlightSidebar" x1="0%" y1="0%" x2="100%" y2="50%">
+              <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.8" />
+              <stop offset="100%" style="stop-color:#FFFFFF;stop-opacity:0.1" />
+            </linearGradient>
+          </defs>
+          
+          <path d="M12 2L16 6L20 10L16 18L12 22L8 18L4 10L8 6L12 2Z" 
+                fill="url(#crystalGradientSidebar)" 
+                stroke="url(#crystalGradientSidebar)" 
+                stroke-width="0.5"/>
+          
+          <path d="M12 2L16 6L12 10L8 6Z" fill="url(#crystalHighlightSidebar)" opacity="0.4"/>
+          <path d="M8 6L12 10L4 10Z" fill="#1E40AF" opacity="0.6"/>
+          <path d="M16 6L20 10L12 10Z" fill="#1E40AF" opacity="0.6"/>
+          <path d="M12 10L16 18L12 22Z" fill="#1E3A8A" opacity="0.8"/>
+          <path d="M12 10L8 18L12 22Z" fill="#1E3A8A" opacity="0.8"/>
+          
+          <path d="M12 2L12 22" stroke="#60A5FA" stroke-width="0.5" opacity="0.6"/>
+          <path d="M8 6L16 18" stroke="#3B82F6" stroke-width="0.3" opacity="0.4"/>
+          <path d="M16 6L8 18" stroke="#3B82F6" stroke-width="0.3" opacity="0.4"/>
+        </svg>
+        CrystalBudget
       </a>
       <button class="sidebar-close" onclick="closeSidebar()">
         <i class="bi bi-x-lg"></i>
