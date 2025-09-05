@@ -320,87 +320,6 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   </div>
 </div>
 
-<!-- Быстрое добавление расхода -->
-<div class="quickbar p-4 mb-4">
-  <div class="d-flex align-items-center justify-content-between mb-3">
-    <div class="fw-semibold text-primary d-flex align-items-center gap-2">
-      <i class="bi bi-lightning-charge-fill"></i> Быстрое добавление расхода
-    </div>
-  </div>
-
-  <form id="quick-expense-form" method="POST" action="/quick-expense">
-    <input type="hidden" name="return_month" value="{{ current_month }}">
-    
-    <!-- Мобильная версия - по одному полю на строку -->
-    <div class="d-md-none">
-      <div class="row g-3">
-        <div class="col-12">
-          <label class="form-label fw-semibold">Сумма</label>
-          <div class="input-group input-group-lg">
-            <span class="input-group-text">₽</span>
-            <input type="number" name="amount" id="qe-amount-mobile" step="0.01" min="0.01" 
-                   placeholder="0.00" inputmode="decimal" class="form-control" required>
-          </div>
-        </div>
-        <div class="col-12">
-          <label class="form-label fw-semibold">Категория</label>
-          <select name="category_id" id="qe-category-mobile" class="form-select form-select-lg" required>
-            <option value="">Выберите категорию...</option>
-            {% for cat in categories %}
-              <option value="{{ cat.id }}">{{ cat.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-6">
-          <label class="form-label fw-semibold">Дата</label>
-          <input type="date" name="date" id="qe-date-mobile" value="{{ today }}" class="form-control" required>
-        </div>
-        <div class="col-6">
-          <label class="form-label fw-semibold">Комментарий</label>
-          <input type="text" name="note" id="qe-note-mobile" class="form-control" placeholder="Необязательно">
-        </div>
-        <div class="col-12 d-grid">
-          <button type="submit" id="qe-submit-mobile" class="btn btn-success btn-lg" disabled>
-            <i class="bi bi-plus-lg me-2"></i>Добавить расход
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Десктопная версия - компактная форма -->
-    <div class="d-none d-md-block">
-      <div class="row g-2 align-items-stretch">
-        <div class="col-md-2 q-input">
-          <i class="bi bi-calendar3"></i>
-          <input type="date" name="date" id="qe-date" value="{{ today }}" class="form-control" required>
-        </div>
-        <div class="col-md-2 q-input">
-          <i class="bi bi-123"></i>
-          <input type="number" name="amount" id="qe-amount" step="0.01" min="0.01" placeholder="0.00"
-                 inputmode="decimal" class="form-control" required>
-        </div>
-        <div class="col-md-4 q-input">
-          <i class="bi bi-tag"></i>
-          <select name="category_id" id="qe-category" class="form-select" required>
-            <option value="">Категория…</option>
-            {% for cat in categories %}
-              <option value="{{ cat.id }}">{{ cat.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="col-md-3 q-input">
-          <i class="bi bi-chat-dots"></i>
-          <input type="text" name="note" id="qe-note" class="form-control" placeholder="Комментарий">
-        </div>
-        <div class="col-md-1 btn-col d-grid">
-          <button type="submit" id="qe-submit" class="btn btn-success btn-add" disabled>
-            <i class="bi bi-plus-lg"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </form>
-</div>
 
 <!-- Главная карточка баланса -->
 <div class="balance-hero p-3 mb-4">
@@ -426,12 +345,12 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
     </div>
     <div class="col-md-4 text-md-end mt-3 mt-md-0">
       <div class="balance-actions">
-        <a href="{{ url_for('expenses') }}" class="btn btn-balance">
+        <button type="button" class="btn btn-balance" data-bs-toggle="modal" data-bs-target="#expenseModal">
           <i class="bi bi-plus-lg me-1"></i><span class="d-none d-lg-inline">Добавить </span>Расход
-        </a>
-        <a href="{{ url_for('income_page') }}" class="btn btn-balance">
+        </button>
+        <button type="button" class="btn btn-balance" data-bs-toggle="modal" data-bs-target="#incomeModal">
           <i class="bi bi-arrow-up-circle me-1"></i>Доходы
-        </a>
+        </button>
       </div>
     </div>
   </div>
@@ -629,6 +548,119 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 
 <!-- Toast контейнер -->
 <div class="toast-container"></div>
+
+<!-- Модальное окно добавления расхода -->
+<div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="expenseModalLabel">
+          <i class="bi bi-wallet2 me-2 text-danger"></i>Добавить расход
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <form id="expense-form" method="POST" action="/quick-expense">
+        <input type="hidden" name="return_month" value="{{ current_month }}">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-currency-exchange me-1"></i>Сумма
+              </label>
+              <div class="input-group input-group-lg">
+                <span class="input-group-text">₽</span>
+                <input type="number" name="amount" id="expense-amount" step="0.01" min="0.01" 
+                       placeholder="0.00" inputmode="decimal" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-tag me-1"></i>Категория
+              </label>
+              <select name="category_id" id="expense-category" class="form-select form-select-lg" required>
+                <option value="">Выберите категорию...</option>
+                {% for cat in categories %}
+                  <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-calendar3 me-1"></i>Дата
+              </label>
+              <input type="date" name="date" id="expense-date" value="{{ today }}" class="form-control" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-chat-dots me-1"></i>Комментарий
+              </label>
+              <input type="text" name="note" id="expense-note" class="form-control" placeholder="Необязательно">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" id="expense-submit" class="btn btn-success btn-lg" disabled>
+            <i class="bi bi-check-lg me-2"></i>Добавить расход
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Модальное окно добавления дохода -->
+<div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="incomeModalLabel">
+          <i class="bi bi-arrow-up-circle me-2 text-success"></i>Добавить доход
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <form id="income-form" method="POST" action="{{ url_for('income_add') }}">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-currency-exchange me-1"></i>Сумма
+              </label>
+              <div class="input-group input-group-lg">
+                <span class="input-group-text">₽</span>
+                <input type="number" name="amount" id="income-amount" step="0.01" min="0.01" 
+                       placeholder="0.00" inputmode="decimal" class="form-control" required>
+              </div>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-calendar3 me-1"></i>Дата
+              </label>
+              <input type="date" name="date" id="income-date" value="{{ today }}" class="form-control" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-building me-1"></i>Источник
+              </label>
+              <select name="source_id" id="income-source" class="form-select">
+                <option value="">(не указан)</option>
+                {% for s in sources %}
+                  <option value="{{ s.id }}">{{ s.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" id="income-submit" class="btn btn-success btn-lg" disabled>
+            <i class="bi bi-check-lg me-2"></i>Добавить доход
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -693,99 +725,131 @@ document.addEventListener('DOMContentLoaded', function () {
     dayDisplay.textContent = dayStr;
   }
 
-  // --- Быстрое добавление расхода ---
-  const f = document.getElementById('quick-expense-form');
+  // --- Модальные формы ---
+  // Элементы формы расходов
+  const expenseForm = document.getElementById('expense-form');
+  const expenseDate = document.getElementById('expense-date');
+  const expenseCategory = document.getElementById('expense-category');
+  const expenseAmount = document.getElementById('expense-amount');
+  const expenseNote = document.getElementById('expense-note');
+  const expenseBtn = document.getElementById('expense-submit');
   
-  // Элементы десктопной формы
-  const dateEl = document.getElementById('qe-date');
-  const catEl  = document.getElementById('qe-category');
-  const amtEl  = document.getElementById('qe-amount');
-  const noteEl = document.getElementById('qe-note');
-  const btn    = document.getElementById('qe-submit');
+  // Элементы формы доходов
+  const incomeForm = document.getElementById('income-form');
+  const incomeDate = document.getElementById('income-date');
+  const incomeAmount = document.getElementById('income-amount');
+  const incomeBtn = document.getElementById('income-submit');
+
+  // Устанавливаем текущую дату
+  if (expenseDate && !expenseDate.value) {
+    const d = new Date();
+    expenseDate.value = d.toISOString().slice(0,10);
+  }
+  if (incomeDate && !incomeDate.value) {
+    const d = new Date();
+    incomeDate.value = d.toISOString().slice(0,10);
+  }
+
+  // Функция валидации форм
+  function validateExpenseForm() {
+    if (expenseDate && expenseCategory && expenseAmount && expenseBtn) {
+      const ok = !!(expenseDate.value && expenseCategory.value && parseFloat(expenseAmount.value) > 0);
+      expenseBtn.disabled = !ok;
+    }
+  }
   
-  // Элементы мобильной формы
-  const dateElMobile = document.getElementById('qe-date-mobile');
-  const catElMobile  = document.getElementById('qe-category-mobile');
-  const amtElMobile  = document.getElementById('qe-amount-mobile');
-  const noteElMobile = document.getElementById('qe-note-mobile');
-  const btnMobile    = document.getElementById('qe-submit-mobile');
-
-  // Устанавливаем текущую дату если не задана
-  [dateEl, dateElMobile].forEach(el => {
-    if (el && !el.value) { 
-      const d = new Date(); 
-      el.value = d.toISOString().slice(0,10); 
-    }
-  });
-
-  // Функция валидации для обеих форм
-  function validate(){
-    // Десктопная форма
-    if (dateEl && catEl && amtEl && btn) {
-      const ok = !!(dateEl.value && catEl.value && parseFloat(amtEl.value) > 0);
-      btn.disabled = !ok;
-    }
-    
-    // Мобильная форма
-    if (dateElMobile && catElMobile && amtElMobile && btnMobile) {
-      const ok = !!(dateElMobile.value && catElMobile.value && parseFloat(amtElMobile.value) > 0);
-      btnMobile.disabled = !ok;
+  function validateIncomeForm() {
+    if (incomeDate && incomeAmount && incomeBtn) {
+      const ok = !!(incomeDate.value && parseFloat(incomeAmount.value) > 0);
+      incomeBtn.disabled = !ok;
     }
   }
 
-  // Добавляем обработчики для всех элементов
-  [dateEl, catEl, amtEl, dateElMobile, catElMobile, amtElMobile].forEach(el => {
+  // Добавляем обработчики для формы расходов
+  [expenseDate, expenseCategory, expenseAmount].forEach(el => {
     if (el) {
       ['input','change'].forEach(ev => {
-        el.addEventListener(ev, validate);
+        el.addEventListener(ev, validateExpenseForm);
       });
     }
   });
   
-  // Enter для отправки формы
-  [amtEl, noteEl, amtElMobile, noteElMobile].forEach(el=>{
+  // Добавляем обработчики для формы доходов
+  [incomeDate, incomeAmount].forEach(el => {
     if (el) {
-      el.addEventListener('keydown',(e)=>{ 
-        if(e.key==='Enter'){ 
-          e.preventDefault(); 
-          const currentBtn = el.id.includes('mobile') ? btnMobile : btn;
-          if(currentBtn && !currentBtn.disabled) f.requestSubmit(); 
-        }
+      ['input','change'].forEach(ev => {
+        el.addEventListener(ev, validateIncomeForm);
       });
     }
   });
 
+  // Enter для отправки форм
+  if (expenseAmount) {
+    expenseAmount.addEventListener('keydown',(e)=>{ 
+      if(e.key==='Enter' && !expenseBtn.disabled) { 
+        e.preventDefault(); 
+        expenseForm.requestSubmit(); 
+      }
+    });
+  }
+  
+  if (incomeAmount) {
+    incomeAmount.addEventListener('keydown',(e)=>{ 
+      if(e.key==='Enter' && !incomeBtn.disabled) { 
+        e.preventDefault(); 
+        incomeForm.requestSubmit(); 
+      }
+    });
+  }
+
   // Отключаем скролл на числовых полях
-  [amtEl, amtElMobile].forEach(el => {
+  [expenseAmount, incomeAmount].forEach(el => {
     if (el) el.addEventListener('wheel',(e)=>{ e.preventDefault(); },{passive:false});
   });
 
-  // Фокус на следующее поле после выбора категории
-  if (catEl && amtEl) { 
-    catEl.addEventListener('change', () => { 
-      if (catEl.value) setTimeout(()=>amtEl.focus(),50); 
-    }); 
-  }
-  if (catElMobile && amtElMobile) { 
-    catElMobile.addEventListener('change', () => { 
-      if (catElMobile.value) setTimeout(()=>amtElMobile.focus(),50); 
-    }); 
+  // Фокус на сумму после выбора категории
+  if (expenseCategory && expenseAmount) {
+    expenseCategory.addEventListener('change', () => {
+      if (expenseCategory.value) setTimeout(()=>expenseAmount.focus(),50);
+    });
   }
   
-  // Анимация успешного добавления
-  f.addEventListener('submit', function() {
-    const activeBtn = window.innerWidth >= 768 ? btn : btnMobile;
-    if (activeBtn && !activeBtn.disabled) {
-      activeBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Добавляется...';
-      activeBtn.disabled = true;
-      
-      setTimeout(() => {
-        showToast('Расход добавлен!', 'success');
-      }, 100);
-    }
+  // Анимация при отправке
+  if (expenseForm) {
+    expenseForm.addEventListener('submit', function() {
+      if (!expenseBtn.disabled) {
+        expenseBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Добавляется...';
+        expenseBtn.disabled = true;
+      }
+    });
+  }
+  
+  if (incomeForm) {
+    incomeForm.addEventListener('submit', function() {
+      if (!incomeBtn.disabled) {
+        incomeBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Добавляется...';
+        incomeBtn.disabled = true;
+      }
+    });
+  }
+  
+  // Сброс форм при закрытии модалов
+  document.getElementById('expenseModal')?.addEventListener('hidden.bs.modal', function () {
+    expenseForm.reset();
+    if (expenseDate) expenseDate.value = new Date().toISOString().slice(0,10);
+    expenseBtn.disabled = true;
+    expenseBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Добавить расход';
+  });
+  
+  document.getElementById('incomeModal')?.addEventListener('hidden.bs.modal', function () {
+    incomeForm.reset();
+    if (incomeDate) incomeDate.value = new Date().toISOString().slice(0,10);
+    incomeBtn.disabled = true;
+    incomeBtn.innerHTML = '<i class="bi bi-check-lg me-2"></i>Добавить доход';
   });
 
-  validate();
+  validateExpenseForm();
+  validateIncomeForm();
 
   // --- Сортировка таблицы категорий ---
   document.querySelectorAll('.sortable').forEach(header => {

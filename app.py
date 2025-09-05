@@ -604,6 +604,7 @@ def dashboard():
         month_names=month_names,
         today=today,
         source_balances=source_balances,
+        sources=sources,
     )
 
 
