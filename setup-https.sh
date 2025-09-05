@@ -62,7 +62,7 @@ echo ""
 echo "🌐 Обновление конфигурации nginx..."
 
 # Обновление конфигурации nginx с реальным доменом
-sed -i "s/your-domain.com/$DOMAIN/g" /etc/nginx/sites-available/crystalbudget
+sed -i "s/your-domain.com/$DOMAIN/g" /etc/nginx/conf.d/crystalbudget.conf
 
 print_status "Конфигурация nginx обновлена"
 
@@ -106,14 +106,22 @@ fi
 echo ""
 echo "🔥 Настройка файрвола..."
 
-# Настройка UFW если установлен
-if command -v ufw &> /dev/null; then
+# Настройка firewalld (стандарт для CentOS)
+if command -v firewall-cmd &> /dev/null; then
+    systemctl enable firewalld
+    systemctl start firewalld
+    firewall-cmd --permanent --add-service=http
+    firewall-cmd --permanent --add-service=https
+    firewall-cmd --permanent --add-service=ssh
+    firewall-cmd --reload
+    print_status "Файрвол настроен (firewalld)"
+elif command -v ufw &> /dev/null; then
     ufw --force enable
     ufw allow 'Nginx Full'
     ufw allow ssh
     print_status "Файрвол настроен (UFW)"
 else
-    print_warning "UFW не установлен. Убедитесь что порты 80, 443, 22 открыты"
+    print_warning "Файрвол не найден. Убедитесь что порты 80, 443, 22 открыты"
 fi
 
 echo ""

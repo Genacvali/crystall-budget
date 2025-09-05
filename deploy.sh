@@ -42,11 +42,31 @@ done
 
 echo "📦 Установка зависимостей..."
 
-# Обновление пакетов
-apt update
+# Определение версии CentOS/RHEL
+if command -v dnf &> /dev/null; then
+    PKG_MGR="dnf"
+else
+    PKG_MGR="yum"
+fi
 
-# Установка nginx, certbot, python3
-apt install -y nginx python3 python3-pip python3-venv certbot python3-certbot-nginx
+print_status "Используется пакетный менеджер: $PKG_MGR"
+
+# Обновление пакетов
+$PKG_MGR update -y
+
+# Установка EPEL репозитория (нужен для certbot)
+$PKG_MGR install -y epel-release
+
+# Установка nginx, python3, certbot
+$PKG_MGR install -y nginx python3 python3-pip python3-devel gcc
+
+# Установка certbot
+if [[ "$PKG_MGR" == "dnf" ]]; then
+    $PKG_MGR install -y certbot python3-certbot-nginx
+else
+    # Для старых версий CentOS может потребоваться snapd
+    $PKG_MGR install -y certbot
+fi
 
 print_status "Зависимости установлены"
 
@@ -57,6 +77,9 @@ if [[ ! -d ".venv" ]]; then
     python3 -m venv .venv
     print_status "Виртуальное окружение создано"
 fi
+
+# Обновление pip
+.venv/bin/pip install --upgrade pip
 
 # Установка Python зависимостей
 .venv/bin/pip install -r requirements.txt
@@ -84,14 +107,13 @@ print_status "Systemd сервис настроен"
 
 echo "🌐 Настройка nginx..."
 
-# Копирование конфигурации nginx
-cp nginx-crystalbudget.conf /etc/nginx/sites-available/crystalbudget
+# В CentOS используется другая структура nginx
+mkdir -p /etc/nginx/conf.d
 
-# Создание символической ссылки
-if [[ ! -L /etc/nginx/sites-enabled/crystalbudget ]]; then
-    ln -s /etc/nginx/sites-available/crystalbudget /etc/nginx/sites-enabled/
-    print_status "Конфигурация nginx активирована"
-fi
+# Копирование конфигурации nginx
+cp nginx-crystalbudget.conf /etc/nginx/conf.d/crystalbudget.conf
+
+print_status "Конфигурация nginx скопирована в /etc/nginx/conf.d/"
 
 # Проверка конфигурации nginx
 if nginx -t; then
@@ -121,6 +143,10 @@ print_status "Секретный ключ установлен в systemd сер
 
 echo "🚀 Запуск сервисов..."
 
+# Запуск и включение nginx
+systemctl enable nginx
+systemctl start nginx
+
 # Запуск Flask приложения
 systemctl start crystalbudget
 
@@ -148,10 +174,10 @@ echo ""
 print_status "Базовое развертывание завершено!"
 echo ""
 echo "📋 Следующие шаги:"
-echo "1. Обновите домен в /etc/nginx/sites-available/crystalbudget"
+echo "1. Обновите домен в /etc/nginx/conf.d/crystalbudget.conf"
 echo "2. Настройте DNS записи для вашего домена"
-echo "3. Запустите: certbot --nginx -d your-domain.com"
-echo "4. Настройте файрвол: ufw allow 'Nginx Full'"
+echo "3. Запустите: ./setup-https.sh"
+echo "4. Настройте файрвол: firewall-cmd --add-service=http --add-service=https --permanent"
 echo ""
 echo "🔍 Проверка:"
 echo "• Статус сервиса: systemctl status crystalbudget"
