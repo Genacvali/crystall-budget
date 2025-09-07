@@ -640,14 +640,38 @@
   <!-- Bootstrap JS with fallback -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" 
           integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" 
-          crossorigin="anonymous"></script>
+          crossorigin="anonymous" 
+          onerror="loadBootstrapFallback()"></script>
   
   <script>
-    // Fallback if Bootstrap doesn't load
-    if (typeof bootstrap === 'undefined') {
-      console.warn('Bootstrap CDN failed, using alternative CDN');
-      document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"><\/script>');
+    function loadBootstrapFallback() {
+      console.warn('Primary Bootstrap CDN failed, trying fallback...');
+      
+      // Try alternative CDN first
+      const fallbackScript = document.createElement('script');
+      fallbackScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js';
+      fallbackScript.onerror = function() {
+        console.warn('Alternative CDN also failed, using local fallback...');
+        
+        // Use local copy as final fallback
+        const localScript = document.createElement('script');
+        localScript.src = '{{ url_for("static", filename="js/bootstrap.bundle.min.js") }}';
+        localScript.onerror = function() {
+          console.error('All Bootstrap JS sources failed to load!');
+          showToast('Ошибка загрузки интерфейса. Некоторые функции могут не работать.', 'danger');
+        };
+        document.head.appendChild(localScript);
+      };
+      document.head.appendChild(fallbackScript);
     }
+    
+    // Check if Bootstrap loaded after a short delay
+    setTimeout(function() {
+      if (typeof bootstrap === 'undefined') {
+        console.warn('Bootstrap not detected, attempting to load fallback...');
+        loadBootstrapFallback();
+      }
+    }, 1000);
   </script>
 
   <!-- PWA Service Worker -->
@@ -741,6 +765,37 @@
       sidebar.classList.remove('show');
       overlay.classList.remove('show');
       document.body.style.overflow = '';
+    }
+    
+    function showToast(message, type = 'info') {
+      const toastContainer = document.getElementById('toastContainer');
+      if (!toastContainer) return;
+      
+      const toastId = 'toast-' + Date.now();
+      const toastHtml = `
+        <div id="${toastId}" class="toast" role="alert" data-bs-autohide="true" data-bs-delay="5000">
+          <div class="toast-header">
+            <i class="bi bi-${type === 'danger' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} text-${type} me-2"></i>
+            <strong class="me-auto">CrystalBudget</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+          </div>
+          <div class="toast-body">
+            ${message}
+          </div>
+        </div>
+      `;
+      
+      toastContainer.insertAdjacentHTML('afterbegin', toastHtml);
+      const toastElement = document.getElementById(toastId);
+      
+      if (typeof bootstrap !== 'undefined') {
+        const toast = new bootstrap.Toast(toastElement);
+        toast.show();
+      } else {
+        // Fallback display without Bootstrap
+        toastElement.style.display = 'block';
+        setTimeout(() => toastElement.remove(), 5000);
+      }
     }
 
     document.addEventListener('DOMContentLoaded', ()=>{

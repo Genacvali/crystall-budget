@@ -4,3 +4,15 @@
 2025-09-07 23:45:20,338 INFO [app] Logging system initialized
 2025-09-07 23:45:20,338 INFO [app] Log level: INFO
 2025-09-07 23:45:20,338 INFO [app] Log file: /Users/genacvali/Documents/crystall-budget-3/./logs/crystalbudget.log
+2025-09-07 23:54:05,596 INFO [app] Logging system initialized
+2025-09-07 23:54:05,597 INFO [app] Log level: INFO
+2025-09-07 23:54:05,597 INFO [app] Log file: /Users/genacvali/Documents/crystall-budget-3/logs/crystalbudget.log
+2025-09-07 23:54:05,616 INFO [app] Created savings_goals table
+2025-09-07 23:54:05,617 INFO [app] Created shared_budgets table
+2025-09-07 23:54:05,617 INFO [app] Created shared_budget_members table
+2025-09-07 23:54:05,617 INFO [app] Created exchange_rates table
+2025-09-07 23:54:05,618 INFO [app] New tables migration completed successfully
+2025-09-07 23:54:23,442 INFO [app] Logging system initialized
+2025-09-07 23:54:23,442 INFO [app] Log level: INFO
+2025-09-07 23:54:23,442 INFO [app] Log file: /Users/genacvali/Documents/crystall-budget-3/logs/crystalbudget.log
+2025-09-07 23:54:23,453 INFO [app] New tables migration completed successfully

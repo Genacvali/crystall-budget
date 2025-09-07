@@ -14,7 +14,8 @@
       "Bash(tree:*)",
       "mcp__ide__getDiagnostics",
       "Read(///**)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
