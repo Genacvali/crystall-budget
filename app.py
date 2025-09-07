@@ -1625,7 +1625,7 @@ def expenses():
     ).fetchall()
     rows = conn.execute(
         """
-        SELECT e.id, e.date, e.amount, e.note, c.name AS category_name
+        SELECT e.id, e.date, e.amount, e.note, e.currency, c.name AS category_name
         FROM expenses e
         JOIN categories c ON c.id = e.category_id
         WHERE e.user_id = ?
@@ -1710,7 +1710,7 @@ def income_page():
     conn = get_db()
     rows = conn.execute(
         """
-        SELECT id, date, amount, source_id
+        SELECT id, date, amount, source_id, currency
         FROM income_daily
         WHERE user_id = ?
         ORDER BY date DESC, id DESC
@@ -1967,9 +1967,9 @@ DASHBOARD_HTML = """
     <div class="card">
       <div class="card-body">
         <h6 class="card-title mb-2">{{ s.source_name }}</h6>
-        <div class="d-flex justify-content-between"><span>Пришло</span><strong>{{ s.income|format_amount }} {{ currency_symbol }}</strong></div>
-        <div class="d-flex justify-content-between"><span>Ушло</span><strong>{{ s.spent|format_amount }} {{ currency_symbol }}</strong></div>
-        <div class="d-flex justify-content-between"><span>Остаток</span><strong>{{ s.rest|format_amount }} {{ currency_symbol }}</strong></div>
+        <div class="d-flex justify-content-between"><span>Пришло</span><strong><span data-amount="{{ s.income }}" data-currency="{{ session.currency or 'RUB' }}">{{ s.income|format_amount }}</span> <span class="currency-display">{{ currency_symbol }}</span></strong></div>
+        <div class="d-flex justify-content-between"><span>Ушло</span><strong><span data-amount="{{ s.spent }}" data-currency="{{ session.currency or 'RUB' }}">{{ s.spent|format_amount }}</span> <span class="currency-display">{{ currency_symbol }}</span></strong></div>
+        <div class="d-flex justify-content-between"><span>Остаток</span><strong><span data-amount="{{ s.rest }}" data-currency="{{ session.currency or 'RUB' }}">{{ s.rest|format_amount }}</span> <span class="currency-display">{{ currency_symbol }}</span></strong></div>
       </div>
     </div>
   </div>
@@ -1986,8 +1986,8 @@ DASHBOARD_HTML = """
         <div class="border rounded p-2">
           <div class="fw-semibold">{{ item.category_name }}</div>
           <div class="small text-muted">
-            Лимит: {{ item.limit|format_amount }} {{ currency_symbol }} •
-            Потрачено: {{ item.spent|format_amount }} {{ currency_symbol }}
+            Лимит: <span data-amount="{{ item.limit }}" data-currency="{{ session.currency or 'RUB' }}">{{ item.limit|format_amount }}</span> <span class="currency-display">{{ currency_symbol }}</span> •
+            Потрачено: <span data-amount="{{ item.spent }}" data-currency="{{ session.currency or 'RUB' }}">{{ item.spent|format_amount }}</span> <span class="currency-display">{{ currency_symbol }}</span>
           </div>
         </div>
       </div>
@@ -2087,7 +2087,7 @@ select.form-select option { position: relative; z-index: 9999; }
               {% if cat.limit_type == 'percent' %}
                 Текущ.: {{ cat.value|format_percent }}%
               {% else %}
-                Текущ.: {{ cat.value|format_amount }} {{ currency_symbol }}
+                Текущ.: <span data-amount="{{ cat.value }}" data-currency="{{ session.currency or 'RUB' }}">{{ cat.value|format_amount }}</span> <span class="currency-display">{{ currency_symbol }}</span>
               {% endif %}
             </div>
           </td>
@@ -2158,7 +2158,7 @@ select.form-select option { position: relative; z-index: 9999; }
               {% if cat.limit_type == 'percent' %}
                 Текущ.: {{ cat.value|format_percent }}%
               {% else %}
-                Текущ.: {{ cat.value|format_amount }} {{ currency_symbol }}
+                Текущ.: <span data-amount="{{ cat.value }}" data-currency="{{ session.currency or 'RUB' }}">{{ cat.value|format_amount }}</span> <span class="currency-display">{{ currency_symbol }}</span>
               {% endif %}
             </div>
           </div>
@@ -2241,11 +2241,14 @@ EXPENSES_HTML = """
       <tr>
         <td>{{ e.date|format_date_with_day }}</td>
         <td>{{ e.category_name }}</td>
-        <td class="text-end fw-semibold">{{ e.amount|format_amount }} {{ currency_symbol }}</td>
+        <td class="text-end fw-semibold">
+          <span data-amount="{{ e.amount }}" data-currency="{{ e.currency or 'RUB' }}">{{ e.amount|format_amount }}</span> 
+          <span class="currency-display">{{ currency_symbol }}</span>
+        </td>
         <td>{{ e.note or '' }}</td>
         <td class="text-end">
           <form method="POST" action="{{ url_for('delete_expense', expense_id=e.id) }}" class="d-inline">
-            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить расход?\\nДата: {{ e.date|format_date_with_day }}\\nКатегория: {{ e.category_name }}\\nСумма: {{ e.amount|format_amount }} {{ currency_symbol }}')">Удалить</button>
+            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить расход?\\nДата: {{ e.date|format_date_with_day }}\\nКатегория: {{ e.category_name }}\\nСумма: {{ e.amount|format_amount }} {{ e.currency or session.currency or 'RUB' }}')">Удалить</button>
           </form>
         </td>
       </tr>
@@ -2290,7 +2293,10 @@ INCOME_HTML = """
       {% for i in incomes %}
       <tr>
         <td>{{ i.date|format_date_with_day }}</td>
-        <td class="text-end fw-semibold">{{ i.amount|format_amount }} {{ currency_symbol }}</td>
+        <td class="text-end fw-semibold">
+          <span data-amount="{{ i.amount }}" data-currency="{{ i.currency or 'RUB' }}">{{ i.amount|format_amount }}</span>
+          <span class="currency-display">{{ currency_symbol }}</span>
+        </td>
         <td>
           {% if i.source_id %}
             {% set nm = (income_sources | selectattr('id','equalto', i.source_id) | list) %}
