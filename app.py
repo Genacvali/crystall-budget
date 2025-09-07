@@ -1924,7 +1924,7 @@ BASE_HTML = """
       <div class="d-flex gap-2 align-items-center">
         {% if session.get('user_id') %}
           <form class="d-flex align-items-center gap-1" method="post" action="{{ url_for('set_currency') }}">
-            <select class="form-select form-select-sm" name="currency" onchange="this.form.submit()">
+            <select class="form-select form-select-sm" name="currency" id="currency-selector">
               {% for code, info in currencies.items() %}
                 <option value="{{ code }}" {% if code==currency_code %}selected{% endif %}>{{ info.label }} ({{ info.symbol }})</option>
               {% endfor %}
@@ -1958,6 +1958,134 @@ BASE_HTML = """
     {% block content %}{% endblock %}
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Currency conversion functionality
+    let currentRates = {};
+    const baseCurrency = 'RUB'; // Базовая валюта - рубли
+    
+    // Currency symbols mapping
+    const currencySymbols = {
+      'RUB': '₽',
+      'USD': '$',
+      'EUR': '€',
+      'AMD': '֏',
+      'GEL': '₾'
+    };
+    
+    // Load exchange rates
+    async function loadExchangeRates() {
+      try {
+        const response = await fetch('/api/exchange-rates');
+        const data = await response.json();
+        if (data.ok) {
+          currentRates = data.rates || {};
+        }
+      } catch (error) {
+        console.error('Failed to load exchange rates:', error);
+      }
+    }
+    
+    // Convert amount from one currency to another
+    function convertAmount(amount, fromCurrency, toCurrency) {
+      if (fromCurrency === toCurrency) {
+        return amount;
+      }
+      
+      // Convert to base currency (RUB) first
+      let rubAmount = amount;
+      if (fromCurrency !== baseCurrency) {
+        const toRubRate = currentRates[`${fromCurrency}_${baseCurrency}`];
+        if (toRubRate) {
+          rubAmount = amount * toRubRate;
+        }
+      }
+      
+      // Convert from RUB to target currency
+      if (toCurrency !== baseCurrency) {
+        const fromRubRate = currentRates[`${baseCurrency}_${toCurrency}`];
+        if (fromRubRate) {
+          return rubAmount * fromRubRate;
+        }
+      }
+      
+      return rubAmount;
+    }
+    
+    // Format amount with spaces for thousands
+    function formatAmount(value) {
+      const num = parseFloat(value);
+      if (isNaN(num)) return value;
+      
+      // Round to 2 decimal places
+      const rounded = Math.round(num * 100) / 100;
+      
+      // Format with spaces for thousands
+      let formatted = rounded.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      
+      // Remove .00 if it's a whole number
+      if (formatted.endsWith(' 00')) {
+        formatted = formatted.slice(0, -3);
+      } else if (formatted.endsWith('00')) {
+        formatted = formatted.slice(0, -3);
+      }
+      
+      return formatted;
+    }
+    
+    // Update all amounts on the page
+    function updateAllAmounts() {
+      const currentCurrency = document.querySelector('select[name="currency"]')?.value || '{{ currency_code }}';
+      const currentSymbol = currencySymbols[currentCurrency] || currentCurrency;
+      
+      // Find all elements with data-amount and data-currency attributes
+      document.querySelectorAll('[data-amount][data-currency]').forEach(element => {
+        const originalAmount = parseFloat(element.getAttribute('data-amount'));
+        const originalCurrency = element.getAttribute('data-currency');
+        
+        if (!isNaN(originalAmount) && originalCurrency) {
+          const convertedAmount = convertAmount(originalAmount, originalCurrency, currentCurrency);
+          element.textContent = formatAmount(convertedAmount);
+        }
+      });
+      
+      // Update currency symbols
+      document.querySelectorAll('.currency-display').forEach(element => {
+        element.textContent = currentSymbol;
+      });
+    }
+    
+    // Handle currency change
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load rates on page load
+      loadExchangeRates().then(() => {
+        updateAllAmounts();
+      });
+      
+      // Listen for currency changes
+      const currencySelect = document.querySelector('#currency-selector');
+      if (currencySelect) {
+        currencySelect.addEventListener('change', function() {
+          // Update amounts immediately with current rates
+          updateAllAmounts();
+          
+          // Save currency preference to session (async)
+          const selectedCurrency = this.value;
+          fetch('/set-currency', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({currency: selectedCurrency})
+          }).catch(error => {
+            console.error('Failed to save currency preference:', error);
+          });
+          
+          // Refresh rates in background
+          loadExchangeRates();
+        });
+      }
+    });
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
@@ -2739,39 +2867,36 @@ def get_exchange_rates():
         cached_rates = {}
         for row in cursor.fetchall():
             key = f"{row['from_currency']}_{row['to_currency']}"
-            cached_rates[key] = {
-                'rate': float(row['rate']),
-                'updated_at': row['updated_at']
-            }
+            cached_rates[key] = float(row['rate'])
         
-        # Если кэш пустой, возвращаем базовые курсы
-        if not cached_rates:
-            # В реальном проекте здесь был бы вызов к API (например, exchangerate-api.com)
-            base_rates = {
-                'RUB_USD': {'rate': 0.011, 'updated_at': datetime.now().isoformat()},
-                'RUB_EUR': {'rate': 0.010, 'updated_at': datetime.now().isoformat()},
-                'USD_RUB': {'rate': 91.0, 'updated_at': datetime.now().isoformat()},
-                'EUR_RUB': {'rate': 100.0, 'updated_at': datetime.now().isoformat()},
-            }
-            
-            # Сохраняем в кэш
-            for key, data in base_rates.items():
-                from_curr, to_curr = key.split('_')
-                conn.execute("""
-                INSERT OR REPLACE INTO exchange_rates (from_currency, to_currency, rate)
-                VALUES (?, ?, ?)
-                """, (from_curr, to_curr, data['rate']))
-                
-            conn.commit()
-            cached_rates = base_rates
-            
+        # Если кэш пуст или нет нужных курсов, загружаем свежие данные
+        currencies = ['RUB', 'USD', 'EUR', 'AMD', 'GEL']
+        needed_pairs = []
+        
+        for from_curr in currencies:
+            for to_curr in currencies:
+                if from_curr != to_curr:
+                    key = f"{from_curr}_{to_curr}"
+                    if key not in cached_rates:
+                        needed_pairs.append((from_curr, to_curr))
+        
+        # Загружаем недостающие курсы
+        if needed_pairs:
+            for from_curr, to_curr in needed_pairs:
+                try:
+                    rate = get_exchange_rate(from_curr, to_curr)
+                    if rate and rate > 0:
+                        cached_rates[f"{from_curr}_{to_curr}"] = rate
+                except Exception as e:
+                    app.logger.warning(f"Failed to get rate {from_curr}->{to_curr}: {e}")
+        
         conn.close()
         
-        return {"success": True, "rates": cached_rates}
+        return {"ok": True, "rates": cached_rates}
         
     except Exception as e:
         app.logger.error(f"Error in get_exchange_rates: {e}")
-        return {"success": False, "error": str(e)}, 500
+        return {"ok": False, "error": str(e)}, 500
 
 # -----------------------------------------------------------------------------
 # Savings Goals
