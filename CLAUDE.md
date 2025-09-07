@@ -70,6 +70,10 @@ SQLite with user data isolation and automatic schema creation:
 - **income_daily**: Daily income breakdown for advanced tracking
 - **income_sources**: Income source management with percentages
 - **source_category_rules**: Rules linking income sources to category allocations
+- **savings_goals**: Goal tracking (name, target_amount, current_amount, target_date, user_id)
+- **shared_budgets**: Family budget sharing (name, creator_id, invite_code)
+- **shared_budget_members**: Budget membership with roles (admin/member)
+- **exchange_rates**: Currency rate caching with hourly refresh
 - Auto-populated default categories on first run with Russian labels
 
 ### Frontend Structure
@@ -93,6 +97,8 @@ SQLite with user data isolation and automatic schema creation:
 - `/categories` - Category management with inline editing
 - `/income` - Monthly income configuration and tracking
 - `/sources` - Income source management with percentage allocation
+- `/goals` - Savings goals tracking with progress bars
+- `/shared-budgets` - Family budget sharing and collaboration
 
 **Authentication & User Management:**
 - `/register` - User registration with password hashing
@@ -102,6 +108,9 @@ SQLite with user data isolation and automatic schema creation:
 
 **API Endpoints:**
 - `/quick-expense` - POST endpoint for dashboard expense entry
+- `/api/expenses/chart-data` - Chart data for analytics (monthly/category breakdowns)
+- `/api/expenses/compare` - Period comparison data (current vs previous month)
+- `/api/exchange-rates` - Multi-currency exchange rates with caching
 - `/health` - Application health check
 - `/favicon.ico` - Static favicon handler
 - `/logs` - Development log viewer (debug mode only)
@@ -150,3 +159,12 @@ SQLite with user data isolation and automatic schema creation:
 - Web app manifest for mobile app-like experience
 - Multiple CSS themes: clean, modern, improved, ff-theme
 - Bootstrap 5 responsive design optimized for mobile devices
+
+### New Features Added
+- **📊 Expense Charts**: Chart.js integration for monthly/category analytics via `/api/expenses/chart-data`
+- **📈 Period Comparison**: Month-over-month spending analysis with percentage changes
+- **🎯 Savings Goals**: Goal tracking with progress bars, target dates, and completion notifications
+- **👆 Swipe Actions**: Mobile-first swipe gestures for edit/delete on expense cards
+- **💱 Enhanced Multi-Currency**: Live exchange rate caching with automatic updates
+- **👨‍👩‍👧‍👦 Shared Budgets**: Family budget collaboration with invite codes and role-based access
+- **🔒 Enhanced Security**: Comprehensive security headers, CSP, HSTS, and secure cookies

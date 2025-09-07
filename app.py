@@ -352,6 +352,57 @@ def ensure_income_sources_tables():
       UNIQUE(user_id, category_id)
     )
     """)
+    
+    # Таблица для целей накоплений
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS savings_goals (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name TEXT NOT NULL,
+      target_amount DECIMAL(10,2) NOT NULL,
+      current_amount DECIMAL(10,2) DEFAULT 0,
+      target_date DATE,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      completed_at TIMESTAMP NULL,
+      description TEXT
+    )
+    """)
+    
+    # Таблица для shared budgets
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS shared_budgets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      creator_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      invite_code TEXT UNIQUE NOT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+    
+    # Участники shared budgets
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS shared_budget_members (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      shared_budget_id INTEGER NOT NULL REFERENCES shared_budgets(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      role TEXT DEFAULT 'member',
+      joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(shared_budget_id, user_id)
+    )
+    """)
+    
+    # Курсы валют (для кэширования)
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS exchange_rates (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      from_currency TEXT NOT NULL,
+      to_currency TEXT NOT NULL,
+      rate DECIMAL(10,6) NOT NULL,
+      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(from_currency, to_currency)
+    )
+    """)
+    
     conn.commit()
     conn.close()
 
@@ -2117,6 +2168,460 @@ def health_check():
             "error": str(e),
             "timestamp": datetime.now().isoformat()
         }, 503
+
+# -----------------------------------------------------------------------------
+# Analytics and Charts API
+# -----------------------------------------------------------------------------
+
+@app.route('/api/expenses/chart-data')
+@login_required
+def expenses_chart_data():
+    """API endpoint for expense charts data."""
+    try:
+        period = request.args.get('period', '6months')  # 6months, year, all
+        chart_type = request.args.get('type', 'monthly')  # monthly, category, daily
+        
+        conn = get_db()
+        user_id = session['user_id']
+        
+        if chart_type == 'monthly':
+            # Данные по месяцам за выбранный период
+            if period == '6months':
+                query = """
+                SELECT strftime('%Y-%m', date) as month, SUM(amount) as total
+                FROM expenses 
+                WHERE user_id = ? AND date >= date('now', '-6 months')
+                GROUP BY strftime('%Y-%m', date)
+                ORDER BY month
+                """
+            elif period == 'year':
+                query = """
+                SELECT strftime('%Y-%m', date) as month, SUM(amount) as total
+                FROM expenses 
+                WHERE user_id = ? AND date >= date('now', '-1 year')
+                GROUP BY strftime('%Y-%m', date)
+                ORDER BY month
+                """
+            else:  # all
+                query = """
+                SELECT strftime('%Y-%m', date) as month, SUM(amount) as total
+                FROM expenses 
+                WHERE user_id = ?
+                GROUP BY strftime('%Y-%m', date)
+                ORDER BY month
+                """
+            
+            cursor = conn.execute(query, (user_id,))
+            
+        elif chart_type == 'category':
+            # Данные по категориям за текущий месяц
+            query = """
+            SELECT c.name, COALESCE(SUM(e.amount), 0) as total
+            FROM categories c
+            LEFT JOIN expenses e ON c.id = e.category_id AND strftime('%Y-%m', e.date) = strftime('%Y-%m', 'now')
+            WHERE c.user_id = ?
+            GROUP BY c.id, c.name
+            ORDER BY total DESC
+            """
+            cursor = conn.execute(query, (user_id,))
+            
+        data = [dict(row) for row in cursor.fetchall()]
+        conn.close()
+        
+        return {"success": True, "data": data}
+        
+    except Exception as e:
+        app.logger.error(f"Error in expenses_chart_data: {e}")
+        return {"success": False, "error": str(e)}, 500
+
+@app.route('/api/expenses/compare')
+@login_required
+def expenses_compare():
+    """API для сравнения периодов."""
+    try:
+        current_month = datetime.now().strftime('%Y-%m')
+        prev_month = (datetime.now().replace(day=1) - timedelta(days=1)).strftime('%Y-%m')
+        
+        conn = get_db()
+        user_id = session['user_id']
+        
+        # Сравнение текущего и предыдущего месяца по категориям
+        query = """
+        SELECT 
+            c.name,
+            COALESCE(SUM(CASE WHEN strftime('%Y-%m', e.date) = ? THEN e.amount ELSE 0 END), 0) as current_month,
+            COALESCE(SUM(CASE WHEN strftime('%Y-%m', e.date) = ? THEN e.amount ELSE 0 END), 0) as prev_month
+        FROM categories c
+        LEFT JOIN expenses e ON c.id = e.category_id 
+        WHERE c.user_id = ?
+        GROUP BY c.id, c.name
+        ORDER BY current_month DESC
+        """
+        
+        cursor = conn.execute(query, (current_month, prev_month, user_id))
+        data = []
+        
+        for row in cursor.fetchall():
+            current = float(row['current_month'])
+            prev = float(row['prev_month'])
+            change_percent = 0
+            if prev > 0:
+                change_percent = ((current - prev) / prev) * 100
+                
+            data.append({
+                'category': row['name'],
+                'current_month': current,
+                'prev_month': prev,
+                'change_percent': round(change_percent, 1)
+            })
+            
+        conn.close()
+        
+        return {
+            "success": True, 
+            "data": data,
+            "period": {
+                "current": current_month,
+                "previous": prev_month
+            }
+        }
+        
+    except Exception as e:
+        app.logger.error(f"Error in expenses_compare: {e}")
+        return {"success": False, "error": str(e)}, 500
+
+@app.route('/api/exchange-rates')
+@login_required 
+def get_exchange_rates():
+    """API для получения курсов валют."""
+    try:
+        conn = get_db()
+        
+        # Проверяем кэш курсов (обновляем раз в час)
+        cursor = conn.execute("""
+        SELECT from_currency, to_currency, rate, updated_at 
+        FROM exchange_rates 
+        WHERE updated_at > datetime('now', '-1 hour')
+        """)
+        
+        cached_rates = {}
+        for row in cursor.fetchall():
+            key = f"{row['from_currency']}_{row['to_currency']}"
+            cached_rates[key] = {
+                'rate': float(row['rate']),
+                'updated_at': row['updated_at']
+            }
+        
+        # Если кэш пустой, возвращаем базовые курсы
+        if not cached_rates:
+            # В реальном проекте здесь был бы вызов к API (например, exchangerate-api.com)
+            base_rates = {
+                'RUB_USD': {'rate': 0.011, 'updated_at': datetime.now().isoformat()},
+                'RUB_EUR': {'rate': 0.010, 'updated_at': datetime.now().isoformat()},
+                'USD_RUB': {'rate': 91.0, 'updated_at': datetime.now().isoformat()},
+                'EUR_RUB': {'rate': 100.0, 'updated_at': datetime.now().isoformat()},
+            }
+            
+            # Сохраняем в кэш
+            for key, data in base_rates.items():
+                from_curr, to_curr = key.split('_')
+                conn.execute("""
+                INSERT OR REPLACE INTO exchange_rates (from_currency, to_currency, rate)
+                VALUES (?, ?, ?)
+                """, (from_curr, to_curr, data['rate']))
+                
+            conn.commit()
+            cached_rates = base_rates
+            
+        conn.close()
+        
+        return {"success": True, "rates": cached_rates}
+        
+    except Exception as e:
+        app.logger.error(f"Error in get_exchange_rates: {e}")
+        return {"success": False, "error": str(e)}, 500
+
+# -----------------------------------------------------------------------------
+# Savings Goals
+# -----------------------------------------------------------------------------
+
+@app.route('/goals')
+@login_required
+def goals():
+    """Страница целей накоплений."""
+    conn = get_db()
+    user_id = session['user_id']
+    
+    # Получаем все цели пользователя
+    cursor = conn.execute("""
+    SELECT * FROM savings_goals 
+    WHERE user_id = ? 
+    ORDER BY created_at DESC
+    """, (user_id,))
+    
+    goals = cursor.fetchall()
+    conn.close()
+    
+    return render_template('goals.html', goals=goals)
+
+@app.route('/goals/add', methods=['POST'])
+@login_required
+def add_goal():
+    """Добавление новой цели накопления."""
+    try:
+        name = request.form.get('name', '').strip()
+        target_amount = float(request.form.get('target_amount', 0))
+        target_date = request.form.get('target_date', '')
+        description = request.form.get('description', '').strip()
+        
+        if not name or target_amount <= 0:
+            flash('Название и сумма цели обязательны', 'error')
+            return redirect(url_for('goals'))
+            
+        conn = get_db()
+        user_id = session['user_id']
+        
+        conn.execute("""
+        INSERT INTO savings_goals (user_id, name, target_amount, target_date, description)
+        VALUES (?, ?, ?, ?, ?)
+        """, (user_id, name, target_amount, target_date if target_date else None, description))
+        
+        conn.commit()
+        conn.close()
+        
+        flash(f'Цель "{name}" добавлена', 'success')
+        
+    except Exception as e:
+        app.logger.error(f"Error adding goal: {e}")
+        flash('Ошибка при добавлении цели', 'error')
+        
+    return redirect(url_for('goals'))
+
+@app.route('/goals/update/<int:goal_id>', methods=['POST'])
+@login_required
+def update_goal_progress(goal_id):
+    """Обновление прогресса цели."""
+    try:
+        amount_to_add = float(request.form.get('amount', 0))
+        
+        if amount_to_add <= 0:
+            flash('Сумма должна быть положительной', 'error')
+            return redirect(url_for('goals'))
+            
+        conn = get_db()
+        user_id = session['user_id']
+        
+        # Проверяем, что цель принадлежит пользователю
+        cursor = conn.execute("""
+        SELECT current_amount, target_amount FROM savings_goals 
+        WHERE id = ? AND user_id = ?
+        """, (goal_id, user_id))
+        
+        goal = cursor.fetchone()
+        if not goal:
+            flash('Цель не найдена', 'error')
+            return redirect(url_for('goals'))
+            
+        new_amount = float(goal['current_amount']) + amount_to_add
+        
+        # Проверяем, достигнута ли цель
+        completed_at = None
+        if new_amount >= float(goal['target_amount']):
+            completed_at = datetime.now().isoformat()
+            
+        conn.execute("""
+        UPDATE savings_goals 
+        SET current_amount = ?, completed_at = ?
+        WHERE id = ? AND user_id = ?
+        """, (new_amount, completed_at, goal_id, user_id))
+        
+        conn.commit()
+        conn.close()
+        
+        if completed_at:
+            flash('🎉 Поздравляем! Цель достигнута!', 'success')
+        else:
+            flash(f'Добавлено {amount_to_add} к цели', 'success')
+            
+    except Exception as e:
+        app.logger.error(f"Error updating goal progress: {e}")
+        flash('Ошибка при обновлении прогресса', 'error')
+        
+    return redirect(url_for('goals'))
+
+# -----------------------------------------------------------------------------  
+# Shared Budgets
+# -----------------------------------------------------------------------------
+
+@app.route('/shared-budgets')
+@login_required
+def shared_budgets():
+    """Страница семейных бюджетов."""
+    conn = get_db()
+    user_id = session['user_id']
+    
+    # Получаем бюджеты, в которых участвует пользователь
+    cursor = conn.execute("""
+    SELECT sb.*, sbm.role, sbm.joined_at,
+           (SELECT COUNT(*) FROM shared_budget_members WHERE shared_budget_id = sb.id) as member_count
+    FROM shared_budgets sb
+    JOIN shared_budget_members sbm ON sb.id = sbm.shared_budget_id
+    WHERE sbm.user_id = ?
+    ORDER BY sbm.joined_at DESC
+    """, (user_id,))
+    
+    shared_budgets_list = cursor.fetchall()
+    conn.close()
+    
+    return render_template('shared_budgets.html', shared_budgets=shared_budgets_list)
+
+@app.route('/shared-budgets/create', methods=['POST'])
+@login_required
+def create_shared_budget():
+    """Создание нового семейного бюджета."""
+    try:
+        name = request.form.get('name', '').strip()
+        
+        if not name:
+            flash('Название бюджета обязательно', 'error')
+            return redirect(url_for('shared_budgets'))
+        
+        conn = get_db()
+        user_id = session['user_id']
+        
+        # Генерируем уникальный код приглашения
+        import secrets
+        invite_code = secrets.token_urlsafe(8)
+        
+        # Создаем shared budget
+        cursor = conn.execute("""
+        INSERT INTO shared_budgets (name, creator_id, invite_code)
+        VALUES (?, ?, ?)
+        """, (name, user_id, invite_code))
+        
+        shared_budget_id = cursor.lastrowid
+        
+        # Добавляем создателя как администратора
+        conn.execute("""
+        INSERT INTO shared_budget_members (shared_budget_id, user_id, role)
+        VALUES (?, ?, 'admin')
+        """, (shared_budget_id, user_id))
+        
+        conn.commit()
+        conn.close()
+        
+        flash(f'Семейный бюджет "{name}" создан. Код для приглашения: {invite_code}', 'success')
+        
+    except Exception as e:
+        app.logger.error(f"Error creating shared budget: {e}")
+        flash('Ошибка при создании семейного бюджета', 'error')
+        
+    return redirect(url_for('shared_budgets'))
+
+@app.route('/shared-budgets/join', methods=['POST'])
+@login_required 
+def join_shared_budget():
+    """Присоединение к семейному бюджету по коду."""
+    try:
+        invite_code = request.form.get('invite_code', '').strip()
+        
+        if not invite_code:
+            flash('Код приглашения обязателен', 'error')
+            return redirect(url_for('shared_budgets'))
+            
+        conn = get_db()
+        user_id = session['user_id']
+        
+        # Находим бюджет по коду
+        cursor = conn.execute("""
+        SELECT id, name FROM shared_budgets 
+        WHERE invite_code = ?
+        """, (invite_code,))
+        
+        budget = cursor.fetchone()
+        if not budget:
+            flash('Неверный код приглашения', 'error')
+            return redirect(url_for('shared_budgets'))
+        
+        # Проверяем, что пользователь еще не участвует
+        cursor = conn.execute("""
+        SELECT id FROM shared_budget_members 
+        WHERE shared_budget_id = ? AND user_id = ?
+        """, (budget['id'], user_id))
+        
+        if cursor.fetchone():
+            flash('Вы уже участвуете в этом бюджете', 'warning')
+            return redirect(url_for('shared_budgets'))
+        
+        # Добавляем пользователя
+        conn.execute("""
+        INSERT INTO shared_budget_members (shared_budget_id, user_id, role)
+        VALUES (?, ?, 'member')
+        """, (budget['id'], user_id))
+        
+        conn.commit()
+        conn.close()
+        
+        flash(f'Вы присоединились к семейному бюджету "{budget["name"]}"', 'success')
+        
+    except Exception as e:
+        app.logger.error(f"Error joining shared budget: {e}")
+        flash('Ошибка при присоединении к бюджету', 'error')
+        
+    return redirect(url_for('shared_budgets'))
+
+@app.route('/shared-budgets/<int:budget_id>')
+@login_required
+def shared_budget_detail(budget_id):
+    """Детали семейного бюджета."""
+    conn = get_db()
+    user_id = session['user_id']
+    
+    # Проверяем доступ
+    cursor = conn.execute("""
+    SELECT sb.*, sbm.role
+    FROM shared_budgets sb
+    JOIN shared_budget_members sbm ON sb.id = sbm.shared_budget_id
+    WHERE sb.id = ? AND sbm.user_id = ?
+    """, (budget_id, user_id))
+    
+    budget = cursor.fetchone()
+    if not budget:
+        flash('Бюджет не найден или у вас нет доступа', 'error')
+        return redirect(url_for('shared_budgets'))
+    
+    # Получаем участников
+    cursor = conn.execute("""
+    SELECT u.username, sbm.role, sbm.joined_at
+    FROM shared_budget_members sbm
+    JOIN users u ON sbm.user_id = u.id
+    WHERE sbm.shared_budget_id = ?
+    ORDER BY sbm.joined_at ASC
+    """, (budget_id,))
+    
+    members = cursor.fetchall()
+    
+    # Получаем общие расходы всех участников за текущий месяц
+    cursor = conn.execute("""
+    SELECT e.amount, e.description, e.date, c.name as category_name, u.username
+    FROM expenses e
+    JOIN categories c ON e.category_id = c.id
+    JOIN users u ON e.user_id = u.id
+    JOIN shared_budget_members sbm ON u.id = sbm.user_id
+    WHERE sbm.shared_budget_id = ? 
+    AND strftime('%Y-%m', e.date) = strftime('%Y-%m', 'now')
+    ORDER BY e.date DESC, e.id DESC
+    LIMIT 50
+    """, (budget_id,))
+    
+    recent_expenses = cursor.fetchall()
+    
+    conn.close()
+    
+    return render_template('shared_budget_detail.html', 
+                         budget=budget, 
+                         members=members, 
+                         recent_expenses=recent_expenses)
 
 # -----------------------------------------------------------------------------
 # Main

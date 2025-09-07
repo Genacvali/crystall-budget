@@ -88,39 +88,60 @@
     </div>
 </div>
 
-<!-- Мобильные карточки -->
+<!-- Мобильные карточки с swipe -->
 <div class="d-block d-md-none">
     {% for expense in expenses %}
-    <div class="card mb-2">
-        <div class="card-body">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                    <h6 class="mb-1">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></h6>
-                    <small class="text-muted">
-                        <i class="bi bi-calendar3"></i> {{ expense.date|format_date_with_day }}
-                    </small>
+    <div class="swipe-card mb-2" data-expense-id="{{ expense.id }}">
+        <div class="swipe-actions swipe-left">
+            <button class="swipe-action edit" data-url="{{ url_for('edit_expense', expense_id=expense.id) }}">
+                <i class="bi bi-pencil"></i>
+            </button>
+        </div>
+        
+        <div class="card swipe-content">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6 class="mb-1">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></h6>
+                        <small class="text-muted">
+                            <i class="bi bi-calendar3"></i> {{ expense.date|format_date_with_day }}
+                        </small>
+                    </div>
+                    <span class="badge bg-secondary">{{ expense.category_name }}</span>
                 </div>
-                <span class="badge bg-secondary">{{ expense.category_name }}</span>
-            </div>
 
-            {% if expense.note %}
-            <p class="text-muted mb-2" style="font-size: 0.9rem;">
-                <i class="bi bi-chat-dots"></i> {{ expense.note }}
-            </p>
-            {% endif %}
+                {% if expense.note %}
+                <p class="text-muted mb-2" style="font-size: 0.9rem;">
+                    <i class="bi bi-chat-dots"></i> {{ expense.note }}
+                </p>
+                {% endif %}
 
-            <div class="d-flex gap-2 mt-2">
-                <a href="{{ url_for('edit_expense', expense_id=expense.id) }}"
-                   class="btn btn-outline-primary flex-fill">
-                    <i class="bi bi-pencil"></i> Изменить
-                </a>
-                <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="flex-fill">
-                    <button type="submit" class="btn btn-outline-danger w-100"
-                            onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
-                        <i class="bi bi-trash"></i> Удалить
-                    </button>
-                </form>
+                <div class="d-flex gap-2 mt-2 d-none">
+                    <a href="{{ url_for('edit_expense', expense_id=expense.id) }}"
+                       class="btn btn-outline-primary flex-fill">
+                        <i class="bi bi-pencil"></i> Изменить
+                    </a>
+                    <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="flex-fill">
+                        <button type="submit" class="btn btn-outline-danger w-100"
+                                onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
+                            <i class="bi bi-trash"></i> Удалить
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Swipe hint -->
+                <div class="swipe-hint">
+                    <small class="text-muted">← редактировать | удалить →</small>
+                </div>
             </div>
+        </div>
+        
+        <div class="swipe-actions swipe-right">
+            <button class="swipe-action delete" 
+                    data-expense-id="{{ expense.id }}"
+                    data-confirm-text="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}">
+                <i class="bi bi-trash"></i>
+            </button>
         </div>
     </div>
     {% endfor %}
@@ -175,11 +196,185 @@
     </button>
 </div>
 {% endif %}
-{% endblock %}
 
-{% block scripts %}
+<style>
+/* Swipe Cards Styles */
+.swipe-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 8px;
+}
+
+.swipe-content {
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s ease;
+    background: white;
+}
+
+.swipe-actions {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.swipe-left {
+    left: 0;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+}
+
+.swipe-right {
+    right: 0;
+    background: linear-gradient(90deg, #dc3545, #c82333);
+}
+
+.swipe-action {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.swipe-hint {
+    text-align: center;
+    opacity: 0.7;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.swipe-card.swiping .swipe-hint {
+    display: none;
+}
+
+/* Состояния swipe */
+.swipe-card.swipe-left-active .swipe-content {
+    transform: translateX(80px);
+}
+
+.swipe-card.swipe-right-active .swipe-content {
+    transform: translateX(-80px);
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Swipe functionality for mobile cards
+    const swipeCards = document.querySelectorAll('.swipe-card');
+    
+    swipeCards.forEach(card => {
+        let startX = 0;
+        let currentX = 0;
+        let isDragging = false;
+        const swipeContent = card.querySelector('.swipe-content');
+        const threshold = 50; // Minimum swipe distance
+        
+        // Touch events
+        card.addEventListener('touchstart', handleStart, { passive: true });
+        card.addEventListener('touchmove', handleMove, { passive: false });
+        card.addEventListener('touchend', handleEnd, { passive: true });
+        
+        // Mouse events for desktop testing
+        card.addEventListener('mousedown', handleStart);
+        card.addEventListener('mousemove', handleMove);
+        card.addEventListener('mouseup', handleEnd);
+        card.addEventListener('mouseleave', handleEnd);
+        
+        function handleStart(e) {
+            isDragging = true;
+            startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+            card.classList.add('swiping');
+            swipeContent.style.transition = 'none';
+        }
+        
+        function handleMove(e) {
+            if (!isDragging) return;
+            
+            e.preventDefault();
+            currentX = (e.type === 'touchmove' ? e.touches[0].clientX : e.clientX) - startX;
+            
+            // Limit swipe distance
+            const maxSwipe = 100;
+            currentX = Math.max(-maxSwipe, Math.min(maxSwipe, currentX));
+            
+            swipeContent.style.transform = `translateX(${currentX}px)`;
+            
+            // Visual feedback
+            if (currentX > threshold) {
+                card.classList.add('swipe-left-feedback');
+                card.classList.remove('swipe-right-feedback');
+            } else if (currentX < -threshold) {
+                card.classList.add('swipe-right-feedback');
+                card.classList.remove('swipe-left-feedback');
+            } else {
+                card.classList.remove('swipe-left-feedback', 'swipe-right-feedback');
+            }
+        }
+        
+        function handleEnd(e) {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            card.classList.remove('swiping', 'swipe-left-feedback', 'swipe-right-feedback');
+            swipeContent.style.transition = 'transform 0.3s ease';
+            
+            if (currentX > threshold) {
+                // Swipe right - edit
+                const editUrl = card.querySelector('.swipe-action.edit').dataset.url;
+                window.location.href = editUrl;
+            } else if (currentX < -threshold) {
+                // Swipe left - delete
+                const deleteBtn = card.querySelector('.swipe-action.delete');
+                const confirmText = deleteBtn.dataset.confirmText;
+                if (confirm(confirmText)) {
+                    const expenseId = deleteBtn.dataset.expenseId;
+                    // Create and submit delete form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/expenses/delete/${expenseId}`;
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            }
+            
+            // Reset position
+            swipeContent.style.transform = 'translateX(0)';
+            currentX = 0;
+        }
+    });
+    
+    // Click handlers for swipe actions
+    document.querySelectorAll('.swipe-action.edit').forEach(btn => {
+        btn.addEventListener('click', function() {
+            window.location.href = this.dataset.url;
+        });
+    });
+    
+    document.querySelectorAll('.swipe-action.delete').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const confirmText = this.dataset.confirmText;
+            if (confirm(confirmText)) {
+                const expenseId = this.dataset.expenseId;
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = `/expenses/delete/${expenseId}`;
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    });
+    
+    // Auto-focus amount input after category selection
     const categorySelect = document.getElementById('category_id');
     const amountInput = document.getElementById('amount');
     if (categorySelect && amountInput) {
