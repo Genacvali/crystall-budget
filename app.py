@@ -108,142 +108,12 @@ def inject_currency():
     code = session.get("currency", DEFAULT_CURRENCY)
     info = CURRENCIES.get(code, CURRENCIES[DEFAULT_CURRENCY])
     return dict(currency_code=code, currency_symbol=info["symbol"], currencies=CURRENCIES)
-def _norm_cur(code: str) -> str:
-    return (code or "").strip().upper()
-
-def _fetch_rate_exchangerate_host(frm: str, to: str) -> float:
-    """Прямая пара через exchangerate.host"""
-    r = requests.get("https://api.exchangerate.host/convert",
-                     params={"from": frm, "to": to}, timeout=6)
-    r.raise_for_status()
-    j = r.json()
-    if not j or j.get("result") in (None, 0):
-        raise RuntimeError("no result")
-    return float(j["result"])
-
-def _fetch_latest(base: str, sym: str) -> float:
-    """Один курс base->sym через /latest (удобно для кросс-курса)"""
-    r = requests.get("https://api.exchangerate.host/latest",
-                     params={"base": base, "symbols": sym}, timeout=6)
-    r.raise_for_status()
-    j = r.json()
-    v = j.get("rates", {}).get(sym)
-    if not v:
-        raise RuntimeError("no rate in latest")
-    return float(v)
-
-def get_exchange_rate(frm: str, to: str) -> float:
-    """
-    1) читаем кэш exchange_rates (TTL);
-    2) пробуем прямую пару;
-    3) пробуем кросс-курс через EXR_BRIDGE (USD по умолчанию);
-    4) сохраняем в кэш; если всё упало — возвращаем старый кэш, если был.
-    """
-    frm, to = _norm_cur(frm), _norm_cur(to)
-    if frm == to:
-        return 1.0
-
-    now = datetime.utcnow()
-    conn = get_db()
-    conn.execute("PRAGMA foreign_keys=ON")
-
-    row = conn.execute(
-        "SELECT rate, updated_at FROM exchange_rates WHERE from_currency=? AND to_currency=?",
-        (frm, to)
-    ).fetchone()
-
-    # свежий кэш
-    if row:
-        try:
-            updated = datetime.fromisoformat(row["updated_at"].replace("Z",""))
-        except Exception:
-            updated = now
-        if (now - updated).total_seconds() < EXR_CACHE_TTL_SECONDS and row["rate"] and row["rate"] > 0:
-            conn.close()
-            return float(row["rate"])
-
-    # прямая пара
-    rate = None
-    try:
-        rate = _fetch_rate_exchangerate_host(frm, to)
-    except Exception:
-        pass
-
-    # кросс-курс через мост
-    if not rate:
-        try:
-            if frm == EXR_BRIDGE:
-                rate = _fetch_latest(EXR_BRIDGE, to)
-            elif to == EXR_BRIDGE:
-                rate = _fetch_latest(frm, EXR_BRIDGE)
-            else:
-                r1 = _fetch_latest(frm, EXR_BRIDGE)
-                r2 = _fetch_latest(EXR_BRIDGE, to)
-                rate = r1 * r2
-        except Exception:
-            pass
-
-    # если так и не вышло — вернём старый кэш (если был)
-    if not rate:
-        if row:
-            conn.close()
-            return float(row["rate"])
-        conn.close()
-        raise RuntimeError(f"cannot fetch exchange rate {frm}->{to}")
-
-    # сохраним кэш и вернём
-    conn.execute("""
-        INSERT INTO exchange_rates(from_currency, to_currency, rate, updated_at)
-        VALUES(?,?,?,?)
-        ON CONFLICT(from_currency, to_currency) DO UPDATE SET
-          rate=excluded.rate,
-          updated_at=excluded.updated_at
-    """, (frm, to, float(rate), now.isoformat(timespec="seconds")+"Z"))
-    conn.commit()
-    conn.close()
-    return float(rate)
-# Заголовки безопасности
-@app.after_request
-def set_security_headers(response):
-    # Защита от XSS
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    
-    # Content Security Policy для дополнительной защиты от XSS
-    if https_mode:
-        # Строгий CSP для продакшена
-        response.headers['Content-Security-Policy'] = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline'; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-            "font-src 'self' https://cdn.jsdelivr.net; "
-            "img-src 'self' data:; "
-            "connect-src 'self'"
-        )
-        # HSTS заголовок для принудительного HTTPS
-        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    else:
-        # Более мягкий CSP для разработки
-        response.headers['Content-Security-Policy'] = (
-            "default-src 'self'; "
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
-            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
-            "font-src 'self' https://cdn.jsdelivr.net; "
-            "img-src 'self' data:"
-        )
-    
-    # Кэширование для статических ресурсов
-    if request.endpoint == 'static':
-        response.headers['Cache-Control'] = 'public, max-age=86400'  # 24 часа
-    
-    return response
 
 # -----------------------------------------------------------------------------
 # Currency conversion helper
 # -----------------------------------------------------------------------------
-BRIDGE_CURRENCY = os.environ.get("EXR_BRIDGE", "USD").upper()  # для кросс-курса
-EXR_CACHE_TTL_SECONDS = int(os.environ.get("EXR_CACHE_TTL", "3600"))  # 1 час
+BRIDGE_CURRENCY = EXR_BRIDGE
+# TTL берём из верхнего EXR_CACHE_TTL_SECONDS (ничего не переопределяем)
 
 def _norm_cur(curr):
     """Нормализует валюту к верхнему регистру."""
@@ -733,6 +603,7 @@ def view_logs():
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Логи - CrystalBudget</title>
             <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+            <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
             <style>
                 .log-content {
                     background-color: #1a1a1a;
@@ -810,7 +681,8 @@ def internal_error(error):
 @app.route("/set-currency", methods=["POST"])
 @login_required
 def set_currency():
-    code = (request.form.get("currency") or request.json.get("currency") or "").upper()
+    payload = request.get_json(silent=True) or {}
+    code = (request.form.get("currency") or payload.get("currency") or "").upper()
     if code in CURRENCIES:
         session["currency"] = code
         if request.is_json:
@@ -2837,7 +2709,7 @@ def shared_budget_detail(budget_id):
     
     # Получаем участников
     cursor = conn.execute("""
-    SELECT u.username, sbm.role, sbm.joined_at
+    SELECT u.name AS username, sbm.role, sbm.joined_at
     FROM shared_budget_members sbm
     JOIN users u ON sbm.user_id = u.id
     WHERE sbm.shared_budget_id = ?
@@ -2848,7 +2720,7 @@ def shared_budget_detail(budget_id):
     
     # Получаем общие расходы всех участников за текущий месяц
     cursor = conn.execute("""
-    SELECT e.amount, e.description, e.date, c.name as category_name, u.username
+    SELECT e.amount, e.note AS description, e.date, c.name AS category_name, u.name AS username
     FROM expenses e
     JOIN categories c ON e.category_id = c.id
     JOIN users u ON e.user_id = u.id
@@ -2875,14 +2747,10 @@ def set_security_headers(response):
 
     csp_base = [
         "default-src 'self'",
-        # Скрипты: только локальные (Bootstrap bundle кладём в /static/js/)
-        "script-src 'self' 'unsafe-inline'",
-        # Стили и шрифты для Google Fonts и bootstrap-icons
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-        "font-src 'self' data: https://fonts.gstatic.com",
-        # Картинки
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+        "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
         "img-src 'self' data:",
-        # Разрешаем бекенду тянуть курсы
         "connect-src 'self' https://api.exchangerate.host"
     ]
 
