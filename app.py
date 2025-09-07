@@ -828,39 +828,64 @@ from werkzeug.utils import secure_filename
 def account():
     uid = session["user_id"]
     conn = get_db()
-    user = conn.execute(
-        "SELECT id, email, name, timezone, locale, default_currency, theme, avatar_path FROM users WHERE id=?",
-        (uid,)
-    ).fetchone()
+    
+    # Безопасное получение данных пользователя
+    try:
+        user = conn.execute(
+            "SELECT id, email, name, timezone, locale, default_currency, theme, avatar_path FROM users WHERE id=?",
+            (uid,)
+        ).fetchone()
+    except sqlite3.OperationalError:
+        # Если новые поля не существуют, используем базовую версию
+        user = conn.execute("SELECT id, email, name FROM users WHERE id=?", (uid,)).fetchone()
+        if user:
+            # Создаем словарь с дефолтными значениями
+            user_data = {
+                'id': user['id'],
+                'email': user['email'], 
+                'name': user['name'],
+                'timezone': 'UTC',
+                'locale': 'ru',
+                'default_currency': 'RUB', 
+                'theme': 'light',
+                'avatar_path': None
+            }
+            # Простой объект для совместимости с шаблоном
+            user = type('User', (), user_data)()
 
     if request.method == "POST":
-        # Обновление профиля/настроек (без пароля и аватара)
+        # Обновление базовых полей (имя и email всегда есть)
         name = sanitize_string(request.form.get("name"), 120)
         email = (request.form.get("email") or "").strip().lower()
-        timezone = sanitize_string(request.form.get("timezone"), 64) or "UTC"
-        locale = sanitize_string(request.form.get("locale"), 8) or "ru"
-        default_currency = (request.form.get("default_currency") or "RUB").upper()
-        theme = request.form.get("theme") or "light"
 
         # Проверим уникальность email, если поменяли
-        if email and email != user["email"]:
+        if email and email != user.email:
             exists = conn.execute("SELECT 1 FROM users WHERE email=? AND id<>?", (email, uid)).fetchone()
             if exists:
                 flash("Этот email уже занят", "error")
                 conn.close()
                 return redirect(url_for("account"))
 
-        conn.execute("""
-            UPDATE users
-               SET name=?, email=?, timezone=?, locale=?, default_currency=?, theme=?
-             WHERE id=?
-        """, (name or user["name"], email or user["email"], timezone, locale, default_currency, theme, uid))
+        # Пробуем обновить с расширенными полями
+        try:
+            timezone = sanitize_string(request.form.get("timezone"), 64) or "UTC"
+            locale = sanitize_string(request.form.get("locale"), 8) or "ru" 
+            default_currency = (request.form.get("default_currency") or "RUB").upper()
+            theme = request.form.get("theme") or "light"
+            
+            conn.execute("""
+                UPDATE users
+                SET name=?, email=?, timezone=?, locale=?, default_currency=?, theme=?
+                WHERE id=?
+            """, (name or user.name, email or user.email, timezone, locale, default_currency, theme, uid))
+        except sqlite3.OperationalError:
+            # Если расширенные поля не существуют, обновляем только базовые
+            conn.execute("UPDATE users SET name=?, email=? WHERE id=?", 
+                        (name or user.name, email or user.email, uid))
+        
         conn.commit()
-
-        # Положим в сессию актуальные имя/почту/валюту/тему
-        session["email"] = email or user["email"]
-        session["name"] = name or user["name"]
-        session["currency"] = default_currency  # синхронизация с селектором валют
+        session["email"] = email or user.email
+        session["name"] = name or user.name
         flash("Настройки сохранены", "success")
         conn.close()
         return redirect(url_for("account"))
@@ -2376,12 +2401,13 @@ ACCOUNT_HTML = """
           <div class="row g-3">
             <div class="col-md-6">
               <label class="form-label">Имя</label>
-              <input class="form-control" name="name" value="{{ user.name }}" required>
+              <input class="form-control" name="name" value="{{ user.name or '' }}" required>
             </div>
             <div class="col-md-6">
               <label class="form-label">Email</label>
-              <input class="form-control" type="email" name="email" value="{{ user.email }}" required>
+              <input class="form-control" type="email" name="email" value="{{ user.email or '' }}" required>
             </div>
+            {% if user.timezone is defined %}
             <div class="col-md-4">
               <label class="form-label">Часовой пояс</label>
               <input class="form-control" name="timezone" value="{{ user.timezone or 'UTC' }}" placeholder="Europe/Moscow">
@@ -2389,7 +2415,7 @@ ACCOUNT_HTML = """
             <div class="col-md-4">
               <label class="form-label">Язык</label>
               <select class="form-select" name="locale">
-                <option value="ru" {% if user.locale=='ru' %}selected{% endif %}>Русский</option>
+                <option value="ru" {% if (user.locale or 'ru')=='ru' %}selected{% endif %}>Русский</option>
                 <option value="en" {% if user.locale=='en' %}selected{% endif %}>English</option>
               </select>
             </div>
@@ -2408,6 +2434,14 @@ ACCOUNT_HTML = """
                 <option value="dark" {% if user.theme=='dark' %}selected{% endif %}>Тёмная</option>
               </select>
             </div>
+            {% else %}
+            <div class="col-12">
+              <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> 
+                Дополнительные настройки профиля будут доступны после обновления системы.
+              </div>
+            </div>
+            {% endif %}
             <div class="col-12 d-flex gap-2 mt-2">
               <button class="btn btn-primary">Сохранить</button>
               <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Отмена</a>
