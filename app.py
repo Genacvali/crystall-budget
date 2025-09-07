@@ -2361,31 +2361,6 @@ app.jinja_loader = ChoiceLoader(
     ]
 )
 
-# -----------------------------------------------------------------------------
-# Конвертация
-# ---------------------------------------------------------
-
-@app.get("/api/convert")
-def api_convert():
-    frm = _norm_cur(request.args.get("from", "RUB"))
-    to  = _norm_cur(request.args.get("to", "USD"))
-    amt_raw = request.args.get("amount", "1")
-    try:
-        amount = float(amt_raw)
-    except Exception:
-        return jsonify({"ok": False, "error": "bad amount"}), 400
-
-    try:
-        rate = get_exchange_rate(frm, to)
-        return jsonify({
-            "ok": True,
-            "from": frm, "to": to,
-            "rate": rate,
-            "amount": amount,
-            "result": round(amount * rate, 2)
-        })
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 502
 
 # -----------------------------------------------------------------------------
 # Health check endpoint для мониторинга
