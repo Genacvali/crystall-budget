@@ -50,6 +50,9 @@ sudo systemctl status crystalbudget
 # Database operations (SQLite CLI)
 sqlite3 budget.db ".schema"
 sqlite3 budget.db "SELECT * FROM users;"
+
+# Database migration (for new features)
+python3 migrate_new_tables.py
 ```
 
 ## Architecture Overview

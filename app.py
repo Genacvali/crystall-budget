@@ -353,56 +353,6 @@ def ensure_income_sources_tables():
     )
     """)
     
-    # Таблица для целей накоплений
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS savings_goals (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      name TEXT NOT NULL,
-      target_amount DECIMAL(10,2) NOT NULL,
-      current_amount DECIMAL(10,2) DEFAULT 0,
-      target_date DATE,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      completed_at TIMESTAMP NULL,
-      description TEXT
-    )
-    """)
-    
-    # Таблица для shared budgets
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS shared_budgets (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      creator_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      invite_code TEXT UNIQUE NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )
-    """)
-    
-    # Участники shared budgets
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS shared_budget_members (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      shared_budget_id INTEGER NOT NULL REFERENCES shared_budgets(id) ON DELETE CASCADE,
-      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-      role TEXT DEFAULT 'member',
-      joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(shared_budget_id, user_id)
-    )
-    """)
-    
-    # Курсы валют (для кэширования)
-    conn.execute("""
-    CREATE TABLE IF NOT EXISTS exchange_rates (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      from_currency TEXT NOT NULL,
-      to_currency TEXT NOT NULL,
-      rate DECIMAL(10,6) NOT NULL,
-      updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(from_currency, to_currency)
-    )
-    """)
-    
     conn.commit()
     conn.close()
 
@@ -2623,6 +2573,83 @@ def shared_budget_detail(budget_id):
                          members=members, 
                          recent_expenses=recent_expenses)
 
+def ensure_new_tables():
+    """Создаем новые таблицы если их нет (миграция)."""
+    try:
+        conn = get_db()
+        
+        # Проверяем существование таблиц
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='savings_goals'")
+        if not cursor.fetchone():
+            # Таблица для целей накоплений
+            conn.execute("""
+            CREATE TABLE savings_goals (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+              name TEXT NOT NULL,
+              target_amount DECIMAL(10,2) NOT NULL,
+              current_amount DECIMAL(10,2) DEFAULT 0,
+              target_date DATE,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              completed_at TIMESTAMP NULL,
+              description TEXT
+            )
+            """)
+            app.logger.info("Created savings_goals table")
+        
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='shared_budgets'")
+        if not cursor.fetchone():
+            # Таблица для shared budgets
+            conn.execute("""
+            CREATE TABLE shared_budgets (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              name TEXT NOT NULL,
+              creator_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+              invite_code TEXT UNIQUE NOT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """)
+            app.logger.info("Created shared_budgets table")
+        
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='shared_budget_members'")
+        if not cursor.fetchone():
+            # Участники shared budgets
+            conn.execute("""
+            CREATE TABLE shared_budget_members (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              shared_budget_id INTEGER NOT NULL REFERENCES shared_budgets(id) ON DELETE CASCADE,
+              user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+              role TEXT DEFAULT 'member',
+              joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              UNIQUE(shared_budget_id, user_id)
+            )
+            """)
+            app.logger.info("Created shared_budget_members table")
+        
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='exchange_rates'")
+        if not cursor.fetchone():
+            # Курсы валют (для кэширования)
+            conn.execute("""
+            CREATE TABLE exchange_rates (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              from_currency TEXT NOT NULL,
+              to_currency TEXT NOT NULL,
+              rate DECIMAL(10,6) NOT NULL,
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              UNIQUE(from_currency, to_currency)
+            )
+            """)
+            app.logger.info("Created exchange_rates table")
+            
+        conn.commit()
+        conn.close()
+        app.logger.info("New tables migration completed successfully")
+        
+    except Exception as e:
+        app.logger.error(f"Error in ensure_new_tables migration: {e}")
+        if conn:
+            conn.close()
+
 # -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
@@ -2632,4 +2659,5 @@ if __name__ == "__main__":
     migrate_income_to_daily_if_needed()
     add_source_id_column_if_missing()
     add_category_type_column_if_missing()
+    ensure_new_tables()  # Миграция новых таблиц
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=os.environ.get("FLASK_ENV") == "development")
