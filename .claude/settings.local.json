@@ -17,7 +17,10 @@
       "Bash(find:*)",
       "Bash(curl:*)",
       "Bash(FLASK_RUN_PORT=5001 python3 app.py)",
-      "Bash(PORT=5001 python3:*)"
+      "Bash(PORT=5001 python3:*)",
+      "Bash(git diff:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
