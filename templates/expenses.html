@@ -43,8 +43,8 @@
     font-style: italic;
   }
 </style>
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h2 class="h4 m-0">Мои расходы</h2>
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h2 class="h4 m-0"><i class="bi bi-wallet2 text-danger me-2"></i>Мои расходы</h2>
     <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
         <i class="bi bi-plus-lg me-1"></i>
         <span class="d-none d-sm-inline">Добавить </span>Расход
@@ -88,60 +88,38 @@
     </div>
 </div>
 
-<!-- Мобильные карточки с swipe -->
+<!-- Мобильные карточки -->
 <div class="d-block d-md-none">
     {% for expense in expenses %}
-    <div class="swipe-card mb-2" data-expense-id="{{ expense.id }}">
-        <div class="swipe-actions swipe-left">
-            <button class="swipe-action edit" data-url="{{ url_for('edit_expense', expense_id=expense.id) }}">
-                <i class="bi bi-pencil"></i>
-            </button>
-        </div>
-        
-        <div class="card swipe-content">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <div>
-                        <h6 class="mb-1">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></h6>
-                        <small class="text-muted">
-                            <i class="bi bi-calendar3"></i> {{ expense.date|format_date_with_day }}
-                        </small>
+    <div class="card expense-card mb-3">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-8">
+                    <div class="expense-amount text-danger">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
+                    <div class="expense-category">{{ expense.category_name }}</div>
+                    <div class="expense-date">
+                        <i class="bi bi-calendar3 me-1"></i>{{ expense.date|format_date_with_day }}
                     </div>
-                    <span class="badge bg-secondary">{{ expense.category_name }}</span>
+                    {% if expense.note %}
+                    <div class="expense-note mt-1">
+                        <i class="bi bi-chat-dots me-1"></i>{{ expense.note }}
+                    </div>
+                    {% endif %}
                 </div>
-
-                {% if expense.note %}
-                <p class="text-muted mb-2" style="font-size: 0.9rem;">
-                    <i class="bi bi-chat-dots"></i> {{ expense.note }}
-                </p>
-                {% endif %}
-
-                <div class="d-flex gap-2 mt-2 d-none">
-                    <a href="{{ url_for('edit_expense', expense_id=expense.id) }}"
-                       class="btn btn-outline-primary flex-fill">
-                        <i class="bi bi-pencil"></i> Изменить
-                    </a>
-                    <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="flex-fill">
-                        <button type="submit" class="btn btn-outline-danger w-100"
-                                onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
-                            <i class="bi bi-trash"></i> Удалить
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Swipe hint -->
-                <div class="swipe-hint">
-                    <small class="text-muted">← редактировать | удалить →</small>
+                <div class="col-4 text-end">
+                    <div class="btn-group-vertical" role="group">
+                        <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                    onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="swipe-actions swipe-right">
-            <button class="swipe-action delete" 
-                    data-expense-id="{{ expense.id }}"
-                    data-confirm-text="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}">
-                <i class="bi bi-trash"></i>
-            </button>
         </div>
     </div>
     {% endfor %}

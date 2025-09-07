@@ -445,13 +445,8 @@
             </a>
           </li>
           <li class="nav-item">
-            <a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('income_page') }}">
+            <a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}">
               <i class="bi bi-cash-coin"></i> Доходы
-            </a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link-modern {% if request.endpoint == 'sources_page' %}active{% endif %}" href="{{ url_for('sources_page') }}">
-              <i class="bi bi-piggy-bank"></i> Источники
             </a>
           </li>
           <li class="nav-item">
@@ -559,13 +554,8 @@
         </a>
       </div>
       <div class="nav-item">
-        <a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()">
+        <a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()">
           <i class="bi bi-cash-coin"></i> Доходы
-        </a>
-      </div>
-      <div class="nav-item">
-        <a class="nav-link-modern {% if request.endpoint == 'sources_page' %}active{% endif %}" href="{{ url_for('sources_page') }}" onclick="closeSidebar()">
-          <i class="bi bi-piggy-bank"></i> Источники
         </a>
       </div>
       <div class="nav-item">

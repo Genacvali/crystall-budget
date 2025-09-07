@@ -144,15 +144,79 @@ def set_security_headers(response):
     return response
 
 # -----------------------------------------------------------------------------
+# Currency conversion helper
+# -----------------------------------------------------------------------------
+def convert_currency(amount, from_currency, to_currency):
+    """Конвертирует сумму из одной валюты в другую."""
+    if from_currency == to_currency:
+        return amount
+        
+    try:
+        conn = get_db()
+        # Ищем прямую конвертацию
+        cursor = conn.execute("""
+        SELECT rate FROM exchange_rates 
+        WHERE from_currency = ? AND to_currency = ? 
+        AND updated_at > datetime('now', '-1 hour')
+        """, (from_currency, to_currency))
+        
+        rate_row = cursor.fetchone()
+        if rate_row:
+            return float(amount) * rate_row[0]
+        
+        # Ищем обратную конвертацию
+        cursor = conn.execute("""
+        SELECT rate FROM exchange_rates 
+        WHERE from_currency = ? AND to_currency = ? 
+        AND updated_at > datetime('now', '-1 hour')
+        """, (to_currency, from_currency))
+        
+        rate_row = cursor.fetchone()
+        if rate_row:
+            return float(amount) / rate_row[0]
+            
+        # Если курса нет, обновляем курсы из API
+        try:
+            import requests
+            api_url = f"https://api.exchangerate-api.com/v4/latest/{from_currency}"
+            response = requests.get(api_url, timeout=3)
+            data = response.json()
+            
+            if to_currency in data.get('rates', {}):
+                rate = data['rates'][to_currency]
+                # Сохраняем курс в кэш
+                conn.execute("""
+                INSERT OR REPLACE INTO exchange_rates (from_currency, to_currency, rate)
+                VALUES (?, ?, ?)
+                """, (from_currency, to_currency, rate))
+                conn.commit()
+                return float(amount) * rate
+        except:
+            pass
+            
+        conn.close()
+        return amount  # Если конвертация не удалась, возвращаем исходную сумму
+        
+    except Exception as e:
+        app.logger.error(f"Currency conversion error: {e}")
+        return amount
+
+# -----------------------------------------------------------------------------
 # Jinja filters
 # -----------------------------------------------------------------------------
 @app.template_filter("format_amount")
-def format_amount(value):
-    """Число с пробелами для тысяч и без .0 у целых."""
+def format_amount(value, from_currency=None):
+    """Число с пробелами для тысяч, автоматическая конвертация валют."""
     try:
+        # Автоматическая конвертация если указана исходная валюта
+        if from_currency and 'currency' in session:
+            target_currency = session['currency']
+            if from_currency != target_currency:
+                value = convert_currency(value, from_currency, target_currency)
+        
         d = Decimal(str(value))
     except Exception:
-        return value
+        return str(value)
     # округлим до 2 знаков – но целые покажем без дробной части
     q = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
     s = f"{q:,.2f}".replace(",", " ")
@@ -385,6 +449,29 @@ def add_category_type_column_if_missing():
             print("Added category_type column to categories table")
         except sqlite3.OperationalError as e:
             print(f"Failed to add category_type column: {e}")
+    conn.close()
+
+
+def add_currency_columns_if_missing():
+    """Добавляет колонки currency в expenses и income_daily, если их нет."""
+    conn = get_db()
+    cur = conn.cursor()
+    
+    # Проверяем expenses
+    try:
+        cur.execute("ALTER TABLE expenses ADD COLUMN currency TEXT DEFAULT 'RUB'")
+        print("Added currency column to expenses table")
+    except Exception:
+        pass  # Колонка уже существует или ошибка
+    
+    # Проверяем income_daily
+    try:
+        cur.execute("ALTER TABLE income_daily ADD COLUMN currency TEXT DEFAULT 'RUB'")
+        print("Added currency column to income_daily table")
+    except Exception:
+        pass  # Колонка уже существует или ошибка
+    
+    conn.commit()
     conn.close()
 
 
@@ -1317,12 +1404,14 @@ def expenses():
 
         conn = get_db()
         try:
+            # Сохраняем текущую валюту пользователя
+            current_currency = session.get('currency', DEFAULT_CURRENCY)
             conn.execute(
                 """
-                INSERT INTO expenses (user_id, date, month, category_id, amount, note)
-                VALUES (?, ?, ?, ?, ?, ?)
+                INSERT INTO expenses (user_id, date, month, category_id, amount, note, currency)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
-                (uid, date_str, date_str[:7], category_id, amount, note),
+                (uid, date_str, date_str[:7], category_id, amount, note, current_currency),
             )
             conn.commit()
             flash("Расход добавлен", "success")
@@ -1466,9 +1555,12 @@ def income_add():
     conn = get_db()
     if not source_id:
         source_id = get_default_source_id(conn, uid)
+    
+    # Сохраняем текущую валюту пользователя
+    current_currency = session.get('currency', DEFAULT_CURRENCY)
     conn.execute(
-        "INSERT INTO income_daily (user_id, date, amount, source_id) VALUES (?,?,?,?)",
-        (uid, date_str, amount, source_id),
+        "INSERT INTO income_daily (user_id, date, amount, source_id, currency) VALUES (?,?,?,?,?)",
+        (uid, date_str, amount, source_id, current_currency),
     )
     conn.commit()
     conn.close()
@@ -2659,5 +2751,6 @@ if __name__ == "__main__":
     migrate_income_to_daily_if_needed()
     add_source_id_column_if_missing()
     add_category_type_column_if_missing()
+    add_currency_columns_if_missing()
     ensure_new_tables()  # Миграция новых таблиц
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=os.environ.get("FLASK_ENV") == "development")
