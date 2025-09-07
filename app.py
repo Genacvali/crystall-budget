@@ -943,11 +943,23 @@ def account_avatar():
 
     rel_path = f"avatars/{new_name}"  # для url_for('static', filename=rel_path)
     conn = get_db()
-    conn.execute("UPDATE users SET avatar_path=? WHERE id=?", (rel_path, uid))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("UPDATE users SET avatar_path=? WHERE id=?", (rel_path, uid))
+        conn.commit()
+        flash("Аватар обновлён", "success")
+    except sqlite3.OperationalError as e:
+        if "no such column: avatar_path" in str(e):
+            flash("Функция аватаров временно недоступна. Обратитесь к администратору.", "warning")
+            # Remove the uploaded file since we can't save the path
+            try:
+                os.remove(save_path)
+            except OSError:
+                pass
+        else:
+            flash("Ошибка обновления аватара", "error")
+    finally:
+        conn.close()
 
-    flash("Аватар обновлён", "success")
     return redirect(url_for("account"))
 
 
