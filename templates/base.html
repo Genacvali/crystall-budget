@@ -30,7 +30,8 @@
   <!-- Мгновенное применение темы -->
   <script>
     (function() {
-      const savedTheme = localStorage.getItem('theme') ||
+      const serverTheme = '{{ session.get("theme", "light") }}';
+      const savedTheme = localStorage.getItem('theme') || serverTheme ||
         (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
       document.documentElement.setAttribute('data-bs-theme', savedTheme);
       const meta = document.querySelector('meta[name="theme-color"]');
@@ -171,6 +172,12 @@
             </a>
             <ul class="dropdown-menu dropdown-menu-end modern-card" style="border:none;">
               <li>
+                <a class="dropdown-item nav-link-modern" href="{{ url_for('account') }}">
+                  <i class="bi bi-gear"></i> Личный кабинет
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
                 <a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}">
                   <i class="bi bi-box-arrow-right"></i> Выйти
                 </a>
@@ -196,6 +203,7 @@
       <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()"><i class="bi bi-cash-coin"></i> Доходы</a></div>
       <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'goals' %}active{% endif %}" href="{{ url_for('goals') }}" onclick="closeSidebar()"><i class="bi bi-bullseye"></i> Цели</a></div>
       <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['shared_budgets','shared_budget_detail'] %}active{% endif %}" href="{{ url_for('shared_budgets') }}" onclick="closeSidebar()"><i class="bi bi-people"></i> Семья</a></div>
+      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}" onclick="closeSidebar()"><i class="bi bi-gear"></i> Личный кабинет</a></div>
     </nav>
     <div class="sidebar-footer">
       <a class="user-profile" href="#"><i class="bi bi-person-circle" style="font-size:1.5rem;"></i>

@@ -49,6 +49,17 @@ else:
 
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
 
+# Uploads (аватары)
+app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2 MB
+AVATAR_DIR = os.path.join(os.path.dirname(__file__), 'static', 'avatars')
+os.makedirs(AVATAR_DIR, exist_ok=True)
+
+ALLOWED_AVATAR_EXT = {'.png', '.jpg', '.jpeg', '.webp'}
+
+def _allowed_avatar(filename: str) -> bool:
+    _, ext = os.path.splitext(filename.lower())
+    return ext in ALLOWED_AVATAR_EXT
+
 # -----------------------------------------------------------------------------
 # Logging setup
 # -----------------------------------------------------------------------------
@@ -787,6 +798,9 @@ def login():
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = user["name"]
+            # Загружаем настройки пользователя
+            session["theme"] = user.get("theme", "light")
+            session["currency"] = user.get("default_currency", "RUB")
             app.logger.info(f'Successful login for user: {email} (ID: {user["id"]})')
             return redirect(url_for("dashboard"))
         
@@ -802,6 +816,114 @@ def logout():
     app.logger.info(f'User logout: {user_email}')
     session.clear()
     return redirect(url_for("login"))
+
+
+# -----------------------------------------------------------------------------
+# Routes: account (личный кабинет)
+# -----------------------------------------------------------------------------
+from werkzeug.utils import secure_filename
+
+@app.route("/account", methods=["GET", "POST"])
+@login_required
+def account():
+    uid = session["user_id"]
+    conn = get_db()
+    user = conn.execute(
+        "SELECT id, email, name, timezone, locale, default_currency, theme, avatar_path FROM users WHERE id=?",
+        (uid,)
+    ).fetchone()
+
+    if request.method == "POST":
+        # Обновление профиля/настроек (без пароля и аватара)
+        name = sanitize_string(request.form.get("name"), 120)
+        email = (request.form.get("email") or "").strip().lower()
+        timezone = sanitize_string(request.form.get("timezone"), 64) or "UTC"
+        locale = sanitize_string(request.form.get("locale"), 8) or "ru"
+        default_currency = (request.form.get("default_currency") or "RUB").upper()
+        theme = request.form.get("theme") or "light"
+
+        # Проверим уникальность email, если поменяли
+        if email and email != user["email"]:
+            exists = conn.execute("SELECT 1 FROM users WHERE email=? AND id<>?", (email, uid)).fetchone()
+            if exists:
+                flash("Этот email уже занят", "error")
+                conn.close()
+                return redirect(url_for("account"))
+
+        conn.execute("""
+            UPDATE users
+               SET name=?, email=?, timezone=?, locale=?, default_currency=?, theme=?
+             WHERE id=?
+        """, (name or user["name"], email or user["email"], timezone, locale, default_currency, theme, uid))
+        conn.commit()
+
+        # Положим в сессию актуальные имя/почту/валюту/тему
+        session["email"] = email or user["email"]
+        session["name"] = name or user["name"]
+        session["currency"] = default_currency  # синхронизация с селектором валют
+        flash("Настройки сохранены", "success")
+        conn.close()
+        return redirect(url_for("account"))
+
+    conn.close()
+    return render_template("account.html", user=user, currencies=CURRENCIES)
+
+@app.route("/account/password", methods=["POST"])
+@login_required
+def account_password():
+    uid = session["user_id"]
+    old = request.form.get("old_password") or ""
+    new = request.form.get("new_password") or ""
+    confirm = request.form.get("confirm_password") or ""
+
+    if len(new) < 6:
+        flash("Новый пароль слишком короткий (мин. 6 символов)", "error")
+        return redirect(url_for("account"))
+    if new != confirm:
+        flash("Пароли не совпадают", "error")
+        return redirect(url_for("account"))
+
+    conn = get_db()
+    user = conn.execute("SELECT password_hash FROM users WHERE id=?", (uid,)).fetchone()
+    if not user or not check_password_hash(user["password_hash"], old):
+        conn.close()
+        flash("Текущий пароль неверный", "error")
+        return redirect(url_for("account"))
+
+    conn.execute("UPDATE users SET password_hash=? WHERE id=?", (generate_password_hash(new), uid))
+    conn.commit()
+    conn.close()
+    flash("Пароль обновлён", "success")
+    return redirect(url_for("account"))
+
+@app.route("/account/avatar", methods=["POST"])
+@login_required
+def account_avatar():
+    uid = session["user_id"]
+    file = request.files.get("avatar")
+    if not file or not file.filename:
+        flash("Файл не выбран", "error")
+        return redirect(url_for("account"))
+
+    if not _allowed_avatar(file.filename):
+        flash("Разрешены PNG/JPG/JPEG/WEBP", "error")
+        return redirect(url_for("account"))
+
+    filename = secure_filename(file.filename)
+    _, ext = os.path.splitext(filename.lower())
+    # персонализированное имя — userID + timestamp
+    new_name = f"user_{uid}_{int(datetime.utcnow().timestamp())}{ext}"
+    save_path = os.path.join(AVATAR_DIR, new_name)
+    file.save(save_path)
+
+    rel_path = f"avatars/{new_name}"  # для url_for('static', filename=rel_path)
+    conn = get_db()
+    conn.execute("UPDATE users SET avatar_path=? WHERE id=?", (rel_path, uid))
+    conn.commit()
+    conn.close()
+
+    flash("Аватар обновлён", "success")
+    return redirect(url_for("account"))
 
 
 # -----------------------------------------------------------------------------
@@ -2217,6 +2339,114 @@ SOURCES_HTML = """
 {% endblock %}
 """
 
+ACCOUNT_HTML = """
+{% extends "base.html" %}
+{% block title %}Личный кабинет — CrystalBudget{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-4">
+    <div class="card modern-card">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Аватар</h5>
+        <div class="text-center mb-3">
+          {% if user.avatar_path %}
+            <img src="{{ url_for('static', filename=user.avatar_path) }}" alt="avatar" class="rounded-circle" style="width:120px;height:120px;object-fit:cover;">
+          {% else %}
+            <div class="rounded-circle bg-secondary d-inline-flex align-items-center justify-content-center" style="width:120px;height:120px;color:#fff;font-size:40px;">
+              {{ (user.name or 'U')[:1] }}
+            </div>
+          {% endif %}
+        </div>
+        <form method="post" action="{{ url_for('account_avatar') }}" enctype="multipart/form-data">
+          <div class="mb-3">
+            <input class="form-control" type="file" name="avatar" accept=".png,.jpg,.jpeg,.webp" required>
+            <div class="form-text">До 2 МБ</div>
+          </div>
+          <button class="btn btn-outline-primary w-100">Загрузить</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-8">
+    <div class="card modern-card mb-4">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Профиль</h5>
+        <form method="post" action="{{ url_for('account') }}">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Имя</label>
+              <input class="form-control" name="name" value="{{ user.name }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input class="form-control" type="email" name="email" value="{{ user.email }}" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Часовой пояс</label>
+              <input class="form-control" name="timezone" value="{{ user.timezone or 'UTC' }}" placeholder="Europe/Moscow">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Язык</label>
+              <select class="form-select" name="locale">
+                <option value="ru" {% if user.locale=='ru' %}selected{% endif %}>Русский</option>
+                <option value="en" {% if user.locale=='en' %}selected{% endif %}>English</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Валюта по умолчанию</label>
+              <select class="form-select" name="default_currency">
+                {% for code, info in currencies.items() %}
+                  <option value="{{ code }}" {% if (user.default_currency or 'RUB') == code %}selected{% endif %}>{{ info.label }} ({{ info.symbol }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Тема</label>
+              <select class="form-select" name="theme">
+                <option value="light" {% if (user.theme or 'light')=='light' %}selected{% endif %}>Светлая</option>
+                <option value="dark" {% if user.theme=='dark' %}selected{% endif %}>Тёмная</option>
+              </select>
+            </div>
+            <div class="col-12 d-flex gap-2 mt-2">
+              <button class="btn btn-primary">Сохранить</button>
+              <a class="btn btn-secondary" href="{{ url_for('dashboard') }}">Отмена</a>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card modern-card">
+      <div class="card-body">
+        <h5 class="card-title mb-3">Смена пароля</h5>
+        <form method="post" action="{{ url_for('account_password') }}">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Текущий пароль</label>
+              <input class="form-control" type="password" name="old_password" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Новый пароль</label>
+              <input class="form-control" type="password" name="new_password" minlength="6" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Повторите новый</label>
+              <input class="form-control" type="password" name="confirm_password" minlength="6" required>
+            </div>
+            <div class="col-12 mt-2">
+              <button class="btn btn-outline-primary">Обновить пароль</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+"""
+
 app.jinja_loader = ChoiceLoader(
     [
         app.jinja_loader,  # ← сначала файловая система
@@ -2229,6 +2459,7 @@ app.jinja_loader = ChoiceLoader(
             "expenses.html": EXPENSES_HTML,
             "income.html": INCOME_HTML,
             "sources.html": SOURCES_HTML,
+            "account.html": ACCOUNT_HTML,
         }),
     ]
 )
@@ -2763,6 +2994,40 @@ def set_security_headers(response):
     if request.endpoint == 'static':
         response.headers['Cache-Control'] = 'public, max-age=86400'
     return response
+def add_profile_columns_if_missing():
+    """Добавляем поля профиля в таблицу users если их нет."""
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(users)")
+        cols = {r[1] for r in cur.fetchall()}
+
+        def add(col_sql):
+            try:
+                cur.execute(col_sql)
+            except sqlite3.OperationalError:
+                pass
+
+        if "timezone" not in cols:
+            add("ALTER TABLE users ADD COLUMN timezone TEXT DEFAULT 'UTC'")
+        if "locale" not in cols:
+            add("ALTER TABLE users ADD COLUMN locale TEXT DEFAULT 'ru'")
+        if "default_currency" not in cols:
+            add("ALTER TABLE users ADD COLUMN default_currency TEXT DEFAULT 'RUB'")
+        if "theme" not in cols:
+            add("ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'light'")
+        if "avatar_path" not in cols:
+            add("ALTER TABLE users ADD COLUMN avatar_path TEXT")
+
+        conn.commit()
+        conn.close()
+        app.logger.info("Profile columns migration completed successfully")
+        
+    except Exception as e:
+        app.logger.error(f"Error in add_profile_columns_if_missing migration: {e}")
+        if conn:
+            conn.close()
+
 def ensure_new_tables():
     """Создаем новые таблицы если их нет (миграция)."""
     try:
@@ -2850,5 +3115,6 @@ if __name__ == "__main__":
     add_source_id_column_if_missing()
     add_category_type_column_if_missing()
     add_currency_columns_if_missing()
+    add_profile_columns_if_missing()  # Миграция полей профиля
     ensure_new_tables()  # Миграция новых таблиц
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=os.environ.get("FLASK_ENV") == "development")
