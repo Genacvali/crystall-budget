@@ -171,3 +171,13 @@ SQLite with user data isolation and automatic schema creation:
 - **💱 Enhanced Multi-Currency**: Live exchange rate caching with automatic updates
 - **👨‍👩‍👧‍👦 Shared Budgets**: Family budget collaboration with invite codes and role-based access
 - **🔒 Enhanced Security**: Comprehensive security headers, CSP, HSTS, and secure cookies
+
+## Language and Localization
+- **Russian Interface**: All UI text, messages, and default categories are in Russian
+- **Default Categories**: Auto-populated on first run with Russian labels:
+  - Продукты (30% от дохода)
+  - Транспорт (5000₽ фикс.)  
+  - Развлечения (15% от дохода)
+  - Коммунальные (8000₽ фикс.)
+  - Здоровье (3000₽ фикс.)
+  - Одежда (10% от дохода)
