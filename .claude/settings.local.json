@@ -15,7 +15,9 @@
       "mcp__ide__getDiagnostics",
       "Read(///**)",
       "Bash(find:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(FLASK_RUN_PORT=5001 python3 app.py)",
+      "Bash(PORT=5001 python3:*)"
     ],
     "deny": [],
     "ask": []
