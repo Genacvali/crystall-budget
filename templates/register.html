@@ -16,29 +16,71 @@
                         <label for="name" class="form-label">
                             <i class="bi bi-person"></i> Имя
                         </label>
-                        <input type="text" id="name" name="name" class="form-control" 
-                               placeholder="Ваше имя" required autocomplete="name">
-                        <div class="invalid-feedback">Пожалуйста, введите ваше имя</div>
+                        <div class="input-group">
+                            <input type="text" id="name" name="name" class="form-control" 
+                                   placeholder="Ваше имя" required autocomplete="name"
+                                   aria-describedby="name-feedback">
+                            <span class="input-group-text validation-icon d-none">
+                                <i class="bi bi-check-circle text-success"></i>
+                            </span>
+                        </div>
+                        <div id="name-feedback" class="invalid-feedback">
+                            Пожалуйста, введите ваше имя (минимум 2 символа)
+                        </div>
+                        <div class="valid-feedback">
+                            Отлично! Имя введено корректно
+                        </div>
                     </div>
                     
                     <div class="mb-3">
                         <label for="email" class="form-label">
                             <i class="bi bi-envelope"></i> Email
                         </label>
-                        <input type="email" id="email" name="email" class="form-control" 
-                               placeholder="your@email.com" required autocomplete="email">
-                        <div class="invalid-feedback">Пожалуйста, введите корректный email адрес</div>
+                        <div class="input-group">
+                            <input type="email" id="email" name="email" class="form-control" 
+                                   placeholder="your@email.com" required autocomplete="email"
+                                   aria-describedby="email-feedback">
+                            <span class="input-group-text validation-icon d-none">
+                                <i class="bi bi-check-circle text-success"></i>
+                            </span>
+                        </div>
+                        <div id="email-feedback" class="invalid-feedback">
+                            Пожалуйста, введите корректный email адрес
+                        </div>
+                        <div class="valid-feedback">
+                            Email адрес корректный
+                        </div>
                     </div>
                     
                     <div class="mb-4">
                         <label for="password" class="form-label">
                             <i class="bi bi-lock"></i> Пароль
                         </label>
-                        <input type="password" id="password" name="password" class="form-control" 
-                               placeholder="Создайте пароль" required autocomplete="new-password"
-                               minlength="6">
-                        <div class="form-text">Минимум 6 символов, без пробелов</div>
-                        <div class="invalid-feedback">Пароль должен содержать минимум 6 символов и не содержать пробелов</div>
+                        <div class="input-group">
+                            <input type="password" id="password" name="password" class="form-control" 
+                                   placeholder="Создайте пароль" required autocomplete="new-password"
+                                   minlength="6" aria-describedby="password-feedback">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                            </button>
+                            <span class="input-group-text validation-icon d-none">
+                                <i class="bi bi-check-circle text-success"></i>
+                            </span>
+                        </div>
+                        <div class="form-text password-strength" id="password-strength">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="strength-bar">
+                                    <div class="strength-fill"></div>
+                                </div>
+                                <small class="strength-text">Введите пароль</small>
+                            </div>
+                        </div>
+                        <div id="password-feedback" class="invalid-feedback">
+                            Пароль должен содержать минимум 6 символов и не содержать пробелов
+                        </div>
+                        <div class="valid-feedback">
+                            Отличный пароль!
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn btn-success w-100 mb-3" id="submitBtn">
@@ -72,115 +114,226 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block scripts %}
+<style>
+/* Live validation styles */
+.validation-icon {
+    border-left: 0 !important;
+}
+
+.strength-bar {
+    width: 100px;
+    height: 4px;
+    background-color: var(--bs-gray-300);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.strength-fill {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+    width: 0%;
+    background-color: var(--bs-gray-400);
+}
+
+.strength-weak { background-color: var(--bs-danger) !important; }
+.strength-medium { background-color: var(--bs-warning) !important; }
+.strength-strong { background-color: var(--bs-success) !important; }
+
+.form-control.is-valid {
+    border-color: var(--bs-success);
+    background-image: none;
+}
+
+.form-control.is-invalid {
+    border-color: var(--bs-danger);
+    background-image: none;
+}
+
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.form-control.is-valid:focus {
+    border-color: var(--bs-success);
+    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
+}
+
+.form-control.is-invalid:focus {
+    border-color: var(--bs-danger);
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('registerForm');
     const nameInput = document.getElementById('name');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
-    
-    // Email validation regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    
-    function validateName(value) {
-        return value.trim().length > 0;
+    const togglePassword = document.getElementById('togglePassword');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // Password toggle functionality
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        togglePasswordIcon.classList.toggle('bi-eye');
+        togglePasswordIcon.classList.toggle('bi-eye-slash');
+    });
+
+    // Live validation functions
+    function validateName(input) {
+        const value = input.value.trim();
+        const isValid = value.length >= 2 && value.length <= 50;
+        
+        updateFieldState(input, isValid);
+        return isValid;
     }
-    
-    function validateEmail(value) {
-        return emailRegex.test(value.trim());
+
+    function validateEmail(input) {
+        const value = input.value.trim();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isValid = emailRegex.test(value);
+        
+        updateFieldState(input, isValid);
+        return isValid;
     }
-    
-    function validatePassword(value) {
-        return value.length >= 6 && !value.includes(' ');
+
+    function validatePassword(input) {
+        const value = input.value;
+        const hasNoSpaces = !/\s/.test(value);
+        const hasMinLength = value.length >= 6;
+        const isValid = hasNoSpaces && hasMinLength;
+        
+        // Update strength indicator
+        updatePasswordStrength(value);
+        updateFieldState(input, isValid);
+        return isValid;
     }
-    
-    function showError(input, message) {
-        input.classList.add('is-invalid');
-        input.classList.remove('is-valid');
+
+    function updatePasswordStrength(password) {
+        const strengthBar = document.querySelector('.strength-fill');
+        const strengthText = document.querySelector('.strength-text');
+        
+        if (password.length === 0) {
+            strengthBar.style.width = '0%';
+            strengthBar.className = 'strength-fill';
+            strengthText.textContent = 'Введите пароль';
+            return;
+        }
+        
+        let strength = 0;
+        let strengthClass = '';
+        let strengthLabel = '';
+        
+        // Basic checks
+        if (password.length >= 6) strength++;
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+        
+        if (strength <= 2) {
+            strengthClass = 'strength-weak';
+            strengthLabel = 'Слабый пароль';
+            strengthBar.style.width = '33%';
+        } else if (strength <= 3) {
+            strengthClass = 'strength-medium';
+            strengthLabel = 'Средний пароль';
+            strengthBar.style.width = '66%';
+        } else {
+            strengthClass = 'strength-strong';
+            strengthLabel = 'Сильный пароль';
+            strengthBar.style.width = '100%';
+        }
+        
+        strengthBar.className = `strength-fill ${strengthClass}`;
+        strengthText.textContent = strengthLabel;
     }
-    
-    function showSuccess(input) {
-        input.classList.add('is-valid');
-        input.classList.remove('is-invalid');
-    }
-    
-    function clearValidation(input) {
+
+    function updateFieldState(input, isValid) {
+        const validationIcon = input.parentElement.querySelector('.validation-icon');
+        
         input.classList.remove('is-valid', 'is-invalid');
+        
+        if (input.value.trim() === '') {
+            validationIcon?.classList.add('d-none');
+            return;
+        }
+        
+        if (isValid) {
+            input.classList.add('is-valid');
+            validationIcon?.classList.remove('d-none');
+            validationIcon?.querySelector('i').className = 'bi bi-check-circle text-success';
+        } else {
+            input.classList.add('is-invalid');
+            validationIcon?.classList.remove('d-none');
+            validationIcon?.querySelector('i').className = 'bi bi-x-circle text-danger';
+        }
     }
-    
-    // Real-time validation
-    nameInput.addEventListener('input', function() {
-        const value = this.value;
-        if (value.length === 0) {
-            clearValidation(this);
-        } else if (validateName(value)) {
-            showSuccess(this);
+
+    function updateSubmitButton() {
+        const nameValid = validateName(nameInput);
+        const emailValid = validateEmail(emailInput);
+        const passwordValid = validatePassword(passwordInput);
+        
+        const allValid = nameValid && emailValid && passwordValid;
+        submitBtn.disabled = !allValid;
+        
+        if (allValid) {
+            submitBtn.classList.remove('btn-secondary');
+            submitBtn.classList.add('btn-success');
         } else {
-            showError(this);
+            submitBtn.classList.remove('btn-success');
+            submitBtn.classList.add('btn-secondary');
         }
+    }
+
+    // Add event listeners
+    nameInput.addEventListener('input', () => {
+        validateName(nameInput);
+        updateSubmitButton();
     });
-    
-    emailInput.addEventListener('input', function() {
-        const value = this.value;
-        if (value.length === 0) {
-            clearValidation(this);
-        } else if (validateEmail(value)) {
-            showSuccess(this);
-        } else {
-            showError(this);
-        }
+
+    nameInput.addEventListener('blur', () => {
+        validateName(nameInput);
+        updateSubmitButton();
     });
-    
-    passwordInput.addEventListener('input', function() {
-        const value = this.value;
-        if (value.length === 0) {
-            clearValidation(this);
-        } else if (validatePassword(value)) {
-            showSuccess(this);
-        } else {
-            showError(this);
-        }
+
+    emailInput.addEventListener('input', () => {
+        validateEmail(emailInput);
+        updateSubmitButton();
     });
-    
-    // Form submission validation
+
+    emailInput.addEventListener('blur', () => {
+        validateEmail(emailInput);
+        updateSubmitButton();
+    });
+
+    passwordInput.addEventListener('input', () => {
+        validatePassword(passwordInput);
+        updateSubmitButton();
+    });
+
+    passwordInput.addEventListener('blur', () => {
+        validatePassword(passwordInput);
+        updateSubmitButton();
+    });
+
+    // Form submission with loading state
     form.addEventListener('submit', function(e) {
-        let isValid = true;
-        
-        const nameValue = nameInput.value;
-        const emailValue = emailInput.value;
-        const passwordValue = passwordInput.value;
-        
-        // Validate name
-        if (!validateName(nameValue)) {
-            showError(nameInput);
-            isValid = false;
-        } else {
-            showSuccess(nameInput);
-        }
-        
-        // Validate email
-        if (!validateEmail(emailValue)) {
-            showError(emailInput);
-            isValid = false;
-        } else {
-            showSuccess(emailInput);
-        }
-        
-        // Validate password
-        if (!validatePassword(passwordValue)) {
-            showError(passwordInput);
-            isValid = false;
-        } else {
-            showSuccess(passwordInput);
-        }
-        
-        if (!isValid) {
+        if (!validateName(nameInput) || !validateEmail(emailInput) || !validatePassword(passwordInput)) {
             e.preventDefault();
-            e.stopPropagation();
+            return;
         }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Создаем аккаунт...';
     });
 });
 </script>

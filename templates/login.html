@@ -20,12 +20,31 @@
                                placeholder="your@email.com" required autocomplete="email">
                     </div>
                     
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <label for="password" class="form-label">
                             <i class="bi bi-lock"></i> Пароль
                         </label>
-                        <input type="password" id="password" name="password" class="form-control" 
-                               placeholder="Введите пароль" required autocomplete="current-password">
+                        <div class="input-group">
+                            <input type="password" id="password" name="password" class="form-control" 
+                                   placeholder="Введите пароль" required autocomplete="current-password">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                                <label class="form-check-label" for="remember">
+                                    Запомнить меня
+                                </label>
+                            </div>
+                            <a href="#" class="text-decoration-none small text-muted" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
+                                Забыли пароль?
+                            </a>
+                        </div>
                     </div>
                     
                     <button type="submit" class="btn btn-primary w-100 mb-3">
@@ -45,4 +64,65 @@
         </div>
     </div>
 </div>
+
+<!-- Forgot Password Modal -->
+<div class="modal fade" id="forgotPasswordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-key"></i> Восстановление пароля
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Для восстановления пароля обратитесь к администратору системы.
+                </div>
+                <p class="text-muted">
+                    В будущих версиях будет добавлена функция автоматического восстановления пароля по email.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const passwordInput = document.getElementById('password');
+    const togglePassword = document.getElementById('togglePassword');
+    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
+    const loginForm = document.querySelector('form');
+    const submitBtn = document.querySelector('button[type="submit"]');
+
+    // Password toggle functionality
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        togglePasswordIcon.classList.toggle('bi-eye');
+        togglePasswordIcon.classList.toggle('bi-eye-slash');
+    });
+
+    // Form submission with loading state
+    loginForm.addEventListener('submit', function(e) {
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Вход...';
+        
+        // Re-enable after 3 seconds if form doesn't submit (error case)
+        setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Войти';
+        }, 3000);
+    });
+
+    // Auto-focus email field
+    document.getElementById('email').focus();
+});
+</script>
 {% endblock %}

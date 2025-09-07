@@ -7,9 +7,9 @@
   <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
 
   <!-- Favicon -->
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
   <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='icons/icon-512.png') }}">
-  <link rel="shortcut icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
 
   <!-- PWA: Манифест -->
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
@@ -629,6 +629,11 @@
       {% endif %}
     {% endwith %}
     {% block content %}{% endblock %}
+    
+    <!-- Toast container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer">
+      <!-- Toasts will be inserted here -->
+    </div>
   </div>
 
   <!-- Bootstrap JS -->

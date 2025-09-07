@@ -44,6 +44,9 @@
   /* Transitions - Only for hover effects */
   --transition: all 0.2s ease-in-out;
   --transition-fast: all 0.15s ease-in-out;
+  
+  /* Focus styles for accessibility */
+  --focus-ring: 0 0 0 3px rgba(13, 110, 253, 0.25);
 }
 
 /* Dark theme - Bootstrap compatible */
@@ -721,4 +724,70 @@ body {
     color: black !important;
     -webkit-text-fill-color: black !important;
   }
+}
+/* Enhanced Focus Styles for Accessibility */
+.form-control:focus-visible,
+.form-select:focus-visible,
+.btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring) !important;
+  border-color: var(--bs-primary) !important;
+}
+
+.btn:focus-visible {
+  transform: none;
+}
+
+/* Keyboard navigation improvements */
+*:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Micro-animations */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* Loading states */
+.btn.loading {
+  position: relative;
+  pointer-events: none;
+}
+
+.btn.loading .btn-text {
+  opacity: 0;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
