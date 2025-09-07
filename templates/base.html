@@ -342,5 +342,59 @@
   </script>
 
   {% block scripts %}{% endblock %}
+<script>
+const currencySymbols = {
+    RUB: "₽",
+    USD: "$",
+    EUR: "€",
+    AMD: "֏",
+    GEL: "₾"
+};
+
+async function setCurrency(currency) {
+    localStorage.setItem("currency", currency);
+
+    // Обновляем кнопки
+    document.querySelectorAll(".currency-option").forEach(btn => btn.classList.remove("active"));
+    document.querySelector(`#curr-${currency.toLowerCase()}`)?.classList.add("active");
+
+    // Отправляем выбранную валюту на сервер
+    await fetch("/set-currency", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ currency })
+    });
+
+    // Конвертируем все суммы на странице
+    convertAllAmounts(currency);
+}
+
+async function convertAllAmounts(targetCurrency) {
+    const amounts = document.querySelectorAll("[data-amount]");
+    for (const el of amounts) {
+        const original = parseFloat(el.dataset.amount);
+        const fromCurrency = el.dataset.currency || "RUB";
+
+        try {
+            const res = await fetch(`/api/convert?from=${fromCurrency}&to=${targetCurrency}&amount=${original}`);
+            const data = await res.json();
+
+            if (data.success) {
+                el.textContent = data.converted.toLocaleString("ru-RU", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }) + " " + currencySymbols[targetCurrency];
+            }
+        } catch (e) {
+            console.error("Ошибка конвертации:", e);
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const savedCurrency = localStorage.getItem("currency") || "RUB";
+    setCurrency(savedCurrency);
+});
+</script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import logging
+import requests 
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
@@ -99,13 +100,108 @@ CURRENCIES = {
     "GEL": {"symbol": "₾", "label": "Лари"},
 }
 DEFAULT_CURRENCY = "RUB"
-
+# Кэш курсов валют
+EXR_CACHE_TTL_SECONDS = int(os.environ.get("EXR_CACHE_TTL_SECONDS", str(12 * 3600)))  # 12 часов
+EXR_BRIDGE = os.environ.get("EXR_BRIDGE", "USD").upper()  # промежуточная валюта для кросс-курса
 @app.context_processor
 def inject_currency():
     code = session.get("currency", DEFAULT_CURRENCY)
     info = CURRENCIES.get(code, CURRENCIES[DEFAULT_CURRENCY])
     return dict(currency_code=code, currency_symbol=info["symbol"], currencies=CURRENCIES)
+def _norm_cur(code: str) -> str:
+    return (code or "").strip().upper()
 
+def _fetch_rate_exchangerate_host(frm: str, to: str) -> float:
+    """Прямая пара через exchangerate.host"""
+    r = requests.get("https://api.exchangerate.host/convert",
+                     params={"from": frm, "to": to}, timeout=6)
+    r.raise_for_status()
+    j = r.json()
+    if not j or j.get("result") in (None, 0):
+        raise RuntimeError("no result")
+    return float(j["result"])
+
+def _fetch_latest(base: str, sym: str) -> float:
+    """Один курс base->sym через /latest (удобно для кросс-курса)"""
+    r = requests.get("https://api.exchangerate.host/latest",
+                     params={"base": base, "symbols": sym}, timeout=6)
+    r.raise_for_status()
+    j = r.json()
+    v = j.get("rates", {}).get(sym)
+    if not v:
+        raise RuntimeError("no rate in latest")
+    return float(v)
+
+def get_exchange_rate(frm: str, to: str) -> float:
+    """
+    1) читаем кэш exchange_rates (TTL);
+    2) пробуем прямую пару;
+    3) пробуем кросс-курс через EXR_BRIDGE (USD по умолчанию);
+    4) сохраняем в кэш; если всё упало — возвращаем старый кэш, если был.
+    """
+    frm, to = _norm_cur(frm), _norm_cur(to)
+    if frm == to:
+        return 1.0
+
+    now = datetime.utcnow()
+    conn = get_db()
+    conn.execute("PRAGMA foreign_keys=ON")
+
+    row = conn.execute(
+        "SELECT rate, updated_at FROM exchange_rates WHERE from_currency=? AND to_currency=?",
+        (frm, to)
+    ).fetchone()
+
+    # свежий кэш
+    if row:
+        try:
+            updated = datetime.fromisoformat(row["updated_at"].replace("Z",""))
+        except Exception:
+            updated = now
+        if (now - updated).total_seconds() < EXR_CACHE_TTL_SECONDS and row["rate"] and row["rate"] > 0:
+            conn.close()
+            return float(row["rate"])
+
+    # прямая пара
+    rate = None
+    try:
+        rate = _fetch_rate_exchangerate_host(frm, to)
+    except Exception:
+        pass
+
+    # кросс-курс через мост
+    if not rate:
+        try:
+            if frm == EXR_BRIDGE:
+                rate = _fetch_latest(EXR_BRIDGE, to)
+            elif to == EXR_BRIDGE:
+                rate = _fetch_latest(frm, EXR_BRIDGE)
+            else:
+                r1 = _fetch_latest(frm, EXR_BRIDGE)
+                r2 = _fetch_latest(EXR_BRIDGE, to)
+                rate = r1 * r2
+        except Exception:
+            pass
+
+    # если так и не вышло — вернём старый кэш (если был)
+    if not rate:
+        if row:
+            conn.close()
+            return float(row["rate"])
+        conn.close()
+        raise RuntimeError(f"cannot fetch exchange rate {frm}->{to}")
+
+    # сохраним кэш и вернём
+    conn.execute("""
+        INSERT INTO exchange_rates(from_currency, to_currency, rate, updated_at)
+        VALUES(?,?,?,?)
+        ON CONFLICT(from_currency, to_currency) DO UPDATE SET
+          rate=excluded.rate,
+          updated_at=excluded.updated_at
+    """, (frm, to, float(rate), now.isoformat(timespec="seconds")+"Z"))
+    conn.commit()
+    conn.close()
+    return float(rate)
 # Заголовки безопасности
 @app.after_request
 def set_security_headers(response):
@@ -2264,6 +2360,32 @@ app.jinja_loader = ChoiceLoader(
         }),
     ]
 )
+
+# -----------------------------------------------------------------------------
+# Конвертация
+# ---------------------------------------------------------
+
+@app.get("/api/convert")
+def api_convert():
+    frm = _norm_cur(request.args.get("from", "RUB"))
+    to  = _norm_cur(request.args.get("to", "USD"))
+    amt_raw = request.args.get("amount", "1")
+    try:
+        amount = float(amt_raw)
+    except Exception:
+        return jsonify({"ok": False, "error": "bad amount"}), 400
+
+    try:
+        rate = get_exchange_rate(frm, to)
+        return jsonify({
+            "ok": True,
+            "from": frm, "to": to,
+            "rate": rate,
+            "amount": amount,
+            "result": round(amount * rate, 2)
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 502
 
 # -----------------------------------------------------------------------------
 # Health check endpoint для мониторинга
