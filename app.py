@@ -2867,7 +2867,34 @@ def shared_budget_detail(budget_id):
                          budget=budget, 
                          members=members, 
                          recent_expenses=recent_expenses)
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
 
+    csp_base = [
+        "default-src 'self'",
+        # Скрипты: только локальные (Bootstrap bundle кладём в /static/js/)
+        "script-src 'self' 'unsafe-inline'",
+        # Стили и шрифты для Google Fonts и bootstrap-icons
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' data: https://fonts.gstatic.com",
+        # Картинки
+        "img-src 'self' data:",
+        # Разрешаем бекенду тянуть курсы
+        "connect-src 'self' https://api.exchangerate.host"
+    ]
+
+    response.headers['Content-Security-Policy'] = "; ".join(csp_base)
+
+    # HSTS только если у тебя включён HTTPS (можно завязать на переменную окружения)
+    if os.environ.get('HTTPS_MODE', 'false').lower() == 'true':
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+
+    if request.endpoint == 'static':
+        response.headers['Cache-Control'] = 'public, max-age=86400'
+    return response
 def ensure_new_tables():
     """Создаем новые таблицы если их нет (миграция)."""
     try:
