@@ -27,9 +27,22 @@ if app.config['SECRET_KEY'] == 'dev-only-insecure-key-change-in-production':
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
 
 # Атрибуты куки для безопасности и PWA
-# Для dev-сервера на http оставляем False, для prod на https - True
-app.config['SESSION_COOKIE_SECURE'] = os.environ.get('HTTPS_MODE', 'False').lower() == 'true'
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # Для обычного случая
+https_mode = os.environ.get('HTTPS_MODE', 'False').lower() == 'true'
+
+# Основные настройки безопасности кук
+app.config['SESSION_COOKIE_SECURE'] = https_mode  # HTTPS только для prod
+app.config['SESSION_COOKIE_HTTPONLY'] = True  # Защита от XSS
+app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # CSRF защита
+
+# Дополнительные настройки безопасности
+if https_mode:
+    # В продакшене добавляем дополнительную защиту
+    app.config['SESSION_COOKIE_NAME'] = 'cb_session'  # Скрываем Flask
+    app.config['WTF_CSRF_TIME_LIMIT'] = 3600  # CSRF токен на 1 час
+else:
+    # В разработке используем стандартные настройки
+    app.config['SESSION_COOKIE_NAME'] = 'session'
+
 # Если нужны поддомены, раскомментируй:
 # app.config['SESSION_COOKIE_DOMAIN'] = '.yourdomain.com'
 
@@ -92,6 +105,43 @@ def inject_currency():
     code = session.get("currency", DEFAULT_CURRENCY)
     info = CURRENCIES.get(code, CURRENCIES[DEFAULT_CURRENCY])
     return dict(currency_code=code, currency_symbol=info["symbol"], currencies=CURRENCIES)
+
+# Заголовки безопасности
+@app.after_request
+def set_security_headers(response):
+    # Защита от XSS
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    # Content Security Policy для дополнительной защиты от XSS
+    if https_mode:
+        # Строгий CSP для продакшена
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "font-src 'self' https://cdn.jsdelivr.net; "
+            "img-src 'self' data:; "
+            "connect-src 'self'"
+        )
+        # HSTS заголовок для принудительного HTTPS
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    else:
+        # Более мягкий CSP для разработки
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; "
+            "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+            "font-src 'self' https://cdn.jsdelivr.net; "
+            "img-src 'self' data:"
+        )
+    
+    # Кэширование для статических ресурсов
+    if request.endpoint == 'static':
+        response.headers['Cache-Control'] = 'public, max-age=86400'  # 24 часа
+    
+    return response
 
 # -----------------------------------------------------------------------------
 # Jinja filters

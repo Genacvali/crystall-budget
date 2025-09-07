@@ -120,8 +120,18 @@ SQLite with user data isolation and automatic schema creation:
 
 ### Session Management
 - Flask sessions with 30-day permanent lifetime
-- Secure cookie settings for production (HTTPS_MODE environment variable)
+- Enhanced cookie security settings:
+  - `SESSION_COOKIE_SECURE`: HTTPS-only cookies in production
+  - `SESSION_COOKIE_HTTPONLY`: XSS protection (cookies inaccessible via JavaScript)
+  - `SESSION_COOKIE_SAMESITE`: CSRF protection (Lax mode)
+  - Custom session name in production to hide Flask usage
 - User isolation: all database queries filtered by session user_id
+
+### Security Headers
+- **XSS Protection**: X-XSS-Protection, X-Content-Type-Options, X-Frame-Options
+- **Content Security Policy**: Configurable CSP headers (strict for production, relaxed for development)
+- **HSTS**: HTTP Strict Transport Security for HTTPS enforcement in production
+- **Static Resource Caching**: Optimized cache headers for performance
 
 ### Logging System
 - Rotating file logs in `/logs/crystalbudget.log` (max 10MB per file, 5 files)
