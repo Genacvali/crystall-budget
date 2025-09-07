@@ -1635,16 +1635,33 @@ def expenses():
     cats = conn.execute(
         "SELECT id, name FROM categories WHERE user_id=? ORDER BY name", (uid,)
     ).fetchall()
-    rows = conn.execute(
-        """
-        SELECT e.id, e.date, e.amount, e.note, e.currency, c.name AS category_name
-        FROM expenses e
-        JOIN categories c ON c.id = e.category_id
-        WHERE e.user_id = ?
-        ORDER BY e.date DESC, e.id DESC
-        """,
-        (uid,),
-    ).fetchall()
+    
+    try:
+        rows = conn.execute(
+            """
+            SELECT e.id, e.date, e.amount, e.note, e.currency, c.name AS category_name
+            FROM expenses e
+            JOIN categories c ON c.id = e.category_id
+            WHERE e.user_id = ?
+            ORDER BY e.date DESC, e.id DESC
+            """,
+            (uid,),
+        ).fetchall()
+    except sqlite3.OperationalError as e:
+        if "no such column: e.currency" in str(e):
+            # Fallback query without currency column
+            rows = conn.execute(
+                """
+                SELECT e.id, e.date, e.amount, e.note, NULL AS currency, c.name AS category_name
+                FROM expenses e
+                JOIN categories c ON c.id = e.category_id
+                WHERE e.user_id = ?
+                ORDER BY e.date DESC, e.id DESC
+                """,
+                (uid,),
+            ).fetchall()
+        else:
+            raise
     conn.close()
     today = datetime.now().strftime("%Y-%m-%d")
     return render_template("expenses.html", categories=cats, expenses=rows, today=today)
@@ -1720,15 +1737,30 @@ def delete_expense(expense_id):
 def income_page():
     uid = session["user_id"]
     conn = get_db()
-    rows = conn.execute(
-        """
-        SELECT id, date, amount, source_id, currency
-        FROM income_daily
-        WHERE user_id = ?
-        ORDER BY date DESC, id DESC
-        """,
-        (uid,),
-    ).fetchall()
+    try:
+        rows = conn.execute(
+            """
+            SELECT id, date, amount, source_id, currency
+            FROM income_daily
+            WHERE user_id = ?
+            ORDER BY date DESC, id DESC
+            """,
+            (uid,),
+        ).fetchall()
+    except sqlite3.OperationalError as e:
+        if "no such column: currency" in str(e):
+            # Fallback query without currency column
+            rows = conn.execute(
+                """
+                SELECT id, date, amount, source_id, NULL AS currency
+                FROM income_daily
+                WHERE user_id = ?
+                ORDER BY date DESC, id DESC
+                """,
+                (uid,),
+            ).fetchall()
+        else:
+            raise
     income_sources = conn.execute(
         "SELECT id, name, is_default FROM income_sources WHERE user_id=? ORDER BY is_default DESC, name",
         (uid,)
