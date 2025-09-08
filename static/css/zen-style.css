@@ -97,21 +97,29 @@
 
 /* === DARK THEME === */
 [data-bs-theme="dark"] {
-  --ynab-white: #1F2124;
-  --ynab-gray-50: #1F2124;
-  --ynab-gray-100: #2D3134;
-  --ynab-gray-200: #3C4043;
-  --ynab-gray-300: #5A6069;
-  --ynab-gray-400: #7C848D;
-  --ynab-gray-500: #A8ADB3;
-  --ynab-gray-600: #D4D7DB;
-  --ynab-gray-700: #E8EAED;
-  --ynab-gray-800: #F4F6F8;
-  --ynab-gray-900: #FAFBFC;
+  /* Dark theme colors with better contrast */
+  --ynab-white: #0F1419;
+  --ynab-gray-50: #1A1D23;
+  --ynab-gray-100: #21252B;
+  --ynab-gray-200: #2E3238;
+  --ynab-gray-300: #3C4146;
+  --ynab-gray-400: #5C6269;
+  --ynab-gray-500: #8B9299;
+  --ynab-gray-600: #B8BDC4;
+  --ynab-gray-700: #D4D7DB;
+  --ynab-gray-800: #E8EAED;
+  --ynab-gray-900: #FFFFFF;
   
-  --ynab-primary-bg: rgba(0, 90, 159, 0.1);
-  --ynab-green-bg: rgba(0, 168, 107, 0.1);
-  --ynab-red-bg: rgba(197, 40, 47, 0.1);
+  /* Enhanced primary colors for dark theme */
+  --ynab-primary: #4A9EFF;
+  --ynab-primary-light: #66ADFF;
+  --ynab-green: #4ADA64;
+  --ynab-red: #FF5A5F;
+  --ynab-orange: #FF8533;
+  
+  --ynab-primary-bg: rgba(74, 158, 255, 0.15);
+  --ynab-green-bg: rgba(74, 218, 100, 0.15);
+  --ynab-red-bg: rgba(255, 90, 95, 0.15);
   --ynab-orange-bg: rgba(255, 107, 53, 0.1);
   --ynab-purple-bg: rgba(139, 93, 255, 0.1);
   --ynab-teal-bg: rgba(0, 188, 212, 0.1);
@@ -946,4 +954,190 @@ body {
 .zen-text-income,
 .mf-text-income { 
   color: var(--ynab-green); 
+}
+
+/* ================================ */
+/* MOBILE RESPONSIVE FIXES         */
+/* ================================ */
+
+@media (max-width: 768px) {
+  /* Container padding reduction */
+  .ynab-container { 
+    padding: var(--ynab-space-4) var(--ynab-space-2); 
+    max-width: 100%;
+  }
+  
+  /* Card body padding */
+  .ynab-card-body { 
+    padding: var(--ynab-space-4); 
+  }
+  
+  /* Flex wrapping for narrow screens */
+  .d-flex.flex-wrap { 
+    flex-direction: column; 
+    gap: var(--ynab-space-2); 
+  }
+  .d-flex.gap-3 { 
+    gap: var(--ynab-space-2) !important; 
+  }
+  
+  /* Budget grid responsive - single column on mobile */
+  .budget-grid, .budget-row { 
+    display: block !important;
+    grid-template-columns: none !important;
+  }
+  .budget-grid > div, .budget-row > div { 
+    padding: var(--ynab-space-2); 
+    display: block;
+    width: 100%;
+  }
+  
+  /* Pills responsive */
+  .pill { 
+    font-size: var(--ynab-text-xs); 
+    padding: 4px 8px; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Sidebar full width on small screens */
+  .ynab-sidebar { 
+    width: 90vw; 
+  }
+  
+  /* Table responsive */
+  .ynab-table { 
+    font-size: var(--ynab-text-sm); 
+  }
+  .ynab-table th, .ynab-table td { 
+    padding: 8px 6px; 
+  }
+  
+  /* Navbar responsive */
+  .ynab-navbar-container { 
+    padding: var(--ynab-space-2); 
+    gap: var(--ynab-space-2);
+  }
+  .ynab-navbar-brand { 
+    font-size: var(--ynab-text-md); 
+  }
+  
+  /* Currency selector responsive */
+  .ynab-currency-selector { 
+    gap: 2px; 
+    padding: 2px; 
+  }
+  .ynab-currency-btn { 
+    padding: 4px 8px; 
+    font-size: var(--ynab-text-xs); 
+  }
+  
+  /* Ready to assign section mobile */
+  .d-flex.align-items-center.gap-3 {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: var(--ynab-space-2) !important;
+  }
+  
+  .ms-auto {
+    margin-left: 0 !important;
+    margin-top: var(--ynab-space-2);
+  }
+  
+  /* Text wrapping */
+  h1, .zen-title, .mf-title {
+    font-size: var(--ynab-text-xl);
+    line-height: 1.3;
+  }
+  
+  /* Button responsive */
+  .ynab-btn {
+    font-size: var(--ynab-text-sm);
+    padding: 8px 12px;
+  }
+}
+
+/* ================================ */
+/* DARK THEME TEXT READABILITY     */
+/* ================================ */
+
+[data-bs-theme="dark"] {
+  /* Ensure text is always readable in dark theme */
+  color: var(--ynab-gray-900);
+}
+
+[data-bs-theme="dark"] .ynab-nav-link {
+  color: var(--ynab-gray-600);
+}
+
+[data-bs-theme="dark"] .ynab-nav-link:hover,
+[data-bs-theme="dark"] .ynab-nav-link.ynab-nav-link-active {
+  color: var(--ynab-primary);
+}
+
+[data-bs-theme="dark"] .muted,
+[data-bs-theme="dark"] .badge-soft {
+  color: var(--ynab-gray-500);
+  background: var(--ynab-gray-100);
+}
+
+[data-bs-theme="dark"] .ynab-card {
+  background: var(--ynab-gray-50);
+  border-color: var(--ynab-gray-200);
+  color: var(--ynab-gray-900);
+}
+
+[data-bs-theme="dark"] .ynab-table thead th {
+  color: var(--ynab-gray-600);
+  background: var(--ynab-white);
+}
+
+[data-bs-theme="dark"] .ynab-table tbody td {
+  color: var(--ynab-gray-900);
+}
+
+[data-bs-theme="dark"] .dropdown-menu {
+  background: var(--ynab-gray-50);
+  border-color: var(--ynab-gray-200);
+  color: var(--ynab-gray-900);
+}
+
+[data-bs-theme="dark"] .dropdown-item {
+  color: var(--ynab-gray-800);
+}
+
+[data-bs-theme="dark"] .dropdown-item:hover {
+  background: var(--ynab-gray-100);
+  color: var(--ynab-gray-900);
+}
+
+/* Pills in dark theme */
+[data-bs-theme="dark"] .pill--assigned {
+  background: var(--ynab-primary-bg);
+  color: var(--ynab-primary);
+}
+
+[data-bs-theme="dark"] .pill--activity {
+  background: var(--ynab-orange-bg);
+  color: var(--ynab-orange);
+}
+
+[data-bs-theme="dark"] .pill--available {
+  background: var(--ynab-green-bg);
+  color: var(--ynab-green);
+}
+
+/* Form controls in dark theme */
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .ynab-input {
+  background: var(--ynab-gray-100);
+  border-color: var(--ynab-gray-200);
+  color: var(--ynab-gray-900);
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .ynab-input:focus {
+  border-color: var(--ynab-primary);
+  outline-color: var(--ynab-primary);
 }
