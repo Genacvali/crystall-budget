@@ -2004,3 +2004,20 @@ jinja2.exceptions.UndefinedError: 'income' is undefined
 [2025-09-09 00:37:08 +0300] [8012] [ERROR] Worker (pid:8014) exited with code 1
 [2025-09-09 00:37:08 +0300] [8012] [ERROR] Worker (pid:8014) exited with code 1.
 [2025-09-09 00:37:08 +0300] [9974] [INFO] Booting worker with pid: 9974
+[2025-09-09 00:45:06 +0300] [9974] [INFO] Worker exiting (pid: 9974)
+[2025-09-09 00:45:06 +0300] [8013] [INFO] Worker exiting (pid: 8013)
+[2025-09-09 00:45:06 +0300] [8012] [INFO] Handling signal: term
+[2025-09-09 00:45:06 +0300] [8012] [INFO] Shutting down: Master
+[2025-09-09 00:45:06 +0300] [12852] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:45:06 +0300] [12852] [INFO] Listening at: http://127.0.0.1:5000 (12852)
+[2025-09-09 00:45:06 +0300] [12852] [INFO] Using worker: sync
+[2025-09-09 00:45:06 +0300] [12853] [INFO] Booting worker with pid: 12853
+[2025-09-09 00:45:06 +0300] [12854] [INFO] Booting worker with pid: 12854
+[2025-09-09 00:45:16,715] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:45:40,133] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:45:40,833] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:45:41,708] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:45:54,198] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:46:31,561] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:46:40,075] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:46:58,804] INFO in app: POST request to set_currency from 127.0.0.1

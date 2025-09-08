@@ -82,7 +82,7 @@
 <!-- YNAB Layout: Sidebar + Main Content -->
 <div class="row g-3">
   <!-- Left Sidebar - Accounts (YNAB style) -->
-  <div class="col-lg-3">
+  <div class="col-lg-3 order-lg-1 order-2">
     {% if source_balances and source_balances|length > 0 %}
     <div class="ynab-card">
       <div class="ynab-card-body">
@@ -119,7 +119,7 @@
   </div>
   
   <!-- Main Content Area -->
-  <div class="col-lg-9">
+  <div class="col-lg-9 order-lg-2 order-1">
 
 <!-- Категории (моб. карточки) -->
 {% if budget_data %}

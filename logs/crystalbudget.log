@@ -1736,3 +1736,14 @@ Traceback (most recent call last):
     {% set ready_to_assign = (income - assigned_total) %}
 jinja2.exceptions.UndefinedError: 'income' is undefined
 2025-09-09 00:35:06,227 ERROR [app] 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 00:45:06,717 INFO [app] Logging system initialized
+2025-09-09 00:45:06,718 INFO [app] Log level: INFO
+2025-09-09 00:45:06,718 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 00:45:16,715 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:45:40,133 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:45:40,833 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:45:41,708 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:45:54,198 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:46:31,561 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:46:40,075 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:46:58,804 INFO [app] POST request to set_currency from 127.0.0.1

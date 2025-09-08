@@ -26,7 +26,8 @@
       "Bash(pkill:*)",
       "Bash(FLASK_RUN_PORT=5001 python app.py)",
       "Bash(FLASK_RUN_PORT=5002 python app.py)",
-      "Bash(FLASK_RUN_PORT=5003 python app.py)"
+      "Bash(FLASK_RUN_PORT=5003 python app.py)",
+      "Bash(wget:*)"
     ],
     "deny": [],
     "ask": []

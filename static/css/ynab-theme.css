@@ -42,12 +42,12 @@
   --ynab-text-lg:18px; --ynab-text-xl:20px; --ynab-text-2xl:24px;
 }
 
-/* Dark theme overrides */
+/* Dark theme overrides - improved contrast */
 :root[data-bs-theme="dark"]{
-  --ynab-bg:#0f172a;
-  --ynab-surface:#111827;
-  --ynab-surface-2:#0b1220;
-  --ynab-border:#1f2937;
+  --ynab-bg:#0b1220;
+  --ynab-surface:#121826;   /* was too dark */
+  --ynab-surface-2:#0f172a;
+  --ynab-border:#1e293b;
   --ynab-text:#e5e7eb;
   --ynab-muted:#94a3b8;
   --ynab-shadow:0 6px 18px rgba(0,0,0,.6);
@@ -181,9 +181,83 @@ label{font-size:var(--ynab-text-sm); color:var(--ynab-muted);}
 .alert-warning{background:color-mix(in oklab, var(--ynab-warning) 10%, var(--ynab-surface));} 
 .alert-info{background:color-mix(in oklab, var(--ynab-info) 10%, var(--ynab-surface));}
 
+/* Table improvements */
+.ynab-table thead th{
+  position: sticky; 
+  top:0; 
+  z-index:2; 
+  background: color-mix(in oklab, var(--ynab-surface) 92%, white);
+  border-bottom: 1px solid var(--ynab-border);
+}
+
+/* Dark theme table improvements */
+:root[data-bs-theme="dark"] .ynab-table tbody tr{
+  background: color-mix(in oklab, var(--ynab-surface) 96%, #000);
+}
+
+/* Progress bars on dark theme */
+:root[data-bs-theme="dark"] .ynab-table .progress,
+:root[data-bs-theme="dark"] .progress { 
+  background: #223045;
+}
+
+/* Progress bar empty state */
+.ynab-table .progress-empty{ 
+  opacity:.4; 
+}
+
+/* Button heights consistency */
+.ynab-btn, .pill { 
+  line-height: 1; 
+}
+
+.ynab-btn { 
+  height: 40px; 
+  padding: 10px 14px; 
+}
+
+.dropdown .ynab-btn { 
+  height: 40px; 
+}
+
+.zen-balance-actions .zen-btn,
+.zen-balance-actions .ynab-btn { 
+  height: 40px; 
+}
+
+/* Compact Ready/Assigned badge */
+.pill.pill--assigned { 
+  font-size: 14px; 
+  padding: 6px 12px; 
+}
+
+/* Z-index fixes */
+.navbar, .ynab-navbar { 
+  z-index: 1030; 
+}
+
+.dropdown-menu { 
+  z-index: 1040; 
+}
+
+.modal { 
+  z-index: 1050; 
+}
+
 /* Responsive tweaks */
 @media (max-width: 992px){
   .ynab-navbar-nav{display:none;}
+}
+
+/* Mobile button groups */
+@media (max-width: 576px){
+  .btn-group>.ynab-btn { 
+    border-radius: 12px !important; 
+    margin-right: 6px; 
+  }
+  .ynab-navbar-actions { 
+    gap: 6px; 
+  }
 }
 
 /* ---- OPTIONAL: Budget list layout helpers ---- */
