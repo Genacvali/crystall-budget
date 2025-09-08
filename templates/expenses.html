@@ -3,365 +3,281 @@
 
 {% block content %}
 <style>
-  .btn-col{ min-width: 160px; }
-  .btn-col .btn{ white-space: nowrap; }
-  .empty-state{
-    text-align: center;
-    padding: 3rem 1rem;
-    color: var(--bs-secondary);
-  }
-  .empty-state-icon{
-    font-size: 4rem;
-    opacity: 0.3;
-    margin-bottom: 1rem;
-  }
-  .expense-card{
-    border-radius: 0.75rem;
-    border: none;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-  }
-  .expense-card:hover{
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-  }
-  .expense-amount{
-    font-size: 1.25rem;
-    font-weight: 700;
-  }
-  .expense-category{
-    font-weight: 600;
-    color: var(--bs-primary);
-  }
-  .expense-date{
-    color: var(--bs-secondary);
-    font-size: 0.875rem;
-  }
-  .expense-note{
-    color: var(--bs-body-color);
-    font-style: italic;
-  }
+  .btn-col{ min-width:160px; }
+  .btn-col .btn{ white-space:nowrap; }
+
+  /* Empty state */
+  .empty-state{ text-align:center; padding:3rem 1rem; color:var(--bs-secondary); }
+  .empty-state-icon{ font-size:4rem; opacity:.3; margin-bottom:1rem; }
+
+  /* Mobile cards */
+  .expense-card{ border-radius:.75rem; border:none; transition:.2s; position:relative; overflow:hidden; }
+  .expense-card:hover{ transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,0,0,.1); }
+  .expense-amount{ font-size:1.25rem; font-weight:700; }
+  .expense-category{ font-weight:600; color:var(--bs-primary); }
+  .expense-date{ color:var(--bs-secondary); font-size:.875rem; }
+  .expense-note{ color:var(--bs-body-color); font-style:italic; }
+
+  /* Swipe scaffold */
+  .swipe-card{ position:relative; overflow:hidden; border-radius:12px; }
+  .swipe-actions{ position:absolute; inset:0 auto 0 0; width:100%; display:flex; justify-content:space-between; align-items:stretch; pointer-events:none; }
+  .swipe-actions .lane{ width:82px; display:flex; align-items:center; justify-content:center; }
+  .swipe-actions .lane.edit{ background:linear-gradient(90deg,#0d6efd,#0b5ed7); }
+  .swipe-actions .lane.delete{ background:linear-gradient(270deg,#dc3545,#c82333); }
+  .swipe-actions .action-btn{ pointer-events:auto; background:transparent; border:none; color:#fff; font-size:1.25rem; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+  .swipe-content{ position:relative; z-index:2; background:var(--bs-body-bg); transition:transform .25s ease; }
+  .swipe-card.swipe-left-active .swipe-content{ transform:translateX(82px); }
+  .swipe-card.swipe-right-active .swipe-content{ transform:translateX(-82px); }
+  .swipe-hint{ text-align:center; opacity:.65; font-size:.8rem; margin-top:.25rem; }
+
+  /* Desktop table */
+  .table-actions .btn{ white-space:nowrap; }
+  .table td, .table th{ vertical-align:middle; }
+
+  /* Add form niceties */
+  .input-group-lg .input-group-text{ min-width:2.25rem; justify-content:center; }
 </style>
+
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <h2 class="h4 m-0"><i class="bi bi-wallet2 text-danger me-2"></i>Мои расходы</h2>
-    <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
-        <i class="bi bi-plus-lg me-1"></i>
-        <span class="d-none d-sm-inline">Добавить </span>Расход
-    </button>
+  <h1 class="h4 m-0"><i class="bi bi-wallet2 text-danger me-2" aria-hidden="true"></i>Мои расходы</h1>
+  <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseForm" aria-controls="addExpenseForm" aria-expanded="false">
+    <i class="bi bi-plus-lg me-1"></i><span class="d-none d-sm-inline">Добавить </span>Расход
+  </button>
 </div>
 
+<!-- Add expense form -->
 <div class="collapse mb-3" id="addExpenseForm">
-    <div class="card card-body">
-        <form method="POST" action="/expenses">
-            <div class="row g-2 g-md-3 align-items-end">
-                <div class="col-6 col-md-3">
-                    <label for="date" class="form-label">Дата</label>
-                    <input type="date" id="date" name="date" value="{{ today }}" class="form-control" required>
-                </div>
-                <div class="col-6 col-md-2">
-                    <label for="amount" class="form-label">Сумма</label>
-                    <input type="number" id="amount" name="amount" step="0.01" min="0.01"
-                           inputmode="decimal" class="form-control" required>
-                </div>
-                <div class="col-12 col-md-3">
-                    <label for="category_id" class="form-label">Категория</label>
-                    <select id="category_id" name="category_id" class="form-select" required>
-                        <option value="">Выберите категорию</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.id }}">{{ cat.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-12 col-md-3">
-                    <label for="note" class="form-label">Комментарий</label>
-                    <input type="text" id="note" name="note" class="form-control" placeholder="Необязательно">
-                </div>
-                <div class="col-12 col-md-auto d-grid btn-col">
-                    <label class="form-label d-none d-md-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-success">
-                      <i class="bi bi-check-lg me-1"></i> Добавить
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- Мобильные карточки -->
-<div class="d-block d-md-none">
-    {% for expense in expenses %}
-    <div class="card expense-card mb-3">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-8">
-                    <div class="expense-amount text-danger">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
-                    <div class="expense-category">{{ expense.category_name }}</div>
-                    <div class="expense-date">
-                        <i class="bi bi-calendar3 me-1"></i>{{ expense.date|format_date_with_day }}
-                    </div>
-                    {% if expense.note %}
-                    <div class="expense-note mt-1">
-                        <i class="bi bi-chat-dots me-1"></i>{{ expense.note }}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="col-4 text-end">
-                    <div class="btn-group-vertical" role="group">
-                        <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-pencil"></i>
-                        </a>
-                        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-                            <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                    onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+  <div class="card card-body">
+    <form method="POST" action="/expenses" id="add-expense-form" novalidate>
+      <div class="row g-2 g-md-3 align-items-end">
+        <div class="col-6 col-md-3">
+          <label for="date" class="form-label">Дата</label>
+          <input type="date" id="date" name="date" value="{{ today }}" class="form-control" required>
+          <div class="invalid-feedback">Укажите дату.</div>
         </div>
-    </div>
-    {% endfor %}
+        <div class="col-6 col-md-2">
+          <label for="amount" class="form-label">Сумма</label>
+          <div class="input-group input-group-lg">
+            <span class="input-group-text currency-display">{{ currency_symbol|default('₽') }}</span>
+            <input type="number" id="amount" name="amount" step="0.01" min="0.01" inputmode="decimal" class="form-control" required>
+          </div>
+          <div class="invalid-feedback">Введите сумму больше 0.</div>
+        </div>
+        <div class="col-12 col-md-3">
+          <label for="category_id" class="form-label">Категория</label>
+          <select id="category_id" name="category_id" class="form-select" required>
+            <option value="">Выберите категорию</option>
+            {% for cat in categories %}
+              <option value="{{ cat.id }}">{{ cat.name }}</option>
+            {% endfor %}
+          </select>
+          <div class="invalid-feedback">Выберите категорию.</div>
+        </div>
+        <div class="col-12 col-md-3">
+          <label for="note" class="form-label">Комментарий</label>
+          <input type="text" id="note" name="note" class="form-control" placeholder="Необязательно">
+        </div>
+        <div class="col-12 col-md-auto d-grid btn-col">
+          <label class="form-label d-none d-md-block" aria-hidden="true">&nbsp;</label>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-check-lg me-1"></i> Добавить
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 
-<!-- Настольная таблица -->
+<!-- Mobile list with swipe -->
+<div class="d-block d-md-none">
+  {% for expense in expenses %}
+  <div class="swipe-card mb-3" data-expense-id="{{ expense.id }}">
+    <div class="swipe-actions">
+      <div class="lane edit">
+        <button class="action-btn swipe-action edit" type="button" data-url="{{ url_for('edit_expense', expense_id=expense.id) }}" aria-label="Редактировать">
+          <i class="bi bi-pencil"></i>
+        </button>
+      </div>
+      <div class="lane delete">
+        <button class="action-btn swipe-action delete" type="button"
+                data-expense-id="{{ expense.id }}"
+                data-name="{{ expense.category_name }}"
+                data-date="{{ expense.date|format_date_with_day }}"
+                data-amount="{{ expense.amount|format_amount }}"
+                data-action="{{ url_for('delete_expense', expense_id=expense.id) }}"
+                aria-label="Удалить">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>
+    <div class="swipe-content">
+      <div class="card expense-card m-0">
+        <div class="card-body">
+          <div class="row align-items-center">
+            <div class="col-9">
+              <div class="expense-amount text-danger">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
+              <div class="expense-category">{{ expense.category_name }}</div>
+              <div class="expense-date"><i class="bi bi-calendar3 me-1"></i>{{ expense.date|format_date_with_day }}</div>
+              {% if expense.note %}
+              <div class="expense-note mt-1"><i class="bi bi-chat-dots me-1"></i>{{ expense.note }}</div>
+              {% endif %}
+            </div>
+            <div class="col-3 text-end">
+              <div class="btn-group-vertical" role="group" aria-label="Действия">
+                <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-inline" data-expense-id="{{ expense.id }}" data-name="{{ expense.category_name }}" data-date="{{ expense.date|format_date_with_day }}" data-amount="{{ expense.amount|format_amount }}" data-action="{{ url_for('delete_expense', expense_id=expense.id) }}">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="swipe-hint">Свайп вправо — редактировать, влево — удалить</div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Desktop table -->
 <div class="table-responsive d-none d-md-block">
-    <table class="table table-striped align-middle">
-        <thead class="table-light">
-            <tr>
-                <th>Дата</th>
-                <th>Категория</th>
-                <th class="text-end">Сумма</th>
-                <th>Комментарий</th>
-                <th class="text-end">Действия</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for expense in expenses %}
-            <tr>
-                <td>{{ expense.date|format_date_with_day }}</td>
-                <td>{{ expense.category_name }}</td>
-                <td class="text-end fw-bold">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
-                <td>{{ expense.note or '' }}</td>
-                <td class="text-end">
-                    <a href="{{ url_for('edit_expense', expense_id=expense.id) }}"
-                       class="btn btn-sm btn-outline-primary me-1">
-                        <i class="bi bi-pencil"></i> Изменить
-                    </a>
-                    <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-                        <button type="submit" class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
-                            <i class="bi bi-trash"></i> Удалить
-                        </button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+  <table class="table table-striped align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Дата</th>
+        <th>Категория</th>
+        <th class="text-end">Сумма</th>
+        <th>Комментарий</th>
+        <th class="text-end">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for expense in expenses %}
+      <tr>
+        <td>{{ expense.date|format_date_with_day }}</td>
+        <td>{{ expense.category_name }}</td>
+        <td class="text-end fw-bold">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
+        <td>{{ expense.note or '' }}</td>
+        <td class="text-end table-actions">
+          <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i> Изменить</a>
+          <button type="button" class="btn btn-sm btn-outline-danger btn-delete-inline" data-expense-id="{{ expense.id }}" data-name="{{ expense.category_name }}" data-date="{{ expense.date|format_date_with_day }}" data-amount="{{ expense.amount|format_amount }}" data-action="{{ url_for('delete_expense', expense_id=expense.id) }}">
+            <i class="bi bi-trash"></i> Удалить
+          </button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
 {% if not expenses %}
 <div class="empty-state">
-    <div class="empty-state-icon">
-        <i class="bi bi-wallet2"></i>
-    </div>
-    <h3>Пока что расходов нет</h3>
-    <p>Начните отслеживать свои траты, добавив первый расход</p>
-    <button class="btn btn-primary btn-lg" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
-        <i class="bi bi-plus-circle me-2"></i>Добавить первый расход
-    </button>
+  <div class="empty-state-icon"><i class="bi bi-wallet2" aria-hidden="true"></i></div>
+  <h2 class="h5">Пока что расходов нет</h2>
+  <p class="text-muted">Начните отслеживать свои траты, добавив первый расход</p>
+  <button class="btn btn-primary btn-lg" data-bs-toggle="collapse" data-bs-target="#addExpenseForm"><i class="bi bi-plus-circle me-2"></i>Добавить первый расход</button>
 </div>
 {% endif %}
 
-<style>
-/* Swipe Cards Styles */
-.swipe-card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 8px;
-}
+<!-- Unified delete modal -->
+<div class="modal fade" id="deleteExpenseModal" tabindex="-1" aria-labelledby="deleteExpenseLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteExpenseLabel">Удалить расход</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <form id="deleteExpenseForm" method="POST" action="#">
+        <div class="modal-body">
+          <p class="mb-0">Удалить расход <strong id="delAmount"></strong> по категории <strong id="delName"></strong> от <strong id="delDate"></strong>?
+            <br><small class="text-muted">Действие необратимо.</small>
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Удалить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
 
-.swipe-content {
-    position: relative;
-    z-index: 2;
-    transition: transform 0.3s ease;
-    background: white;
-}
-
-.swipe-actions {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1;
-}
-
-.swipe-left {
-    left: 0;
-    background: linear-gradient(90deg, #007bff, #0056b3);
-}
-
-.swipe-right {
-    right: 0;
-    background: linear-gradient(90deg, #dc3545, #c82333);
-}
-
-.swipe-action {
-    background: transparent;
-    border: none;
-    color: white;
-    font-size: 1.2rem;
-    width: 100%;
-    height: 100%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.swipe-hint {
-    text-align: center;
-    opacity: 0.7;
-    font-size: 0.8rem;
-    margin-top: 0.5rem;
-}
-
-.swipe-card.swiping .swipe-hint {
-    display: none;
-}
-
-/* Состояния swipe */
-.swipe-card.swipe-left-active .swipe-content {
-    transform: translateX(80px);
-}
-
-.swipe-card.swipe-right-active .swipe-content {
-    transform: translateX(-80px);
-}
-</style>
-
+{% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Swipe functionality for mobile cards
-    const swipeCards = document.querySelectorAll('.swipe-card');
-    
-    swipeCards.forEach(card => {
-        let startX = 0;
-        let currentX = 0;
-        let isDragging = false;
-        const swipeContent = card.querySelector('.swipe-content');
-        const threshold = 50; // Minimum swipe distance
-        
-        // Touch events
-        card.addEventListener('touchstart', handleStart, { passive: true });
-        card.addEventListener('touchmove', handleMove, { passive: false });
-        card.addEventListener('touchend', handleEnd, { passive: true });
-        
-        // Mouse events for desktop testing
-        card.addEventListener('mousedown', handleStart);
-        card.addEventListener('mousemove', handleMove);
-        card.addEventListener('mouseup', handleEnd);
-        card.addEventListener('mouseleave', handleEnd);
-        
-        function handleStart(e) {
-            isDragging = true;
-            startX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
-            card.classList.add('swiping');
-            swipeContent.style.transition = 'none';
-        }
-        
-        function handleMove(e) {
-            if (!isDragging) return;
-            
-            e.preventDefault();
-            currentX = (e.type === 'touchmove' ? e.touches[0].clientX : e.clientX) - startX;
-            
-            // Limit swipe distance
-            const maxSwipe = 100;
-            currentX = Math.max(-maxSwipe, Math.min(maxSwipe, currentX));
-            
-            swipeContent.style.transform = `translateX(${currentX}px)`;
-            
-            // Visual feedback
-            if (currentX > threshold) {
-                card.classList.add('swipe-left-feedback');
-                card.classList.remove('swipe-right-feedback');
-            } else if (currentX < -threshold) {
-                card.classList.add('swipe-right-feedback');
-                card.classList.remove('swipe-left-feedback');
-            } else {
-                card.classList.remove('swipe-left-feedback', 'swipe-right-feedback');
-            }
-        }
-        
-        function handleEnd(e) {
-            if (!isDragging) return;
-            
-            isDragging = false;
-            card.classList.remove('swiping', 'swipe-left-feedback', 'swipe-right-feedback');
-            swipeContent.style.transition = 'transform 0.3s ease';
-            
-            if (currentX > threshold) {
-                // Swipe right - edit
-                const editUrl = card.querySelector('.swipe-action.edit').dataset.url;
-                window.location.href = editUrl;
-            } else if (currentX < -threshold) {
-                // Swipe left - delete
-                const deleteBtn = card.querySelector('.swipe-action.delete');
-                const confirmText = deleteBtn.dataset.confirmText;
-                if (confirm(confirmText)) {
-                    const expenseId = deleteBtn.dataset.expenseId;
-                    // Create and submit delete form
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = `/expenses/delete/${expenseId}`;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            }
-            
-            // Reset position
-            swipeContent.style.transform = 'translateX(0)';
-            currentX = 0;
-        }
-    });
-    
-    // Click handlers for swipe actions
-    document.querySelectorAll('.swipe-action.edit').forEach(btn => {
-        btn.addEventListener('click', function() {
-            window.location.href = this.dataset.url;
-        });
-    });
-    
-    document.querySelectorAll('.swipe-action.delete').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const confirmText = this.dataset.confirmText;
-            if (confirm(confirmText)) {
-                const expenseId = this.dataset.expenseId;
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/expenses/delete/${expenseId}`;
-                document.body.appendChild(form);
-                form.submit();
-            }
-        });
-    });
-    
-    // Auto-focus amount input after category selection
-    const categorySelect = document.getElementById('category_id');
-    const amountInput = document.getElementById('amount');
-    if (categorySelect && amountInput) {
-        categorySelect.addEventListener('change', function() {
-            if (this.value) {
-                setTimeout(() => amountInput.focus(), 100);
-            }
-        });
+// Add form: simple validation & UX
+(function(){
+  const form = document.getElementById('add-expense-form');
+  if(!form) return;
+  const date = document.getElementById('date');
+  const amount = document.getElementById('amount');
+  const category = document.getElementById('category_id');
+  // today fallback
+  if(date && !date.value){ date.value = new Date().toISOString().slice(0,10); }
+  amount?.addEventListener('wheel', e=>{ e.preventDefault(); }, {passive:false});
+  function validate(){ form.classList.remove('was-validated'); }
+  ['input','change'].forEach(ev=>[date,amount,category].forEach(el=>el&&el.addEventListener(ev,validate)));
+  form.addEventListener('submit', (e)=>{
+    if(!form.checkValidity()){ e.preventDefault(); e.stopPropagation(); form.classList.add('was-validated'); }
+  });
+  // Focus amount after category picked
+  if(category && amount){ category.addEventListener('change', ()=>{ if(category.value) setTimeout(()=>amount.focus(), 60); }); }
+})();
+
+// Unified delete modal hookup
+(function(){
+  const modalEl = document.getElementById('deleteExpenseModal');
+  if(!modalEl) return;
+  const form = document.getElementById('deleteExpenseForm');
+  const nameEl = document.getElementById('delName');
+  const dateEl = document.getElementById('delDate');
+  const amountEl = document.getElementById('delAmount');
+  const bsModal = new bootstrap.Modal(modalEl);
+  function openModalFromBtn(btn){
+    const action = btn.getAttribute('data-action');
+    const name = btn.getAttribute('data-name') || '';
+    const date = btn.getAttribute('data-date') || '';
+    const amount = btn.getAttribute('data-amount') || '';
+    if(form && action) form.setAttribute('action', action);
+    if(nameEl) nameEl.textContent = '«'+name+'»';
+    if(dateEl) dateEl.textContent = date;
+    if(amountEl) amountEl.textContent = amount + ' ' + (document.querySelector('.currency-display')?.textContent?.trim()||'');
+    bsModal.show();
+  }
+  document.querySelectorAll('.btn-delete-inline').forEach(btn=>{
+    btn.addEventListener('click', ()=> openModalFromBtn(btn));
+  });
+  // Also wire swipe delete buttons
+  document.querySelectorAll('.swipe-action.delete').forEach(btn=>{
+    btn.addEventListener('click', ()=> openModalFromBtn(btn));
+  });
+})();
+
+// Swipe interactions (touch & mouse)
+(function(){
+  const cards = document.querySelectorAll('.swipe-card');
+  const MAX = 96; const THRESH = 54; // px
+  cards.forEach(card=>{
+    const content = card.querySelector('.swipe-content');
+    let startX=0,startY=0,dx=0,dy=0,drag=false,dir=null; // dir: 'x' or 'y'
+    function start(e){
+      const p = e.touches? e.touches[0] : e; startX=p.clientX; startY=p.clientY; dx=0; dy=0; drag=true; dir=null; content.style.transition='none'; card.classList.add('swiping'); }
+    function move(e){ if(!drag) return; const p = e.touches? e.touches[0] : e; dx=p.clientX-startX; dy=p.clientY-startY; if(!dir){ dir = Math.abs(dx)>Math.abs(dy)?'x':'y'; }
+      if(dir==='x'){ e.preventDefault(); const clamped = Math.max(-MAX, Math.min(MAX, dx)); content.style.transform=`translateX(${clamped}px)`; }
     }
-});
+    function end(){ if(!drag) return; drag=false; content.style.transition='transform .25s ease'; card.classList.remove('swiping');
+      if(Math.abs(dx)>=THRESH){ if(dx>0){ card.classList.add('swipe-left-active'); card.classList.remove('swipe-right-active'); }
+        else { card.classList.add('swipe-right-active'); card.classList.remove('swipe-left-active'); }
+      } else { content.style.transform='translateX(0)'; card.classList.remove('swipe-left-active','swipe-right-active'); }
+      dx=dy=0; dir=null; }
+    card.addEventListener('touchstart', start, {passive:true});
+    card.addEventListener('touchmove', move, {passive:false});
+    card.addEventListener('touchend', end, {passive:true});
+    card.addEventListener('mousedown', start);
+    card.addEventListener('mousemove', move);
+    card.addEventListener('mouseup', end);
+    card.addEventListener('mouseleave', end);
+  });
+})();
 </script>
 {% endblock %}
