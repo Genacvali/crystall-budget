@@ -10,9 +10,28 @@
   <div class="container py-5">
     <div class="text-center">
       <h1 class="mb-3">Нет соединения</h1>
-      <p class="text-muted mb-4">Данные недоступны. Как только Интернет появится, всё синхронизируется автоматически.</p>
-      <a class="btn btn-primary" href="/">На главную</a>
+      <p class="text-muted mb-4">Как только Интернет появится, мы вернём вас обратно.</p>
+      <div class="d-flex gap-2 justify-content-center">
+        <a class="btn btn-primary" href="/">На главную</a>
+        <button id="retry" class="btn btn-outline-secondary">Попробовать снова</button>
+      </div>
+      <div id="hint" class="small text-muted mt-3">Ожидаем сеть…</div>
     </div>
   </div>
+  <script>
+  async function ping() {
+    try {
+      const r = await fetch('/health', { cache: 'no-store' });
+      if (r.ok) {
+        // возвращаем на предыдущую страницу или на дашборд
+        location.replace(document.referrer || '/dashboard');
+      }
+    } catch (e) { /* всё ещё офлайн */ }
+  }
+  document.getElementById('retry')?.addEventListener('click', ping);
+  window.addEventListener('online', ping);
+  // Периодическая проверка, если событие online не сработало
+  setInterval(ping, 5000);
+  </script>
 </body>
 </html>

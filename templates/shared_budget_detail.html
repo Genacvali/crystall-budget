@@ -1,215 +1,253 @@
 {% extends "base.html" %}
-
-{% block title %}{{ budget.name }} - Семейный бюджет{% endblock %}
+{% block title %}{{ budget.name }} — Семейный бюджет{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <!-- Breadcrumb -->
-            <nav aria-label="breadcrumb" class="mb-3">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item">
-                        <a href="{{ url_for('shared_budgets') }}">
-                            <i class="bi bi-people"></i> Семейные бюджеты
-                        </a>
-                    </li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ budget.name }}</li>
-                </ol>
-            </nav>
-            
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h1 class="h3 mb-0">👨‍👩‍👧‍👦 {{ budget.name }}</h1>
-                    <small class="text-muted">
-                        {% if budget.role == 'admin' %}
-                            Вы администратор этого бюджета
-                        {% else %}
-                            Участник бюджета
-                        {% endif %}
-                    </small>
-                </div>
-                {% if budget.role == 'admin' %}
-                    <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#inviteModal">
-                        <i class="bi bi-person-plus"></i> Пригласить
-                    </button>
-                {% endif %}
-            </div>
-            
-            <!-- Flash Messages -->
-            {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'warning' }} alert-dismissible fade show" role="alert">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            {% endwith %}
+<style>
+.kpi-card{border:none;box-shadow:0 6px 18px rgba(0,0,0,.06);border-radius:12px}
+.kpi-value{font-weight:800;font-size:1.35rem}
+.kpi-label{color:var(--bs-secondary)}
+.avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--bs-primary);color:#fff}
+.avatar-sm{width:32px;height:32px;background:var(--bs-secondary)}
+.badge-role{border-radius:999px}
+</style>
 
-            <!-- Members Section -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-people me-2"></i>Участники бюджета ({{ members|length }})
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        {% for member in members %}
-                            <div class="col-md-6 col-lg-4 mb-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar-circle me-3">
-                                        <i class="bi bi-person"></i>
-                                    </div>
-                                    <div>
-                                        <div class="fw-semibold">{{ member.username }}</div>
-                                        <small class="text-muted">
-                                            <span class="badge {% if member.role == 'admin' %}bg-warning{% else %}bg-secondary{% endif %}">
-                                                {{ 'Администратор' if member.role == 'admin' else 'Участник' }}
-                                            </span>
-                                            · присоединился {{ member.joined_at|format_date_with_day }}
-                                        </small>
-                                    </div>
-                                </div>
-                            </div>
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+<!-- Хлебные крошки -->
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('shared_budgets') }}"><i class="bi bi-people"></i> Семейные бюджеты</a></li>
+    <li class="breadcrumb-item active" aria-current="page">{{ budget.name }}</li>
+  </ol>
+</nav>
 
-            <!-- Recent Expenses -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-list-ul me-2"></i>Общие расходы за текущий месяц
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if recent_expenses %}
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Участник</th>
-                                        <th>Дата</th>
-                                        <th>Категория</th>
-                                        <th>Описание</th>
-                                        <th class="text-end">Сумма</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for expense in recent_expenses %}
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-circle-sm me-2">
-                                                        <i class="bi bi-person"></i>
-                                                    </div>
-                                                    {{ expense.username }}
-                                                </div>
-                                            </td>
-                                            <td>{{ expense.date|format_date_with_day }}</td>
-                                            <td>
-                                                <span class="badge bg-secondary">{{ expense.category_name }}</span>
-                                            </td>
-                                            <td>{{ expense.description or '-' }}</td>
-                                            <td class="text-end fw-semibold">
-                                                {{ expense.amount|format_amount }} {{ currency_symbol }}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-inbox display-1 text-muted opacity-50"></i>
-                            <h5 class="text-muted mt-3">Пока нет общих расходов</h5>
-                            <p class="text-muted">Когда участники добавят расходы, они отобразятся здесь</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+<!-- Заголовок -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 m-0">👨‍👩‍👧‍👦 {{ budget.name }}</h1>
+    <small class="text-muted">
+      {% if budget.role == 'admin' %}Вы администратор{% else %}Участник{% endif %} • создан {{ budget.created_at|default('') }}
+    </small>
+  </div>
+  {% if budget.role == 'admin' %}
+  <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#inviteModal">
+    <i class="bi bi-person-plus"></i> Пригласить
+  </button>
+  {% endif %}
 </div>
 
-<!-- Invite Modal -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'danger' if category=='error' else category }} alert-dismissible fade show" role="alert">
+        {{ message }} <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{# ==== KPI блоки ==== #}
+{% set total_sum = recent_expenses|map(attribute='amount')|sum %}
+{% set my_sum = (recent_expenses|selectattr('username','equalto', session.name)|map(attribute='amount')|sum) if session.name else 0 %}
+{% set others_sum = total_sum - my_sum %}
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="card kpi-card">
+      <div class="card-body">
+        <div class="kpi-label mb-1">Итого за месяц</div>
+        <div class="kpi-value">
+          {{ total_sum|format_amount }} <span class="currency-display">{{ currency_symbol }}</span>
+        </div>
+        <small class="text-muted">Сумма расходов всех участников</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card kpi-card">
+      <div class="card-body">
+        <div class="kpi-label mb-1">Ваш расход</div>
+        <div class="kpi-value text-primary">
+          {{ my_sum|format_amount }} <span class="currency-display">{{ currency_symbol }}</span>
+        </div>
+        <small class="text-muted">Траты, добавленные вами</small>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card kpi-card">
+      <div class="card-body">
+        <div class="kpi-label mb-1">Остальные участники</div>
+        <div class="kpi-value {{ 'text-danger' if others_sum>my_sum else 'text-success' }}">
+          {{ others_sum|format_amount }} <span class="currency-display">{{ currency_symbol }}</span>
+        </div>
+        <small class="text-muted">Сумма трат других</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ==== Быстрый ввод расхода внутри бюджета ==== #}
+<div class="card mb-4">
+  <div class="card-header">
+    <div class="d-flex align-items-center justify-content-between">
+      <h5 class="m-0"><i class="bi bi-plus-circle me-2"></i>Добавить расход</h5>
+      <small class="text-muted">Расход прикреплять не нужно — он учитывается по факту участия</small>
+    </div>
+  </div>
+  <div class="card-body">
+    {% if categories and categories|length %}
+    <form method="POST" action="{{ url_for('expenses') }}">
+      <input type="hidden" name="next" value="{{ url_for('shared_budget_detail', budget_id=budget.id) }}">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Дата</label>
+          <input type="date" name="date" class="form-control" value="{{ today }}" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Категория</label>
+          <select name="category_id" class="form-select" required>
+            <option value="">Выберите…</option>
+            {% for c in categories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Сумма</label>
+          <input type="number" name="amount" step="0.01" min="0.01" inputmode="decimal" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Комментарий</label>
+          <input type="text" name="note" class="form-control" placeholder="Опционально">
+        </div>
+        <div class="col-md-1 d-grid">
+          <button class="btn btn-success"><i class="bi bi-check-lg me-1"></i>OK</button>
+        </div>
+      </div>
+    </form>
+    {% else %}
+      <div class="alert alert-info mb-0">
+        У вас пока нет категорий. Создайте их на странице <a class="alert-link" href="{{ url_for('categories') }}">«Категории»</a>.
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{# ==== Участники ==== #}
+<div class="card mb-4">
+  <div class="card-header"><h5 class="m-0"><i class="bi bi-people me-2"></i>Участники ({{ members|length }})</h5></div>
+  <div class="card-body">
+    <div class="row g-3">
+      {% for m in members %}
+      <div class="col-md-6 col-lg-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="avatar"><i class="bi bi-person"></i></div>
+          <div>
+            <div class="fw-semibold">{{ m.username }}</div>
+            <div class="small text-muted">
+              <span class="badge badge-role {% if m.role=='admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                {{ 'Администратор' if m.role=='admin' else 'Участник' }}
+              </span>
+              · с {{ m.joined_at|format_date_with_day }}
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{# ==== Общие расходы ==== #}
+<div class="card">
+  <div class="card-header"><h5 class="m-0"><i class="bi bi-list-ul me-2"></i>Общие расходы (текущий месяц)</h5></div>
+  <div class="card-body">
+    {% if recent_expenses and recent_expenses|length %}
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead><tr>
+          <th>Участник</th><th>Дата</th><th>Категория</th><th>Описание</th>
+          <th class="text-end">Сумма</th>
+        </tr></thead>
+        <tbody>
+          {% for e in recent_expenses %}
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="avatar avatar-sm"><i class="bi bi-person"></i></div>
+                {{ e.username }}
+              </div>
+            </td>
+            <td>{{ e.date|format_date_with_day }}</td>
+            <td><span class="badge bg-secondary">{{ e.category_name }}</span></td>
+            <td>{{ e.description or '-' }}</td>
+            <td class="text-end fw-semibold">
+              {% if e.currency %}
+                <span data-amount="{{ e.amount }}" data-currency="{{ e.currency }}">{{ e.amount|format_amount }}</span>
+                <span class="currency-display">{{ currency_symbol }}</span>
+              {% else %}
+                {{ e.amount|format_amount }} <span class="currency-display">{{ currency_symbol }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="4" class="text-end">Итого</th>
+            <th class="text-end">
+              {{ total_sum|format_amount }} <span class="currency-display">{{ currency_symbol }}</span>
+            </th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    {% else %}
+      <div class="text-center py-4">
+        <i class="bi bi-inbox display-1 text-muted opacity-50"></i>
+        <h5 class="text-muted mt-3">Пока нет общих расходов</h5>
+        <p class="text-muted">Добавьте первый расход через форму выше</p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{# ==== Модал приглашения ==== #}
 {% if budget.role == 'admin' %}
 <div class="modal fade" id="inviteModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Пригласить в семейный бюджет</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p>Поделитесь этим кодом с членами семьи:</p>
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" value="{{ budget.invite_code }}" readonly id="inviteCode">
-                    <button class="btn btn-outline-secondary" type="button" onclick="copyInviteCode()">
-                        <i class="bi bi-clipboard"></i> Копировать
-                    </button>
-                </div>
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    Члены семьи смогут присоединиться к бюджету, введя этот код на странице "Семейные бюджеты"
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            </div>
-        </div>
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"><i class="bi bi-person-plus me-1"></i>Пригласить</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
     </div>
+    <div class="modal-body">
+      <p>Поделитесь этим кодом:</p>
+      <div class="input-group">
+        <input type="text" class="form-control" value="{{ budget.invite_code }}" readonly id="inviteCode">
+        <button class="btn btn-outline-secondary" type="button" id="copyInvite"><i class="bi bi-clipboard"></i> Копировать</button>
+      </div>
+      <div class="alert alert-info mt-3">
+        <i class="bi bi-info-circle me-1"></i>
+        Код вводится на странице «Семейные бюджеты» → «Присоединиться».
+      </div>
+    </div>
+    <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button></div>
+  </div></div>
 </div>
 {% endif %}
 
-<style>
-.avatar-circle {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--bs-primary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-}
-
-.avatar-circle-sm {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: var(--bs-secondary);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-}
-</style>
-
 <script>
-function copyInviteCode() {
-    const input = document.getElementById('inviteCode');
-    input.select();
-    navigator.clipboard.writeText(input.value).then(function() {
-        const button = input.nextElementSibling;
-        const originalHtml = button.innerHTML;
-        button.innerHTML = '<i class="bi bi-check"></i> Скопировано';
-        button.classList.add('btn-success');
-        button.classList.remove('btn-outline-secondary');
-        
-        setTimeout(() => {
-            button.innerHTML = originalHtml;
-            button.classList.remove('btn-success');
-            button.classList.add('btn-outline-secondary');
-        }, 2000);
+document.addEventListener('DOMContentLoaded', function(){
+  const btn = document.getElementById('copyInvite');
+  if(btn){
+    btn.addEventListener('click', async ()=>{
+      const val = document.getElementById('inviteCode').value;
+      try{
+        await navigator.clipboard.writeText(val);
+        const orig = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check"></i> Скопировано';
+        btn.classList.remove('btn-outline-secondary'); btn.classList.add('btn-success');
+        setTimeout(()=>{ btn.innerHTML = orig; btn.classList.add('btn-outline-secondary'); btn.classList.remove('btn-success');}, 1800);
+      }catch(e){}
     });
-}
+  }
+});
 </script>
 {% endblock %}

@@ -567,7 +567,9 @@ def get_source_for_category(conn, user_id, category_id):
 # Делаем все сессии permanent по умолчанию
 @app.before_request
 def make_session_permanent():
-    session.permanent = True
+    # По умолчанию — сессия обычная (пока не поставили галочку)
+    session.permanent = bool(session.get("remember", False))
+
 
 # Обработка плохих запросов
 @app.before_request

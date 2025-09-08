@@ -366,3 +366,73 @@ jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
 2025-09-08 16:57:47,605 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
 2025-09-08 16:57:48,000 INFO [app] POST request to set_currency from 127.0.0.1
 2025-09-08 16:57:51,569 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:08:14,680 INFO [app] Logging system initialized
+2025-09-08 17:08:14,680 INFO [app] Log level: INFO
+2025-09-08 17:08:14,681 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 17:08:59,798 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:09:01,541 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:09:43,447 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:09:43,995 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:09:44,729 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:16:40,835 INFO [app] Logging system initialized
+2025-09-08 17:16:40,835 INFO [app] Log level: INFO
+2025-09-08 17:16:40,836 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 17:16:44,044 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:16:46,834 INFO [app] User logout: gena12m@gmail.com
+2025-09-08 17:16:47,484 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:16:48,136 INFO [app] POST request to login from 127.0.0.1
+2025-09-08 17:16:48,137 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-08 17:16:48,233 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
+2025-09-08 17:16:48,624 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:32:13,770 INFO [app] Logging system initialized
+2025-09-08 17:32:13,770 INFO [app] Log level: INFO
+2025-09-08 17:32:13,770 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 17:32:16,161 INFO [app] Logging system initialized
+2025-09-08 17:32:16,162 INFO [app] Log level: INFO
+2025-09-08 17:32:16,162 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 17:32:19,759 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:32:20,658 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:32:21,721 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:32:27,082 INFO [app] POST request to create_shared_budget from 127.0.0.1
+2025-09-08 17:32:27,119 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:32:28,984 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:32:32,350 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:32:32,794 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:01,323 INFO [app] POST request to categories_add from 127.0.0.1
+2025-09-08 17:33:01,962 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:05,890 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:16,869 INFO [app] POST request to categories_delete from 127.0.0.1
+2025-09-08 17:33:16,904 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:23,737 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:28,417 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:33,302 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:33,929 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:42,794 INFO [app] POST request to sources_add from 127.0.0.1
+2025-09-08 17:33:42,855 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:44,080 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:53,818 INFO [app] POST request to categories_add from 127.0.0.1
+2025-09-08 17:33:54,468 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:58,571 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:33:59,482 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:34:02,085 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:34:04,969 INFO [app] POST request to categories_delete from 127.0.0.1
+2025-09-08 17:34:05,324 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:34:47,651 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:34:51,059 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:35:02,694 INFO [app] POST request to categories_add from 127.0.0.1
+2025-09-08 17:35:03,040 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:35:06,479 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:35:09,699 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:35:18,868 INFO [app] POST request to income_add from 127.0.0.1
+2025-09-08 17:35:18,905 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:35:21,627 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:35:25,958 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:35:29,024 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:36:26,373 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:36:26,767 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:36:27,412 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:36:27,994 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:36:28,414 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:36:29,787 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:36:30,764 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 17:36:31,399 INFO [app] POST request to set_currency from 127.0.0.1

@@ -476,3 +476,99 @@ jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
 [2025-09-08 16:57:47,605] INFO in app: Successful login for user: gena12m@gmail.com (ID: 1)
 [2025-09-08 16:57:48,000] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-08 16:57:51,569] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:08:14 +0300] [2464] [INFO] Worker exiting (pid: 2464)
+[2025-09-08 17:08:14 +0300] [2465] [INFO] Worker exiting (pid: 2465)
+[2025-09-08 17:08:14 +0300] [2432] [INFO] Handling signal: term
+[2025-09-08 17:08:14 +0300] [2432] [INFO] Shutting down: Master
+[2025-09-08 17:08:14 +0300] [4953] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 17:08:14 +0300] [4953] [INFO] Listening at: http://127.0.0.1:5000 (4953)
+[2025-09-08 17:08:14 +0300] [4953] [INFO] Using worker: sync
+[2025-09-08 17:08:14 +0300] [4954] [INFO] Booting worker with pid: 4954
+[2025-09-08 17:08:14 +0300] [4955] [INFO] Booting worker with pid: 4955
+[2025-09-08 17:08:59,798] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:09:01,541] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:09:43,447] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:09:43,995] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:09:44,729] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:16:40 +0300] [4955] [INFO] Worker exiting (pid: 4955)
+[2025-09-08 17:16:40 +0300] [4954] [INFO] Worker exiting (pid: 4954)
+[2025-09-08 17:16:40 +0300] [4953] [INFO] Handling signal: term
+[2025-09-08 17:16:40 +0300] [4953] [INFO] Shutting down: Master
+[2025-09-08 17:16:40 +0300] [6905] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 17:16:40 +0300] [6905] [INFO] Listening at: http://127.0.0.1:5000 (6905)
+[2025-09-08 17:16:40 +0300] [6905] [INFO] Using worker: sync
+[2025-09-08 17:16:40 +0300] [6906] [INFO] Booting worker with pid: 6906
+[2025-09-08 17:16:40 +0300] [6907] [INFO] Booting worker with pid: 6907
+[2025-09-08 17:16:44,044] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:16:46,834] INFO in app: User logout: gena12m@gmail.com
+[2025-09-08 17:16:47,484] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:16:48,136] INFO in app: POST request to login from 127.0.0.1
+[2025-09-08 17:16:48,137] INFO in app: Login attempt for email: gena12m@gmail.com
+[2025-09-08 17:16:48,233] INFO in app: Successful login for user: gena12m@gmail.com (ID: 1)
+[2025-09-08 17:16:48,624] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:30:20 +0300] [6907] [INFO] Worker exiting (pid: 6907)
+[2025-09-08 17:30:20 +0300] [6906] [INFO] Worker exiting (pid: 6906)
+[2025-09-08 17:30:20 +0300] [6905] [INFO] Handling signal: term
+[2025-09-08 17:30:20 +0300] [6905] [ERROR] Worker (pid:6906) was sent SIGTERM!
+[2025-09-08 17:30:20 +0300] [6905] [ERROR] Worker (pid:6907) was sent SIGTERM!
+[2025-09-08 17:30:20 +0300] [6905] [INFO] Shutting down: Master
+[2025-09-08 17:32:13 +0300] [10223] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 17:32:13 +0300] [10223] [INFO] Listening at: http://127.0.0.1:5000 (10223)
+[2025-09-08 17:32:13 +0300] [10223] [INFO] Using worker: sync
+[2025-09-08 17:32:13 +0300] [10224] [INFO] Booting worker with pid: 10224
+[2025-09-08 17:32:13 +0300] [10225] [INFO] Booting worker with pid: 10225
+[2025-09-08 17:32:15 +0300] [10224] [INFO] Worker exiting (pid: 10224)
+[2025-09-08 17:32:15 +0300] [10225] [INFO] Worker exiting (pid: 10225)
+[2025-09-08 17:32:15 +0300] [10223] [INFO] Handling signal: term
+[2025-09-08 17:32:15 +0300] [10223] [INFO] Shutting down: Master
+[2025-09-08 17:32:16 +0300] [10248] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 17:32:16 +0300] [10248] [INFO] Listening at: http://127.0.0.1:5000 (10248)
+[2025-09-08 17:32:16 +0300] [10248] [INFO] Using worker: sync
+[2025-09-08 17:32:16 +0300] [10255] [INFO] Booting worker with pid: 10255
+[2025-09-08 17:32:16 +0300] [10256] [INFO] Booting worker with pid: 10256
+[2025-09-08 17:32:19,759] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:32:20,658] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:32:21,721] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:32:27,082] INFO in app: POST request to create_shared_budget from 127.0.0.1
+[2025-09-08 17:32:27,119] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:32:28,984] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:32:32,350] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:32:32,794] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:01,323] INFO in app: POST request to categories_add from 127.0.0.1
+[2025-09-08 17:33:01,962] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:05,890] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:16,869] INFO in app: POST request to categories_delete from 127.0.0.1
+[2025-09-08 17:33:16,904] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:23,737] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:28,417] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:33,302] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:33,929] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:42,794] INFO in app: POST request to sources_add from 127.0.0.1
+[2025-09-08 17:33:42,855] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:44,080] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:53,818] INFO in app: POST request to categories_add from 127.0.0.1
+[2025-09-08 17:33:54,468] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:58,571] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:33:59,482] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:34:02,085] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:34:04,969] INFO in app: POST request to categories_delete from 127.0.0.1
+[2025-09-08 17:34:05,324] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:34:47,651] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:34:51,059] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:35:02,694] INFO in app: POST request to categories_add from 127.0.0.1
+[2025-09-08 17:35:03,040] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:35:06,479] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:35:09,699] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:35:18,868] INFO in app: POST request to income_add from 127.0.0.1
+[2025-09-08 17:35:18,905] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:35:21,627] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:35:25,958] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:35:29,024] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:36:26,373] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:36:26,767] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:36:27,412] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:36:27,994] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:36:28,414] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:36:29,787] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:36:30,764] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:36:31,399] INFO in app: POST request to set_currency from 127.0.0.1
