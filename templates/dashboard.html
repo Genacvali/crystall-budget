@@ -2,164 +2,77 @@
 {% block title %}📊 Дашборд — CrystalBudget{% endblock %}
 
 {% block content %}
-<style>
-/* селекты не клипуются */
-select.form-select,.form-modern{position:relative;overflow:hidden;z-index:1}
-select.form-select option,.form-modern option{position:relative;z-index:9999}
-
-/* заголовок */
-.header-row{row-gap:.5rem}
-
-/* QUICK ACTIONS */
-.quick-actions{display:flex;gap:.5rem;flex-wrap:wrap}
-.quick-actions .btn{white-space:nowrap}
-
-/* кнопка пикера месяца */
-#month-btn{cursor:pointer}
-#month-btn i{pointer-events:none}
-
-/* карточки источников */
-.source-card .k{color:var(--bs-secondary)}
-.source-card .v{font-weight:600;color:var(--bs-body-color)}
-
-/* Главная карточка баланса */
-.balance-hero{background:linear-gradient(135deg,var(--bs-primary) 0%,var(--bs-primary-dark,#0d6efd) 100%);border-radius:1rem;color:#fff;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(13,110,253,.3)}
-.balance-hero::before{content:'';position:absolute;top:0;right:0;width:200px;height:200px;background:rgba(255,255,255,.1);border-radius:50%;transform:translate(30%,-30%)}
-.balance-amount{font-size:2rem;font-weight:700;line-height:1.2;margin:0}
-@media (max-width:576px){.balance-amount{font-size:1.75rem}}
-.balance-label{opacity:.9;font-size:1rem;margin-bottom:.5rem}
-.balance-actions{display:flex;gap:.5rem;margin-top:0}
-@media (max-width:767px){.balance-actions{flex-direction:column;gap:.5rem}}
-.btn-balance{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:.5rem;padding:.5rem .75rem;font-weight:500;font-size:.875rem;transition:all .2s ease;backdrop-filter:blur(10px);flex:1;text-align:center;white-space:nowrap}
-.btn-balance:hover{background:rgba(255,255,255,.3);color:#fff;transform:translateY(-1px)}
-
-/* Кольцевые индикаторы */
-.progress-ring{transform:rotate(-90deg);width:80px;height:80px}
-.progress-ring circle{stroke-width:6;fill:transparent;stroke-dasharray:251.3;stroke-dashoffset:251.3;transition:stroke-dashoffset .5s ease-in-out}
-.progress-ring .bg{stroke:var(--bs-secondary-bg)}
-.progress-ring .progress{stroke-linecap:round}
-.progress-success{stroke:var(--bs-success)}
-.progress-warning{stroke:var(--bs-warning)}
-.progress-danger{stroke:var(--bs-danger)}
-
-/* Таблица категорий */
-.table-modern{width:100%;border-collapse:separate;border-spacing:0 8px}
-.table-modern thead th{font-weight:600;color:var(--bs-secondary);border:0;padding:.25rem .75rem}
-.table-modern tbody tr{background:var(--bs-body-bg);box-shadow:0 1px 2px rgba(0,0,0,.04);border-radius:10px}
-.table-modern tbody td{border:0;padding:.75rem .75rem;vertical-align:middle;color:var(--bs-body-color)}
-.table-modern .cell-title{font-weight:700;color:var(--bs-body-color)}
-.table-modern .progress{height:8px;background:var(--bs-secondary-bg)}
-.table-modern .progress-bar{transition:width .3s ease}
-
-/* Dark theme support */
-[data-bs-theme="dark"] .table-modern tbody tr{background:var(--bs-dark);box-shadow:0 1px 2px rgba(255,255,255,.04)}
-
-/* Мобильная таблица */
-.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.hide-mobile{display:table-cell}
-@media (max-width:768px){
-  .hide-mobile{display:none!important}
-  .table-modern thead th{padding:.25rem .45rem;font-size:.9rem}
-  .table-modern tbody td{padding:.5rem .45rem;font-size:.95rem}
-  .table-modern .cell-title{max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .currency{white-space:normal;word-break:break-word}
-  .badge-soft{font-size:.75rem;padding:.2rem .4rem}
-  .mobile-compact{font-size:.8rem;padding:.25rem .45rem!important}
-}
-.badge-soft{border-radius:999px;padding:.35rem .6rem;font-weight:600}
-.badge-soft-success{background:#e8f6ee;color:#198754}
-.badge-soft-warning{background:#fff3cd;color:#b58100}
-.badge-soft-danger{background:#fde2e2;color:#c03a3a}
-.currency{white-space:nowrap}
-
-/* Сортировка */
-.sortable{transition:background-color .2s ease;cursor:pointer;user-select:none}
-.sortable:hover{background-color:rgba(0,0,0,.05)}
-.sort-icon{font-size:.8em;opacity:.6}
-.sortable.sort-asc .sort-icon,.sortable.sort-desc .sort-icon{opacity:1}
-</style>
-
-<!-- Заголовок -->
-<div class="row align-items-center justify-content-between header-row mb-4">
-  <div class="col-auto">
-    <h1 class="zen-title">
-      Финансы
-    </h1>
-  </div>
-  <div class="col-12 col-md-auto">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-      <div class="text-center" aria-live="polite">
-        <div class="fw-bold text-primary" id="current-date-display"></div>
-        <small class="text-muted" id="current-day-display"></small>
+<!-- YNAB-styled Dashboard -->
+<div class="header-row mb-4" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
+  <h1 class="zen-title m-0">Финансы</h1>
+  <div class="d-flex align-items-center gap-3 flex-wrap">
+    <div class="text-center" aria-live="polite">
+      <div class="fw-bold" style="color:var(--ynab-primary)" id="current-date-display"></div>
+      <small class="muted" id="current-day-display"></small>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <div class="btn-group" role="group" aria-label="Навигация по месяцам">
+        <a href="?month={{ prev_month }}" class="ynab-btn" style="padding:6px 10px"><i class="bi bi-chevron-left"></i></a>
+        <span class="ynab-btn" style="padding:6px 14px; min-width:120px" aria-current="date">{{ current_month_name }}</span>
+        <a href="?month={{ next_month }}" class="ynab-btn" style="padding:6px 10px"><i class="bi bi-chevron-right"></i></a>
       </div>
-      <div class="d-flex align-items-center gap-2">
-        <div class="btn-group" role="group" aria-label="Навигация по месяцам">
-          <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm" aria-label="Предыдущий месяц">
-            <i class="bi bi-chevron-left"></i>
-          </a>
-          <span class="btn btn-outline-primary btn-sm disabled d-none d-sm-inline" style="min-width:120px" aria-current="date">{{ current_month_name }}</span>
-          <span class="btn btn-outline-primary btn-sm disabled d-sm-none" style="min-width:80px" aria-current="date">{{ current_month_name.split()[0][:3] }}</span>
-          <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm" aria-label="Следующий месяц">
-            <i class="bi bi-chevron-right"></i>
-          </a>
-        </div>
-        <div class="dropdown">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-calendar3 d-md-none" aria-hidden="true"></i>
-            <span class="d-none d-md-inline"><i class="bi bi-calendar3"></i> Выбрать месяц</span>
-          </button>
-          <div class="dropdown-menu">
-            {% for i in range(12) %}
-              {% set month_num = (loop.index) %}
-              {% set month_val = "2024-%02d"|format(month_num) %}
-              <a class="dropdown-item" href="?month={{ month_val }}">{{ month_names[month_num - 1] }} 2024</a>
-            {% endfor %}
-            <div class="dropdown-divider"></div>
-            {% for i in range(12) %}
-              {% set month_num = (loop.index) %}
-              {% set month_val = "2025-%02d"|format(month_num) %}
-              <a class="dropdown-item" href="?month={{ month_val }}">{{ month_names[month_num - 1] }} 2025</a>
-            {% endfor %}
-          </div>
+      <div class="dropdown">
+        <button class="ynab-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          <i class="bi bi-calendar3 d-md-none" aria-hidden="true"></i>
+          <span class="d-none d-md-inline">Выбрать месяц</span>
+        </button>
+        <div class="dropdown-menu p-2" style="max-height:50vh; overflow:auto;">
+          <div class="badge-soft mb-1">2024</div>
+          {% for i in range(12) %}
+            {% set month_num = (loop.index) %}
+            {% set month_val = "2024-%02d"|format(month_num) %}
+            <a class="dropdown-item" href="?month={{ month_val }}">{{ month_names[month_num - 1] }} 2024</a>
+          {% endfor %}
+          <div class="divider"></div>
+          <div class="badge-soft mb-1">2025</div>
+          {% for i in range(12) %}
+            {% set month_num = (loop.index) %}
+            {% set month_val = "2025-%02d"|format(month_num) %}
+            <a class="dropdown-item" href="?month={{ month_val }}">{{ month_names[month_num - 1] }} 2025</a>
+          {% endfor %}
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Hero карточка баланса в Zen стиле -->
-<div class="zen-hero-card zen-scale-in">
-  <div class="zen-hero-content">
-    <div class="row align-items-center">
+<!-- HERO (YNAB vibe) -->
+{% set total_spent = budget_data|map(attribute='spent')|sum %}
+<div class="ynab-card zen-scale-in" style="background:linear-gradient(135deg, color-mix(in oklab, var(--ynab-primary) 90%, black) 0%, var(--ynab-primary-700) 100%); color:white; overflow:hidden;">
+  <div class="ynab-card-body">
+    <div class="row align-items-center g-3">
       <div class="col-md-8">
-        <div class="zen-balance-label">Баланс за {{ current_month_name.split()[0] }}</div>
-        {% set total_spent = budget_data|map(attribute='spent')|sum %}
-        <div class="zen-balance-amount">
-          {{ (income - total_spent)|format_amount }} <span class="currency-display" style="font-size: 0.6em; opacity: 0.9;">{{ currency_symbol|default('₽') }}</span>
+        <div class="zen-text-sm" style="opacity:.9">Баланс за {{ current_month_name.split()[0] }}</div>
+        <div class="zen-balance-amount" style="font-weight:800; font-size:clamp(28px,4.5vw,40px); letter-spacing:.2px;">
+          {{ (income - total_spent)|format_amount }} <span class="currency-display" style="font-size:.6em; opacity:.95;">{{ currency_symbol|default('₽') }}</span>
         </div>
-        
-        <div class="d-flex gap-4 flex-wrap mt-4" aria-label="Итоги месяца">
+        <div class="d-flex gap-4 flex-wrap mt-3" aria-label="Итоги месяца">
           <div>
-            <div class="zen-text-sm" style="opacity: 0.8; margin-bottom: 4px;">Доход</div>
+            <div class="zen-text-sm" style="opacity:.85; margin-bottom:4px;">Доход</div>
             <div class="fw-semibold">{{ income|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
           </div>
           <div>
-            <div class="zen-text-sm" style="opacity: 0.8; margin-bottom: 4px;">Потрачено</div>
+            <div class="zen-text-sm" style="opacity:.85; margin-bottom:4px;">Потрачено</div>
             <div class="fw-semibold">{{ total_spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
           </div>
           <div class="d-none d-lg-block">
-            <div class="zen-text-sm" style="opacity: 0.8; margin-bottom: 4px;">Лимиты</div>
+            <div class="zen-text-sm" style="opacity:.85; margin-bottom:4px;">Лимиты</div>
             <div class="fw-semibold">{{ budget_data|map(attribute='limit')|sum|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
           </div>
         </div>
       </div>
-      <div class="col-md-4 text-md-end mt-4 mt-md-0">
-        <div class="zen-balance-actions">
-          <button type="button" class="zen-btn zen-btn-hero" data-bs-toggle="modal" data-bs-target="#expenseModal">
+      <div class="col-md-4 text-md-end mt-2 mt-md-0">
+        <div class="d-flex gap-2 justify-content-md-end flex-wrap">
+          <button type="button" class="ynab-btn" data-bs-toggle="modal" data-bs-target="#expenseModal">
             <i class="bi bi-arrow-down-circle" aria-hidden="true"></i>
             <span class="d-none d-lg-inline">Добавить </span>Расход
           </button>
-          <button type="button" class="zen-btn zen-btn-hero" data-bs-toggle="modal" data-bs-target="#incomeModal">
+          <button type="button" class="ynab-btn" data-bs-toggle="modal" data-bs-target="#incomeModal">
             <i class="bi bi-arrow-up-circle" aria-hidden="true"></i>
             Доходы
           </button>
@@ -169,25 +82,29 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   </div>
 </div>
 
-<!-- Источники (если есть) -->
+<!-- Источники -->
 {% if source_balances and source_balances|length > 0 %}
-<div class="row g-3 mb-4">
+<div class="row g-3 my-4">
   {% for s in source_balances %}
   <div class="col-12 col-sm-6 col-lg-4">
-    <div class="card source-card h-100">
-      <div class="card-body">
-        <h6 class="mb-3">{{ s.source_name }}</h6>
-        <div class="d-flex justify-content-between mb-1"><span class="k">Пришло</span><span class="v currency">{{ s.income|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span></div>
-        <div class="d-flex justify-content-between mb-1"><span class="k">Ушло</span><span class="v currency">{{ s.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span></div>
+    <div class="ynab-card h-100">
+      <div class="ynab-card-body">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <h6 class="m-0" style="font-weight:800;">{{ s.source_name }}</h6>
+          <span class="badge-soft">Источник</span>
+        </div>
+        <div class="d-flex justify-content-between mb-1"><span class="muted">Пришло</span><span class="amount currency positive" data-amount="{{ s.income }}" data-currency="{{ currency_code|default('RUB') }}">{{ s.income|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span></div>
+        <div class="d-flex justify-content-between mb-1"><span class="muted">Ушло</span><span class="amount currency {{ 'negative' if s.spent>0 else '' }}" data-amount="{{ s.spent }}" data-currency="{{ currency_code|default('RUB') }}">{{ s.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span></div>
         {% if s.limits_total > 0 %}
         <div class="d-flex justify-content-between mb-1">
-          <span class="k text-muted small">Остаётся после лимитов</span>
-          <span class="v currency small {% if s.remaining_after_limits < 0 %}text-danger{% else %}text-success{% endif %}">{{ s.remaining_after_limits|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
+          <span class="muted small">Остаётся после лимитов</span>
+          <span class="amount currency {{ 'negative' if s.remaining_after_limits < 0 else 'positive' }}">{{ s.remaining_after_limits|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
         </div>
         {% endif %}
+        <div class="divider"></div>
         <div class="d-flex justify-content-between">
-          <span class="k">Остаток</span>
-          <span class="v currency {% if s.rest < 0 %}text-danger{% endif %}">{{ s.rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
+          <span class="muted">Остаток</span>
+          <span class="amount currency {{ 'negative' if s.rest < 0 else 'positive' }}">{{ s.rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
         </div>
       </div>
     </div>
@@ -196,7 +113,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 </div>
 {% endif %}
 
-<!-- Категории карточками (мобильная версия) -->
+<!-- Категории (моб. карточки) -->
 {% if budget_data %}
 <div class="d-md-none mb-4">
   <h2 class="h6 mb-3">Категории ({{ budget_data|length }})</h2>
@@ -204,41 +121,17 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
     {% for item in budget_data %}
       {% set progress_percent = (item.limit > 0 and (item.spent / item.limit * 100) or 0) | round(1) %}
       {% set rest = item.limit - item.spent %}
-      {% set color_class = 'success' if progress_percent < 50 else ('warning' if progress_percent < 80 else 'danger') %}
+      {% set tone = 'pill--available' if progress_percent < 50 else ('pill--warning' if progress_percent < 80 else 'pill--danger') %}
       <div class="col-12">
-        <div class="card category-card">
-          <div class="category-color bg-{{ color_class }}" aria-hidden="true"></div>
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div class="category-icon bg-{{ color_class }}-subtle text-{{ color_class }}">
-                <i class="bi bi-tag" aria-hidden="true"></i>
-              </div>
+        <div class="ynab-card category-card">
+          <div class="ynab-card-body">
+            <div class="d-flex align-items-center gap-3">
+              <div class="pill {{ tone }}"><i class="bi bi-tag"></i> {{ progress_percent }}%</div>
               <div class="flex-grow-1">
-                <h6 class="mb-1 fw-bold">{{ item.category_name }}</h6>
-                <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-muted small">{{ item.spent|format_amount }} / {{ item.limit|format_amount }} {{ currency_symbol|default('₽') }}</span>
-                  <span class="badge bg-{{ color_class }}-subtle text-{{ color_class }}">{{ progress_percent }}%</span>
-                </div>
+                <div class="fw-bold">{{ item.category_name }}</div>
+                <div class="muted small">{{ item.spent|format_amount }} / {{ item.limit|format_amount }} {{ currency_symbol|default('₽') }}</div>
               </div>
-              <div class="progress-circle-wrapper">
-                <svg class="progress-ring" viewBox="0 0 84 84" aria-label="Прогресс категории">
-                  <circle class="bg" cx="42" cy="42" r="40"></circle>
-                  <circle class="progress progress-{{ color_class }}" cx="42" cy="42" r="40" style="stroke-dashoffset: {{ 251.3 * (1 - progress_percent / 100) }}"></circle>
-                </svg>
-                <div class="progress-circle-text">{{ progress_percent }}%</div>
-              </div>
-            </div>
-            <div class="d-flex justify-content-between align-items-center mt-3">
-              <div>
-                <small class="text-muted">Осталось:</small>
-                <div class="fw-semibold {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} {{ currency_symbol|default('₽') }}</div>
-              </div>
-              {% if item.source_name %}
-              <div class="text-end">
-                <small class="text-muted">Источник:</small>
-                <div class="text-primary small fw-semibold">{{ item.source_name }}</div>
-              </div>
-              {% endif %}
+              <div class="amount {{ 'negative' if rest<0 else 'positive' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
             </div>
           </div>
         </div>
@@ -247,18 +140,18 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   </div>
 </div>
 
-<!-- Категории таблицей (десктоп) -->
-<div class="d-none d-md-block modern-card">
-  <div class="card-body table-wrap">
-    <table class="table-modern w-100" id="categoriesTable">
+<!-- Категории (десктоп таблица) -->
+<div class="ynab-card d-none d-md-block">
+  <div class="ynab-card-body table-wrap">
+    <table class="ynab-table w-100" id="categoriesTable">
       <thead>
         <tr>
           <th class="sortable" data-sort="category">Категория <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
           <th class="text-end sortable hide-mobile" data-sort="limit">Лимит <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
-          <th class="text-end sortable" data-sort="spent"><span class="d-none d-md-inline">Потрачено</span><span class="d-md-none">Трат</span> <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
-          <th class="sortable hide-mobile" data-sort="progress" style="min-width:200px">Прогресс <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
-          <th class="text-end sortable" data-sort="remaining"><span class="d-none d-md-inline">Остаток</span><span class="d-md-none">Ост</span> <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
-          <th class="text-end sortable mobile-compact" data-sort="source"><span class="d-none d-md-inline">Источник дохода</span><span class="d-md-none">Источник</span> <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+          <th class="text-end sortable" data-sort="spent">Потрачено <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+          <th class="sortable hide-mobile" data-sort="progress" style="min-width:220px">Прогресс <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+          <th class="text-end sortable" data-sort="remaining">Остаток <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+          <th class="text-end sortable mobile-compact" data-sort="source">Источник <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
         </tr>
       </thead>
       <tbody>
@@ -266,34 +159,38 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
           {% set progress_percent = (item.limit > 0 and (item.spent / item.limit * 100) or 0) | round(1) %}
           {% set rest = item.limit - item.spent %}
           {% set status_order = 3 if item.spent > item.limit else (2 if item.limit > 0 and (item.spent / item.limit) > 0.8 else 1) %}
-          <tr data-category="{{ item.category_name }}" data-limit="{{ item.limit }}" data-spent="{{ item.spent }}" data-progress="{{ progress_percent }}" data-remaining="{{ rest }}" data-status="{{ status_order }}" data-source="{{ item.source_name or 'Не привязано' }}">
+          <tr class="ynab-row" data-category="{{ item.category_name }}" data-limit="{{ item.limit }}" data-spent="{{ item.spent }}" data-progress="{{ progress_percent }}" data-remaining="{{ rest }}" data-status="{{ status_order }}" data-source="{{ item.source_name or 'Не привязано' }}">
             <td class="cell-title">
-              {{ item.category_name }}
-              <div class="d-md-none small text-muted mt-1">Лимит: {{ item.limit|format_amount }} {{ currency_symbol|default('₽') }}</div>
+              <div class="d-flex align-items-center gap-2">
+                <i class="bi bi-tag muted"></i>
+                <span class="fw-bold">{{ item.category_name }}</span>
+              </div>
+              <div class="d-md-none small muted mt-1">Лимит: {{ item.limit|format_amount }} {{ currency_symbol|default('₽') }}</div>
             </td>
-            <td class="text-end currency hide-mobile">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
-            <td class="text-end currency {{ 'text-danger' if item.spent > item.limit else '' }}">
+            <td class="text-end currency hide-mobile amount">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
+            <td class="text-end currency amount {{ 'negative' if item.spent > item.limit else '' }}">
               {{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
               <div class="d-md-none mt-1">
-                <div class="progress" style="height:6px"><div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ [progress_percent, 100] | min }}%"></div></div>
-                <small class="text-muted">{{ progress_percent }}%</small>
+                <div class="progress" style="height:6px; background:var(--ynab-gray-200);">
+                  <div class="progress-bar" style="width: {{ [progress_percent, 100] | min }}%; background: var(--ynab-primary);"></div>
+                </div>
+                <small class="muted">{{ progress_percent }}%</small>
               </div>
             </td>
             <td class="hide-mobile">
               <div class="d-flex align-items-center gap-2">
-                <div class="flex-grow-1">
-                  <div class="progress"><div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}" role="progressbar" style="width: {{ [progress_percent, 100] | min }}%"></div></div>
+                <div class="flex-grow-1" style="height:8px; background:var(--ynab-gray-200); border-radius:999px; overflow:hidden;">
+                  <div style="height:8px; width: {{ [progress_percent, 100] | min }}%; background: {{ 'var(--ynab-accent)' if progress_percent < 50 else ('var(--ynab-warning)' if progress_percent < 80 else 'var(--ynab-danger)') }};"></div>
                 </div>
-                <small class="text-muted" style="width:48px;text-align:right">{{ progress_percent }}%</small>
+                <small class="muted" style="width:56px; text-align:right;">{{ progress_percent }}%</small>
               </div>
             </td>
-            <td class="text-end currency {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
+            <td class="text-end currency amount {{ 'negative' if rest < 0 else 'positive' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
             <td class="text-end mobile-compact">
               {% if item.source_name %}
-                <span class="d-none d-md-inline text-primary small">{{ item.source_name }}</span>
-                <span class="d-md-none text-primary small">{{ item.source_name[:8] }}{{ '...' if item.source_name|length > 8 else '' }}</span>
+                <span class="text-primary small">{{ item.source_name }}</span>
               {% else %}
-                <span class="text-muted small"><span class="d-none d-md-inline">Не привязано</span><span class="d-md-none">—</span></span>
+                <span class="muted small">—</span>
               {% endif %}
             </td>
           </tr>
@@ -301,51 +198,50 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
       </tbody>
     </table>
   </div>
-  
-  <!-- Блок следующих шагов -->
-  {% set has_recent_expenses = budget_data | selectattr('spent') | selectattr('spent', 'gt', 0) | list %}
-  {% set has_income = (total_balance and total_balance > 0) or (source_balances and source_balances|length > 0) %}
-  {% set has_goals = False %} <!-- Будем получать из контекста -->
-  
 </div>
 {% else %}
 <!-- Пустое состояние -->
-<div class="text-center py-5">
-  <div class="mb-3"><i class="bi bi-wallet2 display-1 text-muted opacity-50" aria-hidden="true"></i></div>
-  <h2 class="h5 mb-2">Начните с создания категорий</h2>
-  <p class="text-muted">Создайте категории для учёта ваших доходов и расходов</p>
-  <a href="{{ url_for('categories') }}" class="btn btn-cb-primary btn-cb-lg cb-fade-in"><i class="bi bi-tags-fill me-2"></i>Создать категории</a>
+<div class="ynab-card" style="margin-top:24px;">
+  <div class="ynab-card-body text-center">
+    <div class="mb-3"><i class="bi bi-wallet2 display-1 muted" aria-hidden="true"></i></div>
+    <h2 class="h5 mb-2">Начните с создания категорий</h2>
+    <p class="muted">Создайте категории для учёта ваших доходов и расходов</p>
+    <a href="{{ url_for('categories') }}" class="ynab-btn"><i class="bi bi-tags-fill me-2"></i>Создать категории</a>
+  </div>
 </div>
 {% endif %}
 
-<!-- Модальные окна → перенос из исходника без изменений по логике -->
-{{ super() }}
-
 <!-- Toast контейнер -->
-<div class="toast-container position-fixed top-0 end-0 p-3" aria-live="polite" aria-atomic="true"></div>
-
-<!-- Модальные окна добавления расхода/дохода (оставлены как в исходнике) -->
+<div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" aria-live="polite" aria-atomic="true"></div>
 {% include 'partials/modals_dashboard.html' ignore missing %}
 {% endblock %}
 
 {% block scripts %}
 <script>
-// Toast из flash
+// Flash -> Toast (YNAB-styled)
 (function(){
   const alerts = document.querySelectorAll('.alert');
-  const container = document.querySelector('.toast-container');
+  const container = document.getElementById('toastContainer');
   if(!container) return;
-  const typeMap = {success:'check-circle-fill text-success', danger:'x-circle-fill text-danger', warning:'exclamation-triangle-fill text-warning', info:'info-circle-fill text-primary'};
+  const typeMap = {success:'check-circle-fill', danger:'x-circle-fill', warning:'exclamation-triangle-fill', info:'info-circle-fill'};
   alerts.forEach(a=>{
     const msg = a.textContent.trim();
     const type = a.classList.contains('alert-success')?'success':a.classList.contains('alert-danger')?'danger':a.classList.contains('alert-warning')?'warning':'info';
     const id = 't-'+Date.now()+Math.random();
-    container.insertAdjacentHTML('beforeend',`<div class="toast" id="${id}" role="status" data-bs-delay="4000"><div class="toast-header"><i class="bi ${typeMap[type]} me-2"></i><strong class="me-auto">CrystalBudget</strong><button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Закрыть"></button></div><div class="toast-body">${msg}</div></div>`);
+    container.insertAdjacentHTML('afterbegin',
+      `<div id="${id}" class="toast cb-toast cb-scale-in cb-toast-${type}" role="status" data-bs-delay="4500">
+        <div class="toast-header cb-toast-header">
+          <i class="bi bi-${typeMap[type]} me-2"></i>
+          <strong class="me-auto">CrystalBudget</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Закрыть"></button>
+        </div>
+        <div class="toast-body cb-toast-body">${msg}</div>
+      </div>`);
     const el = document.getElementById(id); new bootstrap.Toast(el).show(); el.addEventListener('hidden.bs.toast',()=>el.remove()); a.remove();
   });
 })();
 
-// Дата и день недели
+// Current date & weekday (ru)
 (function(){
   const dEl = document.getElementById('current-date-display');
   const wEl = document.getElementById('current-day-display');
@@ -355,7 +251,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   wEl.textContent = now.toLocaleDateString('ru-RU',{weekday:'long'});
 })();
 
-// Сортировка таблицы категорий
+// Sorting
 (function(){
   const table = document.getElementById('categoriesTable');
   if(!table) return;

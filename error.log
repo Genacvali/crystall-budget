@@ -1601,3 +1601,13 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 [2025-09-09 00:10:52,076] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-09 00:10:52,218] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-09 00:10:52,358] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:16:03 +0300] [32456] [INFO] Worker exiting (pid: 32456)
+[2025-09-09 00:16:03 +0300] [32457] [INFO] Worker exiting (pid: 32457)
+[2025-09-09 00:16:03 +0300] [32455] [INFO] Handling signal: term
+[2025-09-09 00:16:03 +0300] [32455] [INFO] Shutting down: Master
+[2025-09-09 00:16:03 +0300] [1543] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:16:03 +0300] [1543] [INFO] Listening at: http://127.0.0.1:5000 (1543)
+[2025-09-09 00:16:03 +0300] [1543] [INFO] Using worker: sync
+[2025-09-09 00:16:03 +0300] [1544] [INFO] Booting worker with pid: 1544
+[2025-09-09 00:16:03 +0300] [1545] [INFO] Booting worker with pid: 1545
+[2025-09-09 00:16:09,044] INFO in app: POST request to set_currency from 127.0.0.1

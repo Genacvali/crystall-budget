@@ -1388,3 +1388,7 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 2025-09-09 00:10:52,076 INFO [app] POST request to set_currency from 127.0.0.1
 2025-09-09 00:10:52,218 INFO [app] POST request to set_currency from 127.0.0.1
 2025-09-09 00:10:52,358 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:16:03,574 INFO [app] Logging system initialized
+2025-09-09 00:16:03,574 INFO [app] Log level: INFO
+2025-09-09 00:16:03,575 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 00:16:09,044 INFO [app] POST request to set_currency from 127.0.0.1
