@@ -30,3 +30,88 @@
  * Running on http://10.17.211.208:5001
 2025-09-07 23:55:05,323 INFO [werkzeug] [33mPress CTRL+C to quit[0m
 2025-09-07 23:55:12,690 INFO [werkzeug] 127.0.0.1 - - [07/Sep/2025 23:55:12] "[32mGET / HTTP/1.1[0m" 302 -
+2025-09-08 15:31:47,989 INFO [app] Logging system initialized
+2025-09-08 15:31:47,990 INFO [app] Log level: INFO
+2025-09-08 15:31:47,990 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 15:31:48,122 INFO [app] Profile columns migration completed successfully
+2025-09-08 15:31:48,123 INFO [app] New tables migration completed successfully
+2025-09-08 15:31:48,124 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://172.24.143.15:5000
+2025-09-08 15:31:48,124 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2025-09-08 15:34:11,394 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:11] "[32mGET / HTTP/1.0[0m" 302 -
+2025-09-08 15:34:11,472 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:11] "GET /dashboard HTTP/1.0" 200 -
+2025-09-08 15:34:12,247 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:12,248 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:12] "POST /set-currency HTTP/1.0" 200 -
+2025-09-08 15:34:16,206 INFO [app] User logout: unknown
+2025-09-08 15:34:16,207 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:16] "[32mGET /logout HTTP/1.0[0m" 302 -
+2025-09-08 15:34:16,212 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:16] "GET /login HTTP/1.0" 200 -
+2025-09-08 15:34:16,257 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:16,258 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:16] "[32mPOST /set-currency HTTP/1.0[0m" 302 -
+2025-09-08 15:34:16,268 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:16] "GET /login HTTP/1.0" 200 -
+2025-09-08 15:34:17,557 INFO [app] POST request to login from 127.0.0.1
+2025-09-08 15:34:17,557 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-08 15:34:17,558 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-08 15:34:17,558 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:17] "POST /login HTTP/1.0" 200 -
+2025-09-08 15:34:17,595 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:17,596 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:17] "[32mPOST /set-currency HTTP/1.0[0m" 302 -
+2025-09-08 15:34:17,606 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:17] "GET /login HTTP/1.0" 200 -
+2025-09-08 15:34:27,015 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "[32mGET / HTTP/1.1[0m" 302 -
+2025-09-08 15:34:27,020 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /dashboard HTTP/1.1" 200 -
+2025-09-08 15:34:27,268 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /static/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1" 200 -
+2025-09-08 15:34:27,349 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /static/css/clean-theme.css HTTP/1.1" 200 -
+2025-09-08 15:34:27,653 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2?1bb88866b4085542c8ed5fb61b9393dd HTTP/1.1" 200 -
+2025-09-08 15:34:27,700 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /static/js/bootstrap.bundle.min.js HTTP/1.1" 200 -
+2025-09-08 15:34:28,021 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:28,022 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:28] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:34:28,036 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:28] "GET /static/favicon.ico HTTP/1.1" 200 -
+2025-09-08 15:34:28,038 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:28] "GET /static/sw.js HTTP/1.1" 200 -
+2025-09-08 15:34:28,281 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:28] "GET /static/icons/icon-192.png HTTP/1.1" 200 -
+2025-09-08 15:34:30,782 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:30] "GET /expenses HTTP/1.1" 200 -
+2025-09-08 15:34:30,812 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:30,813 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:30] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:34:30,825 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:30] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:34:30,826 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:30] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:34:31,520 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "GET /categories HTTP/1.1" 200 -
+2025-09-08 15:34:31,615 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:31,616 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:34:31,774 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "GET /income HTTP/1.1" 200 -
+2025-09-08 15:34:31,864 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:31,865 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:34:31,866 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:34:32,034 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:34:32,310 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "GET /categories HTTP/1.1" 200 -
+2025-09-08 15:34:32,348 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:32,350 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:34:32,350 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:34:32,648 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:34:32,654 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "[32mGET / HTTP/1.1[0m" 302 -
+2025-09-08 15:34:33,372 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "GET /goals HTTP/1.1" 200 -
+2025-09-08 15:34:33,403 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:33,404 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:34:33,716 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:34:33,717 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:34:33,981 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "GET /shared-budgets HTTP/1.1" 200 -
+2025-09-08 15:34:34,028 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:34,029 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:34] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:34:34,031 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:34] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:34:37,108 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+2025-09-08 15:34:37,110 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:37] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-09-08 15:34:37,132 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 15:34:37,134 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:37] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-09-08 15:34:37,410 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:37] "GET /static/manifest.webmanifest HTTP/1.1" 200 -
+2025-09-08 15:34:42,356 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "GET /dashboard HTTP/1.1" 200 -
+2025-09-08 15:34:42,389 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+2025-09-08 15:34:42,391 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
+2025-09-08 15:34:42,399 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "[36mGET /static/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-09-08 15:34:42,716 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "[36mGET /static/css/clean-theme.css HTTP/1.1[0m" 304 -
+2025-09-08 15:34:42,727 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-09-08 15:34:43,051 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[36mGET /static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2?1bb88866b4085542c8ed5fb61b9393dd HTTP/1.1[0m" 304 -
+2025-09-08 15:34:43,051 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:34:43,052 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 15:34:43,053 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:34:43,055 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
+2025-09-08 15:34:43,295 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:34:43,370 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:34:43,380 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[32mGET / HTTP/1.1[0m" 302 -

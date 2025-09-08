@@ -20,7 +20,9 @@
       "Bash(PORT=5001 python3:*)",
       "Bash(git diff:*)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)"
     ],
     "deny": [],
     "ask": []
