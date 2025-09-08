@@ -108,10 +108,10 @@
                 </div>
                 <div class="col-4 text-end">
                     <div class="btn-group-vertical" role="group">
-                        <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-outline-primary">
+                        <a href="{{ url_for('expenses.edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
+                        <form method="POST" action="{{ url_for('expenses.delete_expense', expense_id=expense.id) }}" class="d-inline">
                             <button type="submit" class="btn btn-sm btn-outline-danger" 
                                     onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
                                 <i class="bi bi-trash"></i>
@@ -145,11 +145,11 @@
                 <td class="text-end fw-bold">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
                 <td>{{ expense.note or '' }}</td>
                 <td class="text-end">
-                    <a href="{{ url_for('edit_expense', expense_id=expense.id) }}"
+                    <a href="{{ url_for('expenses.edit_expense', expense_id=expense.id) }}"
                        class="btn btn-sm btn-outline-primary me-1">
                         <i class="bi bi-pencil"></i> Изменить
                     </a>
-                    <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
+                    <form method="POST" action="{{ url_for('expenses.delete_expense', expense_id=expense.id) }}" class="d-inline">
                         <button type="submit" class="btn btn-sm btn-outline-danger"
                                 onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
                             <i class="bi bi-trash"></i> Удалить

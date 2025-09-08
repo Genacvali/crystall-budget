@@ -42,7 +42,8 @@
       "Bash(sudo chmod:*)",
       "Bash(pkill:*)",
       "Bash(FLASK_RUN_PORT=5001 python manage.py run)",
-      "Bash(PORT=5001 python:*)"
+      "Bash(PORT=5001 python:*)",
+      "Read(//var/log/crystalbudget/**)"
     ],
     "deny": [],
     "ask": []

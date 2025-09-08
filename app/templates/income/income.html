@@ -25,7 +25,7 @@
   <div class="tab-pane fade show active" id="income-panel" role="tabpanel">
 
 <!-- Форма добавления дохода (по дням) -->
-<form method="POST" action="{{ url_for('income_add') }}" class="mb-3" novalidate>
+<form method="POST" action="{{ url_for('income.add') }}" class="mb-3" novalidate>
   <div class="card card-body">
     <div class="row g-3">
       <div class="col-6 col-md-3">
@@ -86,11 +86,11 @@
         {% endif %}
       </div>
       <div class="d-flex gap-2 mt-2">
-        <a href="{{ url_for('edit_income', income_id=income.id) }}"
+        <a href="{{ url_for('income.edit', income_id=income.id) }}"
            class="btn btn-outline-primary flex-fill">
           <i class="bi bi-pencil"></i> Изменить
         </a>
-        <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="flex-fill">
+        <form method="POST" action="{{ url_for('income.delete', income_id=income.id) }}" class="flex-fill">
           <button type="submit" class="btn btn-outline-danger w-100"
                   onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
             <i class="bi bi-trash"></i> Удалить
@@ -125,11 +125,11 @@
           {% else %}—{% endif %}
         </td>
         <td class="text-end">
-          <a href="{{ url_for('edit_income', income_id=income.id) }}"
+          <a href="{{ url_for('income.edit', income_id=income.id) }}"
              class="btn btn-sm btn-outline-primary me-1">
             <i class="bi bi-pencil"></i> Изменить
           </a>
-          <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+          <form method="POST" action="{{ url_for('income.delete', income_id=income.id) }}" class="d-inline">
             <button type="submit" class="btn btn-sm btn-outline-danger"
                     onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
               <i class="bi bi-trash"></i> Удалить
@@ -155,7 +155,7 @@
   <!-- Источники -->
   <div class="tab-pane fade" id="sources-panel" role="tabpanel">
     <div class="card card-body mb-3">
-      <form method="POST" action="{{ url_for('sources_add') }}">
+      <form method="POST" action="{{ url_for('income.sources_add') }}">
         <div class="row g-3">
           <div class="col-md-6">
             <label class="form-label">Название</label>
@@ -193,14 +193,14 @@
             <td>{{ s.name }}</td>
             <td>{{ 'Да' if s.is_default else 'Нет' }}</td>
             <td class="text-end">
-              <form class="d-inline" method="POST" action="{{ url_for('sources_update', source_id=s.id) }}">
+              <form class="d-inline" method="POST" action="{{ url_for('income.sources_update', source_id=s.id) }}">
                 <input type="hidden" name="name" value="{{ s.name }}">
                 <input type="hidden" name="is_default" value="{{ 1 if not s.is_default else 0 }}">
                 <button class="btn btn-sm btn-outline-primary">
                   {{ 'Сделать дефолтным' if not s.is_default else 'Убрать дефолт' }}
                 </button>
               </form>
-              <form class="d-inline" method="POST" action="{{ url_for('sources_delete', source_id=s.id) }}">
+              <form class="d-inline" method="POST" action="{{ url_for('income.sources_delete', source_id=s.id) }}">
                 <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить источник «{{ s.name }}»?\n\nВнимание: Удаление невозможно, если с источником связаны записи доходов или привязки к категориям.')">
                   Удалить
                 </button>

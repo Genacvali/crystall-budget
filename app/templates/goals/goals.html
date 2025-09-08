@@ -83,7 +83,7 @@
                 {% endif %}
 
                 {% if not goal.completed_at %}
-                  <form method="POST" action="{{ url_for('update_goal_progress', goal_id=goal.id) }}" class="d-flex">
+                  <form method="POST" action="{{ url_for('goals.update_progress', goal_id=goal.id) }}" class="d-flex">
                     <input type="number" name="amount" class="form-control form-control-sm me-2"
                            placeholder="Сумма" step="0.01" min="0.01" required>
                     <button type="submit" class="btn btn-outline-primary btn-sm">
@@ -125,7 +125,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
 
-      <form method="POST" action="{{ url_for('add_goal') }}">
+      <form method="POST" action="{{ url_for('goals.add') }}">
         <div class="modal-body">
           <div class="mb-3">
             <label for="goalName" class="form-label">Название цели <span class="text-danger">*</span></label>
