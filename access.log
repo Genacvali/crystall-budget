@@ -275,3 +275,7 @@
 127.0.0.1 - - [08/Sep/2025:17:36:29 +0300] "GET /static/favicon.ico HTTP/1.1" 304 0 "http://localhost:5000/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
 127.0.0.1 - - [08/Sep/2025:17:36:30 +0300] "POST /set-currency HTTP/1.1" 200 47 "http://localhost:5000/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
 127.0.0.1 - - [08/Sep/2025:17:36:31 +0300] "POST /set-currency HTTP/1.1" 200 52 "http://localhost:5000/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+127.0.0.1 - - [08/Sep/2025:17:41:47 +0300] "POST /set-currency HTTP/1.1" 200 52 "http://localhost:5000/dashboard" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+127.0.0.1 - - [08/Sep/2025:17:49:17 +0300] "GET /dashboard HTTP/1.1" 200 40128 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+127.0.0.1 - - [08/Sep/2025:17:49:42 +0300] "GET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1" 404 346 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+127.0.0.1 - - [08/Sep/2025:17:49:42 +0300] "GET /static/js/bootstrap.bundle.min.js.map HTTP/1.1" 404 346 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"

@@ -572,3 +572,11 @@ jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
 [2025-09-08 17:36:29,787] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-08 17:36:30,764] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-08 17:36:31,399] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:41:47,897] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 17:43:49 +0300] [10248] [CRITICAL] WORKER TIMEOUT (pid:10255)
+[2025-09-08 17:43:49 +0300] [10255] [INFO] Worker exiting (pid: 10255)
+[2025-09-08 17:43:49 +0300] [10248] [ERROR] Worker (pid:10255) exited with code 1
+[2025-09-08 17:43:49 +0300] [10248] [ERROR] Worker (pid:10255) exited with code 1.
+[2025-09-08 17:43:49 +0300] [12567] [INFO] Booting worker with pid: 12567
+[2025-09-08 17:49:42,630] WARNING in app: 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+[2025-09-08 17:49:42,641] WARNING in app: 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1

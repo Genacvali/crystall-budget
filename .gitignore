@@ -2,3 +2,6 @@ access.log
 logs/crystalbudget.log
 error.log
 access.log
+access.log
+error.log
+logs/crystalbudget.log
