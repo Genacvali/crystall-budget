@@ -35,7 +35,11 @@
       "Read(//etc/systemd/system/**)",
       "Bash(sudo sed:*)",
       "Bash(source:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(netstat:*)",
+      "Bash(ss:*)",
+      "Read(//home/admin/**)",
+      "Bash(sudo chmod:*)"
     ],
     "deny": [],
     "ask": []
