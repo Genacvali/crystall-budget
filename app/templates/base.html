@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}CrystalBudget{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    body { background-color: #f6f7f9; }
+    .navbar-brand { font-weight: 600; }
+    .modern-card { border: 1px solid #e9ecef; border-radius: .75rem; background: #fff; }
+    .card-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); }
+    .container { max-width: 1100px; }
+  </style>
+</head>
+<body>
+  <nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">💎 CrystalBudget</a>
+      <div class="d-flex gap-2 align-items-center">
+        {% if session.get('user_id') %}
+          <form class="d-flex align-items-center gap-1" method="post" action="{{ url_for('auth.set_currency') }}">
+            <select class="form-select form-select-sm" name="currency" id="currency-selector">
+              {% for code, info in currencies.items() %}
+                <option value="{{ code }}" {% if code==currency_code %}selected{% endif %}>{{ info.label }} ({{ info.symbol }})</option>
+              {% endfor %}
+            </select>
+          </form>
+
+          <a class="btn btn-sm btn-outline-light" href="{{ url_for('dashboard.index') }}">Дашборд</a>
+          <a class="btn btn-sm btn-outline-light" href="{{ url_for('expenses.list_add') }}">Траты</a>
+          <a class="btn btn-sm btn-outline-light" href="{{ url_for('categories.list') }}">Категории</a>
+          <a class="btn btn-sm btn-outline-light" href="{{ url_for('income.list') }}">Доходы</a>
+          <a class="btn btn-sm btn-outline-warning" href="{{ url_for('sources.list') }}">Источники</a>
+          <a class="btn btn-sm btn-warning" href="{{ url_for('auth.logout') }}">Выйти</a>
+        {% else %}
+          <a class="btn btn-sm btn-outline-light" href="{{ url_for('auth.login') }}">Войти</a>
+          <a class="btn btn-sm btn-primary" href="{{ url_for('auth.register') }}">Регистрация</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+  <div class="container my-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ 'danger' if cat=='error' else cat }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Currency conversion functionality
+    let currentRates = {};
+    const baseCurrency = 'RUB'; // Базовая валюта - рубли
+    
+    // Currency symbols mapping
+    const currencySymbols = {
+      'RUB': '₽',
+      'USD': '$',
+      'EUR': '€',
+      'AMD': '֏',
+      'GEL': '₾'
+    };
+    
+    // Load exchange rates
+    async function loadExchangeRates() {
+      try {
+        const response = await fetch('/api/exchange-rates');
+        const data = await response.json();
+        if (data.ok) {
+          currentRates = data.rates || {};
+        }
+      } catch (error) {
+        console.error('Failed to load exchange rates:', error);
+      }
+    }
+    
+    // Convert amount from one currency to another
+    function convertAmount(amount, fromCurrency, toCurrency) {
+      if (fromCurrency === toCurrency) {
+        return amount;
+      }
+      
+      // Convert to base currency (RUB) first
+      let rubAmount = amount;
+      if (fromCurrency !== baseCurrency) {
+        const toRubRate = currentRates[`${fromCurrency}_${baseCurrency}`];
+        if (toRubRate) {
+          rubAmount = amount * toRubRate;
+        }
+      }
+      
+      // Convert from RUB to target currency
+      if (toCurrency !== baseCurrency) {
+        const fromRubRate = currentRates[`${baseCurrency}_${toCurrency}`];
+        if (fromRubRate) {
+          return rubAmount * fromRubRate;
+        }
+      }
+      
+      return rubAmount;
+    }
+    
+    // Format amount with spaces for thousands
+    function formatAmount(value) {
+      const num = parseFloat(value);
+      if (isNaN(num)) return value;
+      
+      // Round to 2 decimal places
+      const rounded = Math.round(num * 100) / 100;
+      
+      // Format with spaces for thousands
+      let formatted = rounded.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+      
+      // Remove .00 if it's a whole number
+      if (formatted.endsWith(' 00')) {
+        formatted = formatted.slice(0, -3);
+      } else if (formatted.endsWith('00')) {
+        formatted = formatted.slice(0, -3);
+      }
+      
+      return formatted;
+    }
+    
+    // Update all amounts on the page
+    function updateAllAmounts() {
+      const currentCurrency = document.querySelector('select[name="currency"]')?.value || '{{ currency_code }}';
+      const currentSymbol = currencySymbols[currentCurrency] || currentCurrency;
+      
+      // Find all elements with data-amount and data-currency attributes
+      document.querySelectorAll('[data-amount][data-currency]').forEach(element => {
+        const originalAmount = parseFloat(element.getAttribute('data-amount'));
+        const originalCurrency = element.getAttribute('data-currency');
+        
+        if (!isNaN(originalAmount) && originalCurrency) {
+          const convertedAmount = convertAmount(originalAmount, originalCurrency, currentCurrency);
+          element.textContent = formatAmount(convertedAmount);
+        }
+      });
+      
+      // Update currency symbols
+      document.querySelectorAll('.currency-display').forEach(element => {
+        element.textContent = currentSymbol;
+      });
+    }
+    
+    // Handle currency change
+    document.addEventListener('DOMContentLoaded', function() {
+      // Load rates on page load
+      loadExchangeRates().then(() => {
+        updateAllAmounts();
+      });
+      
+      // Listen for currency changes
+      const currencySelect = document.querySelector('#currency-selector');
+      if (currencySelect) {
+        currencySelect.addEventListener('change', function() {
+          // Update amounts immediately with current rates
+          updateAllAmounts();
+          
+          // Save currency preference to session (async)
+          const selectedCurrency = this.value;
+          fetch('/auth/set-currency', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({currency: selectedCurrency})
+          }).catch(error => {
+            console.error('Failed to save currency preference:', error);
+          });
+          
+          // Refresh rates in background
+          loadExchangeRates();
+        });
+      }
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>
