@@ -22,7 +22,9 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(source:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(pkill:*)",
+      "Bash(FLASK_RUN_PORT=5001 python app.py)"
     ],
     "deny": [],
     "ask": []

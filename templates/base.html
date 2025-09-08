@@ -26,6 +26,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
   <!-- App styles -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/clean-theme.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/improved-visual-hierarchy.css') }}" />
 
   <!-- Instant theme apply (no flash) -->
   <script>
@@ -120,12 +121,12 @@
 
       <div class="d-none d-lg-flex collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><i class="bi bi-house-door"></i> Дашборд</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}"><i class="bi bi-wallet2"></i> Расходы</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}"><i class="bi bi-tags"></i> Категории</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}"><i class="bi bi-cash-coin"></i> Доходы</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'goals' %}active{% endif %}" href="{{ url_for('goals') }}"><i class="bi bi-bullseye"></i> Цели</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['shared_budgets','shared_budget_detail'] %}active{% endif %}" href="{{ url_for('shared_budgets') }}"><i class="bi bi-people"></i> Семья</a></li>
+          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i> Дашборд</a></li>
+          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}"><i class="bi bi-dash-circle-fill cb-text-expense"></i> Расходы</a></li>
+          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}"><i class="bi bi-tags-fill"></i> Категории</a></li>
+          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}"><i class="bi bi-plus-circle-fill cb-text-income"></i> Доходы</a></li>
+          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'goals' %}active{% endif %}" href="{{ url_for('goals') }}"><i class="bi bi-bullseye cb-text-goal"></i> Цели</a></li>
+          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['shared_budgets','shared_budget_detail'] %}active{% endif %}" href="{{ url_for('shared_budgets') }}"><i class="bi bi-people-fill"></i> Семья</a></li>
         </ul>
 
         <ul class="navbar-nav align-items-center">
@@ -360,22 +361,40 @@
       else { el.textContent = `${text} ${symbol}`; }
     }
 
-    // Toast
+    // Toast с улучшенным дизайном
     function showToast(message, type = 'info') {
       const c = document.getElementById('toastContainer'); if (!c) return;
       const id = 'toast-' + Date.now();
+      
+      const typeConfig = {
+        success: { icon: 'check-circle-fill', class: 'cb-toast-success' },
+        error: { icon: 'exclamation-circle-fill', class: 'cb-toast-error' },
+        danger: { icon: 'exclamation-circle-fill', class: 'cb-toast-error' },
+        warning: { icon: 'exclamation-triangle-fill', class: 'cb-toast-warning' },
+        info: { icon: 'info-circle-fill', class: 'cb-toast-info' }
+      };
+      
+      const config = typeConfig[type] || typeConfig.info;
+      
       c.insertAdjacentHTML('afterbegin', `
-        <div id="${id}" class="toast" role="status" data-bs-autohide="true" data-bs-delay="5000">
-          <div class="toast-header">
-            <i class="bi bi-${type==='danger'?'exclamation-triangle':type==='success'?'check-circle':'info-circle'} text-${type} me-2"></i>
+        <div id="${id}" class="toast cb-toast ${config.class} cb-scale-in" role="status" data-bs-autohide="true" data-bs-delay="5000">
+          <div class="toast-header cb-toast-header">
+            <i class="bi bi-${config.icon} me-2"></i>
             <strong class="me-auto">CrystalBudget</strong>
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Закрыть"></button>
           </div>
-          <div class="toast-body">${message}</div>
+          <div class="toast-body cb-toast-body">${message}</div>
         </div>`);
+      
       const el = document.getElementById(id);
-      if (typeof bootstrap !== 'undefined') new bootstrap.Toast(el).show();
-      else { el.style.display = 'block'; setTimeout(() => el.remove(), 5000); }
+      if (typeof bootstrap !== 'undefined') {
+        const toast = new bootstrap.Toast(el);
+        el.addEventListener('hidden.bs.toast', () => el.remove());
+        toast.show();
+      } else { 
+        el.style.display = 'block'; 
+        setTimeout(() => el.remove(), 5000); 
+      }
     }
 
     // Init
