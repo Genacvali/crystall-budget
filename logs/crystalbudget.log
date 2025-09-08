@@ -115,3 +115,33 @@
 2025-09-08 15:34:43,295 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
 2025-09-08 15:34:43,370 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
 2025-09-08 15:34:43,380 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[32mGET / HTTP/1.1[0m" 302 -
+2025-09-08 15:36:52,684 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:52] "GET /expenses HTTP/1.1" 200 -
+2025-09-08 15:36:52,770 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:52] "[36mGET /static/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1[0m" 304 -
+2025-09-08 15:36:52,933 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:52] "[36mGET /static/css/clean-theme.css HTTP/1.1[0m" 304 -
+2025-09-08 15:36:53,021 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[36mGET /static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2?1bb88866b4085542c8ed5fb61b9393dd HTTP/1.1[0m" 304 -
+2025-09-08 15:36:53,086 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
+2025-09-08 15:36:53,251 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:36:53,252 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:36:53,405 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:36:53,406 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:36:53,414 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[32mGET / HTTP/1.1[0m" 302 -
+2025-09-08 15:37:21,464 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:21] "GET /categories HTTP/1.1" 200 -
+2025-09-08 15:37:21,765 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:37:21,766 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:21] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:37:21,812 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:21] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:37:21,812 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:21] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:37:29,966 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:29] "GET /income HTTP/1.1" 200 -
+2025-09-08 15:37:30,001 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:37:30,002 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:30] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:37:30,008 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:30] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:37:30,324 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:30] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:37:38,205 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:38] "GET /goals HTTP/1.1" 200 -
+2025-09-08 15:37:38,236 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:37:38,236 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:38] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:37:38,241 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:38] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:37:38,554 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:38] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 15:37:47,141 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "GET /shared-budgets HTTP/1.1" 200 -
+2025-09-08 15:37:47,177 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 15:37:47,179 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
+2025-09-08 15:37:47,179 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "POST /set-currency HTTP/1.1" 200 -
+2025-09-08 15:37:47,189 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
