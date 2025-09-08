@@ -289,7 +289,30 @@
       try {
         const res = await fetch('/api/exchange-rates');
         const data = await res.json();
-        if (data.ok) currentRates = data.rates || {};
+        if (data.ok) {
+          currentRates = data.rates || {};
+          if (data.warning || Object.keys(currentRates).length === 0) {
+            console.warn('Курсы недоступны, показываем цифры без конвертации');
+            // показать предупреждение один раз
+            if (!window.__fxWarnShown) {
+              window.__fxWarnShown = true;
+              const el = document.createElement('div');
+              el.className = 'alert alert-warning alert-dismissible fade show mt-2';
+              el.innerHTML = `
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                Курсы валют временно недоступны. Суммы показаны в исходной валюте.
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              `;
+              // вставляем после navbar
+              const navbar = document.querySelector('nav.navbar');
+              if (navbar && navbar.nextSibling) {
+                navbar.parentNode.insertBefore(el, navbar.nextSibling);
+              } else {
+                document.querySelector('.container-fluid')?.prepend(el);
+              }
+            }
+          }
+        }
       } catch (e) {
         console.warn('Failed to load exchange rates', e);
       }
@@ -300,6 +323,10 @@
       const from = (fromCurrency || baseCurrency).toUpperCase();
       const to = (toCurrency || baseCurrency).toUpperCase();
       if (from === to) return amount;
+      
+      // если нет курсов — просто вернуть исходное без конвертации
+      if (!currentRates || Object.keys(currentRates).length === 0) return amount;
+      
       // Try direct
       const directKey = `${from}_${to}`;
       if (currentRates[directKey]) {

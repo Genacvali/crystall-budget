@@ -1164,3 +1164,90 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 2025-09-08 20:13:16,193 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
 2025-09-08 20:13:17,426 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
 2025-09-08 20:13:18,698 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+2025-09-08 20:14:44,919 INFO [app] Logging system initialized
+2025-09-08 20:14:44,919 INFO [app] Log level: INFO
+2025-09-08 20:14:44,920 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 20:14:51,962 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+2025-09-08 20:14:52,139 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 20:14:52,469 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 20:14:53,609 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+2025-09-08 20:14:54,033 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+2025-09-08 20:14:54,053 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 20:14:54,393 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 20:14:54,843 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+2025-09-08 20:14:55,304 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+2025-09-08 20:14:55,325 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 20:14:55,667 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 20:14:56,111 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+2025-09-08 20:14:57,006 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+2025-09-08 20:14:57,023 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 20:14:57,366 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 20:14:57,369 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+2025-09-08 20:14:58,616 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+2025-09-08 20:14:59,857 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+2025-09-08 20:15:01,121 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+2025-09-08 20:15:02,369 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+2025-09-08 20:15:03,664 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+2025-09-08 20:15:04,939 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+2025-09-08 20:15:06,171 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+2025-09-08 20:15:07,464 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+2025-09-08 20:15:08,732 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+2025-09-08 20:15:09,623 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 20:15:09,997 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+2025-09-08 20:15:10,207 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 20:15:11,248 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+2025-09-08 20:15:12,495 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+2025-09-08 20:15:14,067 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+2025-09-08 20:15:14,746 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 20:15:14,786 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+2025-09-08 20:15:14,811 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 20:15:15,317 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+2025-09-08 20:15:16,012 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 20:15:16,042 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
+2025-09-08 20:15:16,056 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 20:15:16,568 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+2025-09-08 20:15:17,839 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+2025-09-08 20:15:18,331 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+2025-09-08 20:15:19,095 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+2025-09-08 20:15:19,595 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+2025-09-08 20:15:20,352 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+2025-09-08 20:15:20,850 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+2025-09-08 20:15:21,610 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+2025-09-08 20:15:22,097 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+2025-09-08 20:15:22,878 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+2025-09-08 20:15:23,370 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+2025-09-08 20:15:24,139 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+2025-09-08 20:15:24,613 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+2025-09-08 20:15:25,390 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+2025-09-08 20:15:25,872 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+2025-09-08 20:15:26,621 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+2025-09-08 20:15:27,136 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+2025-09-08 20:15:27,880 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+2025-09-08 20:15:29,124 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+2025-09-08 20:15:30,391 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+2025-09-08 20:15:31,489 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+2025-09-08 20:15:31,626 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+2025-09-08 20:15:32,742 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+2025-09-08 20:15:32,890 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+2025-09-08 20:15:34,032 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+2025-09-08 20:15:34,438 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+2025-09-08 20:15:35,317 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+2025-09-08 20:15:35,686 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+2025-09-08 20:15:36,570 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+2025-09-08 20:15:36,951 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+2025-09-08 20:15:37,824 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+2025-09-08 20:15:38,223 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+2025-09-08 20:15:39,074 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+2025-09-08 20:15:39,483 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+2025-09-08 20:15:40,348 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+2025-09-08 20:15:40,763 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+2025-09-08 20:15:41,614 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+2025-09-08 20:15:42,013 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+2025-09-08 20:15:42,888 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+2025-09-08 20:15:43,285 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+2025-09-08 20:15:44,155 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+2025-09-08 20:15:45,442 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+2025-09-08 20:15:46,714 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+2025-09-08 20:15:47,997 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+2025-09-08 20:15:49,247 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+2025-09-08 20:15:50,524 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB

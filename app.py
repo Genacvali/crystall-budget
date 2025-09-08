@@ -162,6 +162,38 @@ def _fetch_rate_exchangerate_host_base(base: str, sym: str) -> float:
         raise ValueError("no rate for symbol in latest")
     return float(rate)
 
+def _fetch_rate_erapi_base(base: str, sym: str) -> float:
+    """open.er-api.com: /v6/latest/{base} → rates[sym]"""
+    import requests
+    url = f"https://open.er-api.com/v6/latest/{base}"
+    r = requests.get(url, timeout=8)
+    r.raise_for_status()
+    data = r.json()
+    if data.get("result") != "success":
+        raise ValueError(f"erapi not success: {data.get('result')}")
+    rates = data.get("rates") or {}
+    rate = rates.get(sym)
+    if rate is None:
+        raise ValueError(f"erapi missing {base}->{sym}")
+    return float(rate)
+
+def _fetch_rate_fawaz_jsdelivr(base: str, sym: str) -> float:
+    """
+    CDN currency-api: /v1/currencies/{base}.json
+    формат: {'usd': {'rub': 92.1, ...}}
+    """
+    import requests
+    b = base.lower(); s = sym.lower()
+    url = f"https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/{b}.json"
+    r = requests.get(url, timeout=10)
+    r.raise_for_status()
+    data = r.json()
+    obj = data.get(b) or {}
+    rate = obj.get(s)
+    if rate is None:
+        raise ValueError(f"fawaz missing {base}->{sym}")
+    return float(rate)
+
 def get_exchange_rate_via_bridge(frm: str, to: str, bridge: str = BRIDGE_CURRENCY) -> float:
     """Кросс-курс через промежуточную валюту (по умолчанию USD)."""
     frm, to, bridge = _norm_cur(frm), _norm_cur(to), _norm_cur(bridge)
@@ -180,10 +212,10 @@ def get_exchange_rate_via_bridge(frm: str, to: str, bridge: str = BRIDGE_CURRENC
 
 def get_exchange_rate(frm: str, to: str) -> float:
     """
+    Улучшенная функция получения курсов с множественными провайдерами:
     1) читаем кэш из exchange_rates (TTL);
-    2) пробуем прямую пару через exchangerate.host;
-    3) пробуем кросс-курс через USD (или EXR_BRIDGE);
-    4) сохраняем в кэш; если всё сломалось — отдаём старый кэш, если он был.
+    2) пробуем множественные источники по очереди;
+    3) сохраняем в кэш; если всё сломалось — отдаём старый кэш, если он был.
     """
     from datetime import datetime, timedelta
     
@@ -193,63 +225,93 @@ def get_exchange_rate(frm: str, to: str) -> float:
 
     now = datetime.utcnow()
     conn = get_db()
-    row = None
     try:
         conn.execute("PRAGMA foreign_keys=ON")
         row = conn.execute(
             "SELECT rate, updated_at FROM exchange_rates WHERE from_currency=? AND to_currency=?",
             (frm, to)
         ).fetchone()
-        
+
+        def row_rate():
+            if not row: 
+                return None
+            try:
+                upd = datetime.fromisoformat(row["updated_at"].replace("Z",""))
+            except Exception:
+                upd = now - timedelta(days=365)
+            if row["rate"] and float(row["rate"]) > 0:
+                return float(row["rate"]), upd
+            return None, upd
+
+        # 1) валиден кэш?
         if row:
             try:
-                updated = datetime.fromisoformat(row["updated_at"].replace("Z",""))
+                cached, upd = row_rate()
+                if cached is not None and (now - upd).total_seconds() < EXR_CACHE_TTL_SECONDS:
+                    return cached
             except Exception:
-                updated = now - timedelta(days=365)
-            if (now - updated).total_seconds() < EXR_CACHE_TTL_SECONDS and row["rate"] and row["rate"] > 0:
-                return float(row["rate"])
+                pass
 
-        # 2) прямая пара
+        # 2) пробуем источники по очереди
+        attempts = []
         try:
             rate = _fetch_rate_exchangerate_host(frm, to)
-        except Exception:
-            rate = None
-
-        # 3) через мост (USD по умолчанию)
-        if not rate:
+            attempts.append(("exchangerate.host direct", rate))
+        except Exception as e:
+            app.logger.warning(f"exchangerate.host direct failed {frm}->{to}: {e}")
+        
+        if not attempts:
             try:
                 rate = get_exchange_rate_via_bridge(frm, to, BRIDGE_CURRENCY)
-            except Exception:
-                rate = None
-
-        if rate and rate > 0:
-            conn.execute(
-                """
-                INSERT INTO exchange_rates(from_currency, to_currency, rate, updated_at)
-                VALUES(?,?,?,?)
-                ON CONFLICT(from_currency, to_currency) DO UPDATE SET
-                  rate=excluded.rate,
-                  updated_at=excluded.updated_at
-                """,
-                (frm, to, float(rate), now.isoformat(timespec="seconds")+"Z"),
-            )
-            conn.commit()
-            return float(rate)
-
-        # 4) fallback: старый кэш, если был
-        if row and row["rate"]:
-            return float(row["rate"])
-
-        raise RuntimeError(f"cannot fetch exchange rate {frm}->{to}")
+                attempts.append(("exchangerate.host via bridge", rate))
+            except Exception as e:
+                app.logger.warning(f"exchangerate.host via bridge failed {frm}->{to}: {e}")
         
+        if not attempts:
+            try:
+                rate = _fetch_rate_erapi_base(frm, to)
+                attempts.append(("open.er-api.com", rate))
+            except Exception as e:
+                app.logger.warning(f"open.er-api.com failed {frm}->{to}: {e}")
+        
+        if not attempts:
+            try:
+                rate = _fetch_rate_fawaz_jsdelivr(frm, to)
+                attempts.append(("fawaz/jsdelivr", rate))
+            except Exception as e:
+                app.logger.warning(f"fawaz/jsdelivr failed {frm}->{to}: {e}")
+
+        if attempts:
+            source, rate = attempts[0]
+            if rate and rate > 0:
+                conn.execute(
+                    """
+                    INSERT INTO exchange_rates(from_currency, to_currency, rate, updated_at)
+                    VALUES(?,?,?,?)
+                    ON CONFLICT(from_currency, to_currency) DO UPDATE SET
+                      rate=excluded.rate,
+                      updated_at=excluded.updated_at
+                    """,
+                    (frm, to, float(rate), now.isoformat(timespec="seconds")+"Z"),
+                )
+                conn.commit()
+                app.logger.info(f"FX ok {frm}->{to} via {source}: {rate}")
+                return float(rate)
+
+        # 3) нет новых — отдаём старый, если был
+        if row and row["rate"]:
+            old = float(row["rate"])
+            app.logger.warning(f"FX fallback to cached {frm}->{to}: {old}")
+            return old
+
+        # 4) совсем ничего
+        raise RuntimeError(f"cannot fetch exchange rate {frm}->{to}")
+
     except Exception as e:
         app.logger.error(f"Exchange rate error {frm}->{to}: {e}")
-        try:
-            if row and row["rate"]:
-                return float(row["rate"])
-        except Exception:
-            pass
-        return 1.0  # Final fallback
+        # финальный грубый fallback — НЕ 1.0, чтобы не искажать вычисления;
+        # но чтобы не падало вообще, вернём 1.0 (и пусть фронт покажет предупреждение)
+        return 1.0
     finally:
         conn.close()
 
@@ -601,6 +663,22 @@ def validate_request():
 @app.route('/favicon.ico')
 def favicon():
     return redirect(url_for('static', filename='icons/icon-192.png'))
+
+# Обработчики для шумных 404 ошибок
+@app.route("/static/js/bootstrap.bundle.min.js.map")
+def _ignore_bootstrap_map():
+    # Возвращаем пустой sourcemap, чтобы не шумело в логах
+    return app.response_class("{}", mimetype="application/json")
+
+@app.route("/.well-known/appspecific/com.chrome.devtools.json")
+def _ignore_devtools_probe():
+    # Chrome/расширения иногда тыкают — вернём 204
+    return ("", 204)
+
+@app.route("/static/<path:filename>.map")
+def _ignore_sourcemaps(filename):
+    # Игнорируем все запросы к sourcemap файлам
+    return app.response_class("{}", mimetype="application/json")
 
 @app.route('/logs')
 @login_required  
@@ -2896,61 +2974,89 @@ def api_convert():
     except Exception as e:
         return {"ok": False, "error": str(e)}, 500
 
+# Защита от частых запросов курсов
+_last_fx_try = {}  # (pair)->timestamp
+
 @app.route('/api/exchange-rates')
 @login_required 
 def get_exchange_rates():
-    """API для получения курсов валют."""
+    """Улучшенный API для получения курсов валют с защитой от частых запросов."""
     try:
+        from time import time
         conn = get_db()
-        
-        # Проверяем кэш курсов (обновляем раз в час)
-        # Respect global EXR_CACHE_TTL_SECONDS setting
-        threshold = datetime.utcnow() - timedelta(seconds=EXR_CACHE_TTL_SECONDS)
-        th_str = threshold.isoformat(timespec="seconds") + "Z"
+
+        # берём кэш за последний час
         cursor = conn.execute("""
-        SELECT from_currency, to_currency, rate, updated_at
-        FROM exchange_rates
-        WHERE updated_at > ?
-        """, (th_str,))
-        
-        cached_rates = {}
-        for row in cursor.fetchall():
-            key = f"{row['from_currency']}_{row['to_currency']}"
-            cached_rates[key] = float(row['rate'])
-        
-        # Если кэш пуст или нет нужных курсов, загружаем свежие данные
-        currencies = ['RUB', 'USD', 'EUR', 'AMD', 'GEL']
-        base = DEFAULT_CURRENCY  # warm up only base<->other pairs
-        needed_pairs = []
-        for cur in currencies:
-            if cur == base:
+        SELECT from_currency, to_currency, rate, updated_at 
+        FROM exchange_rates 
+        WHERE updated_at > datetime('now', '-1 hour')
+        """)
+        cached = {f"{r['from_currency']}_{r['to_currency']}": float(r['rate']) for r in cursor.fetchall()}
+
+        currencies = list(CURRENCIES.keys())
+        needed = []
+        for f in currencies:
+            for t in currencies:
+                if f == t: 
+                    continue
+                key = f"{f}_{t}"
+                if key not in cached:
+                    needed.append((f, t))
+
+        now = time()
+        for f, t in needed:
+            key = f"{f}_{t}"
+            # защита от бурстов - не чаще раз в 20 секунд на пару
+            if now - _last_fx_try.get(key, 0) < 20:
                 continue
-            # base -> cur
-            key1 = f"{base}_{cur}"
-            if key1 not in cached_rates:
-                needed_pairs.append((base, cur))
-            # cur -> base
-            key2 = f"{cur}_{base}"
-            if key2 not in cached_rates:
-                needed_pairs.append((cur, base))
-        
-        # Загружаем недостающие курсы
-        if needed_pairs:
-            for from_curr, to_curr in needed_pairs:
-                try:
-                    rate = get_exchange_rate(from_curr, to_curr)
-                    if rate and rate > 0:
-                        cached_rates[f"{from_curr}_{to_curr}"] = rate
-                except Exception as e:
-                    app.logger.warning(f"Failed to get rate {from_curr}->{to_curr}: {e}")
-        
+            _last_fx_try[key] = now
+            try:
+                rate = get_exchange_rate(f, t)
+                if rate and rate > 0:
+                    cached[key] = rate
+            except Exception as e:
+                app.logger.warning(f"Failed to get rate {f}->{t}: {e}")
+
         conn.close()
         
-        return {"ok": True, "rates": cached_rates}
+        if not cached:
+            return {"ok": True, "warning": True, "rates": {}}
+        
+        return {"ok": True, "rates": cached}
         
     except Exception as e:
         app.logger.error(f"Error in get_exchange_rates: {e}")
         return {"ok": False, "error": str(e)}, 500
+
+@app.route("/debug/exr-test")
+@login_required
+def exr_test():
+    """Диагностический роут для тестирования провайдеров курсов."""
+    frm = request.args.get("from", "USD").upper()
+    to = request.args.get("to", "RUB").upper()
+    out = {"pair": f"{frm}->{to}"}
+    
+    try: 
+        out["exchangerate_host_direct"] = _fetch_rate_exchangerate_host(frm, to)
+    except Exception as e: 
+        out["exchangerate_host_direct"] = f"ERR: {e}"
+    
+    try: 
+        out["exchangerate_host_bridge"] = get_exchange_rate_via_bridge(frm, to)
+    except Exception as e: 
+        out["exchangerate_host_bridge"] = f"ERR: {e}"
+    
+    try: 
+        out["open_erapi"] = _fetch_rate_erapi_base(frm, to)
+    except Exception as e: 
+        out["open_erapi"] = f"ERR: {e}"
+    
+    try: 
+        out["fawaz_jsdelivr"] = _fetch_rate_fawaz_jsdelivr(frm, to)
+    except Exception as e: 
+        out["fawaz_jsdelivr"] = f"ERR: {e}"
+    
+    return out
 
 # -----------------------------------------------------------------------------
 # Savings Goals
