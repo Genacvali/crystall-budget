@@ -2,39 +2,36 @@
 {% block title %}📊 Дашборд — CrystalBudget{% endblock %}
 
 {% block content %}
-<!-- YNAB-styled Dashboard -->
-<div class="header-row mb-4" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;">
-  <h1 class="zen-title m-0">Финансы</h1>
-  <div class="d-flex align-items-center gap-3 flex-wrap">
-    <div class="text-center" aria-live="polite">
-      <div class="fw-bold" style="color:var(--ynab-primary)" id="current-date-display"></div>
-      <small class="muted" id="current-day-display"></small>
-    </div>
+{# --- Budget Header Bar (YNAB-inspired) --- #}
+{% set assigned_total = budget_data|map(attribute='limit')|sum %}
+{% set ready_to_assign = (total_income - assigned_total) %}
+<div class="ynab-card mb-3">
+  <div class="ynab-card-body d-flex align-items-center gap-3 flex-wrap">
     <div class="d-flex align-items-center gap-2">
-      <div class="btn-group" role="group" aria-label="Навигация по месяцам">
-        <a href="?month={{ prev_month }}" class="ynab-btn" style="padding:6px 10px"><i class="bi bi-chevron-left"></i></a>
-        <span class="ynab-btn" style="padding:6px 14px; min-width:120px" aria-current="date">{{ current_month_name }}</span>
-        <a href="?month={{ next_month }}" class="ynab-btn" style="padding:6px 10px"><i class="bi bi-chevron-right"></i></a>
+      <span class="badge-soft">{{ current_month_name }}</span>
+      <span class="muted">Назначено: {{ assigned_total|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
+    </div>
+
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <div class="pill pill--assigned">
+        {{ ready_to_assign|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
       </div>
+
       <div class="dropdown">
-        <button class="ynab-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          <i class="bi bi-calendar3 d-md-none" aria-hidden="true"></i>
-          <span class="d-none d-md-inline">Выбрать месяц</span>
-        </button>
-        <div class="dropdown-menu p-2" style="max-height:50vh; overflow:auto;">
-          <div class="badge-soft mb-1">2024</div>
-          {% for i in range(12) %}
-            {% set month_num = (loop.index) %}
-            {% set month_val = "2024-%02d"|format(month_num) %}
-            <a class="dropdown-item" href="?month={{ month_val }}">{{ month_names[month_num - 1] }} 2024</a>
-          {% endfor %}
-          <div class="divider"></div>
-          <div class="badge-soft mb-1">2025</div>
-          {% for i in range(12) %}
-            {% set month_num = (loop.index) %}
-            {% set month_val = "2025-%02d"|format(month_num) %}
-            <a class="dropdown-item" href="?month={{ month_val }}">{{ month_names[month_num - 1] }} 2025</a>
-          {% endfor %}
+        <button class="ynab-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Назначить</button>
+        <div class="dropdown-menu">
+          <button class="dropdown-item" type="button" data-action="assign-even">Равномерно по категориям</button>
+          <button class="dropdown-item" type="button" data-action="assign-to-low">В непокрытые категории</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" type="button" data-action="assign-clear">Сбросить назначения</button>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <div class="btn-group" role="group" aria-label="Навигация по месяцам">
+          <a href="?month={{ prev_month }}" class="ynab-btn" style="padding:6px 10px"><i class="bi bi-chevron-left"></i></a>
+          <span class="ynab-btn" style="padding:6px 14px; min-width:120px" aria-current="date">{{ current_month_name }}</span>
+          <a href="?month={{ next_month }}" class="ynab-btn" style="padding:6px 10px"><i class="bi bi-chevron-right"></i></a>
         </div>
       </div>
     </div>
@@ -82,36 +79,47 @@
   </div>
 </div>
 
-<!-- Источники -->
-{% if source_balances and source_balances|length > 0 %}
-<div class="row g-3 my-4">
-  {% for s in source_balances %}
-  <div class="col-12 col-sm-6 col-lg-4">
-    <div class="ynab-card h-100">
+<!-- YNAB Layout: Sidebar + Main Content -->
+<div class="row g-3">
+  <!-- Left Sidebar - Accounts (YNAB style) -->
+  <div class="col-lg-3">
+    {% if source_balances and source_balances|length > 0 %}
+    <div class="ynab-card">
       <div class="ynab-card-body">
-        <div class="d-flex align-items-center justify-content-between mb-2">
-          <h6 class="m-0" style="font-weight:800;">{{ s.source_name }}</h6>
-          <span class="badge-soft">Источник</span>
-        </div>
-        <div class="d-flex justify-content-between mb-1"><span class="muted">Пришло</span><span class="amount currency positive" data-amount="{{ s.income }}" data-currency="{{ currency_code|default('RUB') }}">{{ s.income|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span></div>
-        <div class="d-flex justify-content-between mb-1"><span class="muted">Ушло</span><span class="amount currency {{ 'negative' if s.spent>0 else '' }}" data-amount="{{ s.spent }}" data-currency="{{ currency_code|default('RUB') }}">{{ s.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span></div>
-        {% if s.limits_total > 0 %}
-        <div class="d-flex justify-content-between mb-1">
-          <span class="muted small">Остаётся после лимитов</span>
-          <span class="amount currency {{ 'negative' if s.remaining_after_limits < 0 else 'positive' }}">{{ s.remaining_after_limits|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
-        </div>
-        {% endif %}
+        <div class="muted text-uppercase small mb-3">Счета</div>
+        {% for s in source_balances %}
+          <div class="d-flex justify-content-between py-1 mb-1" style="border-bottom: 1px solid var(--ynab-gray-100);">
+            <span class="fw-semibold">{{ s.source_name }}</span>
+            <span class="amount currency {{ 'negative' if s.rest < 0 else 'positive' }}">{{ s.rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
+          </div>
+        {% endfor %}
         <div class="divider"></div>
-        <div class="d-flex justify-content-between">
-          <span class="muted">Остаток</span>
-          <span class="amount currency {{ 'negative' if s.rest < 0 else 'positive' }}">{{ s.rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
+        <a href="{{ url_for('income_page') }}" class="ynab-btn ynab-btn-full"><i class="bi bi-plus-lg"></i> Добавить счёт</a>
+      </div>
+    </div>
+    {% endif %}
+    
+    <!-- Quick Actions -->
+    <div class="ynab-card mt-3">
+      <div class="ynab-card-body">
+        <div class="muted text-uppercase small mb-3">Быстрые действия</div>
+        <div class="d-grid gap-2">
+          <a href="{{ url_for('expenses') }}" class="ynab-btn">
+            <i class="bi bi-plus-circle"></i> Добавить расход
+          </a>
+          <a href="{{ url_for('income_page') }}" class="ynab-btn">
+            <i class="bi bi-arrow-up-circle"></i> Добавить доход
+          </a>
+          <a href="{{ url_for('categories') }}" class="ynab-btn">
+            <i class="bi bi-grid-3x3-gap"></i> Управление категориями
+          </a>
         </div>
       </div>
     </div>
   </div>
-  {% endfor %}
-</div>
-{% endif %}
+  
+  <!-- Main Content Area -->
+  <div class="col-lg-9">
 
 <!-- Категории (моб. карточки) -->
 {% if budget_data %}
@@ -147,10 +155,10 @@
       <thead>
         <tr>
           <th class="sortable" data-sort="category">Категория <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
-          <th class="text-end sortable hide-mobile" data-sort="limit">Лимит <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
-          <th class="text-end sortable" data-sort="spent">Потрачено <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+          <th class="text-end sortable hide-mobile" data-sort="limit">Назначено <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+          <th class="text-end sortable" data-sort="spent">Активность <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
+          <th class="text-end sortable" data-sort="remaining">Доступно <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
           <th class="sortable hide-mobile" data-sort="progress" style="min-width:220px">Прогресс <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
-          <th class="text-end sortable" data-sort="remaining">Остаток <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
           <th class="text-end sortable mobile-compact" data-sort="source">Источник <i class="bi bi-arrow-down-up ms-1 sort-icon"></i></th>
         </tr>
       </thead>
@@ -167,9 +175,14 @@
               </div>
               <div class="d-md-none small muted mt-1">Лимит: {{ item.limit|format_amount }} {{ currency_symbol|default('₽') }}</div>
             </td>
-            <td class="text-end currency hide-mobile amount">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
-            <td class="text-end currency amount {{ 'negative' if item.spent > item.limit else '' }}">
-              {{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
+            {# Assigned #}
+            <td class="text-end currency amount hide-mobile">
+              {{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
+            </td>
+
+            {# Activity (траты за месяц — отрицательным числом) #}
+            <td class="text-end currency amount negative">
+              -{{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
               <div class="d-md-none mt-1">
                 <div class="progress" style="height:6px; background:var(--ynab-gray-200);">
                   <div class="progress-bar" style="width: {{ [progress_percent, 100] | min }}%; background: var(--ynab-primary);"></div>
@@ -177,15 +190,23 @@
                 <small class="muted">{{ progress_percent }}%</small>
               </div>
             </td>
+
+            {# Available #}
+            <td class="text-end currency amount {{ 'negative' if rest < 0 else 'positive' }}">
+              {{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
+            </td>
+
+            {# Progress bar #}
             <td class="hide-mobile">
               <div class="d-flex align-items-center gap-2">
                 <div class="flex-grow-1" style="height:8px; background:var(--ynab-gray-200); border-radius:999px; overflow:hidden;">
-                  <div style="height:8px; width: {{ [progress_percent, 100] | min }}%; background: {{ 'var(--ynab-accent)' if progress_percent < 50 else ('var(--ynab-warning)' if progress_percent < 80 else 'var(--ynab-danger)') }};"></div>
+                  <div style="height:8px; width: {{ [progress_percent, 100] | min }}%; 
+                              background: {{ 'var(--ynab-accent)' if progress_percent < 50 else ('var(--ynab-warning)' if progress_percent < 80 else 'var(--ynab-danger)') }};">
+                  </div>
                 </div>
                 <small class="muted" style="width:56px; text-align:right;">{{ progress_percent }}%</small>
               </div>
             </td>
-            <td class="text-end currency amount {{ 'negative' if rest < 0 else 'positive' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
             <td class="text-end mobile-compact">
               {% if item.source_name %}
                 <span class="text-primary small">{{ item.source_name }}</span>
@@ -210,6 +231,9 @@
   </div>
 </div>
 {% endif %}
+
+  </div> <!-- End Main Content Area -->
+</div> <!-- End YNAB Layout Row -->
 
 <!-- Toast контейнер -->
 <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer" aria-live="polite" aria-atomic="true"></div>

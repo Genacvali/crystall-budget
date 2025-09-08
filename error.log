@@ -1653,3 +1653,43 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 [2025-09-09 00:24:57,674] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-09 00:24:58,995] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-09 00:25:09,146] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:26:09 +0300] [3535] [INFO] Worker exiting (pid: 3535)
+[2025-09-09 00:26:09 +0300] [3534] [INFO] Handling signal: term
+[2025-09-09 00:26:11 +0300] [3536] [INFO] Worker exiting (pid: 3536)
+[2025-09-09 00:26:11 +0300] [3534] [INFO] Shutting down: Master
+[2025-09-09 00:26:12 +0300] [4516] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:26:12 +0300] [4516] [INFO] Listening at: http://127.0.0.1:5000 (4516)
+[2025-09-09 00:26:12 +0300] [4516] [INFO] Using worker: sync
+[2025-09-09 00:26:12 +0300] [4517] [INFO] Booting worker with pid: 4517
+[2025-09-09 00:26:12 +0300] [4518] [INFO] Booting worker with pid: 4518
+[2025-09-09 00:26:16,755] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:26:17,634] ERROR in app: Exception on /income [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1894, in income_page
+    return render_template("income.html", incomes=rows, income_sources=income_sources, today=today)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/income.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/income.html", line 7, in block 'content'
+    {% set ready_to_assign = (income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'income' is undefined
+[2025-09-09 00:26:17,639] ERROR in app: 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
