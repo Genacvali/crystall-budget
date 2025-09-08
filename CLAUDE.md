@@ -8,8 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Create and activate virtual environment
 python -m venv .venv
-.venv\Scripts\activate  # Windows
 source .venv/bin/activate  # Linux/Mac
+.venv\Scripts\activate     # Windows
 
 # Install dependencies
 pip install -r requirements.txt
@@ -17,22 +17,46 @@ pip install -r requirements.txt
 
 ### Running the Application
 ```bash
-# Development server
+# Development server (legacy single-file)
 python app.py
 
-# Production with Gunicorn
-gunicorn -w 2 -b 0.0.0.0:5000 app:app
+# Development server (modular architecture) 
+python -m app
 
-# Production deployment (uses deploy.sh script)
+# Management utility (preferred for development)
+python manage.py run
+
+# Production with Gunicorn
+gunicorn -w 2 -b 0.0.0.0:5000 app:app  # legacy
+gunicorn -w 2 -b 0.0.0.0:5000 "app:create_app()"  # modular
+
+# Production deployment
 ./deploy.sh
 
 # HTTPS setup after deployment
 ./setup-https.sh
 ```
 
+### Database Management
+```bash
+# Initialize database (modular)
+python manage.py init-db
+
+# Run migrations (for both architectures)
+python migrate_to_modular.py
+python migrate_new_tables.py
+
+# Seed with test data
+python manage.py seed
+
+# Database operations (SQLite CLI)
+sqlite3 budget.db ".schema"
+sqlite3 budget.db "SELECT * FROM users;"
+```
+
 ### Environment Variables
 - `SECRET_KEY`: Flask secret key (required for production)
-- `BUDGET_DB`: Database file path (default: "budget.db")
+- `BUDGET_DB`: Database file path (default: "budget.db") 
 - `HTTPS_MODE`: Set to 'true' for production HTTPS cookie settings
 - `LOG_LEVEL`: Logging level (default: INFO)
 
@@ -47,137 +71,144 @@ tail -f logs/crystalbudget.log
 # Check systemd service status (production)
 sudo systemctl status crystalbudget
 
-# Database operations (SQLite CLI)
-sqlite3 budget.db ".schema"
-sqlite3 budget.db "SELECT * FROM users;"
-
-# Database migration (for new features)
-python3 migrate_new_tables.py
+# Development log viewer (debug mode only)
+curl http://localhost:5000/logs
 ```
 
 ## Architecture Overview
 
-### Single-File Flask Application
-The entire backend is contained in `app.py` (~2000+ lines) with:
-- Multi-user authentication system with 30-day session persistence
-- SQLite database with automatic schema initialization and default data
-- Currency support (RUB, USD, EUR, AMD, GEL) with session-based selection
-- Rotating file logging system in `/logs/`
+### Dual Architecture Support
+CrystalBudget supports two architectures:
+1. **Legacy Single-File** (`app.py` ~2000+ lines) - Original monolithic Flask application
+2. **Modular Architecture** (`app/` directory) - New blueprints-based structure for better maintainability
+
+Both architectures share the same database schema and functionality, with the modular version being preferred for new development.
+
+### Modular Structure (`app/` directory)
+```
+app/
+├── __init__.py          # Application factory with create_app()
+├── config.py           # Configuration management  
+├── db.py               # Database initialization and schema
+├── extensions.py       # Flask extensions setup
+├── security.py         # Security headers and middleware
+├── services/           # Business logic services
+│   ├── currency.py     # Currency conversion and rates
+│   └── validation.py   # Input validation helpers
+├── api/               # API endpoints
+├── blueprints/        # Feature-based blueprints
+│   ├── auth/          # Authentication (login, register, logout)
+│   ├── dashboard/     # Main dashboard and quick expense entry
+│   ├── expenses/      # Expense CRUD operations
+│   ├── categories/    # Category management
+│   ├── income/        # Income tracking and sources
+│   ├── goals/         # Savings goals
+│   └── shared/        # Family budget sharing
+└── templates/         # Jinja2 templates organized by blueprint
+```
 
 ### Database Design
 SQLite with user data isolation and automatic schema creation:
-- **users**: Authentication (password_hash), currency preferences, timestamps
-- **categories**: Budget categories (name, limit_type: 'fixed'/'percentage', amount, user_id)
-- **expenses**: User expense records (amount, description, category_id, date, user_id)
-- **income**: Monthly income tracking (amount, month, year, user_id)
-- **income_daily**: Daily income breakdown for advanced tracking
-- **income_sources**: Income source management with percentages
-- **source_category_rules**: Rules linking income sources to category allocations
-- **savings_goals**: Goal tracking (name, target_amount, current_amount, target_date, user_id)
-- **shared_budgets**: Family budget sharing (name, creator_id, invite_code)
-- **shared_budget_members**: Budget membership with roles (admin/member)
-- **exchange_rates**: Currency rate caching with hourly refresh
-- Auto-populated default categories on first run with Russian labels
+- **users**: Authentication, currency preferences, theme settings
+- **categories**: Budget categories (fixed amounts or percentage-based)
+- **expenses**: User expense records with category linking
+- **income**: Monthly income tracking with multi-source support  
+- **income_sources**: Income source management with percentage allocation
+- **source_category_rules**: Automatic income-to-category distribution rules
+- **savings_goals**: Goal tracking with progress monitoring
+- **shared_budgets**: Family budget collaboration with invite codes
+- **shared_budget_members**: Budget membership with role-based access
+- **exchange_rates**: Multi-currency rate caching with hourly refresh
 
-### Frontend Structure
-- **PWA-enabled**: Service worker, manifest, offline support
-- **Mobile-first**: Optimized for iPhone Safari and Android
-- **Bootstrap 5**: Responsive design with multiple CSS themes
+Auto-populated default categories on first run with Russian labels.
+
+### Frontend Architecture  
+- **PWA-enabled**: Service worker (`static/service-worker.js`), manifest, offline support
+- **Mobile-first**: Optimized for iPhone Safari and Android Chrome
+- **Bootstrap 5**: Responsive design with multiple CSS themes (`static/css/`)
 - **Russian interface**: All UI text and messages in Russian
-- **Inline editing**: Direct category editing in the interface
+- **Chart.js integration**: Analytics and expense visualization (`static/js/`)
+- **Swipe gestures**: Mobile-friendly edit/delete actions
 
 ### Key Financial Features
-- **Category types**: Fixed limits (e.g., 5000₽) or percentage-based (e.g., 30% of income)
-- **Rollover system**: Unused category budgets carry forward to next months
-- **Multi-currency**: Per-user currency selection with proper symbols
-- **Decimal precision**: Financial calculations using Python's Decimal module
+- **Category types**: Fixed limits (5000₽) or percentage-based (30% of income)
+- **Rollover system**: Unused budgets automatically carry forward to next months
+- **Multi-currency**: Per-user currency selection (₽, $, €, ֏, ₾) with live rates  
+- **Decimal precision**: All financial calculations use Python's Decimal module
+- **Income distribution**: Automatic percentage-based allocation from sources to categories
 
-### Route Structure
+### Route Structure Overview
 **Core Application:**
-- `/` - Redirects to dashboard or login
+- `/` - Smart redirect to dashboard or login
 - `/dashboard` - Main budget overview with quick expense entry
-- `/expenses` - Full expense CRUD operations with filtering
+- `/expenses` - Full expense CRUD with filtering and swipe actions
 - `/categories` - Category management with inline editing
-- `/income` - Monthly income configuration and tracking
-- `/sources` - Income source management with percentage allocation
-- `/goals` - Savings goals tracking with progress bars
-- `/shared-budgets` - Family budget sharing and collaboration
-
-**Authentication & User Management:**
-- `/register` - User registration with password hashing
-- `/login` - Session-based authentication (30-day persistence)
-- `/logout` - Session cleanup
-- `/set-currency` - Per-user currency selection
+- `/income` - Monthly income and source management
+- `/goals` - Savings goals with progress tracking
+- `/shared-budgets` - Family budget collaboration
 
 **API Endpoints:**
-- `/quick-expense` - POST endpoint for dashboard expense entry
-- `/api/expenses/chart-data` - Chart data for analytics (monthly/category breakdowns)
-- `/api/expenses/compare` - Period comparison data (current vs previous month)
-- `/api/exchange-rates` - Multi-currency exchange rates with caching
+- `/api/expenses/chart-data` - Chart.js analytics data (monthly/category breakdowns)
+- `/api/expenses/compare` - Period comparison with percentage changes
+- `/api/exchange-rates` - Multi-currency rates with caching
 - `/health` - Application health check
-- `/favicon.ico` - Static favicon handler
-- `/logs` - Development log viewer (debug mode only)
 
-**Advanced Features:**
-- `/rules/upsert/<category_id>` - Category-source allocation rules
-- `/rules/bulk-update` - Bulk rule updates for income distribution
+**Authentication:**
+- `/register`, `/login`, `/logout` - Session-based auth with 30-day persistence
+- `/set-currency` - Per-user currency selection
 
 ## Key Implementation Details
 
-### Financial Calculations
-- Uses Python's `Decimal` class for precision in financial calculations
-- Supports both fixed amount categories (e.g., 5000₽) and percentage-based (e.g., 30% of income)
-- Rollover system: unused budget amounts carry forward to subsequent months
-- Multi-currency support with proper symbol display (₽, $, €, ֏, ₾)
+### Migration Between Architectures
+- Use `migrate_to_modular.py` to migrate from single-file to modular architecture
+- Both versions share the same database schema and can run side-by-side during transition
+- The `manage.py` utility provides unified commands for both architectures
 
-### Session Management
+### Session Management & Security
 - Flask sessions with 30-day permanent lifetime
-- Enhanced cookie security settings:
-  - `SESSION_COOKIE_SECURE`: HTTPS-only cookies in production
-  - `SESSION_COOKIE_HTTPONLY`: XSS protection (cookies inaccessible via JavaScript)
-  - `SESSION_COOKIE_SAMESITE`: CSRF protection (Lax mode)
-  - Custom session name in production to hide Flask usage
+- Production security headers: CSP, HSTS, XSS protection, frame options
+- Secure cookie settings: HttpOnly, Secure (HTTPS), SameSite=Lax
 - User isolation: all database queries filtered by session user_id
 
-### Security Headers
-- **XSS Protection**: X-XSS-Protection, X-Content-Type-Options, X-Frame-Options
-- **Content Security Policy**: Configurable CSP headers (strict for production, relaxed for development)
-- **HSTS**: HTTP Strict Transport Security for HTTPS enforcement in production
-- **Static Resource Caching**: Optimized cache headers for performance
-
-### Logging System
-- Rotating file logs in `/logs/crystalbudget.log` (max 10MB per file, 5 files)
+### Logging System  
+- Rotating file logs in `/logs/crystalbudget.log` (10MB max, 5 files)
 - Configurable log levels via LOG_LEVEL environment variable
-- Separate access and error logs for Gunicorn in production
+- Separate Gunicorn access/error logs in production
 
 ### Deployment Architecture
-- **Development**: Direct `python app.py` execution
-- **Production**: Gunicorn WSGI server with 2 workers
+- **Development**: Direct Python execution or manage.py
+- **Production**: Gunicorn WSGI server with Nginx reverse proxy
 - **System Integration**: systemd service (`crystalbudget.service`)
-- **Web Server**: Nginx reverse proxy configuration included
-- **SSL/HTTPS**: Let's Encrypt integration via `setup-https.sh`
+- **SSL/HTTPS**: Let's Encrypt via `setup-https.sh` script
 
-### PWA Features
-- Service worker for offline functionality (`static/service-worker.js`)
-- Web app manifest for mobile app-like experience
-- Multiple CSS themes: clean, modern, improved, ff-theme
-- Bootstrap 5 responsive design optimized for mobile devices
+### Currency & Internationalization
+- **Russian Interface**: All UI text, messages, and default categories in Russian
+- **Multi-currency support**: Live exchange rates with automatic hourly updates
+- **Default categories** (auto-created):
+  - Продукты (30% от дохода) - Groceries
+  - Транспорт (5000₽ фикс.) - Transport
+  - Развлечения (15% от дохода) - Entertainment
+  - Коммунальные (8000₽ фикс.) - Utilities  
+  - Здоровье (3000₽ фикс.) - Health
+  - Одежда (10% от дохода) - Clothing
 
-### New Features Added
-- **📊 Expense Charts**: Chart.js integration for monthly/category analytics via `/api/expenses/chart-data`
-- **📈 Period Comparison**: Month-over-month spending analysis with percentage changes
-- **🎯 Savings Goals**: Goal tracking with progress bars, target dates, and completion notifications
-- **👆 Swipe Actions**: Mobile-first swipe gestures for edit/delete on expense cards
-- **💱 Enhanced Multi-Currency**: Live exchange rate caching with automatic updates
-- **👨‍👩‍👧‍👦 Shared Budgets**: Family budget collaboration with invite codes and role-based access
-- **🔒 Enhanced Security**: Comprehensive security headers, CSP, HSTS, and secure cookies
+## Development Workflow
 
-## Language and Localization
-- **Russian Interface**: All UI text, messages, and default categories are in Russian
-- **Default Categories**: Auto-populated on first run with Russian labels:
-  - Продукты (30% от дохода)
-  - Транспорт (5000₽ фикс.)  
-  - Развлечения (15% от дохода)
-  - Коммунальные (8000₽ фикс.)
-  - Здоровье (3000₽ фикс.)
-  - Одежда (10% от дохода)
+### Working with the Modular Architecture
+When developing new features, prefer the modular architecture:
+1. Create new blueprints in `app/blueprints/`
+2. Add business logic to `app/services/`  
+3. Use the application factory pattern from `app/__init__.py`
+4. Run via `python manage.py run` for development
+
+### Database Changes
+1. Update schema in `app/db.py` (init_db function)
+2. Create migration script following `migrate_*.py` pattern
+3. Test migration on copy of production database
+4. Update CLAUDE.md with new table/column documentation
+
+### Adding New Features
+1. Follow the blueprint pattern established in `app/blueprints/`
+2. Organize templates by blueprint in `app/templates/`
+3. Add API endpoints to `app/api/` if needed
+4. Update route documentation in this file
