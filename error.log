@@ -1431,3 +1431,105 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 [2025-09-08 20:15:47,997] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
 [2025-09-08 20:15:49,247] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
 [2025-09-08 20:15:50,524] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 20:24:21 +0300] [16948] [INFO] Worker exiting (pid: 16948)
+[2025-09-08 20:24:21 +0300] [16949] [INFO] Worker exiting (pid: 16949)
+[2025-09-08 20:24:21 +0300] [16934] [INFO] Handling signal: term
+[2025-09-08 20:24:22 +0300] [16934] [INFO] Shutting down: Master
+[2025-09-08 20:24:22 +0300] [20029] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 20:24:22 +0300] [20029] [INFO] Listening at: http://127.0.0.1:5000 (20029)
+[2025-09-08 20:24:22 +0300] [20029] [INFO] Using worker: sync
+[2025-09-08 20:24:22 +0300] [20030] [INFO] Booting worker with pid: 20030
+[2025-09-08 20:24:22 +0300] [20031] [INFO] Booting worker with pid: 20031
+[2025-09-08 20:24:28,636] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 20:24:29,457] WARNING in app: exchangerate.host direct failed RUB->USD: no result from exchangerate.host
+[2025-09-08 20:24:30,098] WARNING in app: exchangerate.host via bridge failed RUB->USD: no rate for symbol in latest
+[2025-09-08 20:24:30,472] INFO in app: FX ok RUB->USD via open.er-api.com: 0.012303
+[2025-09-08 20:24:31,099] WARNING in app: exchangerate.host direct failed RUB->EUR: no result from exchangerate.host
+[2025-09-08 20:24:31,725] WARNING in app: exchangerate.host via bridge failed RUB->EUR: no rate for symbol in latest
+[2025-09-08 20:24:31,828] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 20:24:32,104] INFO in app: FX ok RUB->EUR via open.er-api.com: 0.010508
+[2025-09-08 20:24:32,692] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 20:24:32,737] WARNING in app: exchangerate.host direct failed RUB->AMD: no result from exchangerate.host
+[2025-09-08 20:24:33,366] WARNING in app: exchangerate.host via bridge failed RUB->AMD: no rate for symbol in latest
+[2025-09-08 20:24:33,757] INFO in app: FX ok RUB->AMD via open.er-api.com: 4.70777
+[2025-09-08 20:24:34,395] WARNING in app: exchangerate.host direct failed RUB->GEL: no result from exchangerate.host
+[2025-09-08 20:24:35,035] WARNING in app: exchangerate.host via bridge failed RUB->GEL: no rate for symbol in latest
+[2025-09-08 20:24:35,414] INFO in app: FX ok RUB->GEL via open.er-api.com: 0.033135
+[2025-09-08 20:24:36,047] WARNING in app: exchangerate.host direct failed USD->RUB: no result from exchangerate.host
+[2025-09-08 20:24:36,681] WARNING in app: exchangerate.host via bridge failed USD->RUB: no rate for symbol in latest
+[2025-09-08 20:24:37,057] INFO in app: FX ok USD->RUB via open.er-api.com: 81.281857
+[2025-09-08 20:24:37,702] WARNING in app: exchangerate.host direct failed USD->EUR: no result from exchangerate.host
+[2025-09-08 20:24:38,331] WARNING in app: exchangerate.host via bridge failed USD->EUR: no rate for symbol in latest
+[2025-09-08 20:24:39,400] INFO in app: FX ok USD->EUR via open.er-api.com: 0.853794
+[2025-09-08 20:24:40,026] WARNING in app: exchangerate.host direct failed USD->AMD: no result from exchangerate.host
+[2025-09-08 20:24:40,647] WARNING in app: exchangerate.host via bridge failed USD->AMD: no rate for symbol in latest
+[2025-09-08 20:24:41,048] INFO in app: FX ok USD->AMD via open.er-api.com: 382.62587
+[2025-09-08 20:24:41,680] WARNING in app: exchangerate.host direct failed USD->GEL: no result from exchangerate.host
+[2025-09-08 20:24:42,306] WARNING in app: exchangerate.host via bridge failed USD->GEL: no rate for symbol in latest
+[2025-09-08 20:24:42,681] INFO in app: FX ok USD->GEL via open.er-api.com: 2.693092
+[2025-09-08 20:24:43,302] WARNING in app: exchangerate.host direct failed EUR->RUB: no result from exchangerate.host
+[2025-09-08 20:24:43,941] WARNING in app: exchangerate.host via bridge failed EUR->RUB: no rate for symbol in latest
+[2025-09-08 20:24:44,316] INFO in app: FX ok EUR->RUB via open.er-api.com: 95.168818
+[2025-09-08 20:24:44,952] WARNING in app: exchangerate.host direct failed EUR->USD: no result from exchangerate.host
+[2025-09-08 20:24:45,603] WARNING in app: exchangerate.host via bridge failed EUR->USD: no rate for symbol in latest
+[2025-09-08 20:24:45,983] INFO in app: FX ok EUR->USD via open.er-api.com: 1.171244
+[2025-09-08 20:24:46,611] WARNING in app: exchangerate.host direct failed EUR->AMD: no result from exchangerate.host
+[2025-09-08 20:24:47,238] WARNING in app: exchangerate.host via bridge failed EUR->AMD: no rate for symbol in latest
+[2025-09-08 20:24:47,614] INFO in app: FX ok EUR->AMD via open.er-api.com: 448.198606
+[2025-09-08 20:24:48,256] WARNING in app: exchangerate.host direct failed EUR->GEL: no result from exchangerate.host
+[2025-09-08 20:24:48,874] WARNING in app: exchangerate.host via bridge failed EUR->GEL: no rate for symbol in latest
+[2025-09-08 20:24:49,255] INFO in app: FX ok EUR->GEL via open.er-api.com: 3.153911
+[2025-09-08 20:24:49,881] WARNING in app: exchangerate.host direct failed AMD->RUB: no result from exchangerate.host
+[2025-09-08 20:24:50,506] WARNING in app: exchangerate.host via bridge failed AMD->RUB: no rate for symbol in latest
+[2025-09-08 20:24:51,047] INFO in app: FX ok AMD->RUB via open.er-api.com: 0.212415
+[2025-09-08 20:24:51,095] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 20:24:51,684] WARNING in app: exchangerate.host direct failed AMD->USD: no result from exchangerate.host
+[2025-09-08 20:24:52,323] WARNING in app: exchangerate.host via bridge failed AMD->USD: no rate for symbol in latest
+[2025-09-08 20:24:52,718] INFO in app: FX ok AMD->USD via open.er-api.com: 0.002614
+[2025-09-08 20:24:52,783] WARNING in app: exchangerate.host direct failed AMD->USD: no result from exchangerate.host
+[2025-09-08 20:24:53,340] WARNING in app: exchangerate.host via bridge failed AMD->USD: no rate for symbol in latest
+[2025-09-08 20:24:53,353] WARNING in app: exchangerate.host direct failed AMD->EUR: no result from exchangerate.host
+[2025-09-08 20:24:53,721] INFO in app: FX ok AMD->USD via open.er-api.com: 0.002614
+[2025-09-08 20:24:54,013] WARNING in app: exchangerate.host via bridge failed AMD->EUR: no rate for symbol in latest
+[2025-09-08 20:24:54,350] WARNING in app: exchangerate.host direct failed AMD->EUR: no result from exchangerate.host
+[2025-09-08 20:24:54,390] INFO in app: FX ok AMD->EUR via open.er-api.com: 0.002231
+[2025-09-08 20:24:54,967] WARNING in app: exchangerate.host via bridge failed AMD->EUR: no rate for symbol in latest
+[2025-09-08 20:24:54,983] WARNING in app: exchangerate.host direct failed AMD->GEL: no result from exchangerate.host
+[2025-09-08 20:24:55,351] INFO in app: FX ok AMD->EUR via open.er-api.com: 0.002231
+[2025-09-08 20:24:55,604] WARNING in app: exchangerate.host via bridge failed AMD->GEL: no rate for symbol in latest
+[2025-09-08 20:24:55,980] WARNING in app: exchangerate.host direct failed AMD->GEL: no result from exchangerate.host
+[2025-09-08 20:24:55,981] INFO in app: FX ok AMD->GEL via open.er-api.com: 0.007038
+[2025-09-08 20:24:56,602] WARNING in app: exchangerate.host via bridge failed AMD->GEL: no rate for symbol in latest
+[2025-09-08 20:24:56,611] WARNING in app: exchangerate.host direct failed GEL->RUB: no result from exchangerate.host
+[2025-09-08 20:24:56,976] INFO in app: FX ok AMD->GEL via open.er-api.com: 0.007038
+[2025-09-08 20:24:57,242] WARNING in app: exchangerate.host via bridge failed GEL->RUB: no rate for symbol in latest
+[2025-09-08 20:24:57,609] WARNING in app: exchangerate.host direct failed GEL->RUB: no result from exchangerate.host
+[2025-09-08 20:24:57,772] INFO in app: FX ok GEL->RUB via open.er-api.com: 30.179325
+[2025-09-08 20:24:58,250] WARNING in app: exchangerate.host via bridge failed GEL->RUB: no rate for symbol in latest
+[2025-09-08 20:24:58,408] WARNING in app: exchangerate.host direct failed GEL->USD: no result from exchangerate.host
+[2025-09-08 20:24:58,641] INFO in app: FX ok GEL->RUB via open.er-api.com: 30.179325
+[2025-09-08 20:24:59,038] WARNING in app: exchangerate.host via bridge failed GEL->USD: no rate for symbol in latest
+[2025-09-08 20:24:59,272] WARNING in app: exchangerate.host direct failed GEL->USD: no result from exchangerate.host
+[2025-09-08 20:24:59,422] INFO in app: FX ok GEL->USD via open.er-api.com: 0.37132
+[2025-09-08 20:24:59,899] WARNING in app: exchangerate.host via bridge failed GEL->USD: no rate for symbol in latest
+[2025-09-08 20:25:00,038] WARNING in app: exchangerate.host direct failed GEL->EUR: no result from exchangerate.host
+[2025-09-08 20:25:00,296] INFO in app: FX ok GEL->USD via open.er-api.com: 0.37132
+[2025-09-08 20:25:00,672] WARNING in app: exchangerate.host via bridge failed GEL->EUR: no rate for symbol in latest
+[2025-09-08 20:25:00,923] WARNING in app: exchangerate.host direct failed GEL->EUR: no result from exchangerate.host
+[2025-09-08 20:25:01,049] INFO in app: FX ok GEL->EUR via open.er-api.com: 0.317067
+[2025-09-08 20:25:01,557] WARNING in app: exchangerate.host via bridge failed GEL->EUR: no rate for symbol in latest
+[2025-09-08 20:25:01,681] WARNING in app: exchangerate.host direct failed GEL->AMD: no result from exchangerate.host
+[2025-09-08 20:25:01,940] INFO in app: FX ok GEL->EUR via open.er-api.com: 0.317067
+[2025-09-08 20:25:02,317] WARNING in app: exchangerate.host via bridge failed GEL->AMD: no rate for symbol in latest
+[2025-09-08 20:25:02,591] WARNING in app: exchangerate.host direct failed GEL->AMD: no result from exchangerate.host
+[2025-09-08 20:25:02,696] INFO in app: FX ok GEL->AMD via open.er-api.com: 142.076826
+[2025-09-08 20:25:03,242] WARNING in app: exchangerate.host via bridge failed GEL->AMD: no rate for symbol in latest
+[2025-09-08 20:25:03,638] INFO in app: FX ok GEL->AMD via open.er-api.com: 142.076826
+[2025-09-08 20:25:08,184] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 20:25:13,552] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 20:25:51,570] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 20:28:27 +0300] [20030] [INFO] Worker exiting (pid: 20030)
+[2025-09-08 20:28:27 +0300] [20031] [INFO] Worker exiting (pid: 20031)
+[2025-09-08 20:28:27 +0300] [20029] [INFO] Handling signal: term
+[2025-09-08 20:28:27 +0300] [20029] [ERROR] Worker (pid:20031) was sent SIGTERM!
+[2025-09-08 20:28:27 +0300] [20029] [INFO] Shutting down: Master

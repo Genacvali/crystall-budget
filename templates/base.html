@@ -100,10 +100,10 @@
   <a class="skip-link" href="#main">Перейти к основному содержимому</a>
 
   {% if session.user_id %}
-  <nav class="navbar navbar-expand-lg navbar-light navbar-zen" aria-label="Главная навигация">
-    <div class="container-fluid">
-      <a class="navbar-brand-modern" href="{{ url_for('dashboard') }}" aria-label="CrystalBudget — на дашборд">
-        <svg class="ff-crystal" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <nav class="mf-navbar" aria-label="Главная навигация">
+    <div class="mf-navbar-container">
+      <a class="mf-navbar-brand" href="{{ url_for('dashboard') }}" aria-label="CrystalBudget — на дашборд">
+        <svg class="mf-navbar-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <linearGradient id="crystalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:#60A5FA"/><stop offset="25%" style="stop-color:#3B82F6"/>
@@ -113,49 +113,60 @@
           </defs>
           <path d="M12 2L16 6L20 10L16 18L12 22L8 18L4 10L8 6L12 2Z" fill="url(#crystalGradient)"/>
         </svg>
-        CrystalBudget
+        <span class="mf-navbar-title">CrystalBudget</span>
       </a>
 
-      <button class="navbar-toggler" type="button" aria-controls="mobileSidebar" aria-expanded="false" aria-label="Открыть меню" onclick="toggleSidebar()">
-        <span class="navbar-toggler-icon"></span>
+      <button class="mf-navbar-mobile-toggle" type="button" aria-controls="mobileSidebar" aria-expanded="false" aria-label="Открыть меню" onclick="toggleSidebar()">
+        <span class="mf-hamburger-line"></span>
+        <span class="mf-hamburger-line"></span>
+        <span class="mf-hamburger-line"></span>
       </button>
 
-      <div class="d-none d-lg-flex collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><i class="bi bi-house-door-fill"></i> Главная</a></li>
-          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}"><i class="bi bi-arrow-down-circle zen-text-expense"></i> Расходы</a></li>
-          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}"><i class="bi bi-grid-3x3-gap-fill"></i> Категории</a></li>
-          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}"><i class="bi bi-arrow-up-circle zen-text-income"></i> Доходы</a></li>
-        </ul>
+      <div class="mf-navbar-nav d-none d-lg-flex">
+        <a class="mf-navbar-link {% if request.endpoint == 'dashboard' %}mf-navbar-link-active{% endif %}" href="{{ url_for('dashboard') }}">
+          <i class="bi bi-house-door-fill"></i>
+          <span>Главная</span>
+        </a>
+        <a class="mf-navbar-link {% if request.endpoint == 'expenses' %}mf-navbar-link-active{% endif %}" href="{{ url_for('expenses') }}">
+          <i class="bi bi-arrow-down-circle"></i>
+          <span>Расходы</span>
+        </a>
+        <a class="mf-navbar-link {% if request.endpoint == 'categories' %}mf-navbar-link-active{% endif %}" href="{{ url_for('categories') }}">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+          <span>Категории</span>
+        </a>
+        <a class="mf-navbar-link {% if request.endpoint in ['income_page','edit_income','sources_page'] %}mf-navbar-link-active{% endif %}" href="{{ url_for('income_page') }}">
+          <i class="bi bi-arrow-up-circle"></i>
+          <span>Доходы</span>
+        </a>
+      </div>
 
-        <ul class="navbar-nav align-items-center">
-          <li class="nav-item me-2" aria-label="Выбор валюты">
-            <div class="currency-selector" role="group" aria-label="Валюта">
-              <button class="currency-option" id="curr-rub"  onclick="setCurrency('RUB')" type="button" aria-pressed="true">₽</button>
-              <button class="currency-option" id="curr-usd"  onclick="setCurrency('USD')" type="button" aria-pressed="false">$</button>
-              <button class="currency-option" id="curr-eur"  onclick="setCurrency('EUR')" type="button" aria-pressed="false">€</button>
-              <button class="currency-option" id="curr-amd"  onclick="setCurrency('AMD')" type="button" aria-pressed="false">֏</button>
-              <button class="currency-option" id="curr-gel"  onclick="setCurrency('GEL')" type="button" aria-pressed="false">₾</button>
-            </div>
-          </li>
-          <li class="nav-item me-2">
-            <button class="theme-toggle-btn" type="button" onclick="toggleTheme()" aria-label="Переключить тему">
-              <i class="bi bi-sun-fill" id="light-icon"></i>
-              <span class="visually-hidden">Тема</span>
-              <i class="bi bi-moon-fill" id="dark-icon"></i>
-            </button>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="bi bi-person-circle"></i> {{ session.name or session.email }}
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" style="border:none;">
-              <li><a class="dropdown-item" href="{{ url_for('account') }}"><i class="bi bi-gear"></i> Личный кабинет</a></li>
-              <li><hr class="dropdown-divider" /></li>
-              <li><a class="dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
-            </ul>
-          </li>
-        </ul>
+      <div class="mf-navbar-actions d-none d-lg-flex">
+        <div class="mf-currency-selector" role="group" aria-label="Валюта">
+          <button class="mf-currency-btn" id="curr-rub" onclick="setCurrency('RUB')" type="button" aria-pressed="true">₽</button>
+          <button class="mf-currency-btn" id="curr-usd" onclick="setCurrency('USD')" type="button" aria-pressed="false">$</button>
+          <button class="mf-currency-btn" id="curr-eur" onclick="setCurrency('EUR')" type="button" aria-pressed="false">€</button>
+          <button class="mf-currency-btn" id="curr-amd" onclick="setCurrency('AMD')" type="button" aria-pressed="false">֏</button>
+          <button class="mf-currency-btn" id="curr-gel" onclick="setCurrency('GEL')" type="button" aria-pressed="false">₾</button>
+        </div>
+        
+        <button class="mf-theme-toggle" type="button" onclick="toggleTheme()" aria-label="Переключить тему">
+          <i class="bi bi-sun-fill" id="light-icon"></i>
+          <i class="bi bi-moon-fill" id="dark-icon"></i>
+        </button>
+        
+        <div class="mf-user-menu">
+          <button class="mf-user-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle"></i>
+            <span class="mf-user-name">{{ session.name or session.email }}</span>
+            <i class="bi bi-chevron-down"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end mf-dropdown">
+            <li><a class="dropdown-item mf-dropdown-item" href="{{ url_for('account') }}"><i class="bi bi-gear"></i> Личный кабинет</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item mf-dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
+          </ul>
+        </div>
       </div>
     </div>
   </nav>
