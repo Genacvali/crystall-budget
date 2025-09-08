@@ -126,8 +126,6 @@
           <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}"><i class="bi bi-arrow-down-circle zen-text-expense"></i> Расходы</a></li>
           <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}"><i class="bi bi-grid-3x3-gap-fill"></i> Категории</a></li>
           <li class="nav-item"><a class="nav-link-zen {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}"><i class="bi bi-arrow-up-circle zen-text-income"></i> Доходы</a></li>
-          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'goals' %}active{% endif %}" href="{{ url_for('goals') }}"><i class="bi bi-target zen-text-goal"></i> Цели</a></li>
-          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint in ['shared_budgets','shared_budget_detail'] %}active{% endif %}" href="{{ url_for('shared_budgets') }}"><i class="bi bi-people-fill"></i> Семья</a></li>
         </ul>
 
         <ul class="navbar-nav align-items-center">
@@ -174,8 +172,6 @@
       <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}" onclick="closeSidebar()"><i class="bi bi-wallet2"></i> Расходы</a></div>
       <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}" onclick="closeSidebar()"><i class="bi bi-tags"></i> Категории</a></div>
       <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()"><i class="bi bi-cash-coin"></i> Доходы</a></div>
-      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'goals' %}active{% endif %}" href="{{ url_for('goals') }}" onclick="closeSidebar()"><i class="bi bi-bullseye"></i> Цели</a></div>
-      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['shared_budgets','shared_budget_detail'] %}active{% endif %}" href="{{ url_for('shared_budgets') }}" onclick="closeSidebar()"><i class="bi bi-people"></i> Семья</a></div>
       <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}" onclick="closeSidebar()"><i class="bi bi-gear"></i> Личный кабинет</a></div>
     </nav>
     <div class="sidebar-footer">
