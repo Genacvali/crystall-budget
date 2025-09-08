@@ -9,10 +9,11 @@ from logging.handlers import RotatingFileHandler
 
 from flask import (
     Flask, render_template, render_template_string, request, redirect,
-    url_for, flash, session
+    url_for, flash, session, abort
 )
 from jinja2 import DictLoader, ChoiceLoader
 from werkzeug.security import generate_password_hash, check_password_hash
+from time import time
 
 # -----------------------------------------------------------------------------
 # App config
@@ -192,6 +193,7 @@ def get_exchange_rate(frm: str, to: str) -> float:
 
     now = datetime.utcnow()
     conn = get_db()
+    row = None
     try:
         conn.execute("PRAGMA foreign_keys=ON")
         row = conn.execute(
@@ -242,7 +244,12 @@ def get_exchange_rate(frm: str, to: str) -> float:
         
     except Exception as e:
         app.logger.error(f"Exchange rate error {frm}->{to}: {e}")
-        return 1.0  # Fallback
+        try:
+            if row and row["rate"]:
+                return float(row["rate"])
+        except Exception:
+            pass
+        return 1.0  # Final fallback
     finally:
         conn.close()
 
@@ -598,6 +605,8 @@ def favicon():
 @app.route('/logs')
 @login_required  
 def view_logs():
+    if os.environ.get('ENABLE_LOGS_VIEW', 'false').lower() != 'true':
+        return abort(404)
     try:
         log_file = os.path.join(os.path.dirname(__file__), 'logs', 'crystalbudget.log')
         if os.path.exists(log_file):
@@ -793,6 +802,18 @@ def login():
         remember = bool(request.form.get("remember"))
 
         app.logger.info(f'Login attempt for email: {email}')
+        # Simple session-based rate limiting
+        now_ts = time()
+        window = int(os.environ.get("LOGIN_WINDOW_SECONDS", "600"))
+        max_attempts = int(os.environ.get("LOGIN_MAX_ATTEMPTS", "10"))
+        fails = session.get("login_fails", [])
+        fails = [t for t in fails if now_ts - t < window]
+        if len(fails) >= max_attempts:
+            app.logger.warning(f'Rate limit exceeded for login: {email} from {request.remote_addr}')
+            flash("Слишком много попыток входа. Попробуйте позже.", "error")
+            return render_template("login.html")
+        # persist cleaned fails
+        session["login_fails"] = fails
 
         conn = get_db()
         user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
@@ -814,9 +835,18 @@ def login():
             session.permanent = remember  # либо оставь управление в before_request (см. ниже)
 
             app.logger.info(f'Successful login for user: {email} (ID: {user["id"]})')
+            # reset login fails counter
+            session["login_fails"] = []
             return redirect(url_for("dashboard"))
 
         app.logger.warning(f'Failed login attempt for email: {email}')
+        # Track failed attempt within time window
+        now_ts = time()
+        window = int(os.environ.get("LOGIN_WINDOW_SECONDS", "600"))
+        fails = session.get("login_fails", [])
+        fails = [t for t in fails if now_ts - t < window]
+        fails.append(now_ts)
+        session["login_fails"] = fails
         flash("Неверный email или пароль", "error")
 
     return render_template("login.html")
@@ -1205,12 +1235,13 @@ def quick_expense():
         return redirect(url_for("dashboard", month=return_month))
 
     conn = get_db()
+    current_currency = session.get('currency', DEFAULT_CURRENCY)
     conn.execute(
         """
-        INSERT INTO expenses (user_id, date, month, category_id, amount, note)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO expenses (user_id, date, month, category_id, amount, note, currency)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
         """,
-        (uid, date_str, date_str[:7], int(category_id), amount, note),
+        (uid, date_str, date_str[:7], int(category_id), amount, note, current_currency),
     )
     conn.commit()
     conn.close()
@@ -1640,6 +1671,9 @@ def expenses():
             flash("Произошла ошибка при добавлении расхода", "error")
         finally:
             conn.close()
+        next_url = request.form.get("next") or request.args.get("next")
+        if isinstance(next_url, str) and next_url.startswith("/"):
+            return redirect(next_url)
         return redirect(url_for("expenses"))
 
     # GET
@@ -2870,11 +2904,14 @@ def get_exchange_rates():
         conn = get_db()
         
         # Проверяем кэш курсов (обновляем раз в час)
+        # Respect global EXR_CACHE_TTL_SECONDS setting
+        threshold = datetime.utcnow() - timedelta(seconds=EXR_CACHE_TTL_SECONDS)
+        th_str = threshold.isoformat(timespec="seconds") + "Z"
         cursor = conn.execute("""
-        SELECT from_currency, to_currency, rate, updated_at 
-        FROM exchange_rates 
-        WHERE updated_at > datetime('now', '-1 hour')
-        """)
+        SELECT from_currency, to_currency, rate, updated_at
+        FROM exchange_rates
+        WHERE updated_at > ?
+        """, (th_str,))
         
         cached_rates = {}
         for row in cursor.fetchall():
@@ -2883,14 +2920,19 @@ def get_exchange_rates():
         
         # Если кэш пуст или нет нужных курсов, загружаем свежие данные
         currencies = ['RUB', 'USD', 'EUR', 'AMD', 'GEL']
+        base = DEFAULT_CURRENCY  # warm up only base<->other pairs
         needed_pairs = []
-        
-        for from_curr in currencies:
-            for to_curr in currencies:
-                if from_curr != to_curr:
-                    key = f"{from_curr}_{to_curr}"
-                    if key not in cached_rates:
-                        needed_pairs.append((from_curr, to_curr))
+        for cur in currencies:
+            if cur == base:
+                continue
+            # base -> cur
+            key1 = f"{base}_{cur}"
+            if key1 not in cached_rates:
+                needed_pairs.append((base, cur))
+            # cur -> base
+            key2 = f"{cur}_{base}"
+            if key2 not in cached_rates:
+                needed_pairs.append((cur, base))
         
         # Загружаем недостающие курсы
         if needed_pairs:
@@ -3172,12 +3214,12 @@ def shared_budget_detail(budget_id):
     
     # Получаем общие расходы всех участников за текущий месяц
     cursor = conn.execute("""
-    SELECT e.amount, e.note AS description, e.date, c.name AS category_name, u.name AS username
+    SELECT e.amount, e.currency, e.note AS description, e.date, c.name AS category_name, u.name AS username
     FROM expenses e
     JOIN categories c ON e.category_id = c.id
     JOIN users u ON e.user_id = u.id
     JOIN shared_budget_members sbm ON u.id = sbm.user_id
-    WHERE sbm.shared_budget_id = ? 
+    WHERE sbm.shared_budget_id = ?
     AND strftime('%Y-%m', e.date) = strftime('%Y-%m', 'now')
     ORDER BY e.date DESC, e.id DESC
     LIMIT 50
@@ -3185,17 +3227,29 @@ def shared_budget_detail(budget_id):
     
     recent_expenses = cursor.fetchall()
     
+    # Prepare categories for quick expense form and today's date
+    categories = conn.execute(
+        "SELECT id, name FROM categories WHERE user_id=? ORDER BY name", (user_id,)
+    ).fetchall()
+    today = datetime.now().strftime("%Y-%m-%d")
+    
     conn.close()
     
-    return render_template('shared_budget_detail.html', 
-                         budget=budget, 
-                         members=members, 
-                         recent_expenses=recent_expenses)
+    return render_template('shared_budget_detail.html',
+                         budget=budget,
+                         members=members,
+                         recent_expenses=recent_expenses,
+                         categories=categories,
+                         today=today)
 @app.after_request
 def set_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
+    # Modern security headers
+    response.headers['Referrer-Policy'] = 'no-referrer'
+    response.headers['Permissions-Policy'] = "geolocation=(), microphone=(), camera=()"
+    response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
+    response.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
 
     csp_base = [
         "default-src 'self'",
