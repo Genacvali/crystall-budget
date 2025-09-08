@@ -26,7 +26,16 @@
       "Bash(sudo nginx:*)",
       "Bash(sudo ls:*)",
       "Read(//etc/nginx/conf.d/**)",
-      "Bash(sudo systemctl:*)"
+      "Bash(sudo systemctl:*)",
+      "Bash(./setup-https.sh:*)",
+      "Read(//etc/nginx/**)",
+      "Bash(nginx:*)",
+      "Bash(sudo cat:*)",
+      "Bash(sudo journalctl:*)",
+      "Read(//etc/systemd/system/**)",
+      "Bash(sudo sed:*)",
+      "Bash(source:*)",
+      "Bash(pip install:*)"
     ],
     "deny": [],
     "ask": []
