@@ -858,3 +858,146 @@ jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
 [2025-09-08 18:41:52,032] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
 [2025-09-08 18:41:53,281] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
 [2025-09-08 18:41:54,546] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:29:52 +0300] [23966] [INFO] Worker exiting (pid: 23966)
+[2025-09-08 19:29:52 +0300] [23967] [INFO] Worker exiting (pid: 23967)
+[2025-09-08 19:29:52 +0300] [23965] [INFO] Handling signal: term
+[2025-09-08 19:29:52 +0300] [23965] [ERROR] Worker (pid:23967) was sent SIGTERM!
+[2025-09-08 19:29:52 +0300] [23965] [ERROR] Worker (pid:23966) was sent SIGTERM!
+[2025-09-08 19:29:52 +0300] [23965] [INFO] Shutting down: Master
+[2025-09-08 19:29:52 +0300] [2460] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 19:29:52 +0300] [2460] [INFO] Listening at: http://127.0.0.1:5000 (2460)
+[2025-09-08 19:29:52 +0300] [2460] [INFO] Using worker: sync
+[2025-09-08 19:29:52 +0300] [2461] [INFO] Booting worker with pid: 2461
+[2025-09-08 19:29:52 +0300] [2462] [INFO] Booting worker with pid: 2462
+[2025-09-08 19:29:59,366] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 551, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1197, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 223, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 303, in block 'content'
+    {% set has_income = total_income > 0 %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-08 19:29:59,371] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-08 19:30:17,546] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 551, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1197, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 223, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 303, in block 'content'
+    {% set has_income = total_income > 0 %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-08 19:30:17,548] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-08 19:30:20,089] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:30:21,028] INFO in app: POST request to login from 127.0.0.1
+[2025-09-08 19:30:21,028] INFO in app: Login attempt for email: gena12m@gmail.com
+[2025-09-08 19:30:21,129] INFO in app: Successful login for user: gena12m@gmail.com (ID: 1)
+[2025-09-08 19:30:21,377] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:30:21,441] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 551, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1197, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 223, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 303, in block 'content'
+    {% set has_income = total_income > 0 %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-08 19:30:21,441] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-08 19:30:22,621] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:30:23,022] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 551, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1197, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 223, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 303, in block 'content'
+    {% set has_income = total_income > 0 %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-08 19:30:23,022] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-08 19:30:23,682] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:30:24,761] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:30:26,022] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:30:27,120] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:30:28,419] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:30:29,676] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB

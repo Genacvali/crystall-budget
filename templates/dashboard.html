@@ -300,7 +300,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   
   <!-- Блок следующих шагов -->
   {% set has_recent_expenses = budget_data | selectattr('spent') | selectattr('spent', 'gt', 0) | list %}
-  {% set has_income = total_income > 0 %}
+  {% set has_income = (total_balance and total_balance > 0) or (source_balances and source_balances|length > 0) %}
   {% set has_goals = False %} <!-- Будем получать из контекста -->
   
   {% if not has_recent_expenses or not has_income %}
