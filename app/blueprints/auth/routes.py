@@ -32,8 +32,9 @@ def login():
             session.clear()
             session['user_id'] = user['id']
             session['name'] = user['name']
-            session['theme'] = user.get('theme', 'light')
-            session['currency'] = user.get('default_currency', 'RUB')
+            # sqlite3.Row doesn't have .get() method, use dict-like access with check
+            session['theme'] = user['theme'] if 'theme' in user.keys() else 'light'
+            session['currency'] = user['default_currency'] if 'default_currency' in user.keys() else 'RUB'
             return redirect(url_for('dashboard.index'))
         else:
             flash('Неверный email или пароль', 'error')
