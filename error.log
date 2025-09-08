@@ -1611,3 +1611,28 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 [2025-09-09 00:16:03 +0300] [1544] [INFO] Booting worker with pid: 1544
 [2025-09-09 00:16:03 +0300] [1545] [INFO] Booting worker with pid: 1545
 [2025-09-09 00:16:09,044] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:19:01 +0300] [1545] [INFO] Worker exiting (pid: 1545)
+[2025-09-09 00:19:01 +0300] [1544] [INFO] Worker exiting (pid: 1544)
+[2025-09-09 00:19:01 +0300] [1543] [INFO] Handling signal: term
+[2025-09-09 00:19:01 +0300] [1543] [ERROR] Worker (pid:1544) was sent SIGTERM!
+[2025-09-09 00:19:01 +0300] [1543] [INFO] Shutting down: Master
+[2025-09-09 00:19:02 +0300] [2369] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:19:02 +0300] [2369] [INFO] Listening at: http://127.0.0.1:5000 (2369)
+[2025-09-09 00:19:02 +0300] [2369] [INFO] Using worker: sync
+[2025-09-09 00:19:02 +0300] [2370] [INFO] Booting worker with pid: 2370
+[2025-09-09 00:19:02 +0300] [2371] [INFO] Booting worker with pid: 2371
+[2025-09-09 00:19:39,877] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:19:44,776] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:19:46,182] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:19:46,845] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:19:48,930] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:21:49 +0300] [2369] [CRITICAL] WORKER TIMEOUT (pid:2371)
+[2025-09-09 00:21:49 +0300] [2371] [INFO] Worker exiting (pid: 2371)
+[2025-09-09 00:21:49 +0300] [2369] [ERROR] Worker (pid:2371) exited with code 1
+[2025-09-09 00:21:49 +0300] [2369] [ERROR] Worker (pid:2371) exited with code 1.
+[2025-09-09 00:21:49 +0300] [3084] [INFO] Booting worker with pid: 3084
+[2025-09-09 00:21:50 +0300] [2369] [CRITICAL] WORKER TIMEOUT (pid:2370)
+[2025-09-09 00:21:50 +0300] [2370] [INFO] Worker exiting (pid: 2370)
+[2025-09-09 00:21:50 +0300] [2369] [ERROR] Worker (pid:2370) exited with code 1
+[2025-09-09 00:21:50 +0300] [2369] [ERROR] Worker (pid:2370) exited with code 1.
+[2025-09-09 00:21:50 +0300] [3100] [INFO] Booting worker with pid: 3100
