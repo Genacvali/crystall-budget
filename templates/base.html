@@ -13,7 +13,7 @@
 
   <!-- PWA -->
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}" />
-  <meta name="theme-color" content="#4fb3d9" />
+  <meta name="theme-color" content="#6366F1" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CrystalBudget" />
@@ -38,61 +38,52 @@
       const theme = stored || serverTheme || (prefersDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-bs-theme', theme);
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.content = theme === 'dark' ? '#212529' : '#4fb3d9';
+      if (meta) meta.content = theme === 'dark' ? '#0F172A' : '#6366F1';
     })();
   </script>
 
   <style>
+    /* Safe area insets for mobile PWA */
     :root {
       --safe-area-inset-top: env(safe-area-inset-top, 0px);
       --safe-area-inset-right: env(safe-area-inset-right, 0px);
       --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
       --safe-area-inset-left: env(safe-area-inset-left, 0px);
     }
-    body { padding: var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left); }
-
-    /* Skip link for a11y */
-    .skip-link { position: absolute; left: -9999px; top: auto; width: 1px; height: 1px; overflow: hidden; }
-    .skip-link:focus { position: fixed; left: 1rem; top: 1rem; width: auto; height: auto; padding: .5rem .75rem; z-index: 1080; background: var(--bs-primary); color: #fff; border-radius: .5rem; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
-
-    .container-fluid { padding-left: max(15px, var(--safe-area-inset-left)); padding-right: max(15px, var(--safe-area-inset-right)); }
-
-    .navbar-modern { position: relative; }
-    .navbar-modern .container-fluid { display: flex; align-items: center; gap: .5rem; flex-wrap: nowrap; position: relative; }
-    .navbar-brand-modern { margin-right: auto; white-space: nowrap; display: inline-flex; align-items: center; gap: .5rem; font-weight: 700; }
-    .nav-link-modern { display: inline-flex; align-items: center; gap: .5rem; }
-
-    /* Desktop currency/theme */
-    .currency-selector { display: inline-flex; gap: .25rem; }
-    .currency-option { padding: .5rem .5rem; min-width: 2.25rem; border: 1px solid var(--bs-border-color); background: var(--bs-body-bg); border-radius: .375rem; cursor: pointer; line-height: 1; }
-    .currency-option.active, .currency-option[aria-pressed="true"] { background: var(--bs-primary); color: #fff; border-color: var(--bs-primary); }
-    .theme-toggle-btn { display: inline-flex; align-items: center; gap: .5rem; padding: .5rem .75rem; border: 1px solid var(--bs-border-color); border-radius: .5rem; background: var(--bs-body-bg); }
-
-    /* Mobile sidebar */
-    @media (max-width: 992px) {
-      .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1040; opacity: 0; visibility: hidden; transition: .25s; }
-      .sidebar-overlay.show { opacity: 1; visibility: visible; }
-      .sidebar { position: fixed; top: 0; left: -300px; width: 300px; height: 100%; background: var(--bs-body-bg); border-right: 1px solid var(--bs-border-color); box-shadow: 4px 0 16px rgba(0,0,0,.2); z-index: 1050; transition: left .25s; display: flex; flex-direction: column; overflow-y: auto; }
-      .sidebar.show { left: 0; }
-      .sidebar-header { padding: 1rem; border-bottom: 1px solid var(--bs-border-color); display: flex; align-items: center; justify-content: space-between; }
-      .sidebar-brand { font-weight: 700; font-size: 1.125rem; color: var(--bs-primary); text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; }
-      .sidebar-close { background: none; border: none; font-size: 1.25rem; color: var(--bs-secondary); cursor: pointer; padding: .25rem; }
-      .sidebar-nav { flex: 1; padding: .5rem 0; }
-      .sidebar-nav .nav-item { margin: .25rem 0; }
-      .sidebar-nav .nav-link-modern { display: flex; align-items: center; gap: .75rem; padding: .875rem 1rem; margin: 0 .5rem; border-radius: .5rem; color: var(--bs-body-color); text-decoration: none; font-weight: 500; transition: .15s; border: 1px solid transparent; }
-      .sidebar-nav .nav-link-modern:hover { background: var(--bs-primary-bg-subtle); color: var(--bs-primary); transform: translateX(4px); }
-      .sidebar-nav .nav-link-modern.active { background: var(--bs-primary); color: #fff; font-weight: 600; border-color: var(--bs-primary); }
-      .sidebar-footer { padding: 1rem; border-top: 1px solid var(--bs-border-color); background: var(--bs-secondary-bg); }
-      .user-profile { display: flex; align-items: center; gap: .75rem; padding: .75rem; border: 1px solid var(--bs-border-color); border-radius: .5rem; background: var(--bs-body-bg); text-decoration: none; color: var(--bs-body-color); margin-bottom: .5rem; }
-      .user-info { line-height: 1.15; }
-      .currency-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: .25rem; }
-      .mobile-hide { display: none; }
+    
+    body { 
+      padding: var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left); 
     }
-    @media (min-width: 768px) { .mobile-hide { display: inline; } }
 
-    /* Motion reduced */
+    /* Accessibility skip link */
+    .skip-link { 
+      position: absolute; 
+      left: -9999px; 
+      top: auto; 
+      width: 1px; 
+      height: 1px; 
+      overflow: hidden; 
+    }
+    .skip-link:focus { 
+      position: fixed; 
+      left: 1rem; 
+      top: 1rem; 
+      width: auto; 
+      height: auto; 
+      padding: .5rem .75rem; 
+      z-index: 1080; 
+      background: var(--mf-primary); 
+      color: white; 
+      border-radius: .5rem; 
+      box-shadow: 0 4px 12px rgba(0,0,0,.25); 
+    }
+
+    /* Motion reduced accessibility */
     @media (prefers-reduced-motion: reduce) {
-      * { transition: none !important; animation: none !important; }
+      * { 
+        transition: none !important; 
+        animation: none !important; 
+      }
     }
   </style>
 </head>
@@ -172,51 +163,88 @@
   </nav>
 
   <!-- Mobile sidebar -->
-  <div class="sidebar-overlay d-lg-none" id="sidebarOverlay" onclick="closeSidebar()"></div>
-  <aside class="sidebar d-lg-none" id="mobileSidebar" aria-label="Мобильное меню" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="sidebar-header">
-      <a class="sidebar-brand" href="{{ url_for('dashboard') }}">CrystalBudget</a>
-      <button class="sidebar-close" type="button" aria-label="Закрыть меню" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
-    </div>
-    <nav class="sidebar-nav" id="sidebarNav">
-      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}" onclick="closeSidebar()"><i class="bi bi-house-door"></i> Дашборд</a></div>
-      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}" onclick="closeSidebar()"><i class="bi bi-wallet2"></i> Расходы</a></div>
-      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}" onclick="closeSidebar()"><i class="bi bi-tags"></i> Категории</a></div>
-      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()"><i class="bi bi-cash-coin"></i> Доходы</a></div>
-      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}" onclick="closeSidebar()"><i class="bi bi-gear"></i> Личный кабинет</a></div>
-    </nav>
-    <div class="sidebar-footer">
-      <a class="user-profile" href="#">
-        <i class="bi bi-person-circle" style="font-size:1.5rem;"></i>
-        <div class="user-info">
-          <div class="fw-semibold small">{{ session.name or 'Пользователь' }}</div>
-          <div class="text-secondary small">{{ session.email }}</div>
-        </div>
+  <div class="mf-sidebar-overlay d-lg-none" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="mf-sidebar d-lg-none" id="mobileSidebar" aria-label="Мобильное меню" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="mf-sidebar-header">
+      <a class="mf-sidebar-brand" href="{{ url_for('dashboard') }}">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="crystalGradientMobile" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#60A5FA"/><stop offset="25%" style="stop-color:#3B82F6"/>
+              <stop offset="50%" style="stop-color:#1D4ED8"/><stop offset="75%" style="stop-color:#1E40AF"/>
+              <stop offset="100%" style="stop-color:#1E3A8A"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 2L16 6L20 10L16 18L12 22L8 18L4 10L8 6L12 2Z" fill="url(#crystalGradientMobile)"/>
+        </svg>
+        CrystalBudget
       </a>
-      <div class="mb-3">
-        <div class="text-uppercase text-secondary small mb-1">Валюта</div>
-        <div class="currency-grid" role="group" aria-label="Валюта (мобильная)">
-          <button class="currency-option" id="curr-rub-sidebar" onclick="setCurrency('RUB')" type="button">₽</button>
-          <button class="currency-option" id="curr-usd-sidebar" onclick="setCurrency('USD')" type="button">$</button>
-          <button class="currency-option" id="curr-eur-sidebar" onclick="setCurrency('EUR')" type="button">€</button>
-          <button class="currency-option" id="curr-amd-sidebar" onclick="setCurrency('AMD')" type="button">֏</button>
-          <button class="currency-option" id="curr-gel-sidebar" onclick="setCurrency('GEL')" type="button">₾</button>
+      <button class="mf-sidebar-close" type="button" aria-label="Закрыть меню" onclick="closeSidebar()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+    
+    <nav class="mf-sidebar-nav" id="sidebarNav">
+      <a class="mf-sidebar-link {% if request.endpoint == 'dashboard' %}mf-sidebar-link-active{% endif %}" href="{{ url_for('dashboard') }}" onclick="closeSidebar()">
+        <i class="bi bi-house-door"></i>
+        <span>Дашборд</span>
+      </a>
+      <a class="mf-sidebar-link {% if request.endpoint == 'expenses' %}mf-sidebar-link-active{% endif %}" href="{{ url_for('expenses') }}" onclick="closeSidebar()">
+        <i class="bi bi-wallet2"></i>
+        <span>Расходы</span>
+      </a>
+      <a class="mf-sidebar-link {% if request.endpoint == 'categories' %}mf-sidebar-link-active{% endif %}" href="{{ url_for('categories') }}" onclick="closeSidebar()">
+        <i class="bi bi-tags"></i>
+        <span>Категории</span>
+      </a>
+      <a class="mf-sidebar-link {% if request.endpoint in ['income_page','edit_income','sources_page'] %}mf-sidebar-link-active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()">
+        <i class="bi bi-cash-coin"></i>
+        <span>Доходы</span>
+      </a>
+      <a class="mf-sidebar-link {% if request.endpoint == 'account' %}mf-sidebar-link-active{% endif %}" href="{{ url_for('account') }}" onclick="closeSidebar()">
+        <i class="bi bi-gear"></i>
+        <span>Личный кабинет</span>
+      </a>
+    </nav>
+    
+    <div class="mf-sidebar-footer">
+      <div class="mf-user-profile">
+        <i class="bi bi-person-circle"></i>
+        <div class="mf-user-info">
+          <div class="mf-user-name">{{ session.name or 'Пользователь' }}</div>
+          <div class="mf-user-email">{{ session.email }}</div>
         </div>
       </div>
-      <div class="mb-3">
-        <div class="text-uppercase text-secondary small mb-1">Тема</div>
-        <button class="theme-toggle-btn w-100" type="button" onclick="toggleTheme()" aria-label="Переключить тему (мобильная)">
+      
+      <div class="mf-sidebar-section">
+        <div class="mf-sidebar-section-title">Валюта</div>
+        <div class="mf-currency-grid" role="group" aria-label="Валюта (мобильная)">
+          <button class="mf-currency-btn" id="curr-rub-sidebar" onclick="setCurrency('RUB')" type="button">₽</button>
+          <button class="mf-currency-btn" id="curr-usd-sidebar" onclick="setCurrency('USD')" type="button">$</button>
+          <button class="mf-currency-btn" id="curr-eur-sidebar" onclick="setCurrency('EUR')" type="button">€</button>
+          <button class="mf-currency-btn" id="curr-amd-sidebar" onclick="setCurrency('AMD')" type="button">֏</button>
+          <button class="mf-currency-btn" id="curr-gel-sidebar" onclick="setCurrency('GEL')" type="button">₾</button>
+        </div>
+      </div>
+      
+      <div class="mf-sidebar-section">
+        <div class="mf-sidebar-section-title">Тема</div>
+        <button class="mf-theme-toggle mf-theme-toggle-mobile" type="button" onclick="toggleTheme()" aria-label="Переключить тему (мобильная)">
           <i class="bi bi-sun-fill" id="light-icon-sidebar"></i>
-          <span class="flex-grow-1 text-center">Тема</span>
+          <span class="mf-theme-label">Тема</span>
           <i class="bi bi-moon-fill" id="dark-icon-sidebar"></i>
         </button>
       </div>
-      <a class="btn btn-danger w-100" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a>
+      
+      <a class="mf-btn mf-btn-danger mf-btn-full" href="{{ url_for('logout') }}">
+        <i class="bi bi-box-arrow-right"></i> 
+        Выйти
+      </a>
     </div>
   </aside>
   {% endif %}
 
-  <main id="main" class="container-modern py-4" tabindex="-1">
+  <main id="main" class="mf-container" tabindex="-1">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -254,7 +282,7 @@
       document.documentElement.setAttribute('data-bs-theme', next);
       localStorage.setItem('theme', next);
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.content = next === 'dark' ? '#212529' : '#4fb3d9';
+      if (meta) meta.content = next === 'dark' ? '#0F172A' : '#6366F1';
       updateThemeToggle(next);
     }
     function updateThemeToggle(theme) {
@@ -273,8 +301,8 @@
     function openSidebar() {
       if (!sidebar || !overlay) return;
       lastFocus = document.activeElement;
-      sidebar.classList.add('show');
-      overlay.classList.add('show');
+      sidebar.classList.add('mf-sidebar-open');
+      overlay.classList.add('mf-sidebar-overlay-open');
       sidebar.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
       // focus first link
@@ -283,8 +311,8 @@
     }
     function closeSidebar() {
       if (!sidebar || !overlay) return;
-      sidebar.classList.remove('show');
-      overlay.classList.remove('show');
+      sidebar.classList.remove('mf-sidebar-open');
+      overlay.classList.remove('mf-sidebar-overlay-open');
       sidebar.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
       if (lastFocus) lastFocus.focus();
@@ -357,8 +385,8 @@
     }
     async function setCurrency(currency) {
       localStorage.setItem('currency', currency);
-      // Toggle pressed state for both desktop and sidebar groups
-      document.querySelectorAll('.currency-option').forEach(btn => {
+      // Toggle pressed state for both desktop and sidebar groups (support both old and new classes)
+      document.querySelectorAll('.currency-option, .mf-currency-btn').forEach(btn => {
         const isActive = btn.id.includes(currency.toLowerCase());
         btn.classList.toggle('active', isActive);
         btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');

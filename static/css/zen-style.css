@@ -860,29 +860,127 @@ body {
 
 /* === COMPATIBILITY WITH EXISTING CLASSES === */
 /* Поддержка старых классов для плавного перехода */
-.zen-btn { @extend .mf-btn; }
-.zen-btn-primary { @extend .mf-btn-primary; }
-.zen-btn-income { @extend .mf-btn-income; }
-.zen-btn-expense { @extend .mf-btn-expense; }
-.zen-btn-goal { @extend .mf-btn-goal; }
-.zen-btn-secondary { @extend .mf-btn-secondary; }
-.zen-btn-danger { @extend .mf-btn-danger; }
-.zen-btn-sm { @extend .mf-btn-sm; }
-.zen-btn-lg { @extend .mf-btn-lg; }
-.zen-btn-group { @extend .mf-btn-group; }
 
-.zen-card { @extend .mf-card; }
-.zen-card-body { @extend .mf-card-body; }
-.zen-card-expense { @extend .mf-card-expense; }
-.zen-card-income { @extend .mf-card-income; }
-.zen-card-goal { @extend .mf-card-goal; }
-.zen-hero-card { @extend .mf-hero-card; }
+/* Button compatibility */
+.zen-btn,
+.zen-btn-primary,
+.zen-btn-income,
+.zen-btn-expense,
+.zen-btn-goal,
+.zen-btn-secondary,
+.zen-btn-danger,
+.zen-btn-sm,
+.zen-btn-lg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mf-space-2);
+  padding: var(--mf-space-3) var(--mf-space-4);
+  border: none;
+  border-radius: var(--mf-radius);
+  font-family: var(--mf-font-family);
+  font-weight: 600;
+  font-size: var(--mf-text-sm);
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+  outline: none;
+  box-shadow: var(--mf-shadow-sm);
+}
 
-.zen-table { @extend .mf-table; }
-.zen-title { @extend .mf-title; }
-.zen-empty-state { @extend .mf-empty-state; }
+.zen-btn-primary,
+.zen-btn:not([class*="-"]) {
+  background: var(--mf-primary);
+  color: var(--mf-white);
+}
 
-.zen-text-expense { @extend .mf-text-expense; }
-.zen-text-income { @extend .mf-text-income; }
-.zen-text-goal { @extend .mf-text-goal; }
-.zen-text-primary { @extend .mf-text-primary; }
+.zen-btn-income { background: var(--mf-income); color: var(--mf-white); }
+.zen-btn-expense { background: var(--mf-expense); color: var(--mf-white); }
+.zen-btn-goal { background: var(--mf-goal); color: var(--mf-white); }
+.zen-btn-secondary { background: var(--mf-gray-200); color: var(--mf-gray-700); }
+.zen-btn-danger { background: var(--mf-danger); color: var(--mf-white); }
+.zen-btn-sm { padding: var(--mf-space-2) var(--mf-space-3); font-size: var(--mf-text-xs); }
+.zen-btn-lg { padding: var(--mf-space-4) var(--mf-space-6); font-size: var(--mf-text-lg); }
+
+/* Card compatibility */
+.zen-card,
+.zen-card-body,
+.zen-card-expense,
+.zen-card-income,
+.zen-card-goal,
+.zen-hero-card {
+  background: var(--mf-white);
+  border: 1px solid var(--mf-gray-200);
+  border-radius: var(--mf-radius-lg);
+  box-shadow: var(--mf-shadow);
+  overflow: hidden;
+}
+
+.zen-card-body { padding: var(--mf-space-6); }
+.zen-card-expense { border-left: 4px solid var(--mf-expense); }
+.zen-card-income { border-left: 4px solid var(--mf-income); }
+.zen-card-goal { border-left: 4px solid var(--mf-goal); }
+
+.zen-hero-card {
+  background: linear-gradient(135deg, var(--mf-primary) 0%, var(--mf-primary-light) 100%);
+  color: var(--mf-white);
+  border: none;
+}
+
+/* Table compatibility */
+.zen-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--mf-white);
+  border-radius: var(--mf-radius);
+  overflow: hidden;
+  box-shadow: var(--mf-shadow);
+}
+
+.zen-table th,
+.zen-table td {
+  padding: var(--mf-space-3) var(--mf-space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--mf-gray-200);
+}
+
+.zen-table th {
+  background: var(--mf-gray-50);
+  font-weight: 600;
+  color: var(--mf-gray-700);
+  font-size: var(--mf-text-sm);
+}
+
+/* Title compatibility */
+.zen-title {
+  display: flex;
+  align-items: center;
+  gap: var(--mf-space-3);
+  font-size: var(--mf-text-2xl);
+  font-weight: 700;
+  color: var(--mf-gray-900);
+  margin: 0;
+  margin-bottom: var(--mf-space-6);
+}
+
+/* Empty state compatibility */
+.zen-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--mf-space-12) var(--mf-space-6);
+  color: var(--mf-gray-500);
+}
+
+/* Text colors compatibility */
+.zen-text-expense { color: var(--mf-expense); }
+.zen-text-income { color: var(--mf-income); }
+.zen-text-goal { color: var(--mf-goal); }
+.zen-text-primary { color: var(--mf-primary); }
