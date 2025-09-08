@@ -442,3 +442,18 @@ Traceback (most recent call last):
     raise TemplateNotFound(template)
 jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
 [2025-09-08 16:35:19,343] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-08 16:45:31 +0300] [29744] [INFO] Worker exiting (pid: 29744)
+[2025-09-08 16:45:31 +0300] [29748] [INFO] Worker exiting (pid: 29748)
+[2025-09-08 16:45:31 +0300] [29740] [INFO] Handling signal: term
+[2025-09-08 16:45:31 +0300] [29740] [INFO] Shutting down: Master
+[2025-09-08 16:45:32 +0300] [32417] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:45:32 +0300] [32417] [INFO] Listening at: http://127.0.0.1:5000 (32417)
+[2025-09-08 16:45:32 +0300] [32417] [INFO] Using worker: sync
+[2025-09-08 16:45:32 +0300] [32418] [INFO] Booting worker with pid: 32418
+[2025-09-08 16:45:32 +0300] [32419] [INFO] Booting worker with pid: 32419
+[2025-09-08 16:45:42,051] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:45:45,293] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:45:46,049] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:45:53,862] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:45:55,911] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:45:56,599] INFO in app: POST request to set_currency from 127.0.0.1

@@ -788,32 +788,22 @@ def login():
     if request.method == "POST":
         email = request.form["email"].lower().strip()
         password = request.form["password"]
-        remember = bool(request.form.get("remember"))
-
+        
         app.logger.info(f'Login attempt for email: {email}')
 
         conn = get_db()
         user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
         conn.close()
-
         if user and check_password_hash(user["password_hash"], password):
-            session.clear()
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = user["name"]
-
-            # <— вот тут меняем доступ к полям
-            prefs = dict(user)
-            session["theme"] = prefs.get("theme", "light")
-            session["currency"] = prefs.get("default_currency", "RUB")
-
-            # поддержка "Запомнить меня"
-            session["remember"] = remember
-            session.permanent = remember  # либо оставь управление в before_request (см. ниже)
-
+            # Загружаем настройки пользователя
+            session["theme"] = user.get("theme", "light")
+            session["currency"] = user.get("default_currency", "RUB")
             app.logger.info(f'Successful login for user: {email} (ID: {user["id"]})')
             return redirect(url_for("dashboard"))
-
+        
         app.logger.warning(f'Failed login attempt for email: {email}')
         flash("Неверный email или пароль", "error")
 
