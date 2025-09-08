@@ -4,31 +4,27 @@
 {% block content %}
 <style>
   .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .w-min-220 { min-width: 220px; }
-  .w-min-180 { min-width: 180px; }
-  .w-min-160 { min-width: 160px; }
-  .actions-col { min-width: 220px; }
   .btn, .btn * { white-space: nowrap; }
   .btn-col{ min-width: 160px; }
-  .btn-col .btn{ white-space: nowrap; }
-  .save-badge {
-    font-size: .8rem; color: #198754; opacity: 0; transition: opacity .25s ease;
-    margin-left: .5rem;
-  }
+  .save-badge { font-size: .8rem; color: #198754; opacity: 0; transition: opacity .25s ease; margin-left: .5rem; }
   .save-badge.show { opacity: 1; }
   .saving-dots { display: none; font-size: .8rem; color:#6c757d; }
   .saving .saving-dots { display: inline; }
   .input-group-text { min-width: 2.25rem; justify-content: center; }
+  .section-title i{ opacity:.8 }
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <h2 class="h4 m-0">Категории</h2>
-  <div class="btn-group" role="group">
-    <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm">
+  <h1 class="h4 m-0 d-flex align-items-center gap-2 section-title">
+    <i class="bi bi-tags"></i>
+    Категории
+  </h1>
+  <div class="btn-group" role="group" aria-label="Добавить категории">
+    <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm" aria-controls="addExpenseCategoryForm" aria-expanded="false">
       <i class="bi bi-dash-circle me-1"></i>
       <span class="d-none d-md-inline">Добавить категорию </span>Трат
     </button>
-    <button class="btn btn-success btn-sm" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm">
+    <button class="btn btn-success btn-sm" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm" aria-controls="addIncomeCategoryForm" aria-expanded="false">
       <i class="bi bi-plus-circle me-1"></i>
       <span class="d-none d-md-inline">Добавить категорию </span>Доходов
     </button>
@@ -38,34 +34,33 @@
 <!-- Форма для категорий трат -->
 <div class="collapse mb-3" id="addExpenseCategoryForm">
   <div class="card card-body border-primary">
-    <h5 class="card-title text-primary mb-3">
+    <h2 class="h5 text-primary mb-3">
       <i class="bi bi-dash-circle me-2"></i>Новая категория трат
-    </h5>
-    <form method="POST" action="{{ url_for('categories_add') }}">
+    </h2>
+    <form method="POST" action="{{ url_for('categories_add') }}" autocomplete="off">
       <input type="hidden" name="category_type" value="expense">
       <div class="row g-2 g-md-3 align-items-end">
         <div class="col-12 col-lg-4">
-          <label class="form-label">Название</label>
-          <input type="text" name="name" class="form-control" placeholder="Например, Продукты" required>
+          <label class="form-label" for="exp_name">Название</label>
+          <input id="exp_name" type="text" name="name" class="form-control" placeholder="Например, Продукты" required autofocus>
         </div>
 
         <div class="col-6 col-lg-2">
-          <label class="form-label">Тип лимита</label>
-          <select name="limit_type" class="form-select" required>
+          <label class="form-label" for="exp_limit_type">Тип лимита</label>
+          <select id="exp_limit_type" name="limit_type" class="form-select" required>
             <option value="fixed">Фиксированная сумма</option>
             <option value="percent">Процент от дохода</option>
           </select>
         </div>
 
         <div class="col-6 col-lg-2">
-          <label class="form-label">Значение</label>
-          <input type="number" name="value" step="0.01" min="0.01" inputmode="decimal"
-                 class="form-control" placeholder="Сумма или %" required>
+          <label class="form-label" for="exp_value">Значение</label>
+          <input id="exp_value" type="number" name="value" step="0.01" min="0.01" inputmode="decimal" class="form-control" placeholder="Сумма или %" required>
         </div>
 
         <div class="col-12 col-lg-3">
-          <label class="form-label">Привязать к источнику</label>
-          <select name="source_id" class="form-select">
+          <label class="form-label" for="exp_source">Привязать к источнику</label>
+          <select id="exp_source" name="source_id" class="form-select">
             <option value="">(не привязывать)</option>
             {% for s in income_sources %}
               <option value="{{ s.id }}">{{ s.name }}</option>
@@ -74,7 +69,7 @@
         </div>
 
         <div class="col-12 col-lg-auto d-grid btn-col">
-          <label class="form-label d-none d-lg-block">&nbsp;</label>
+          <label class="form-label d-none d-lg-block" aria-hidden="true">&nbsp;</label>
           <button class="btn btn-primary">
             <i class="bi bi-check-lg me-1"></i> Добавить
           </button>
@@ -87,20 +82,20 @@
 <!-- Форма для категорий доходов -->
 <div class="collapse mb-3" id="addIncomeCategoryForm">
   <div class="card card-body border-success">
-    <h5 class="card-title text-success mb-3">
+    <h2 class="h5 text-success mb-3">
       <i class="bi bi-plus-circle me-2"></i>Новая категория доходов
-    </h5>
-    <form method="POST" action="{{ url_for('categories_add') }}">
+    </h2>
+    <form method="POST" action="{{ url_for('categories_add') }}" autocomplete="off">
       <input type="hidden" name="category_type" value="income">
       <div class="row g-2 g-md-3 align-items-end">
         <div class="col-12 col-lg-4">
-          <label class="form-label">Название</label>
-          <input type="text" name="name" class="form-control" placeholder="Например, Зарплата" required>
+          <label class="form-label" for="inc_name">Название</label>
+          <input id="inc_name" type="text" name="name" class="form-control" placeholder="Например, Зарплата" required>
         </div>
 
         <div class="col-12 col-lg-3">
-          <label class="form-label">Привязать к источнику</label>
-          <select name="source_id" class="form-select">
+          <label class="form-label" for="inc_source">Привязать к источнику</label>
+          <select id="inc_source" name="source_id" class="form-select">
             <option value="">(не привязывать)</option>
             {% for s in income_sources %}
               <option value="{{ s.id }}">{{ s.name }}</option>
@@ -109,14 +104,13 @@
         </div>
 
         <div class="col-6 col-lg-2">
-          <label class="form-label">Целевая сумма</label>
-          <input type="number" name="value" step="0.01" min="0.01" inputmode="decimal"
-                 class="form-control" placeholder="Ожидаемая сумма" required>
+          <label class="form-label" for="inc_value">Целевая сумма</label>
+          <input id="inc_value" type="number" name="value" step="0.01" min="0.01" inputmode="decimal" class="form-control" placeholder="Ожидаемая сумма" required>
           <input type="hidden" name="limit_type" value="fixed">
         </div>
 
         <div class="col-12 col-lg-auto d-grid btn-col">
-          <label class="form-label d-none d-lg-block">&nbsp;</label>
+          <label class="form-label d-none d-lg-block" aria-hidden="true">&nbsp;</label>
           <button class="btn btn-success">
             <i class="bi bi-check-lg me-1"></i> Добавить
           </button>
@@ -127,7 +121,7 @@
 </div>
 
 {% if not income_sources or income_sources|length == 0 %}
-<div class="alert alert-info mb-3">
+<div class="alert alert-info mb-3" role="status">
   Чтобы привязать категорию к источнику дохода, сначала добавьте источники на странице
   <a href="{{ url_for('sources_page') }}" class="alert-link">«Источники»</a>.
 </div>
@@ -136,18 +130,16 @@
 <!-- Категории трат -->
 {% if expense_categories %}
 <div class="mb-4">
-  <h5 class="text-primary mb-3">
-    <i class="bi bi-dash-circle me-2"></i>Категории трат ({{ expense_categories|length }})
-  </h5>
+  <h2 class="h6 text-primary mb-3 d-flex align-items-center gap-2"><i class="bi bi-dash-circle"></i> Категории трат ({{ expense_categories|length }})</h2>
   <div class="table-responsive">
     <table class="table align-middle">
       <thead class="table-light">
         <tr>
-          <th>Название</th>
-          <th>Тип лимита</th>
-          <th class="text-end">Значение</th>
-          <th>Привязан к доходу</th>
-          <th class="text-end">Действия</th>
+          <th scope="col">Название</th>
+          <th scope="col">Тип лимита</th>
+          <th scope="col" class="text-end">Значение</th>
+          <th scope="col">Привязан к доходу</th>
+          <th scope="col" class="text-end">Действия</th>
         </tr>
       </thead>
       <tbody>
@@ -156,9 +148,9 @@
           <td class="fw-semibold">{{ cat.name }}</td>
           <td>
             {% if cat.limit_type == 'fixed' %}
-              <span class="badge bg-primary">Фиксированная</span>
+              <span class="badge bg-primary-subtle text-primary border">Фиксированная</span>
             {% else %}
-              <span class="badge bg-success">Процент</span>
+              <span class="badge bg-success-subtle text-success border">Процент</span>
             {% endif %}
           </td>
           <td class="text-end">
@@ -173,7 +165,7 @@
             {% if source_id %}
               {% set source_found = income_sources|selectattr('id', 'equalto', source_id)|list %}
               {% if source_found %}
-                <span class="badge bg-info">{{ source_found[0].name }}</span>
+                <span class="badge bg-info-subtle text-info border">{{ source_found[0].name }}</span>
               {% else %}
                 <span class="text-warning small">источник удален</span>
               {% endif %}
@@ -182,16 +174,13 @@
             {% endif %}
           </td>
           <td class="text-end">
-            <div class="btn-group btn-group-sm">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Действия">
               <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}">
                 <i class="bi bi-pencil"></i> Редактировать
               </button>
-              <form method="POST" action="{{ url_for('categories_delete', cat_id=cat.id) }}" class="d-inline">
-                <button type="submit" class="btn btn-outline-danger"
-                        onclick="return confirm('Удалить категорию «{{ cat.name }}»?')">
-                  <i class="bi bi-trash3"></i> Удалить
-                </button>
-              </form>
+              <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-action="{{ url_for('categories_delete', cat_id=cat.id) }}" data-name="{{ cat.name }}">
+                <i class="bi bi-trash3"></i> Удалить
+              </button>
             </div>
           </td>
         </tr>
@@ -205,32 +194,28 @@
 <!-- Категории доходов -->
 {% if income_categories %}
 <div class="mb-4">
-  <h5 class="text-success mb-3">
-    <i class="bi bi-plus-circle me-2"></i>Категории доходов ({{ income_categories|length }})
-  </h5>
+  <h2 class="h6 text-success mb-3 d-flex align-items-center gap-2"><i class="bi bi-plus-circle"></i> Категории доходов ({{ income_categories|length }})</h2>
   <div class="table-responsive">
     <table class="table align-middle">
       <thead class="table-light">
         <tr>
-          <th>Название</th>
-          <th class="text-end">Целевая сумма</th>
-          <th>Привязан к источнику</th>
-          <th class="text-end">Действия</th>
+          <th scope="col">Название</th>
+          <th scope="col" class="text-end">Целевая сумма</th>
+          <th scope="col">Привязан к источнику</th>
+          <th scope="col" class="text-end">Действия</th>
         </tr>
       </thead>
       <tbody>
         {% for cat in income_categories %}
         <tr>
           <td class="fw-semibold">{{ cat.name }}</td>
-          <td class="text-end">
-            <strong>{{ cat.value|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></strong>
-          </td>
+          <td class="text-end"><strong>{{ cat.value|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></strong></td>
           <td>
             {% set source_id = rules_map.get(cat.id) %}
             {% if source_id %}
               {% set source_found = income_sources|selectattr('id', 'equalto', source_id)|list %}
               {% if source_found %}
-                <span class="badge bg-info">{{ source_found[0].name }}</span>
+                <span class="badge bg-info-subtle text-info border">{{ source_found[0].name }}</span>
               {% else %}
                 <span class="text-warning small">источник удален</span>
               {% endif %}
@@ -239,16 +224,13 @@
             {% endif %}
           </td>
           <td class="text-end">
-            <div class="btn-group btn-group-sm">
+            <div class="btn-group btn-group-sm" role="group" aria-label="Действия">
               <button class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}">
                 <i class="bi bi-pencil"></i> Редактировать
               </button>
-              <form method="POST" action="{{ url_for('categories_delete', cat_id=cat.id) }}" class="d-inline">
-                <button type="submit" class="btn btn-outline-danger"
-                        onclick="return confirm('Удалить категорию «{{ cat.name }}»?')">
-                  <i class="bi bi-trash3"></i> Удалить
-                </button>
-              </form>
+              <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-action="{{ url_for('categories_delete', cat_id=cat.id) }}" data-name="{{ cat.name }}">
+                <i class="bi bi-trash3"></i> Удалить
+              </button>
             </div>
           </td>
         </tr>
@@ -261,83 +243,63 @@
 
 {% if not expense_categories and not income_categories %}
 <div class="text-center py-5">
+  <div class="mb-4"><i class="bi bi-folder2-open display-1 text-muted opacity-50" aria-hidden="true"></i></div>
+  <h2 class="h5 text-muted mb-3">Пока нет категорий</h2>
   <div class="mb-4">
-    <i class="bi bi-folder2-open display-1 text-muted opacity-50"></i>
-  </div>
-  <h4 class="text-muted mb-3">Пока нет категорий</h4>
-  <div class="mb-4">
-    <p class="text-muted mb-2">
-      <strong>📊 Категории помогают структурировать ваши финансы</strong>
-    </p>
+    <p class="text-muted mb-2"><strong>📊 Категории помогают структурировать ваши финансы</strong></p>
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <div class="row text-start">
           <div class="col-md-6">
             <p class="text-muted small mb-1"><strong>Категории трат:</strong></p>
-            <p class="text-muted small">
-              🛒 Продукты<br>
-              🚗 Транспорт<br>
-              💡 Коммунальные<br>
-              🎬 Развлечения
-            </p>
+            <p class="text-muted small">🛒 Продукты<br>🚗 Транспорт<br>💡 Коммунальные<br>🎬 Развлечения</p>
           </div>
           <div class="col-md-6">
             <p class="text-muted small mb-1"><strong>Категории доходов:</strong></p>
-            <p class="text-muted small">
-              💼 Зарплата<br>
-              📈 Инвестиции<br>
-              🎁 Подарки<br>
-              💰 Подработка
-            </p>
+            <p class="text-muted small">💼 Зарплата<br>📈 Инвестиции<br>🎁 Подарки<br>💰 Подработка</p>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="btn-group">
-    <button class="btn btn-primary btn-lg" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm">
-      <i class="bi bi-dash-circle me-2"></i> Создать категорию трат
-    </button>
-    <button class="btn btn-success btn-lg" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm">
-      <i class="bi bi-plus-circle me-2"></i> Создать категорию доходов
-    </button>
+  <div class="btn-group" role="group" aria-label="Быстрое создание категорий">
+    <button class="btn btn-primary btn-lg" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm"><i class="bi bi-dash-circle me-2"></i> Создать категорию трат</button>
+    <button class="btn btn-success btn-lg" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm"><i class="bi bi-plus-circle me-2"></i> Создать категорию доходов</button>
   </div>
-  <div class="mt-3">
-    <small class="text-muted">💡 Совет: начните с 3-5 основных категорий трат</small>
-  </div>
+  <div class="mt-3"><small class="text-muted">💡 Совет: начните с 3–5 основных категорий трат</small></div>
 </div>
 {% endif %}
 
-<!-- Модальные окна для редактирования категорий -->
+<!-- Модалки редактирования -->
 {% for cat in categories %}
-<div class="modal fade" id="editModal{{ cat.id }}" tabindex="-1">
+<div class="modal fade" id="editModal{{ cat.id }}" tabindex="-1" aria-labelledby="editLabel{{ cat.id }}" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Редактировать категорию «{{ cat.name }}»</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="editLabel{{ cat.id }}">Редактировать категорию «{{ cat.name }}»</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <form method="POST" action="{{ url_for('categories_update', cat_id=cat.id) }}">
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Название</label>
-            <input type="text" name="name" class="form-control" value="{{ cat.name }}" required>
+            <label class="form-label" for="name_{{ cat.id }}">Название</label>
+            <input id="name_{{ cat.id }}" type="text" name="name" class="form-control" value="{{ cat.name }}" required>
           </div>
           <div class="mb-3">
-            <label class="form-label">Тип лимита</label>
-            <select name="limit_type" class="form-select" required>
+            <label class="form-label" for="limit_{{ cat.id }}">Тип лимита</label>
+            <select id="limit_{{ cat.id }}" name="limit_type" class="form-select" required>
               <option value="fixed" {% if cat.limit_type == 'fixed' %}selected{% endif %}>Фиксированная сумма</option>
               <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>Процент от дохода</option>
             </select>
           </div>
           <div class="mb-3">
-            <label class="form-label">Значение</label>
-            <input type="number" name="value" step="0.01" min="0.01" class="form-control" value="{{ cat.value }}" required>
+            <label class="form-label" for="value_{{ cat.id }}">Значение</label>
+            <input id="value_{{ cat.id }}" type="number" name="value" step="0.01" min="0.01" class="form-control" value="{{ cat.value }}" required>
           </div>
           {% if income_sources and income_sources|length %}
           <div class="mb-3">
-            <label class="form-label">Привязать к источнику дохода</label>
-            <select name="source_id" class="form-select">
+            <label class="form-label" for="source_{{ cat.id }}">Привязать к источнику дохода</label>
+            <select id="source_{{ cat.id }}" name="source_id" class="form-select">
               <option value="">(не привязано)</option>
               {% for s in income_sources %}
                 <option value="{{ s.id }}" {% if rules_map.get(cat.id)==s.id %}selected{% endif %}>{{ s.name }}</option>
@@ -355,6 +317,44 @@
   </div>
 </div>
 {% endfor %}
+
+<!-- Удаление — подтверждение через единую модалку -->
+<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteCategoryLabel">Удалить категорию</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      <form id="deleteCategoryForm" method="POST" action="#">
+        <div class="modal-body">
+          <p class="mb-0">Вы уверены, что хотите удалить категорию <strong id="deleteCategoryName"></strong>?
+            <br><small class="text-muted">Связанные лимиты и привязки к источникам будут удалены.</small>
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-danger">Удалить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
-{% block scripts %}{% endblock %}
+{% block scripts %}
+<script>
+  const deleteModal = document.getElementById('deleteCategoryModal');
+  if (deleteModal) {
+    deleteModal.addEventListener('show.bs.modal', (event) => {
+      const btn = event.relatedTarget;
+      const action = btn?.getAttribute('data-action');
+      const name = btn?.getAttribute('data-name') || '';
+      const form = document.getElementById('deleteCategoryForm');
+      const nameHolder = document.getElementById('deleteCategoryName');
+      if (form && action) form.setAttribute('action', action);
+      if (nameHolder) nameHolder.textContent = '«' + name + '»';
+    });
+  }
+</script>
+{% endblock %}
