@@ -4,7 +4,7 @@
 {% block content %}
 {# --- Budget Header Bar (YNAB-inspired) --- #}
 {% set assigned_total = budget_data|map(attribute='limit')|sum %}
-{% set ready_to_assign = (total_income - assigned_total) %}
+{% set ready_to_assign = ((income or 0) - assigned_total) %}
 <div class="ynab-card mb-3">
   <div class="ynab-card-body d-flex align-items-center gap-3 flex-wrap">
     <div class="d-flex align-items-center gap-2">

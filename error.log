@@ -1693,3 +1693,277 @@ Traceback (most recent call last):
     {% set ready_to_assign = (income - assigned_total) %}
 jinja2.exceptions.UndefinedError: 'income' is undefined
 [2025-09-09 00:26:17,639] ERROR in app: 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:31:18 +0300] [4517] [INFO] Worker exiting (pid: 4517)
+[2025-09-09 00:31:18 +0300] [4518] [INFO] Worker exiting (pid: 4518)
+[2025-09-09 00:31:18 +0300] [4516] [INFO] Handling signal: term
+[2025-09-09 00:31:18 +0300] [4516] [ERROR] Worker (pid:4518) was sent SIGTERM!
+[2025-09-09 00:31:18 +0300] [4516] [ERROR] Worker (pid:4517) was sent SIGTERM!
+[2025-09-09 00:31:18 +0300] [4516] [INFO] Shutting down: Master
+[2025-09-09 00:31:19 +0300] [6668] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:31:19 +0300] [6668] [INFO] Listening at: http://127.0.0.1:5000 (6668)
+[2025-09-09 00:31:19 +0300] [6668] [INFO] Using worker: sync
+[2025-09-09 00:31:19 +0300] [6669] [INFO] Booting worker with pid: 6669
+[2025-09-09 00:31:19 +0300] [6670] [INFO] Booting worker with pid: 6670
+[2025-09-09 00:31:22,089] ERROR in app: Exception on /income [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1894, in income_page
+    return render_template("income.html", incomes=rows, income_sources=income_sources, today=today)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/income.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/income.html", line 7, in block 'content'
+    {% set ready_to_assign = (income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'income' is undefined
+[2025-09-09 00:31:22,093] ERROR in app: 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:31:24,290] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
+    {% set ready_to_assign = (total_income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-09 00:31:24,290] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:31:35 +0300] [6669] [INFO] Worker exiting (pid: 6669)
+[2025-09-09 00:31:35 +0300] [6668] [INFO] Handling signal: term
+[2025-09-09 00:31:57,324] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
+    {% set ready_to_assign = (total_income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-09 00:31:57,324] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:31:57 +0300] [6670] [INFO] Worker exiting (pid: 6670)
+[2025-09-09 00:31:57 +0300] [6668] [INFO] Shutting down: Master
+[2025-09-09 00:31:57 +0300] [6996] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:31:57 +0300] [6996] [INFO] Listening at: http://127.0.0.1:5000 (6996)
+[2025-09-09 00:31:57 +0300] [6996] [INFO] Using worker: sync
+[2025-09-09 00:31:57 +0300] [6997] [INFO] Booting worker with pid: 6997
+[2025-09-09 00:31:57 +0300] [6998] [INFO] Booting worker with pid: 6998
+[2025-09-09 00:31:58,956] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
+    {% set ready_to_assign = (total_income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-09 00:31:58,958] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:32:01,158] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
+    {% set ready_to_assign = (total_income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-09 00:32:01,160] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:32:16,117] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
+    {% set ready_to_assign = (total_income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-09 00:32:16,118] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:32:16,951] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
+    {% set ready_to_assign = (total_income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'total_income' is undefined
+[2025-09-09 00:32:16,951] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:33:48 +0300] [6997] [INFO] Worker exiting (pid: 6997)
+[2025-09-09 00:33:48 +0300] [6998] [INFO] Worker exiting (pid: 6998)
+[2025-09-09 00:33:48 +0300] [6996] [INFO] Handling signal: term
+[2025-09-09 00:33:48 +0300] [6996] [INFO] Shutting down: Master
+[2025-09-09 00:33:48 +0300] [8012] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:33:48 +0300] [8012] [INFO] Listening at: http://127.0.0.1:5000 (8012)
+[2025-09-09 00:33:48 +0300] [8012] [INFO] Using worker: sync
+[2025-09-09 00:33:48 +0300] [8013] [INFO] Booting worker with pid: 8013
+[2025-09-09 00:33:48 +0300] [8014] [INFO] Booting worker with pid: 8014
+[2025-09-09 00:33:51,620] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:33:57,214] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:33:58,976] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:33:59,714] ERROR in app: Exception on /income [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1894, in income_page
+    return render_template("income.html", incomes=rows, income_sources=income_sources, today=today)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/income.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/income.html", line 7, in block 'content'
+    {% set ready_to_assign = (income - assigned_total) %}
+jinja2.exceptions.UndefinedError: 'income' is undefined
+[2025-09-09 00:33:59,716] ERROR in app: 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 00:34:01,510] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:34:34,263] INFO in app: POST request to set_currency from 127.0.0.1
