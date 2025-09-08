@@ -82,9 +82,8 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 <!-- Заголовок -->
 <div class="row align-items-center justify-content-between header-row mb-4">
   <div class="col-auto">
-    <h1 class="cb-page-title d-flex align-items-center gap-2">
-      <i class="bi bi-speedometer2" aria-hidden="true"></i>
-      <span>Финансовый дашборд</span>
+    <h1 class="zen-title">
+      Финансы
     </h1>
   </div>
   <div class="col-12 col-md-auto">
@@ -128,38 +127,43 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   </div>
 </div>
 
-<!-- Главная карточка баланса -->
-<div class="balance-hero p-3 mb-4">
-  <div class="row align-items-center">
-    <div class="col-md-8">
-      <div class="balance-label">Баланс за {{ current_month_name.split()[0] }}</div>
-      {% set total_spent = budget_data|map(attribute='spent')|sum %}
-      <h2 class="balance-amount mb-2">
-        {{ (income - total_spent)|format_amount }} <small class="currency-display" style="font-size:.6em">{{ currency_symbol|default('₽') }}</small>
-      </h2>
-      <div class="d-flex gap-3 flex-wrap" aria-label="Итоги месяца">
-        <div>
-          <small class="d-block opacity-75">Доход:</small>
-          <strong class="currency">{{ income|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></strong>
+<!-- Hero карточка баланса в Zen стиле -->
+<div class="zen-hero-card zen-scale-in">
+  <div class="zen-hero-content">
+    <div class="row align-items-center">
+      <div class="col-md-8">
+        <div class="zen-balance-label">Баланс за {{ current_month_name.split()[0] }}</div>
+        {% set total_spent = budget_data|map(attribute='spent')|sum %}
+        <div class="zen-balance-amount">
+          {{ (income - total_spent)|format_amount }} <span class="currency-display" style="font-size: 0.6em; opacity: 0.9;">{{ currency_symbol|default('₽') }}</span>
         </div>
-        <div>
-          <small class="d-block opacity-75">Потрачено:</small>
-          <strong class="text-warning currency">{{ total_spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></strong>
-        </div>
-        <div class="d-none d-md-block">
-          <small class="d-block opacity-75">Лимиты:</small>
-          <strong class="text-info currency">{{ budget_data|map(attribute='limit')|sum|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></strong>
+        
+        <div class="d-flex gap-4 flex-wrap mt-4" aria-label="Итоги месяца">
+          <div>
+            <div class="zen-text-sm" style="opacity: 0.8; margin-bottom: 4px;">Доход</div>
+            <div class="fw-semibold">{{ income|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
+          </div>
+          <div>
+            <div class="zen-text-sm" style="opacity: 0.8; margin-bottom: 4px;">Потрачено</div>
+            <div class="fw-semibold">{{ total_spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
+          </div>
+          <div class="d-none d-lg-block">
+            <div class="zen-text-sm" style="opacity: 0.8; margin-bottom: 4px;">Лимиты</div>
+            <div class="fw-semibold">{{ budget_data|map(attribute='limit')|sum|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-      <div class="balance-actions">
-        <button type="button" class="btn btn-cb-expense btn-cb-lg cb-scale-in" data-bs-toggle="modal" data-bs-target="#expenseModal">
-          <i class="bi bi-dash-circle-fill me-2" aria-hidden="true"></i><span class="d-none d-lg-inline">Добавить </span>Расход
-        </button>
-        <button type="button" class="btn btn-cb-income btn-cb-lg cb-scale-in" data-bs-toggle="modal" data-bs-target="#incomeModal">
-          <i class="bi bi-plus-circle-fill me-2" aria-hidden="true"></i>Доходы
-        </button>
+      <div class="col-md-4 text-md-end mt-4 mt-md-0">
+        <div class="zen-balance-actions">
+          <button type="button" class="zen-btn zen-btn-hero" data-bs-toggle="modal" data-bs-target="#expenseModal">
+            <i class="bi bi-arrow-down-circle" aria-hidden="true"></i>
+            <span class="d-none d-lg-inline">Добавить </span>Расход
+          </button>
+          <button type="button" class="zen-btn zen-btn-hero" data-bs-toggle="modal" data-bs-target="#incomeModal">
+            <i class="bi bi-arrow-up-circle" aria-hidden="true"></i>
+            Доходы
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -303,67 +307,6 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   {% set has_income = (total_balance and total_balance > 0) or (source_balances and source_balances|length > 0) %}
   {% set has_goals = False %} <!-- Будем получать из контекста -->
   
-  {% if not has_recent_expenses or not has_income %}
-  <div class="cb-card mt-4">
-    <div class="cb-card-header">
-      <h3 class="cb-section-title mb-0"><i class="bi bi-lightbulb"></i>Следующие шаги</h3>
-    </div>
-    <div class="cb-card-body">
-      <div class="row g-3">
-        {% if not has_income %}
-        <div class="col-md-6">
-          <div class="d-flex align-items-start gap-3 p-3 border rounded-3 bg-light">
-            <div class="flex-shrink-0">
-              <i class="bi bi-plus-circle-fill cb-text-income" style="font-size: 1.5rem;"></i>
-            </div>
-            <div>
-              <h4 class="h6 mb-1">Добавьте доходы</h4>
-              <p class="small text-muted mb-2">Укажите ваши источники доходов для правильного планирования бюджета</p>
-              <a href="{{ url_for('income_page') }}" class="btn btn-cb-income btn-cb-sm">
-                <i class="bi bi-arrow-right"></i> Добавить доходы
-              </a>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-        
-        {% if not has_recent_expenses and has_income %}
-        <div class="col-md-6">
-          <div class="d-flex align-items-start gap-3 p-3 border rounded-3 bg-light">
-            <div class="flex-shrink-0">
-              <i class="bi bi-dash-circle-fill cb-text-expense" style="font-size: 1.5rem;"></i>
-            </div>
-            <div>
-              <h4 class="h6 mb-1">Начните отслеживать расходы</h4>
-              <p class="small text-muted mb-2">Добавьте первые расходы, чтобы контролировать бюджет</p>
-              <button class="btn btn-cb-expense btn-cb-sm" data-bs-toggle="modal" data-bs-target="#expenseModal">
-                <i class="bi bi-plus-lg"></i> Добавить расход
-              </button>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-        
-        {% if has_income and has_recent_expenses %}
-        <div class="col-md-6">
-          <div class="d-flex align-items-start gap-3 p-3 border rounded-3 bg-light">
-            <div class="flex-shrink-0">
-              <i class="bi bi-bullseye cb-text-goal" style="font-size: 1.5rem;"></i>
-            </div>
-            <div>
-              <h4 class="h6 mb-1">Поставьте цели накоплений</h4>
-              <p class="small text-muted mb-2">Создайте цели, чтобы мотивировать себя откладывать деньги</p>
-              <a href="{{ url_for('goals') }}" class="btn btn-cb-goal btn-cb-sm">
-                <i class="bi bi-target"></i> Создать цели
-              </a>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  {% endif %}
 </div>
 {% else %}
 <!-- Пустое состояние -->

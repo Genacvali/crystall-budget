@@ -14,7 +14,7 @@
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h4 m-0 page-title"><i class="bi bi-cash-coin text-success" aria-hidden="true"></i><span>Доходы и источники</span></h1>
+  <h1 class="zen-title"><i class="bi bi-cash-coin" aria-hidden="true"></i><span>Доходы</span></h1>
 </div>
 
 <!-- Navigation Tabs -->
@@ -37,7 +37,7 @@
 
     <!-- Форма добавления дохода -->
     <form method="POST" action="{{ url_for('income_add') }}" class="mb-3" id="add-income-form" novalidate>
-      <div class="card card-body card-modern">
+      <div class="zen-card zen-card-income">
         <div class="row g-3 align-items-end">
           <div class="col-6 col-md-3">
             <label for="date" class="form-label">Дата</label>
@@ -67,7 +67,7 @@
             </select>
           </div>
           <div class="col-12 col-md-2 d-grid btn-col">
-            <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-1"></i> Добавить доход</button>
+            <button type="submit" class="zen-btn zen-btn-income"><i class="bi bi-check-lg me-1"></i> Добавить доход</button>
           </div>
         </div>
       </div>
@@ -76,8 +76,7 @@
     <!-- Мобильные карточки -->
     <div class="d-block d-md-none">
       {% for income in incomes %}
-      <div class="card card-modern mb-2">
-        <div class="card-body">
+      <div class="zen-card mb-2">
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
               <div class="income-amount">{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
@@ -91,8 +90,8 @@
             {% endif %}
           </div>
           <div class="d-flex gap-2 mt-2">
-            <a href="{{ url_for('edit_income', income_id=income.id) }}" class="btn btn-outline-primary flex-fill"><i class="bi bi-pencil"></i> Изменить</a>
-            <button type="button" class="btn btn-outline-danger flex-fill btn-delete-income" data-action="{{ url_for('delete_income', income_id=income.id) }}" data-date="{{ income.date|format_date_with_day }}" data-amount="{{ income.amount|format_amount }}"><i class="bi bi-trash"></i> Удалить</button>
+            <a href="{{ url_for('edit_income', income_id=income.id) }}" class="zen-btn zen-btn-primary flex-fill"><i class="bi bi-pencil"></i> Изменить</a>
+            <button type="button" class="zen-btn zen-btn-danger flex-fill btn-delete-income" data-action="{{ url_for('delete_income', income_id=income.id) }}" data-date="{{ income.date|format_date_with_day }}" data-amount="{{ income.amount|format_amount }}"><i class="bi bi-trash"></i> Удалить</button>
           </div>
         </div>
       </div>
@@ -101,7 +100,7 @@
 
     <!-- Табличный вид для десктопа -->
     <div class="table-responsive d-none d-md-block">
-      <table class="table table-striped align-middle">
+      <table class="zen-table">
         <thead class="table-light">
           <tr>
             <th>Дата</th>
@@ -122,8 +121,8 @@
               {% else %}—{% endif %}
             </td>
             <td class="text-end">
-              <a href="{{ url_for('edit_income', income_id=income.id) }}" class="btn btn-sm btn-outline-primary me-1"><i class="bi bi-pencil"></i> Изменить</a>
-              <button type="button" class="btn btn-sm btn-outline-danger btn-delete-income" data-action="{{ url_for('delete_income', income_id=income.id) }}" data-date="{{ income.date|format_date_with_day }}" data-amount="{{ income.amount|format_amount }}"><i class="bi bi-trash"></i> Удалить</button>
+              <a href="{{ url_for('edit_income', income_id=income.id) }}" class="zen-btn zen-btn-sm zen-btn-primary me-1"><i class="bi bi-pencil"></i> Изменить</a>
+              <button type="button" class="zen-btn zen-btn-sm zen-btn-danger btn-delete-income" data-action="{{ url_for('delete_income', income_id=income.id) }}" data-date="{{ income.date|format_date_with_day }}" data-amount="{{ income.amount|format_amount }}"><i class="bi bi-trash"></i> Удалить</button>
             </td>
           </tr>
           {% endfor %}
@@ -132,16 +131,18 @@
     </div>
 
     {% if not incomes %}
-    <div class="text-center py-5">
-      <p class="text-muted mb-3">Доходов пока нет</p>
-      <button class="btn btn-primary" onclick="document.getElementById('date')?.focus()"><i class="bi bi-plus-lg me-1"></i> Добавить первый доход</button>
+    <div class="zen-empty-state">
+      <div class="mb-4"><i class="bi bi-cash-coin display-1 text-muted opacity-50" aria-hidden="true"></i></div>
+      <h2 class="h5 text-muted mb-3">Доходов пока нет</h2>
+      <p class="text-muted mb-4">Добавьте свой первый доход</p>
+      <button class="zen-btn zen-btn-income zen-btn-lg" onclick="document.getElementById('date')?.focus()"><i class="bi bi-plus-lg me-1"></i> Добавить первый доход</button>
     </div>
     {% endif %}
   </div>
 
   <!-- Источники -->
   <div class="tab-pane fade" id="sources-panel" role="tabpanel">
-    <div class="card card-body card-modern mb-3">
+    <div class="zen-card zen-card-income mb-3">
       <form method="POST" action="{{ url_for('sources_add') }}" id="add-source-form" novalidate>
         <div class="row g-3 align-items-end">
           <div class="col-md-6">
@@ -157,14 +158,14 @@
             </select>
           </div>
           <div class="col-md-2 d-grid btn-col">
-            <button class="btn btn-success"><i class="bi bi-plus-lg me-1"></i> Добавить</button>
+            <button class="zen-btn zen-btn-income"><i class="bi bi-plus-lg me-1"></i> Добавить</button>
           </div>
         </div>
       </form>
     </div>
 
     <div class="table-responsive">
-      <table class="table align-middle">
+      <table class="zen-table">
         <thead class="table-light">
           <tr>
             <th>Название</th>
@@ -181,9 +182,9 @@
               <form class="d-inline" method="POST" action="{{ url_for('sources_update', source_id=s.id) }}">
                 <input type="hidden" name="name" value="{{ s.name }}">
                 <input type="hidden" name="is_default" value="{{ 1 if not s.is_default else 0 }}">
-                <button class="btn btn-sm btn-outline-primary">{{ 'Сделать дефолтным' if not s.is_default else 'Убрать дефолт' }}</button>
+                <button class="zen-btn zen-btn-sm zen-btn-primary">{{ 'Сделать дефолтным' if not s.is_default else 'Убрать дефолт' }}</button>
               </form>
-              <button class="btn btn-sm btn-outline-danger btn-delete-source" data-action="{{ url_for('sources_delete', source_id=s.id) }}" data-name="{{ s.name }}">
+              <button class="zen-btn zen-btn-sm zen-btn-danger btn-delete-source" data-action="{{ url_for('sources_delete', source_id=s.id) }}" data-name="{{ s.name }}">
                 Удалить
               </button>
             </td>
@@ -194,9 +195,11 @@
     </div>
 
     {% if not income_sources %}
-    <div class="text-center py-5">
-      <p class="text-muted mb-3">Источников дохода пока нет</p>
-      <button class="btn btn-primary" onclick="document.querySelector('input[name=\"name\"]')?.focus()"><i class="bi bi-plus-lg me-1"></i> Добавить первый источник</button>
+    <div class="zen-empty-state">
+      <div class="mb-4"><i class="bi bi-piggy-bank display-1 text-muted opacity-50" aria-hidden="true"></i></div>
+      <h2 class="h5 text-muted mb-3">Источников дохода пока нет</h2>
+      <p class="text-muted mb-4">Создайте свой первый источник дохода</p>
+      <button class="zen-btn zen-btn-income zen-btn-lg" onclick="document.querySelector('input[name=\"name\"]')?.focus()"><i class="bi bi-plus-lg me-1"></i> Добавить первый источник</button>
     </div>
     {% endif %}
   </div>
@@ -217,8 +220,8 @@
           </p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Удалить</button>
+          <button type="button" class="zen-btn zen-btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="zen-btn zen-btn-danger"><i class="bi bi-trash"></i> Удалить</button>
         </div>
       </form>
     </div>
@@ -240,8 +243,8 @@
           </p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Удалить</button>
+          <button type="button" class="zen-btn zen-btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="zen-btn zen-btn-danger"><i class="bi bi-trash"></i> Удалить</button>
         </div>
       </form>
     </div>

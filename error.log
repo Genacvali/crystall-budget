@@ -1001,3 +1001,122 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 [2025-09-08 19:30:27,120] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
 [2025-09-08 19:30:28,419] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
 [2025-09-08 19:30:29,676] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:30:52 +0300] [2462] [INFO] Worker exiting (pid: 2462)
+[2025-09-08 19:30:52 +0300] [2461] [INFO] Worker exiting (pid: 2461)
+[2025-09-08 19:30:52 +0300] [2460] [INFO] Handling signal: term
+[2025-09-08 19:30:52 +0300] [2460] [ERROR] Worker (pid:2461) was sent SIGTERM!
+[2025-09-08 19:30:52 +0300] [2460] [ERROR] Worker (pid:2462) was sent SIGTERM!
+[2025-09-08 19:30:52 +0300] [2460] [INFO] Shutting down: Master
+[2025-09-08 19:30:52 +0300] [3060] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 19:30:52 +0300] [3060] [INFO] Listening at: http://127.0.0.1:5000 (3060)
+[2025-09-08 19:30:52 +0300] [3060] [INFO] Using worker: sync
+[2025-09-08 19:30:52 +0300] [3066] [INFO] Booting worker with pid: 3066
+[2025-09-08 19:30:52 +0300] [3067] [INFO] Booting worker with pid: 3067
+[2025-09-08 19:31:07,634] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:09,066] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:31:10,296] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:31:11,546] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:31:12,815] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:31:13,020] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:14,046] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:31:15,279] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:31:16,185] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:16,553] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:31:17,810] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:31:19,075] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:31:20,131] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:20,337] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:31:21,583] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:31:22,824] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:31:22,870] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:23,946] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:24,110] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:31:24,640] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:26,391] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:31:26,664] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:27,647] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:31:28,946] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:31:30,203] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:31:31,451] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:31:31,806] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:32,699] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:31:33,965] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:31:35,225] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:31:35,468] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:31:36,471] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:31:36,727] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:31:37,748] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:31:37,980] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:31:39,027] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:31:39,029] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:39,033] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:39,034] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 19:31:39,238] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:31:40,508] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:31:41,754] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:31:43,035] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:31:44,291] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:31:45,557] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:31:46,819] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:31:48,086] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:31:49,343] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:31:50,605] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:31:51,870] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:31:53,136] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:31:54,394] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:31:55,506] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:31:55,816] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:31:56,763] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:31:57,070] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:31:58,026] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:31:58,338] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:31:59,283] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:31:59,594] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:32:00,539] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:32:00,823] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:32:01,802] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:32:02,085] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:32:03,067] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:32:03,339] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:32:04,327] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:32:04,602] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:32:05,577] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:32:05,871] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:32:06,856] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:32:07,111] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:32:08,106] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:32:08,370] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:32:09,357] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:32:09,639] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:32:10,610] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:32:10,913] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:32:11,859] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:32:13,108] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:32:13,170] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:32:14,356] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:32:14,373] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:32:15,618] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:32:15,623] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:32:16,876] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:32:16,884] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:32:18,142] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:32:18,163] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:32:19,395] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:32:19,399] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:32:20,648] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:32:20,654] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:32:21,894] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:32:21,911] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:32:23,135] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:32:23,146] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:32:24,392] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:32:24,406] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:32:25,651] ERROR in app: Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
+[2025-09-08 19:32:25,661] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
+[2025-09-08 19:32:26,916] ERROR in app: Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
+[2025-09-08 19:32:28,179] ERROR in app: Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
+[2025-09-08 19:32:29,440] ERROR in app: Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
+[2025-09-08 19:32:30,710] ERROR in app: Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
+[2025-09-08 19:32:31,978] ERROR in app: Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
+[2025-09-08 19:32:33,209] ERROR in app: Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
+[2025-09-08 19:32:34,476] ERROR in app: Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB

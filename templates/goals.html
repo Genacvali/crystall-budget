@@ -23,8 +23,8 @@
 
       <!-- Header -->
       <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-        <h1 class="h4 m-0"><i class="bi bi-bullseye text-primary me-2" aria-hidden="true"></i> Цели накоплений</h1>
-        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+        <h1 class="zen-title"><i class="bi bi-bullseye me-2" aria-hidden="true"></i> Цели</h1>
+        <button class="zen-btn zen-btn-goal zen-btn-sm" data-bs-toggle="modal" data-bs-target="#addGoalModal">
           <i class="bi bi-plus-lg"></i> Новая цель
         </button>
       </div>
@@ -50,8 +50,7 @@
         {% set danger = progress_percent >= 100 %}
         {% set due = goal.target_date %}
         <div class="col-12 col-md-6 col-lg-4">
-          <div class="card goal-card h-100">
-            <div class="card-body d-flex flex-column">
+          <div class="zen-card goal-card h-100">
               <div class="d-flex align-items-start gap-2 mb-2">
                 <h2 class="h6 goal-title mb-0">{{ goal.name }}</h2>
                 <div class="ms-auto d-flex align-items-center gap-2">
@@ -61,7 +60,7 @@
                     <span class="badge bg-success">Цель достигнута</span>
                   {% endif %}
                   <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown" aria-label="Действия по цели">
+                    <button class="zen-btn zen-btn-sm zen-btn-secondary" data-bs-toggle="dropdown" aria-label="Действия по цели">
                       <i class="bi bi-three-dots"></i>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -123,16 +122,16 @@
                   </div>
                   <div class="col-5 d-grid">
                     <label class="form-label d-none d-md-block small" aria-hidden="true">&nbsp;</label>
-                    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-plus-lg"></i> Добавить</button>
+                    <button type="submit" class="zen-btn zen-btn-goal"><i class="bi bi-plus-lg"></i> Добавить</button>
                   </div>
                 </div>
                 <div class="quick-add mt-2 d-flex gap-2 flex-wrap">
                   {% set quicks = [1000, 5000, 10000] %}
                   {% for q in quicks %}
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-quick-amount="{{ q }}">+{{ q|format_amount }}</button>
+                    <button type="button" class="zen-btn zen-btn-sm zen-btn-secondary" data-quick-amount="{{ q }}">+{{ q|format_amount }}</button>
                   {% endfor %}
                   {% if goal.target_amount %}
-                    <button type="button" class="btn btn-sm btn-outline-secondary" data-quick-percent="10">+10%</button>
+                    <button type="button" class="zen-btn zen-btn-sm zen-btn-secondary" data-quick-percent="10">+10%</button>
                   {% endif %}
                 </div>
               </form>
@@ -157,8 +156,8 @@
                   <div class="mb-3"><label class="form-label">Описание</label><textarea name="description" class="form-control" rows="3" maxlength="500">{{ goal.description or '' }}</textarea></div>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-                  <button type="submit" class="btn btn-primary">Сохранить</button>
+                  <button type="button" class="zen-btn zen-btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                  <button type="submit" class="zen-btn zen-btn-primary">Сохранить</button>
                 </div>
               </form>
             </div>
@@ -169,11 +168,11 @@
 
       {% else %}
       <!-- Empty state -->
-      <div class="text-center py-5">
-        <div class="mb-4"><i class="bi bi-bullseye display-1 text-muted" aria-hidden="true"></i></div>
-        <h2 class="h5 text-muted">Пока нет целей накоплений</h2>
+      <div class="zen-empty-state">
+        <div class="mb-4"><i class="bi bi-bullseye display-1 text-muted opacity-50" aria-hidden="true"></i></div>
+        <h2 class="h5 text-muted mb-3">Пока нет целей накоплений</h2>
         <p class="text-muted mb-4">Создайте свою первую цель и начните копить на мечту!</p>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGoalModal"><i class="bi bi-plus-lg"></i> Создать цель</button>
+        <button class="zen-btn zen-btn-goal zen-btn-lg" data-bs-toggle="modal" data-bs-target="#addGoalModal"><i class="bi bi-plus-lg"></i> Создать цель</button>
       </div>
       {% endif %}
 
@@ -214,8 +213,8 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary" id="createGoalBtn">Создать цель</button>
+          <button type="button" class="zen-btn zen-btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="zen-btn zen-btn-goal" id="createGoalBtn">Создать цель</button>
         </div>
       </form>
     </div>
@@ -237,8 +236,8 @@
           </p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Удалить</button>
+          <button type="button" class="zen-btn zen-btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="zen-btn zen-btn-danger"><i class="bi bi-trash"></i> Удалить</button>
         </div>
       </form>
     </div>

@@ -15,16 +15,16 @@
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-  <h1 class="h4 m-0 d-flex align-items-center gap-2 section-title">
+  <h1 class="zen-title">
     <i class="bi bi-tags"></i>
     Категории
   </h1>
   <div class="btn-group" role="group" aria-label="Добавить категории">
-    <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm" aria-controls="addExpenseCategoryForm" aria-expanded="false">
+    <button class="zen-btn zen-btn-expense zen-btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm" aria-controls="addExpenseCategoryForm" aria-expanded="false">
       <i class="bi bi-dash-circle me-1"></i>
       <span class="d-none d-md-inline">Добавить категорию </span>Трат
     </button>
-    <button class="btn btn-success btn-sm" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm" aria-controls="addIncomeCategoryForm" aria-expanded="false">
+    <button class="zen-btn zen-btn-income zen-btn-sm" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm" aria-controls="addIncomeCategoryForm" aria-expanded="false">
       <i class="bi bi-plus-circle me-1"></i>
       <span class="d-none d-md-inline">Добавить категорию </span>Доходов
     </button>
@@ -33,7 +33,7 @@
 
 <!-- Форма для категорий трат -->
 <div class="collapse mb-3" id="addExpenseCategoryForm">
-  <div class="card card-body border-primary">
+  <div class="zen-card zen-card-expense">
     <h2 class="h5 text-primary mb-3">
       <i class="bi bi-dash-circle me-2"></i>Новая категория трат
     </h2>
@@ -70,7 +70,7 @@
 
         <div class="col-12 col-lg-auto d-grid btn-col">
           <label class="form-label d-none d-lg-block" aria-hidden="true">&nbsp;</label>
-          <button class="btn btn-primary">
+          <button class="zen-btn zen-btn-expense">
             <i class="bi bi-check-lg me-1"></i> Добавить
           </button>
         </div>
@@ -81,7 +81,7 @@
 
 <!-- Форма для категорий доходов -->
 <div class="collapse mb-3" id="addIncomeCategoryForm">
-  <div class="card card-body border-success">
+  <div class="zen-card zen-card-income">
     <h2 class="h5 text-success mb-3">
       <i class="bi bi-plus-circle me-2"></i>Новая категория доходов
     </h2>
@@ -111,7 +111,7 @@
 
         <div class="col-12 col-lg-auto d-grid btn-col">
           <label class="form-label d-none d-lg-block" aria-hidden="true">&nbsp;</label>
-          <button class="btn btn-success">
+          <button class="zen-btn zen-btn-income">
             <i class="bi bi-check-lg me-1"></i> Добавить
           </button>
         </div>
@@ -132,7 +132,7 @@
 <div class="mb-4">
   <h2 class="h6 text-primary mb-3 d-flex align-items-center gap-2"><i class="bi bi-dash-circle"></i> Категории трат ({{ expense_categories|length }})</h2>
   <div class="table-responsive">
-    <table class="table align-middle">
+    <table class="zen-table">
       <thead class="table-light">
         <tr>
           <th scope="col">Название</th>
@@ -174,11 +174,11 @@
             {% endif %}
           </td>
           <td class="text-end">
-            <div class="btn-group btn-group-sm" role="group" aria-label="Действия">
-              <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}">
+            <div class="zen-btn-group" role="group" aria-label="Действия">
+              <button class="zen-btn zen-btn-sm zen-btn-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}">
                 <i class="bi bi-pencil"></i> Редактировать
               </button>
-              <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-action="{{ url_for('categories_delete', cat_id=cat.id) }}" data-name="{{ cat.name }}">
+              <button class="zen-btn zen-btn-sm zen-btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCategoryModal" data-action="{{ url_for('categories_delete', cat_id=cat.id) }}" data-name="{{ cat.name }}">
                 <i class="bi bi-trash3"></i> Удалить
               </button>
             </div>
@@ -196,7 +196,7 @@
 <div class="mb-4">
   <h2 class="h6 text-success mb-3 d-flex align-items-center gap-2"><i class="bi bi-plus-circle"></i> Категории доходов ({{ income_categories|length }})</h2>
   <div class="table-responsive">
-    <table class="table align-middle">
+    <table class="zen-table">
       <thead class="table-light">
         <tr>
           <th scope="col">Название</th>
@@ -242,7 +242,7 @@
 {% endif %}
 
 {% if not expense_categories and not income_categories %}
-<div class="text-center py-5">
+<div class="zen-empty-state">
   <div class="mb-4"><i class="bi bi-folder2-open display-1 text-muted opacity-50" aria-hidden="true"></i></div>
   <h2 class="h5 text-muted mb-3">Пока нет категорий</h2>
   <div class="mb-4">
@@ -262,9 +262,9 @@
       </div>
     </div>
   </div>
-  <div class="btn-group" role="group" aria-label="Быстрое создание категорий">
-    <button class="btn btn-primary btn-lg" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm"><i class="bi bi-dash-circle me-2"></i> Создать категорию трат</button>
-    <button class="btn btn-success btn-lg" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm"><i class="bi bi-plus-circle me-2"></i> Создать категорию доходов</button>
+  <div class="zen-btn-group" role="group" aria-label="Быстрое создание категорий">
+    <button class="zen-btn zen-btn-expense zen-btn-lg" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm"><i class="bi bi-dash-circle me-2"></i> Создать категорию трат</button>
+    <button class="zen-btn zen-btn-income zen-btn-lg" data-bs-toggle="collapse" data-bs-target="#addIncomeCategoryForm"><i class="bi bi-plus-circle me-2"></i> Создать категорию доходов</button>
   </div>
   <div class="mt-3"><small class="text-muted">💡 Совет: начните с 3–5 основных категорий трат</small></div>
 </div>
@@ -309,8 +309,8 @@
           {% endif %}
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary">Сохранить</button>
+          <button type="button" class="zen-btn zen-btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="zen-btn zen-btn-primary">Сохранить</button>
         </div>
       </form>
     </div>
@@ -333,8 +333,8 @@
           </p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-danger">Удалить</button>
+          <button type="button" class="zen-btn zen-btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="zen-btn zen-btn-danger">Удалить</button>
         </div>
       </form>
     </div>

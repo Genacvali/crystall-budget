@@ -3,10 +3,10 @@
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-  <h1 class="cb-page-title d-flex align-items-center gap-2"><i class="bi bi-piggy-bank cb-text-income"></i>Источники доходов</h1>
+  <h1 class="zen-title"><i class="bi bi-piggy-bank"></i>Источники</h1>
 </div>
 
-<div class="card card-body mb-3">
+<div class="zen-card zen-card-income mb-3">
   <form method="POST" action="{{ url_for('sources_add') }}">
     <div class="row g-3">
       <div class="col-md-6">
@@ -22,7 +22,7 @@
       </div>
       <div class="col-md-2 d-grid">
         <label class="form-label d-none d-md-block">&nbsp;</label>
-        <button class="btn btn-cb-income">
+        <button class="zen-btn zen-btn-income">
           <i class="bi bi-plus-circle-fill me-2"></i> Добавить
         </button>
       </div>
@@ -31,7 +31,7 @@
 </div>
 
 <div class="table-responsive">
-  <table class="table align-middle">
+  <table class="zen-table">
     <thead class="table-light">
       <tr>
         <th>Название</th>
@@ -48,12 +48,12 @@
           <form class="d-inline" method="POST" action="{{ url_for('sources_update', source_id=s.id) }}">
             <input type="hidden" name="name" value="{{ s.name }}">
             <input type="hidden" name="is_default" value="{{ 1 if not s.is_default else 0 }}">
-            <button class="btn btn-sm btn-outline-primary">
+            <button class="zen-btn zen-btn-sm zen-btn-primary">
               {{ 'Сделать дефолтным' if not s.is_default else 'Убрать дефолт' }}
             </button>
           </form>
           <form class="d-inline" method="POST" action="{{ url_for('sources_delete', source_id=s.id) }}">
-            <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить источник «{{ s.name }}»?\n\nВнимание: Удаление невозможно, если с источником связаны записи доходов или привязки к категориям.')">
+            <button class="zen-btn zen-btn-sm zen-btn-danger" onclick="return confirm('Удалить источник «{{ s.name }}»?\n\nВнимание: Удаление невозможно, если с источником связаны записи доходов или привязки к категориям.')">
               Удалить
             </button>
           </form>
@@ -65,7 +65,7 @@
 </div>
 
 {% if not sources %}
-<div class="text-center py-5">
+<div class="zen-empty-state">
   <div class="mb-4">
     <i class="bi bi-piggy-bank display-1 text-muted opacity-50"></i>
   </div>
@@ -89,7 +89,7 @@
       </div>
     </div>
   </div>
-  <button class="btn btn-cb-income btn-cb-lg cb-fade-in" onclick="document.querySelector('input[name=name]')?.focus()">
+  <button class="zen-btn zen-btn-income zen-btn-lg" onclick="document.querySelector('input[name=name]')?.focus()">
     <i class="bi bi-plus-circle-fill me-2"></i> Создать первый источник
   </button>
   <div class="mt-3">

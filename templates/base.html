@@ -27,6 +27,7 @@
   <!-- App styles -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/clean-theme.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='css/improved-visual-hierarchy.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/zen-style.css') }}" />
 
   <!-- Instant theme apply (no flash) -->
   <script>
@@ -99,7 +100,7 @@
   <a class="skip-link" href="#main">Перейти к основному содержимому</a>
 
   {% if session.user_id %}
-  <nav class="navbar navbar-expand-lg navbar-light navbar-modern" aria-label="Главная навигация">
+  <nav class="navbar navbar-expand-lg navbar-light navbar-zen" aria-label="Главная навигация">
     <div class="container-fluid">
       <a class="navbar-brand-modern" href="{{ url_for('dashboard') }}" aria-label="CrystalBudget — на дашборд">
         <svg class="ff-crystal" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
@@ -121,12 +122,12 @@
 
       <div class="d-none d-lg-flex collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><i class="bi bi-speedometer2"></i> Дашборд</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}"><i class="bi bi-dash-circle-fill cb-text-expense"></i> Расходы</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}"><i class="bi bi-tags-fill"></i> Категории</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}"><i class="bi bi-plus-circle-fill cb-text-income"></i> Доходы</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'goals' %}active{% endif %}" href="{{ url_for('goals') }}"><i class="bi bi-bullseye cb-text-goal"></i> Цели</a></li>
-          <li class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['shared_budgets','shared_budget_detail'] %}active{% endif %}" href="{{ url_for('shared_budgets') }}"><i class="bi bi-people-fill"></i> Семья</a></li>
+          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}"><i class="bi bi-house-door-fill"></i> Главная</a></li>
+          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}"><i class="bi bi-arrow-down-circle zen-text-expense"></i> Расходы</a></li>
+          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}"><i class="bi bi-grid-3x3-gap-fill"></i> Категории</a></li>
+          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint in ['income_page','edit_income','sources_page'] %}active{% endif %}" href="{{ url_for('income_page') }}"><i class="bi bi-arrow-up-circle zen-text-income"></i> Доходы</a></li>
+          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint == 'goals' %}active{% endif %}" href="{{ url_for('goals') }}"><i class="bi bi-target zen-text-goal"></i> Цели</a></li>
+          <li class="nav-item"><a class="nav-link-zen {% if request.endpoint in ['shared_budgets','shared_budget_detail'] %}active{% endif %}" href="{{ url_for('shared_budgets') }}"><i class="bi bi-people-fill"></i> Семья</a></li>
         </ul>
 
         <ul class="navbar-nav align-items-center">
