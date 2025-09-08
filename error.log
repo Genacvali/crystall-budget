@@ -1,0 +1,444 @@
+[2025-09-08 16:27:40 +0300] [26598] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:27:40 +0300] [26598] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:40 +0300] [26598] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:41 +0300] [26598] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:41 +0300] [26598] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:42 +0300] [26598] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:42 +0300] [26598] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:43 +0300] [26598] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:43 +0300] [26598] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:44 +0300] [26598] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:44 +0300] [26598] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:45 +0300] [26598] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:27:55 +0300] [26757] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:27:55 +0300] [26757] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:55 +0300] [26757] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:56 +0300] [26757] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:56 +0300] [26757] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:57 +0300] [26757] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:57 +0300] [26757] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:58 +0300] [26757] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:58 +0300] [26757] [ERROR] Retrying in 1 second.
+[2025-09-08 16:27:59 +0300] [26757] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:27:59 +0300] [26757] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:00 +0300] [26757] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:28:10 +0300] [26854] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:28:10 +0300] [26854] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:10 +0300] [26854] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:11 +0300] [26854] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:11 +0300] [26854] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:12 +0300] [26854] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:12 +0300] [26854] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:13 +0300] [26854] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:13 +0300] [26854] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:14 +0300] [26854] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:14 +0300] [26854] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:15 +0300] [26854] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:28:26 +0300] [27015] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:28:26 +0300] [27015] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:26 +0300] [27015] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:27 +0300] [27015] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:27 +0300] [27015] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:28 +0300] [27015] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:28 +0300] [27015] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:29 +0300] [27015] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:29 +0300] [27015] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:30 +0300] [27015] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:30 +0300] [27015] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:31 +0300] [27015] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:28:41 +0300] [27188] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:28:41 +0300] [27188] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:41 +0300] [27188] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:42 +0300] [27188] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:42 +0300] [27188] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:43 +0300] [27188] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:43 +0300] [27188] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:44 +0300] [27188] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:44 +0300] [27188] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:45 +0300] [27188] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:45 +0300] [27188] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:46 +0300] [27188] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:28:46 +0300] [27243] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:28:46 +0300] [27243] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:46 +0300] [27243] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:47 +0300] [27243] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:47 +0300] [27243] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:48 +0300] [27243] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:48 +0300] [27243] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:49 +0300] [27243] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:49 +0300] [27243] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:50 +0300] [27243] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:28:50 +0300] [27243] [ERROR] Retrying in 1 second.
+[2025-09-08 16:28:51 +0300] [27243] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:29:01 +0300] [27377] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:29:01 +0300] [27377] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:01 +0300] [27377] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:02 +0300] [27377] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:02 +0300] [27377] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:03 +0300] [27377] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:03 +0300] [27377] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:04 +0300] [27377] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:04 +0300] [27377] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:05 +0300] [27377] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:05 +0300] [27377] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:06 +0300] [27377] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:29:12 +0300] [27516] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:29:12 +0300] [27516] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:12 +0300] [27516] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:13 +0300] [27516] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:13 +0300] [27516] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:14 +0300] [27516] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:14 +0300] [27516] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:15 +0300] [27516] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:15 +0300] [27516] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:16 +0300] [27516] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:16 +0300] [27516] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:17 +0300] [27570] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:29:17 +0300] [27570] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:17 +0300] [27570] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:17 +0300] [27516] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:29:18 +0300] [27570] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:18 +0300] [27570] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:19 +0300] [27570] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:19 +0300] [27570] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:20 +0300] [27570] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:20 +0300] [27570] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:21 +0300] [27570] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:21 +0300] [27570] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:22 +0300] [27570] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:29:32 +0300] [27715] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:29:32 +0300] [27715] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:32 +0300] [27715] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:33 +0300] [27715] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:33 +0300] [27715] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:34 +0300] [27715] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:34 +0300] [27715] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:35 +0300] [27715] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:35 +0300] [27715] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:36 +0300] [27715] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:36 +0300] [27715] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:37 +0300] [27715] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:29:47 +0300] [27838] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:29:47 +0300] [27838] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:47 +0300] [27838] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:48 +0300] [27838] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:48 +0300] [27838] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:49 +0300] [27838] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:49 +0300] [27838] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:50 +0300] [27838] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:50 +0300] [27838] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:51 +0300] [27838] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:51 +0300] [27838] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:52 +0300] [27838] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:29:53 +0300] [27888] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:29:53 +0300] [27888] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:53 +0300] [27888] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:54 +0300] [27888] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:54 +0300] [27888] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:55 +0300] [27888] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:55 +0300] [27888] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:56 +0300] [27888] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:56 +0300] [27888] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:57 +0300] [27888] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:29:57 +0300] [27888] [ERROR] Retrying in 1 second.
+[2025-09-08 16:29:58 +0300] [27888] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:30:02 +0300] [27963] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:30:02 +0300] [27963] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:02 +0300] [27963] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:03 +0300] [27963] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:03 +0300] [27963] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:04 +0300] [27963] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:04 +0300] [27963] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:05 +0300] [27963] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:05 +0300] [27963] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:06 +0300] [27963] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:06 +0300] [27963] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:07 +0300] [27963] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:30:17 +0300] [28095] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:30:17 +0300] [28095] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:17 +0300] [28095] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:18 +0300] [28095] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:18 +0300] [28095] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:19 +0300] [28095] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:19 +0300] [28095] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:20 +0300] [28095] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:20 +0300] [28095] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:21 +0300] [28095] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:21 +0300] [28095] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:22 +0300] [28095] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:30:33 +0300] [28183] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:30:33 +0300] [28183] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:33 +0300] [28183] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:34 +0300] [28183] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:34 +0300] [28183] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:35 +0300] [28183] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:35 +0300] [28183] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:36 +0300] [28183] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:36 +0300] [28183] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:37 +0300] [28183] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:37 +0300] [28183] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:38 +0300] [28183] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:30:48 +0300] [28358] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:30:48 +0300] [28358] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:48 +0300] [28358] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:49 +0300] [28358] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:49 +0300] [28358] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:50 +0300] [28358] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:50 +0300] [28358] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:51 +0300] [28358] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:51 +0300] [28358] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:52 +0300] [28358] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:30:52 +0300] [28358] [ERROR] Retrying in 1 second.
+[2025-09-08 16:30:53 +0300] [28358] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:31:03 +0300] [28453] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:31:03 +0300] [28453] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:03 +0300] [28453] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:04 +0300] [28453] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:04 +0300] [28453] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:05 +0300] [28453] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:05 +0300] [28453] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:06 +0300] [28453] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:06 +0300] [28453] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:07 +0300] [28453] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:07 +0300] [28453] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:08 +0300] [28453] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:31:18 +0300] [28582] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:31:18 +0300] [28582] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:18 +0300] [28582] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:19 +0300] [28582] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:19 +0300] [28582] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:20 +0300] [28582] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:20 +0300] [28582] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:21 +0300] [28582] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:21 +0300] [28582] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:22 +0300] [28582] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:22 +0300] [28582] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:23 +0300] [28582] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:31:34 +0300] [28685] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:31:34 +0300] [28685] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:34 +0300] [28685] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:35 +0300] [28685] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:35 +0300] [28685] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:36 +0300] [28685] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:36 +0300] [28685] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:37 +0300] [28685] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:37 +0300] [28685] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:38 +0300] [28685] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:38 +0300] [28685] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:39 +0300] [28685] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:31:39 +0300] [28710] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:31:39 +0300] [28710] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:39 +0300] [28710] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:40 +0300] [28710] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:40 +0300] [28710] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:41 +0300] [28710] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:41 +0300] [28710] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:42 +0300] [28710] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:42 +0300] [28710] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:43 +0300] [28710] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:43 +0300] [28710] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:44 +0300] [28710] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:31:54 +0300] [28840] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:31:54 +0300] [28840] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:54 +0300] [28840] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:55 +0300] [28840] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:55 +0300] [28840] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:56 +0300] [28840] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:56 +0300] [28840] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:57 +0300] [28840] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:57 +0300] [28840] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:58 +0300] [28840] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:31:58 +0300] [28840] [ERROR] Retrying in 1 second.
+[2025-09-08 16:31:59 +0300] [28840] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:32:09 +0300] [28946] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:32:09 +0300] [28946] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:09 +0300] [28946] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:10 +0300] [28946] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:10 +0300] [28946] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:11 +0300] [28946] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:11 +0300] [28946] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:12 +0300] [28946] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:12 +0300] [28946] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:13 +0300] [28946] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:13 +0300] [28946] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:14 +0300] [28946] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:32:25 +0300] [29018] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:32:25 +0300] [29018] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:25 +0300] [29018] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:26 +0300] [29018] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:26 +0300] [29018] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:27 +0300] [29018] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:27 +0300] [29018] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:28 +0300] [29018] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:28 +0300] [29018] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:29 +0300] [29018] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:29 +0300] [29018] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:30 +0300] [29018] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:32:40 +0300] [29111] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:32:40 +0300] [29111] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:40 +0300] [29111] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:41 +0300] [29111] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:41 +0300] [29111] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:42 +0300] [29111] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:42 +0300] [29111] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:43 +0300] [29111] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:43 +0300] [29111] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:44 +0300] [29111] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:44 +0300] [29111] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:45 +0300] [29111] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:32:55 +0300] [29226] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:32:55 +0300] [29226] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:55 +0300] [29226] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:56 +0300] [29226] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:56 +0300] [29226] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:57 +0300] [29226] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:57 +0300] [29226] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:58 +0300] [29226] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:58 +0300] [29226] [ERROR] Retrying in 1 second.
+[2025-09-08 16:32:59 +0300] [29226] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:32:59 +0300] [29226] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:00 +0300] [29226] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:33:10 +0300] [29380] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:33:10 +0300] [29380] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:10 +0300] [29380] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:11 +0300] [29380] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:11 +0300] [29380] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:12 +0300] [29380] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:12 +0300] [29380] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:13 +0300] [29380] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:13 +0300] [29380] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:14 +0300] [29380] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:14 +0300] [29380] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:15 +0300] [29380] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:33:26 +0300] [29581] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:33:26 +0300] [29581] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:26 +0300] [29581] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:27 +0300] [29581] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:27 +0300] [29581] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:28 +0300] [29581] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:28 +0300] [29581] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:29 +0300] [29581] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:29 +0300] [29581] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:30 +0300] [29581] [ERROR] Connection in use: ('127.0.0.1', 5000)
+[2025-09-08 16:33:30 +0300] [29581] [ERROR] Retrying in 1 second.
+[2025-09-08 16:33:31 +0300] [29581] [ERROR] Can't connect to ('127.0.0.1', 5000)
+[2025-09-08 16:33:41 +0300] [29740] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 16:33:41 +0300] [29740] [INFO] Listening at: http://127.0.0.1:5000 (29740)
+[2025-09-08 16:33:41 +0300] [29740] [INFO] Using worker: sync
+[2025-09-08 16:33:41 +0300] [29744] [INFO] Booting worker with pid: 29744
+[2025-09-08 16:33:41 +0300] [29748] [INFO] Booting worker with pid: 29748
+[2025-09-08 16:33:50,023] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:34:34,593] INFO in app: POST request to login from 127.0.0.1
+[2025-09-08 16:34:34,594] INFO in app: Login attempt for email: gena12m@gmail.com
+[2025-09-08 16:34:34,602] WARNING in app: Failed login attempt for email: gena12m@gmail.com
+[2025-09-08 16:34:34,906] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:34:40,371] INFO in app: POST request to login from 127.0.0.1
+[2025-09-08 16:34:40,371] INFO in app: Login attempt for email: gena12m@gmail.com
+[2025-09-08 16:34:40,372] WARNING in app: Failed login attempt for email: gena12m@gmail.com
+[2025-09-08 16:34:40,398] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:34:42,912] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 16:35:05,407] INFO in app: POST request to register from 127.0.0.1
+[2025-09-08 16:35:05,407] INFO in app: Registration attempt for email: gena12m@gmail.com, name: ГенаДемо
+[2025-09-08 16:35:05,509] INFO in app: Successful registration for user: gena12m@gmail.com (ID: 1)
+[2025-09-08 16:35:05,542] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1155, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
+    {% include 'partials/modals_dashboard.html' %}
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
+[2025-09-08 16:35:05,547] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-08 16:35:16,561] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1155, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
+    {% include 'partials/modals_dashboard.html' %}
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
+[2025-09-08 16:35:16,563] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-08 16:35:19,343] ERROR in app: Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1155, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
+    {% include 'partials/modals_dashboard.html' %}
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
+[2025-09-08 16:35:19,343] ERROR in app: 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.

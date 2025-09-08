@@ -6,12 +6,12 @@ After=network.target
 Type=exec
 User=root
 Group=root
-WorkingDirectory=/root/crystall-budget
-Environment="SECRET_KEY=your-production-secret-key-change-this"
-Environment="BUDGET_DB=/root/crystall-budget/budget.db"
-Environment="HTTPS_MODE=true"
+WorkingDirectory=/home/admin/crystall-budget
+Environment="SECRET_KEY=0xm5hy67Txo5taHWK_CuWy72wSDFkgN0f9Rc2L7c_ZhdYFMJTYu8IoXjoW6YQy0x"
+Environment="BUDGET_DB=/home/admin/crystall-budget/budget.db"
+Environment="HTTPS_MODE=false"
 Environment="LOG_LEVEL=INFO"
-ExecStart=/root/crystall-budget/.venv/bin/gunicorn \
+ExecStart=/home/admin/crystall-budget/venv/bin/gunicorn \
     --bind 127.0.0.1:5000 \
     --workers 2 \
     --timeout 120 \
@@ -19,8 +19,8 @@ ExecStart=/root/crystall-budget/.venv/bin/gunicorn \
     --max-requests 1000 \
     --max-requests-jitter 100 \
     --preload \
-    --access-logfile /var/log/crystalbudget/access.log \
-    --error-logfile /var/log/crystalbudget/error.log \
+    --access-logfile /home/admin/crystall-budget/access.log \
+    --error-logfile /home/admin/crystall-budget/error.log \
     --log-level info \
     app:app
 
@@ -31,7 +31,7 @@ RestartSec=10
 # Безопасность
 NoNewPrivileges=true
 ProtectSystem=strict
-ReadWritePaths=/root/crystall-budget /var/log/crystalbudget
+ReadWritePaths=/home/admin/crystall-budget /home/admin/crystall-budget
 PrivateTmp=true
 
 # Лимиты ресурсов

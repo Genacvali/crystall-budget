@@ -145,3 +145,202 @@
 2025-09-08 15:37:47,179 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
 2025-09-08 15:37:47,179 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "POST /set-currency HTTP/1.1" 200 -
 2025-09-08 15:37:47,189 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
+2025-09-08 16:27:40,206 INFO [app] Logging system initialized
+2025-09-08 16:27:40,207 INFO [app] Log level: INFO
+2025-09-08 16:27:40,207 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:27:55,675 INFO [app] Logging system initialized
+2025-09-08 16:27:55,676 INFO [app] Log level: INFO
+2025-09-08 16:27:55,676 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:28:10,915 INFO [app] Logging system initialized
+2025-09-08 16:28:10,915 INFO [app] Log level: INFO
+2025-09-08 16:28:10,915 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:28:26,171 INFO [app] Logging system initialized
+2025-09-08 16:28:26,171 INFO [app] Log level: INFO
+2025-09-08 16:28:26,171 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:28:41,407 INFO [app] Logging system initialized
+2025-09-08 16:28:41,407 INFO [app] Log level: INFO
+2025-09-08 16:28:41,408 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:28:46,630 INFO [app] Logging system initialized
+2025-09-08 16:28:46,630 INFO [app] Log level: INFO
+2025-09-08 16:28:46,630 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:29:01,916 INFO [app] Logging system initialized
+2025-09-08 16:29:01,916 INFO [app] Log level: INFO
+2025-09-08 16:29:01,917 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:29:12,515 INFO [app] Logging system initialized
+2025-09-08 16:29:12,515 INFO [app] Log level: INFO
+2025-09-08 16:29:12,515 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:29:17,192 INFO [app] Logging system initialized
+2025-09-08 16:29:17,193 INFO [app] Log level: INFO
+2025-09-08 16:29:17,193 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:29:32,405 INFO [app] Logging system initialized
+2025-09-08 16:29:32,405 INFO [app] Log level: INFO
+2025-09-08 16:29:32,405 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:29:47,660 INFO [app] Logging system initialized
+2025-09-08 16:29:47,661 INFO [app] Log level: INFO
+2025-09-08 16:29:47,661 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:29:53,724 INFO [app] Logging system initialized
+2025-09-08 16:29:53,724 INFO [app] Log level: INFO
+2025-09-08 16:29:53,724 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:30:02,465 INFO [app] Logging system initialized
+2025-09-08 16:30:02,465 INFO [app] Log level: INFO
+2025-09-08 16:30:02,465 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:30:17,908 INFO [app] Logging system initialized
+2025-09-08 16:30:17,909 INFO [app] Log level: INFO
+2025-09-08 16:30:17,909 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:30:33,165 INFO [app] Logging system initialized
+2025-09-08 16:30:33,166 INFO [app] Log level: INFO
+2025-09-08 16:30:33,166 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:30:48,407 INFO [app] Logging system initialized
+2025-09-08 16:30:48,407 INFO [app] Log level: INFO
+2025-09-08 16:30:48,408 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:31:03,663 INFO [app] Logging system initialized
+2025-09-08 16:31:03,664 INFO [app] Log level: INFO
+2025-09-08 16:31:03,664 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:31:18,914 INFO [app] Logging system initialized
+2025-09-08 16:31:18,914 INFO [app] Log level: INFO
+2025-09-08 16:31:18,914 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:31:34,176 INFO [app] Logging system initialized
+2025-09-08 16:31:34,177 INFO [app] Log level: INFO
+2025-09-08 16:31:34,177 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:31:39,402 INFO [app] Logging system initialized
+2025-09-08 16:31:39,403 INFO [app] Log level: INFO
+2025-09-08 16:31:39,403 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:31:54,677 INFO [app] Logging system initialized
+2025-09-08 16:31:54,677 INFO [app] Log level: INFO
+2025-09-08 16:31:54,677 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:32:09,935 INFO [app] Logging system initialized
+2025-09-08 16:32:09,935 INFO [app] Log level: INFO
+2025-09-08 16:32:09,936 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:32:25,169 INFO [app] Logging system initialized
+2025-09-08 16:32:25,170 INFO [app] Log level: INFO
+2025-09-08 16:32:25,170 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:32:40,422 INFO [app] Logging system initialized
+2025-09-08 16:32:40,422 INFO [app] Log level: INFO
+2025-09-08 16:32:40,422 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:32:55,661 INFO [app] Logging system initialized
+2025-09-08 16:32:55,661 INFO [app] Log level: INFO
+2025-09-08 16:32:55,661 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:33:10,903 INFO [app] Logging system initialized
+2025-09-08 16:33:10,904 INFO [app] Log level: INFO
+2025-09-08 16:33:10,904 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:33:26,191 INFO [app] Logging system initialized
+2025-09-08 16:33:26,191 INFO [app] Log level: INFO
+2025-09-08 16:33:26,191 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:33:41,405 INFO [app] Logging system initialized
+2025-09-08 16:33:41,405 INFO [app] Log level: INFO
+2025-09-08 16:33:41,405 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:33:50,023 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:34:34,593 INFO [app] POST request to login from 127.0.0.1
+2025-09-08 16:34:34,594 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-08 16:34:34,602 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-08 16:34:34,906 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:34:40,371 INFO [app] POST request to login from 127.0.0.1
+2025-09-08 16:34:40,371 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-08 16:34:40,372 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-08 16:34:40,398 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:34:42,912 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:35:05,407 INFO [app] POST request to register from 127.0.0.1
+2025-09-08 16:35:05,407 INFO [app] Registration attempt for email: gena12m@gmail.com, name: ГенаДемо
+2025-09-08 16:35:05,509 INFO [app] Successful registration for user: gena12m@gmail.com (ID: 1)
+2025-09-08 16:35:05,542 ERROR [app] Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1155, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
+    {% include 'partials/modals_dashboard.html' %}
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
+2025-09-08 16:35:05,547 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-08 16:35:16,561 ERROR [app] Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1155, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
+    {% include 'partials/modals_dashboard.html' %}
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
+2025-09-08 16:35:16,563 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-08 16:35:19,343 ERROR [app] Exception on /dashboard [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1155, in dashboard
+    return render_template(
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
+    {% include 'partials/modals_dashboard.html' %}
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
+    return self._get_source_fast(environment, template)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
+    raise TemplateNotFound(template)
+jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
+2025-09-08 16:35:19,343 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
