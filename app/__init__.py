@@ -87,6 +87,10 @@ def create_app(config_name=None):
     # Currency context processor
     app.context_processor(inject_currency)
     
+    # Register template filters
+    from .filters import register_filters
+    register_filters(app)
+    
     # Database initialization (idempotent)
     with app.app_context():
         init_db()

@@ -39,7 +39,10 @@
       "Bash(netstat:*)",
       "Bash(ss:*)",
       "Read(//home/admin/**)",
-      "Bash(sudo chmod:*)"
+      "Bash(sudo chmod:*)",
+      "Bash(pkill:*)",
+      "Bash(FLASK_RUN_PORT=5001 python manage.py run)",
+      "Bash(PORT=5001 python:*)"
     ],
     "deny": [],
     "ask": []
