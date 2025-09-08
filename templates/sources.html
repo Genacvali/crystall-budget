@@ -7,7 +7,7 @@
 </div>
 
 <div class="card card-body mb-3">
-  <form method="POST" action="{{ url_for('sources.add') }}">
+  <form method="POST" action="{{ url_for('sources_add') }}">
     <div class="row g-3">
       <div class="col-md-6">
         <label class="form-label">Название</label>
@@ -45,14 +45,14 @@
         <td>{{ s.name }}</td>
         <td>{{ 'Да' if s.is_default else 'Нет' }}</td>
         <td class="text-end">
-          <form class="d-inline" method="POST" action="{{ url_for('sources.update', source_id=s.id) }}">
+          <form class="d-inline" method="POST" action="{{ url_for('sources_update', source_id=s.id) }}">
             <input type="hidden" name="name" value="{{ s.name }}">
             <input type="hidden" name="is_default" value="{{ 1 if not s.is_default else 0 }}">
             <button class="btn btn-sm btn-outline-primary">
               {{ 'Сделать дефолтным' if not s.is_default else 'Убрать дефолт' }}
             </button>
           </form>
-          <form class="d-inline" method="POST" action="{{ url_for('sources.delete', source_id=s.id) }}">
+          <form class="d-inline" method="POST" action="{{ url_for('sources_delete', source_id=s.id) }}">
             <button class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить источник «{{ s.name }}»?\n\nВнимание: Удаление невозможно, если с источником связаны записи доходов или привязки к категориям.')">
               Удалить
             </button>
