@@ -2,6 +2,32 @@
 {% block title %}Доходы и источники — CrystalBudget{% endblock %}
 
 {% block content %}
+<!-- Budget Header Bar (YNAB-inspired, not identical) -->
+{% set assigned_total = budget_data|map(attribute='limit')|sum %}
+{% set ready_to_assign = (income - assigned_total) %}
+<div class="ynab-card mb-3">
+  <div class="ynab-card-body d-flex align-items-center gap-3 flex-wrap">
+    <div class="d-flex align-items-center gap-2">
+      <span class="badge-soft">Этот месяц</span>
+      <span class="muted">Назначено: {{ assigned_total|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <div class="pill pill--assigned">
+        {{ ready_to_assign|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
+      </div>
+      <div class="dropdown">
+        <button class="ynab-btn dropdown-toggle" type="button" data-bs-toggle="dropdown">Назначить</button>
+        <div class="dropdown-menu">
+          <button class="dropdown-item" type="button" data-action="assign-even">Равномерно по категориям</button>
+          <button class="dropdown-item" type="button" data-action="assign-to-low">В непокрытые категории</button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" type="button" data-action="assign-clear">Сбросить назначения</button>
+        </div>
+      </div>
+      <span class="badge-soft" title="Возраст денег — экспериментальная метрика">{{ age_of_money or '—' }} дней</span>
+    </div>
+  </div>
+</div>
 <!-- YNAB-styled Income & Sources -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h1 class="zen-title m-0"><i class="bi bi-cash-coin" aria-hidden="true"></i><span>Доходы</span></h1>
