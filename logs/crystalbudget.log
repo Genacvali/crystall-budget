@@ -353,3 +353,16 @@ jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
 2025-09-08 16:45:53,862 INFO [app] POST request to set_currency from 127.0.0.1
 2025-09-08 16:45:55,911 INFO [app] POST request to set_currency from 127.0.0.1
 2025-09-08 16:45:56,599 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:57:22,269 INFO [app] Logging system initialized
+2025-09-08 16:57:22,269 INFO [app] Log level: INFO
+2025-09-08 16:57:22,270 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 16:57:33,031 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:57:34,532 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:57:36,456 INFO [app] User logout: gena12m@gmail.com
+2025-09-08 16:57:36,511 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:57:38,621 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:57:47,504 INFO [app] POST request to login from 127.0.0.1
+2025-09-08 16:57:47,504 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-08 16:57:47,605 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
+2025-09-08 16:57:48,000 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 16:57:51,569 INFO [app] POST request to set_currency from 127.0.0.1
