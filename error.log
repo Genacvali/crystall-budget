@@ -1574,3 +1574,30 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 [2025-09-09 00:08:14 +0300] [30020] [ERROR] Worker (pid:30889) exited with code 1.
 [2025-09-09 00:08:14 +0300] [31595] [INFO] Booting worker with pid: 31595
 [2025-09-09 00:08:14 +0300] [31596] [INFO] Booting worker with pid: 31596
+[2025-09-09 00:10:03 +0300] [31596] [INFO] Worker exiting (pid: 31596)
+[2025-09-09 00:10:03 +0300] [31595] [INFO] Worker exiting (pid: 31595)
+[2025-09-09 00:10:03 +0300] [30020] [INFO] Handling signal: term
+[2025-09-09 00:10:03 +0300] [30020] [INFO] Shutting down: Master
+[2025-09-09 00:10:03 +0300] [32455] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:10:03 +0300] [32455] [INFO] Listening at: http://127.0.0.1:5000 (32455)
+[2025-09-09 00:10:03 +0300] [32455] [INFO] Using worker: sync
+[2025-09-09 00:10:03 +0300] [32456] [INFO] Booting worker with pid: 32456
+[2025-09-09 00:10:03 +0300] [32457] [INFO] Booting worker with pid: 32457
+[2025-09-09 00:10:15,926] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:19,014] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:20,982] INFO in app: POST request to login from 127.0.0.1
+[2025-09-09 00:10:20,983] INFO in app: Login attempt for email: gena12m@gmail.com
+[2025-09-09 00:10:21,078] INFO in app: Successful login for user: gena12m@gmail.com (ID: 1)
+[2025-09-09 00:10:21,120] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:43,777] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:44,612] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:46,501] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:47,758] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:48,830] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:49,897] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:51,166] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:51,735] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:52,044] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:52,076] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:52,218] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:10:52,358] INFO in app: POST request to set_currency from 127.0.0.1
