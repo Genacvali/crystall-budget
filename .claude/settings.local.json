@@ -23,7 +23,10 @@
       "Bash(git commit:*)",
       "Bash(sudo cp:*)",
       "Bash(sudo rm:*)",
-      "Bash(sudo nginx:*)"
+      "Bash(sudo nginx:*)",
+      "Bash(sudo ls:*)",
+      "Read(//etc/nginx/conf.d/**)",
+      "Bash(sudo systemctl:*)"
     ],
     "deny": [],
     "ask": []
