@@ -2,60 +2,870 @@
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <title>{% block title %}CrystalBudget{% endblock %}</title>
+  
+  <!-- PWA Meta -->
+  <meta name="theme-color" content="#4f46e5">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- Styles -->
   <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
   <link href="{{ url_for('static', filename='css/bootstrap-icons.css') }}" rel="stylesheet">
+  
   <style>
-    body { background-color: #f6f7f9; }
-    .navbar-brand { font-weight: 600; }
-    .modern-card { border: 1px solid #e9ecef; border-radius: .75rem; background: #fff; }
-    .card-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill,minmax(240px,1fr)); }
-    .container { max-width: 1100px; }
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #3730a3;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+      --border-radius: 12px;
+      --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      padding-bottom: calc(80px + var(--safe-area-bottom));
+    }
+
+    /* Top Navigation */
+    .top-nav {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: none;
+      box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1030;
+      padding: 8px 0;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--primary) !important;
+    }
+
+    .currency-selector {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      padding: 4px 8px;
+      min-width: 80px;
+    }
+
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 8px;
+      color: var(--text-primary);
+    }
+
+    /* Hamburger Lines */
+    .hamburger {
+      display: flex;
+      flex-direction: column;
+      width: 18px;
+      height: 12px;
+    }
+
+    .hamburger span {
+      height: 2px;
+      background: var(--text-primary);
+      border-radius: 1px;
+      transition: all 0.3s ease;
+    }
+
+    .hamburger span:nth-child(2) {
+      margin: 2px 0;
+    }
+
+    /* Main Content */
+    .main-content {
+      padding-top: 80px;
+      padding-bottom: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 100%;
+      padding: 0 16px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--border);
+      padding: 8px 0 calc(8px + var(--safe-area-bottom));
+      z-index: 1020;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-items {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      padding: 8px 4px;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      color: var(--text-secondary);
+      min-width: 60px;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      color: var(--primary);
+      background: rgba(79, 70, 229, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      margin-bottom: 2px;
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 500;
+    }
+
+    /* Quick Add Floating Button */
+    .quick-add-btn {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 56px;
+      height: 56px;
+      background: var(--primary);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1010;
+      transition: all 0.3s ease;
+    }
+
+    .quick-add-btn:hover {
+      background: var(--primary-dark);
+      transform: scale(1.1);
+      box-shadow: 0 15px 35px -3px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Cards */
+    .modern-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      transition: all 0.2s ease;
+    }
+
+    .modern-card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+
+    /* Flash Messages */
+    .alert {
+      border-radius: var(--border-radius);
+      border: none;
+      margin: 16px 0;
+    }
+
+    .alert-success {
+      background: rgba(16, 185, 129, 0.1);
+      color: #065f46;
+      border-left: 4px solid var(--success);
+    }
+
+    .alert-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: #991b1b;
+      border-left: 4px solid var(--danger);
+    }
+
+    .alert-warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: #92400e;
+      border-left: 4px solid var(--warning);
+    }
+
+    /* Enhanced Form Styles with Microinteractions */
+    .form-control, .form-select {
+      border-radius: 10px;
+      border: 2px solid var(--border);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: var(--bg-secondary);
+      position: relative;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+      transform: translateY(-1px);
+    }
+
+    /* Floating Label Animation */
+    .form-floating .form-control:focus~label,
+    .form-floating .form-control:not(:placeholder-shown)~label {
+      opacity: 0.7;
+      transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    }
+
+    /* Button Microinteractions */
+    .btn {
+      border-radius: 10px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn:before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: all 0.6s ease;
+    }
+
+    .btn:active:before {
+      width: 300px;
+      height: 300px;
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn:active {
+      transform: translateY(0px);
+    }
+
+    /* Loading State */
+    .btn.loading {
+      position: relative;
+      color: transparent !important;
+    }
+
+    .btn.loading:after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 16px;
+      height: 16px;
+      margin: -8px 0 0 -8px;
+      border: 2px solid transparent;
+      border-top-color: currentColor;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Success Animation */
+    .btn-success-animated {
+      background: var(--success) !important;
+      border-color: var(--success) !important;
+    }
+
+    .btn-success-animated:after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 18px;
+      color: white;
+      opacity: 1;
+      animation: checkmark 0.5s ease-in-out;
+    }
+
+    @keyframes checkmark {
+      0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+      100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    }
+
+    /* Input Group Enhancements */
+    .input-group .input-group-text {
+      border: 2px solid var(--border);
+      border-right: none;
+      background: var(--bg-primary);
+      transition: all 0.3s ease;
+    }
+
+    .input-group .form-control {
+      border-left: none;
+    }
+
+    .input-group:focus-within .input-group-text {
+      border-color: var(--primary);
+      background: rgba(79, 70, 229, 0.05);
+    }
+
+    /* Pulse Animation for Important Elements */
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+    }
+
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+
+    /* Haptic Feedback Simulation */
+    .haptic-light {
+      animation: haptic-light 0.1s ease-out;
+    }
+
+    .haptic-medium {
+      animation: haptic-medium 0.2s ease-out;
+    }
+
+    .haptic-heavy {
+      animation: haptic-heavy 0.3s ease-out;
+    }
+
+    @keyframes haptic-light {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-1px); }
+      75% { transform: translateX(1px); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes haptic-medium {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-2px); }
+      40% { transform: translateX(2px); }
+      60% { transform: translateX(-2px); }
+      80% { transform: translateX(2px); }
+      100% { transform: translateX(0); }
+    }
+
+    @keyframes haptic-heavy {
+      0% { transform: scale(1) translateX(0); }
+      10% { transform: scale(1.05) translateX(-3px); }
+      20% { transform: scale(1.05) translateX(3px); }
+      30% { transform: scale(1.05) translateX(-3px); }
+      40% { transform: scale(1.05) translateX(3px); }
+      50% { transform: scale(1.05) translateX(-2px); }
+      60% { transform: scale(1.05) translateX(2px); }
+      70% { transform: scale(1.02) translateX(-1px); }
+      80% { transform: scale(1.02) translateX(1px); }
+      90% { transform: scale(1.01) translateX(0); }
+      100% { transform: scale(1) translateX(0); }
+    }
+
+    /* Smooth Scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* Custom Toast Styling */
+    .toast {
+      border-radius: 12px;
+      border: none;
+      backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .toast-success {
+      background: rgba(16, 185, 129, 0.9);
+      color: white;
+    }
+
+    .toast-error {
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+    }
+
+    .toast-warning {
+      background: rgba(245, 158, 11, 0.9);
+      color: white;
+    }
+
+    /* Mobile Optimizations */
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 12px;
+      }
+      
+      .quick-add-btn {
+        right: 16px;
+        bottom: 86px;
+      }
+
+      .btn {
+        min-height: 44px; /* Better touch targets */
+      }
+
+      .form-control, .form-select {
+        min-height: 44px;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+    }
+
+    /* Desktop Navigation (hidden on mobile) */
+    @media (min-width: 769px) {
+      .bottom-nav,
+      .quick-add-btn {
+        display: none;
+      }
+      
+      body {
+        padding-bottom: 0;
+      }
+      
+      .desktop-nav {
+        display: flex !important;
+        gap: 8px;
+        align-items: center;
+      }
+      
+      .desktop-nav .nav-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+      }
+      
+      .desktop-nav .nav-link:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+      
+      .main-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 100px 20px 40px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .desktop-nav {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-dark bg-dark">
-    <div class="container">
-      <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">💎 CrystalBudget</a>
-      <div class="d-flex gap-2 align-items-center">
-        {% if session.get('user_id') %}
-          <form class="d-flex align-items-center gap-1" method="post" action="{{ url_for('auth.set_currency') }}">
-            <select class="form-select form-select-sm" name="currency" onchange="this.form.submit()">
-              {% for code, info in currencies.items() %}
-                <option value="{{ code }}" {% if code==currency_code %}selected{% endif %}>{{ info.label }} ({{ info.symbol }})</option>
-              {% endfor %}
-            </select>
-          </form>
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <div class="container-fluid px-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="{{ url_for('dashboard.index') }}">
+          💎 CrystalBudget
+        </a>
+        
+        <div class="d-flex align-items-center gap-2">
+          {% if session.get('user_id') %}
+            <!-- Currency Selector -->
+            <form method="post" action="{{ url_for('auth.set_currency') }}">
+              <select class="form-select form-select-sm currency-selector" name="currency" onchange="this.form.submit()">
+                {% for code, info in currencies.items() %}
+                  <option value="{{ code }}" {% if code==currency_code %}selected{% endif %}>{{ info.symbol }}</option>
+                {% endfor %}
+              </select>
+            </form>
 
-          <a class="btn btn-sm btn-outline-light" href="{{ url_for('dashboard.index') }}">Дашборд</a>
-          <a class="btn btn-sm btn-outline-light" href="{{ url_for('expenses.list_add') }}">Траты</a>
-          <a class="btn btn-sm btn-outline-light" href="{{ url_for('categories.list') }}">Категории</a>
-          <a class="btn btn-sm btn-outline-light" href="{{ url_for('income.list') }}">Доходы</a>
-          <a class="btn btn-sm btn-outline-warning" href="{{ url_for('sources.list') }}">Источники</a>
-          <a class="btn btn-sm btn-warning" href="{{ url_for('auth.logout') }}">Выйти</a>
-        {% else %}
-          <a class="btn btn-sm btn-outline-light" href="{{ url_for('auth.login') }}">Войти</a>
-          <a class="btn btn-sm btn-primary" href="{{ url_for('auth.register') }}">Регистрация</a>
-        {% endif %}
+            <!-- Desktop Navigation -->
+            <div class="desktop-nav d-none">
+              <a class="nav-link" href="{{ url_for('dashboard.index') }}">📊 Дашборд</a>
+              <a class="nav-link" href="{{ url_for('expenses.list_add') }}">💸 Расходы</a>
+              <a class="nav-link" href="{{ url_for('categories.list') }}">📁 Категории</a>
+              <a class="nav-link" href="{{ url_for('income.list') }}">💰 Доходы</a>
+              <a class="nav-link" href="{{ url_for('sources.list') }}">🏦 Источники</a>
+              <a class="nav-link" href="{{ url_for('goals.list') }}">🎯 Цели</a>
+              <a class="nav-link" href="{{ url_for('auth.logout') }}" style="background: var(--warning); color: white;">Выйти</a>
+            </div>
+
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn d-md-none" onclick="toggleMobileMenu()">
+              <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </button>
+          {% else %}
+            <div class="d-flex gap-2">
+              <a class="btn btn-outline-primary btn-sm" href="{{ url_for('auth.login') }}">Войти</a>
+              <a class="btn btn-primary btn-sm" href="{{ url_for('auth.register') }}">Регистрация</a>
+            </div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </nav>
-  <div class="container my-4">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for cat, msg in messages %}
-          <div class="alert alert-{{ 'danger' if cat=='error' else cat }} alert-dismissible fade show" role="alert">
-            {{ msg }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-          </div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    {% block content %}{% endblock %}
+  <!-- Main Content Area -->
+  <div class="main-content">
+    <div class="container">
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for cat, msg in messages %}
+            <div class="alert alert-{{ 'danger' if cat=='error' else cat }} alert-dismissible fade show" role="alert">
+              {{ msg }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      
+      <!-- Page Content -->
+      {% block content %}{% endblock %}
+    </div>
   </div>
+
+  {% if session.get('user_id') %}
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav d-md-none">
+      <div class="nav-items">
+        <a href="{{ url_for('dashboard.index') }}" class="nav-item">
+          <i class="bi bi-house-fill nav-icon"></i>
+          <span class="nav-label">Главная</span>
+        </a>
+        
+        <a href="{{ url_for('expenses.list_add') }}" class="nav-item">
+          <i class="bi bi-credit-card nav-icon"></i>
+          <span class="nav-label">Расходы</span>
+        </a>
+        
+        <a href="{{ url_for('categories.list') }}" class="nav-item">
+          <i class="bi bi-grid-3x3-gap-fill nav-icon"></i>
+          <span class="nav-label">Категории</span>
+        </a>
+        
+        <a href="{{ url_for('income.list') }}" class="nav-item">
+          <i class="bi bi-wallet2 nav-icon"></i>
+          <span class="nav-label">Доходы</span>
+        </a>
+        
+        <a href="{{ url_for('goals.list') }}" class="nav-item">
+          <i class="bi bi-bullseye nav-icon"></i>
+          <span class="nav-label">Цели</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- Quick Add Floating Button (Mobile Only) -->
+    <button class="quick-add-btn d-md-none" onclick="openQuickAdd()">
+      <i class="bi bi-plus-lg"></i>
+    </button>
+
+    <!-- Quick Add Modal -->
+    <div class="modal fade" id="quickAddModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modern-card">
+          <div class="modal-header">
+            <h5 class="modal-title">
+              <i class="bi bi-plus-circle text-primary me-2"></i>
+              Быстрое добавление
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body p-0">
+            <form method="POST" action="{{ url_for('expenses.list_add') }}" class="p-3">
+              <div class="row g-3">
+                <div class="col-6">
+                  <label class="form-label fw-semibold">Сумма</label>
+                  <input type="number" name="amount" step="0.01" min="0.01" 
+                         class="form-control form-control-lg" 
+                         placeholder="0.00" 
+                         inputmode="decimal" 
+                         required autofocus>
+                </div>
+                <div class="col-6">
+                  <label class="form-label fw-semibold">Дата</label>
+                  <input type="date" name="date" 
+                         value="{{ moment().format('YYYY-MM-DD') }}" 
+                         class="form-control form-control-lg" 
+                         required>
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Категория</label>
+                  <select name="category_id" class="form-select form-select-lg" required>
+                    <option value="">Выберите категорию</option>
+                    {% if categories %}
+                      {% for cat in categories %}
+                        <option value="{{ cat.id }}">{{ cat.name }}</option>
+                      {% endfor %}
+                    {% endif %}
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label fw-semibold">Комментарий</label>
+                  <input type="text" name="note" 
+                         class="form-control form-control-lg" 
+                         placeholder="Опционально">
+                </div>
+                <div class="col-12 pt-2">
+                  <button type="submit" class="btn btn-primary btn-lg w-100">
+                    <i class="bi bi-check-lg me-2"></i>
+                    Добавить расход
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
   <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
   <script>
+    // Mobile Navigation & Quick Add Functions
+    function toggleMobileMenu() {
+      // For now, just redirect to profile or settings page
+      // Can be expanded to show a slide-out menu
+      window.location.href = "{{ url_for('sources.list') }}";
+    }
+
+    function openQuickAdd() {
+      const modal = new bootstrap.Modal(document.getElementById('quickAddModal'));
+      modal.show();
+      
+      // Set today's date
+      const today = new Date().toISOString().split('T')[0];
+      document.querySelector('#quickAddModal input[name="date"]').value = today;
+      
+      // Focus on amount input after modal is shown
+      setTimeout(() => {
+        document.querySelector('#quickAddModal input[name="amount"]').focus();
+      }, 300);
+    }
+
+    // Set active nav item based on current page
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentPath = window.location.pathname;
+      const navItems = document.querySelectorAll('.nav-item');
+      
+      navItems.forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('href') === currentPath || 
+            (currentPath.startsWith('/expenses') && item.getAttribute('href').includes('expenses')) ||
+            (currentPath.startsWith('/categories') && item.getAttribute('href').includes('categories')) ||
+            (currentPath.startsWith('/income') && item.getAttribute('href').includes('income')) ||
+            (currentPath.startsWith('/goals') && item.getAttribute('href').includes('goals')) ||
+            (currentPath === '/' && item.getAttribute('href').includes('dashboard'))) {
+          item.classList.add('active');
+        }
+      });
+
+      // Auto-dismiss alerts after 5 seconds
+      setTimeout(() => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        });
+      }, 5000);
+
+      // Enhanced form UX with microinteractions
+      const amountInputs = document.querySelectorAll('input[type="number"][step="0.01"]');
+      amountInputs.forEach(input => {
+        // Add haptic feedback simulation
+        input.addEventListener('focus', function() {
+          this.parentElement.classList.add('haptic-light');
+          setTimeout(() => this.parentElement.classList.remove('haptic-light'), 100);
+        });
+        
+        input.addEventListener('input', function() {
+          // Remove non-numeric characters except decimal point
+          this.value = this.value.replace(/[^0-9.]/g, '');
+          
+          // Only allow one decimal point
+          const parts = this.value.split('.');
+          if (parts.length > 2) {
+            this.value = parts[0] + '.' + parts[1];
+          }
+          
+          // Limit to 2 decimal places
+          if (parts[1] && parts[1].length > 2) {
+            this.value = parts[0] + '.' + parts[1].substring(0, 2);
+          }
+          
+          // Visual feedback for valid amounts
+          if (parseFloat(this.value) > 0) {
+            this.classList.add('is-valid');
+            this.classList.remove('is-invalid');
+          } else {
+            this.classList.remove('is-valid');
+            if (this.value !== '') {
+              this.classList.add('is-invalid');
+            }
+          }
+        });
+        
+        input.addEventListener('blur', function() {
+          if (this.value && !this.value.includes('.')) {
+            this.value = parseFloat(this.value).toFixed(2);
+          }
+        });
+      });
+      
+      // Enhanced button interactions
+      document.querySelectorAll('.btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+          // Don't add loading state to disabled buttons
+          if (this.disabled) return;
+          
+          // Add haptic feedback
+          this.classList.add('haptic-medium');
+          setTimeout(() => this.classList.remove('haptic-medium'), 200);
+        });
+        
+        // Form submission loading states
+        if (button.type === 'submit') {
+          button.addEventListener('click', function() {
+            const form = this.closest('form');
+            if (form && form.checkValidity()) {
+              setTimeout(() => {
+                this.classList.add('loading');
+                this.disabled = true;
+              }, 100);
+            }
+          });
+        }
+      });
+      
+      // Form validation enhancements
+      document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+          const requiredFields = this.querySelectorAll('[required]');
+          let isValid = true;
+          
+          requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+              field.classList.add('is-invalid');
+              field.classList.add('haptic-heavy');
+              setTimeout(() => field.classList.remove('haptic-heavy'), 300);
+              isValid = false;
+            } else {
+              field.classList.remove('is-invalid');
+              field.classList.add('is-valid');
+            }
+          });
+          
+          if (!isValid) {
+            e.preventDefault();
+            // Focus on first invalid field
+            const firstInvalid = this.querySelector('.is-invalid');
+            if (firstInvalid) {
+              firstInvalid.focus();
+              firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }
+        });
+        
+        // Real-time validation
+        form.addEventListener('input', function(e) {
+          const field = e.target;
+          if (field.hasAttribute('required')) {
+            if (field.value.trim()) {
+              field.classList.remove('is-invalid');
+              field.classList.add('is-valid');
+            } else {
+              field.classList.remove('is-valid');
+            }
+          }
+        });
+      });
+
+      // Auto-focus next field after category selection
+      const categorySelects = document.querySelectorAll('select[name="category_id"]');
+      categorySelects.forEach(select => {
+        select.addEventListener('change', function() {
+          const form = this.closest('form');
+          const noteInput = form.querySelector('input[name="note"]');
+          if (noteInput) {
+            setTimeout(() => noteInput.focus(), 100);
+          }
+        });
+      });
+
+      // Swipe gesture detection for mobile cards
+      let startX = 0;
+      let startTime = 0;
+      
+      document.querySelectorAll('.swipeable-card').forEach(card => {
+        card.addEventListener('touchstart', function(e) {
+          startX = e.touches[0].clientX;
+          startTime = Date.now();
+        });
+        
+        card.addEventListener('touchend', function(e) {
+          const endX = e.changedTouches[0].clientX;
+          const endTime = Date.now();
+          const diffX = startX - endX;
+          const diffTime = endTime - startTime;
+          
+          // Swipe right to left (delete)
+          if (diffX > 50 && diffTime < 300) {
+            const deleteBtn = this.querySelector('.swipe-delete');
+            if (deleteBtn) {
+              deleteBtn.click();
+            }
+          }
+          
+          // Swipe left to right (edit)
+          if (diffX < -50 && diffTime < 300) {
+            const editBtn = this.querySelector('.swipe-edit');
+            if (editBtn) {
+              editBtn.click();
+            }
+          }
+        });
+      });
+    });
+
     // Currency conversion functionality
     let currentRates = {};
     const baseCurrency = 'RUB'; // Базовая валюта - рубли
