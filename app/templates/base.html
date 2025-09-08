@@ -21,7 +21,7 @@
       <div class="d-flex gap-2 align-items-center">
         {% if session.get('user_id') %}
           <form class="d-flex align-items-center gap-1" method="post" action="{{ url_for('auth.set_currency') }}">
-            <select class="form-select form-select-sm" name="currency" id="currency-selector">
+            <select class="form-select form-select-sm" name="currency" onchange="this.form.submit()">
               {% for code, info in currencies.items() %}
                 <option value="{{ code }}" {% if code==currency_code %}selected{% endif %}>{{ info.label }} ({{ info.symbol }})</option>
               {% endfor %}
