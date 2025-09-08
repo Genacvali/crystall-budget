@@ -1357,3 +1357,13 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
  * Running on http://127.0.0.1:5000
  * Running on http://172.24.143.15:5000
 2025-09-09 00:02:08,527 INFO [werkzeug] [33mPress CTRL+C to quit[0m
+2025-09-09 00:03:55,879 INFO [app] Logging system initialized
+2025-09-09 00:03:55,879 INFO [app] Log level: INFO
+2025-09-09 00:03:55,879 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 00:04:02,311 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:04:06,570 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 00:04:10,945 INFO [app] User logout: gena12m@gmail.com
+2025-09-09 00:04:12,664 INFO [app] POST request to login from 127.0.0.1
+2025-09-09 00:04:12,665 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-09 00:04:12,759 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
+2025-09-09 00:04:13,139 INFO [app] POST request to set_currency from 127.0.0.1

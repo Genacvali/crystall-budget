@@ -13,7 +13,7 @@
 
   <!-- PWA -->
   <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}" />
-  <meta name="theme-color" content="#6366F1" />
+  <meta name="theme-color" content="#005A9F" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="CrystalBudget" />
@@ -38,7 +38,7 @@
       const theme = stored || serverTheme || (prefersDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-bs-theme', theme);
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.content = theme === 'dark' ? '#0F172A' : '#6366F1';
+      if (meta) meta.content = theme === 'dark' ? '#1F2124' : '#005A9F';
     })();
   </script>
 
@@ -72,7 +72,7 @@
       height: auto; 
       padding: .5rem .75rem; 
       z-index: 1080; 
-      background: var(--mf-primary); 
+      background: var(--ynab-primary); 
       color: white; 
       border-radius: .5rem; 
       box-shadow: 0 4px 12px rgba(0,0,0,.25); 
@@ -91,71 +91,63 @@
   <a class="skip-link" href="#main">Перейти к основному содержимому</a>
 
   {% if session.user_id %}
-  <nav class="mf-navbar" aria-label="Главная навигация">
-    <div class="mf-navbar-container">
-      <a class="mf-navbar-brand" href="{{ url_for('dashboard') }}" aria-label="CrystalBudget — на дашборд">
-        <svg class="mf-navbar-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="crystalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#60A5FA"/><stop offset="25%" style="stop-color:#3B82F6"/>
-              <stop offset="50%" style="stop-color:#1D4ED8"/><stop offset="75%" style="stop-color:#1E40AF"/>
-              <stop offset="100%" style="stop-color:#1E3A8A"/>
-            </linearGradient>
-          </defs>
-          <path d="M12 2L16 6L20 10L16 18L12 22L8 18L4 10L8 6L12 2Z" fill="url(#crystalGradient)"/>
-        </svg>
-        <span class="mf-navbar-title">CrystalBudget</span>
+  <nav class="ynab-navbar" aria-label="Главная навигация">
+    <div class="ynab-navbar-container">
+      <a class="ynab-navbar-brand" href="{{ url_for('dashboard') }}" aria-label="CrystalBudget — на дашборд">
+        <i class="bi bi-gem" style="color: var(--ynab-primary);"></i>
+        CrystalBudget
       </a>
 
-      <button class="mf-navbar-mobile-toggle" type="button" aria-controls="mobileSidebar" aria-expanded="false" aria-label="Открыть меню" onclick="toggleSidebar()">
-        <span class="mf-hamburger-line"></span>
-        <span class="mf-hamburger-line"></span>
-        <span class="mf-hamburger-line"></span>
+      <button class="ynab-navbar-toggle" type="button" aria-controls="mobileSidebar" aria-expanded="false" aria-label="Открыть меню" onclick="toggleSidebar()">
+        <div class="ynab-hamburger">
+          <span class="ynab-hamburger-line"></span>
+          <span class="ynab-hamburger-line"></span>
+          <span class="ynab-hamburger-line"></span>
+        </div>
       </button>
 
-      <div class="mf-navbar-nav d-none d-lg-flex">
-        <a class="mf-navbar-link {% if request.endpoint == 'dashboard' %}mf-navbar-link-active{% endif %}" href="{{ url_for('dashboard') }}">
+      <div class="ynab-navbar-nav">
+        <a class="ynab-nav-link {% if request.endpoint == 'dashboard' %}ynab-nav-link-active{% endif %}" href="{{ url_for('dashboard') }}">
           <i class="bi bi-house-door-fill"></i>
-          <span>Главная</span>
+          <span>Дашборд</span>
         </a>
-        <a class="mf-navbar-link {% if request.endpoint == 'expenses' %}mf-navbar-link-active{% endif %}" href="{{ url_for('expenses') }}">
+        <a class="ynab-nav-link {% if request.endpoint == 'expenses' %}ynab-nav-link-active{% endif %}" href="{{ url_for('expenses') }}">
           <i class="bi bi-arrow-down-circle"></i>
           <span>Расходы</span>
         </a>
-        <a class="mf-navbar-link {% if request.endpoint == 'categories' %}mf-navbar-link-active{% endif %}" href="{{ url_for('categories') }}">
+        <a class="ynab-nav-link {% if request.endpoint == 'categories' %}ynab-nav-link-active{% endif %}" href="{{ url_for('categories') }}">
           <i class="bi bi-grid-3x3-gap-fill"></i>
           <span>Категории</span>
         </a>
-        <a class="mf-navbar-link {% if request.endpoint in ['income_page','edit_income','sources_page'] %}mf-navbar-link-active{% endif %}" href="{{ url_for('income_page') }}">
+        <a class="ynab-nav-link {% if request.endpoint in ['income_page','edit_income','sources_page'] %}ynab-nav-link-active{% endif %}" href="{{ url_for('income_page') }}">
           <i class="bi bi-arrow-up-circle"></i>
           <span>Доходы</span>
         </a>
       </div>
 
-      <div class="mf-navbar-actions d-none d-lg-flex">
-        <div class="mf-currency-selector" role="group" aria-label="Валюта">
-          <button class="mf-currency-btn" id="curr-rub" onclick="setCurrency('RUB')" type="button" aria-pressed="true">₽</button>
-          <button class="mf-currency-btn" id="curr-usd" onclick="setCurrency('USD')" type="button" aria-pressed="false">$</button>
-          <button class="mf-currency-btn" id="curr-eur" onclick="setCurrency('EUR')" type="button" aria-pressed="false">€</button>
-          <button class="mf-currency-btn" id="curr-amd" onclick="setCurrency('AMD')" type="button" aria-pressed="false">֏</button>
-          <button class="mf-currency-btn" id="curr-gel" onclick="setCurrency('GEL')" type="button" aria-pressed="false">₾</button>
+      <div class="ynab-navbar-actions">
+        <div class="ynab-currency-selector" role="group" aria-label="Валюта">
+          <button class="ynab-currency-btn" id="curr-rub" onclick="setCurrency('RUB')" type="button" aria-pressed="true">₽</button>
+          <button class="ynab-currency-btn" id="curr-usd" onclick="setCurrency('USD')" type="button" aria-pressed="false">$</button>
+          <button class="ynab-currency-btn" id="curr-eur" onclick="setCurrency('EUR')" type="button" aria-pressed="false">€</button>
+          <button class="ynab-currency-btn" id="curr-amd" onclick="setCurrency('AMD')" type="button" aria-pressed="false">֏</button>
+          <button class="ynab-currency-btn" id="curr-gel" onclick="setCurrency('GEL')" type="button" aria-pressed="false">₾</button>
         </div>
         
-        <button class="mf-theme-toggle" type="button" onclick="toggleTheme()" aria-label="Переключить тему">
+        <button class="ynab-theme-toggle" type="button" onclick="toggleTheme()" aria-label="Переключить тему">
           <i class="bi bi-sun-fill" id="light-icon"></i>
           <i class="bi bi-moon-fill" id="dark-icon"></i>
         </button>
         
-        <div class="mf-user-menu">
-          <button class="mf-user-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <div class="dropdown">
+          <button class="ynab-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
             <i class="bi bi-person-circle"></i>
-            <span class="mf-user-name">{{ session.name or session.email }}</span>
-            <i class="bi bi-chevron-down"></i>
+            <span class="d-none d-md-inline">{{ session.name or session.email }}</span>
           </button>
-          <ul class="dropdown-menu dropdown-menu-end mf-dropdown">
-            <li><a class="dropdown-item mf-dropdown-item" href="{{ url_for('account') }}"><i class="bi bi-gear"></i> Личный кабинет</a></li>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{{ url_for('account') }}"><i class="bi bi-gear me-2"></i>Личный кабинет</a></li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item mf-dropdown-item" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a></li>
+            <li><a class="dropdown-item text-danger" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right me-2"></i>Выйти</a></li>
           </ul>
         </div>
       </div>
@@ -163,88 +155,82 @@
   </nav>
 
   <!-- Mobile sidebar -->
-  <div class="mf-sidebar-overlay d-lg-none" id="sidebarOverlay" onclick="closeSidebar()"></div>
-  <aside class="mf-sidebar d-lg-none" id="mobileSidebar" aria-label="Мобильное меню" role="dialog" aria-modal="true" aria-hidden="true">
-    <div class="mf-sidebar-header">
-      <a class="mf-sidebar-brand" href="{{ url_for('dashboard') }}">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="crystalGradientMobile" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#60A5FA"/><stop offset="25%" style="stop-color:#3B82F6"/>
-              <stop offset="50%" style="stop-color:#1D4ED8"/><stop offset="75%" style="stop-color:#1E40AF"/>
-              <stop offset="100%" style="stop-color:#1E3A8A"/>
-            </linearGradient>
-          </defs>
-          <path d="M12 2L16 6L20 10L16 18L12 22L8 18L4 10L8 6L12 2Z" fill="url(#crystalGradientMobile)"/>
-        </svg>
+  <div class="ynab-sidebar-overlay d-lg-none" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <aside class="ynab-sidebar d-lg-none" id="mobileSidebar" aria-label="Мобильное меню" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="ynab-sidebar-header">
+      <a class="ynab-sidebar-brand" href="{{ url_for('dashboard') }}">
+        <i class="bi bi-gem" style="color: var(--ynab-primary);"></i>
         CrystalBudget
       </a>
-      <button class="mf-sidebar-close" type="button" aria-label="Закрыть меню" onclick="closeSidebar()">
+      <button class="ynab-sidebar-close" type="button" aria-label="Закрыть меню" onclick="closeSidebar()">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>
     
-    <nav class="mf-sidebar-nav" id="sidebarNav">
-      <a class="mf-sidebar-link {% if request.endpoint == 'dashboard' %}mf-sidebar-link-active{% endif %}" href="{{ url_for('dashboard') }}" onclick="closeSidebar()">
+    <nav class="ynab-sidebar-nav" id="sidebarNav">
+      <a class="ynab-sidebar-link {% if request.endpoint == 'dashboard' %}ynab-sidebar-link-active{% endif %}" href="{{ url_for('dashboard') }}" onclick="closeSidebar()">
         <i class="bi bi-house-door"></i>
         <span>Дашборд</span>
       </a>
-      <a class="mf-sidebar-link {% if request.endpoint == 'expenses' %}mf-sidebar-link-active{% endif %}" href="{{ url_for('expenses') }}" onclick="closeSidebar()">
+      <a class="ynab-sidebar-link {% if request.endpoint == 'expenses' %}ynab-sidebar-link-active{% endif %}" href="{{ url_for('expenses') }}" onclick="closeSidebar()">
         <i class="bi bi-wallet2"></i>
         <span>Расходы</span>
       </a>
-      <a class="mf-sidebar-link {% if request.endpoint == 'categories' %}mf-sidebar-link-active{% endif %}" href="{{ url_for('categories') }}" onclick="closeSidebar()">
+      <a class="ynab-sidebar-link {% if request.endpoint == 'categories' %}ynab-sidebar-link-active{% endif %}" href="{{ url_for('categories') }}" onclick="closeSidebar()">
         <i class="bi bi-tags"></i>
         <span>Категории</span>
       </a>
-      <a class="mf-sidebar-link {% if request.endpoint in ['income_page','edit_income','sources_page'] %}mf-sidebar-link-active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()">
+      <a class="ynab-sidebar-link {% if request.endpoint in ['income_page','edit_income','sources_page'] %}ynab-sidebar-link-active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()">
         <i class="bi bi-cash-coin"></i>
         <span>Доходы</span>
       </a>
-      <a class="mf-sidebar-link {% if request.endpoint == 'account' %}mf-sidebar-link-active{% endif %}" href="{{ url_for('account') }}" onclick="closeSidebar()">
+      <a class="ynab-sidebar-link {% if request.endpoint == 'account' %}ynab-sidebar-link-active{% endif %}" href="{{ url_for('account') }}" onclick="closeSidebar()">
         <i class="bi bi-gear"></i>
         <span>Личный кабинет</span>
       </a>
     </nav>
     
-    <div class="mf-sidebar-footer">
-      <div class="mf-user-profile">
-        <i class="bi bi-person-circle"></i>
-        <div class="mf-user-info">
-          <div class="mf-user-name">{{ session.name or 'Пользователь' }}</div>
-          <div class="mf-user-email">{{ session.email }}</div>
+    <div class="ynab-sidebar-footer">
+      <div class="ynab-card" style="margin-bottom: var(--ynab-space-4);">
+        <div class="ynab-card-body" style="padding: var(--ynab-space-4);">
+          <div style="display: flex; align-items: center; gap: var(--ynab-space-3); margin-bottom: var(--ynab-space-3);">
+            <i class="bi bi-person-circle" style="font-size: 2rem; color: var(--ynab-primary);"></i>
+            <div>
+              <div style="font-weight: 600; font-size: var(--ynab-text-sm);">{{ session.name or 'Пользователь' }}</div>
+              <div style="color: var(--ynab-gray-600); font-size: var(--ynab-text-xs);">{{ session.email }}</div>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: var(--ynab-space-3);">
+            <div style="font-weight: 600; font-size: var(--ynab-text-xs); text-transform: uppercase; letter-spacing: 0.025em; color: var(--ynab-gray-700); margin-bottom: var(--ynab-space-2);">Валюта</div>
+            <div class="ynab-currency-selector" role="group" aria-label="Валюта (мобильная)">
+              <button class="ynab-currency-btn" id="curr-rub-sidebar" onclick="setCurrency('RUB')" type="button">₽</button>
+              <button class="ynab-currency-btn" id="curr-usd-sidebar" onclick="setCurrency('USD')" type="button">$</button>
+              <button class="ynab-currency-btn" id="curr-eur-sidebar" onclick="setCurrency('EUR')" type="button">€</button>
+              <button class="ynab-currency-btn" id="curr-amd-sidebar" onclick="setCurrency('AMD')" type="button">֏</button>
+              <button class="ynab-currency-btn" id="curr-gel-sidebar" onclick="setCurrency('GEL')" type="button">₾</button>
+            </div>
+          </div>
+          
+          <div style="margin-bottom: var(--ynab-space-4);">
+            <div style="font-weight: 600; font-size: var(--ynab-text-xs); text-transform: uppercase; letter-spacing: 0.025em; color: var(--ynab-gray-700); margin-bottom: var(--ynab-space-2);">Тема</div>
+            <button class="ynab-theme-toggle" style="width: 100%;" type="button" onclick="toggleTheme()" aria-label="Переключить тему (мобильная)">
+              <i class="bi bi-sun-fill" id="light-icon-sidebar"></i>
+              <i class="bi bi-moon-fill" id="dark-icon-sidebar"></i>
+            </button>
+          </div>
+          
+          <a class="ynab-btn ynab-btn-danger ynab-btn-full" href="{{ url_for('logout') }}">
+            <i class="bi bi-box-arrow-right"></i> 
+            Выйти
+          </a>
         </div>
       </div>
-      
-      <div class="mf-sidebar-section">
-        <div class="mf-sidebar-section-title">Валюта</div>
-        <div class="mf-currency-grid" role="group" aria-label="Валюта (мобильная)">
-          <button class="mf-currency-btn" id="curr-rub-sidebar" onclick="setCurrency('RUB')" type="button">₽</button>
-          <button class="mf-currency-btn" id="curr-usd-sidebar" onclick="setCurrency('USD')" type="button">$</button>
-          <button class="mf-currency-btn" id="curr-eur-sidebar" onclick="setCurrency('EUR')" type="button">€</button>
-          <button class="mf-currency-btn" id="curr-amd-sidebar" onclick="setCurrency('AMD')" type="button">֏</button>
-          <button class="mf-currency-btn" id="curr-gel-sidebar" onclick="setCurrency('GEL')" type="button">₾</button>
-        </div>
-      </div>
-      
-      <div class="mf-sidebar-section">
-        <div class="mf-sidebar-section-title">Тема</div>
-        <button class="mf-theme-toggle mf-theme-toggle-mobile" type="button" onclick="toggleTheme()" aria-label="Переключить тему (мобильная)">
-          <i class="bi bi-sun-fill" id="light-icon-sidebar"></i>
-          <span class="mf-theme-label">Тема</span>
-          <i class="bi bi-moon-fill" id="dark-icon-sidebar"></i>
-        </button>
-      </div>
-      
-      <a class="mf-btn mf-btn-danger mf-btn-full" href="{{ url_for('logout') }}">
-        <i class="bi bi-box-arrow-right"></i> 
-        Выйти
-      </a>
     </div>
   </aside>
   {% endif %}
 
-  <main id="main" class="mf-container" tabindex="-1">
+  <main id="main" class="ynab-container" tabindex="-1">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
         {% for category, message in messages %}
@@ -282,7 +268,7 @@
       document.documentElement.setAttribute('data-bs-theme', next);
       localStorage.setItem('theme', next);
       const meta = document.querySelector('meta[name="theme-color"]');
-      if (meta) meta.content = next === 'dark' ? '#0F172A' : '#6366F1';
+      if (meta) meta.content = next === 'dark' ? '#1F2124' : '#005A9F';
       updateThemeToggle(next);
     }
     function updateThemeToggle(theme) {
@@ -301,8 +287,8 @@
     function openSidebar() {
       if (!sidebar || !overlay) return;
       lastFocus = document.activeElement;
-      sidebar.classList.add('mf-sidebar-open');
-      overlay.classList.add('mf-sidebar-overlay-open');
+      sidebar.classList.add('ynab-sidebar-open');
+      overlay.classList.add('ynab-sidebar-overlay-open');
       sidebar.setAttribute('aria-hidden', 'false');
       document.body.style.overflow = 'hidden';
       // focus first link
@@ -311,8 +297,8 @@
     }
     function closeSidebar() {
       if (!sidebar || !overlay) return;
-      sidebar.classList.remove('mf-sidebar-open');
-      overlay.classList.remove('mf-sidebar-overlay-open');
+      sidebar.classList.remove('ynab-sidebar-open');
+      overlay.classList.remove('ynab-sidebar-overlay-open');
       sidebar.setAttribute('aria-hidden', 'true');
       document.body.style.overflow = '';
       if (lastFocus) lastFocus.focus();
@@ -385,8 +371,8 @@
     }
     async function setCurrency(currency) {
       localStorage.setItem('currency', currency);
-      // Toggle pressed state for both desktop and sidebar groups (support both old and new classes)
-      document.querySelectorAll('.currency-option, .mf-currency-btn').forEach(btn => {
+      // Toggle pressed state for both desktop and sidebar groups (support old, MF, and YNAB classes)
+      document.querySelectorAll('.currency-option, .mf-currency-btn, .ynab-currency-btn').forEach(btn => {
         const isActive = btn.id.includes(currency.toLowerCase());
         btn.classList.toggle('active', isActive);
         btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');

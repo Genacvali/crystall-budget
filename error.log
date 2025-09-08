@@ -1542,3 +1542,35 @@ jinja2.exceptions.UndefinedError: 'total_income' is undefined
 [2025-09-08 20:34:54,115] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-08 20:35:13 +0300] [23534] [INFO] Handling signal: term
 [2025-09-08 20:35:43 +0300] [23534] [INFO] Shutting down: Master
+[2025-09-09 00:03:55 +0300] [30020] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 00:03:55 +0300] [30020] [INFO] Listening at: http://127.0.0.1:5000 (30020)
+[2025-09-09 00:03:55 +0300] [30020] [INFO] Using worker: sync
+[2025-09-09 00:03:55 +0300] [30026] [INFO] Booting worker with pid: 30026
+[2025-09-09 00:03:55 +0300] [30027] [INFO] Booting worker with pid: 30027
+[2025-09-09 00:04:02,311] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:04:06,570] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:04:10,945] INFO in app: User logout: gena12m@gmail.com
+[2025-09-09 00:04:12,664] INFO in app: POST request to login from 127.0.0.1
+[2025-09-09 00:04:12,665] INFO in app: Login attempt for email: gena12m@gmail.com
+[2025-09-09 00:04:12,759] INFO in app: Successful login for user: gena12m@gmail.com (ID: 1)
+[2025-09-09 00:04:13,139] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 00:06:14 +0300] [30020] [CRITICAL] WORKER TIMEOUT (pid:30026)
+[2025-09-09 00:06:14 +0300] [30020] [CRITICAL] WORKER TIMEOUT (pid:30027)
+[2025-09-09 00:06:14 +0300] [30026] [INFO] Worker exiting (pid: 30026)
+[2025-09-09 00:06:14 +0300] [30027] [INFO] Worker exiting (pid: 30027)
+[2025-09-09 00:06:14 +0300] [30020] [ERROR] Worker (pid:30026) exited with code 1
+[2025-09-09 00:06:14 +0300] [30020] [ERROR] Worker (pid:30027) exited with code 1
+[2025-09-09 00:06:14 +0300] [30020] [ERROR] Worker (pid:30027) exited with code 1.
+[2025-09-09 00:06:14 +0300] [30020] [ERROR] Worker (pid:30026) exited with code 1.
+[2025-09-09 00:06:14 +0300] [30888] [INFO] Booting worker with pid: 30888
+[2025-09-09 00:06:14 +0300] [30889] [INFO] Booting worker with pid: 30889
+[2025-09-09 00:08:14 +0300] [30020] [CRITICAL] WORKER TIMEOUT (pid:30888)
+[2025-09-09 00:08:14 +0300] [30020] [CRITICAL] WORKER TIMEOUT (pid:30889)
+[2025-09-09 00:08:14 +0300] [30889] [INFO] Worker exiting (pid: 30889)
+[2025-09-09 00:08:14 +0300] [30888] [INFO] Worker exiting (pid: 30888)
+[2025-09-09 00:08:14 +0300] [30020] [ERROR] Worker (pid:30888) exited with code 1
+[2025-09-09 00:08:14 +0300] [30020] [ERROR] Worker (pid:30888) exited with code 1.
+[2025-09-09 00:08:14 +0300] [30020] [ERROR] Worker (pid:30889) exited with code 1
+[2025-09-09 00:08:14 +0300] [30020] [ERROR] Worker (pid:30889) exited with code 1.
+[2025-09-09 00:08:14 +0300] [31595] [INFO] Booting worker with pid: 31595
+[2025-09-09 00:08:14 +0300] [31596] [INFO] Booting worker with pid: 31596
