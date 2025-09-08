@@ -580,3 +580,19 @@ jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
 [2025-09-08 17:43:49 +0300] [12567] [INFO] Booting worker with pid: 12567
 [2025-09-08 17:49:42,630] WARNING in app: 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
 [2025-09-08 17:49:42,641] WARNING in app: 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+[2025-09-08 18:28:09 +0300] [10256] [INFO] Worker exiting (pid: 10256)
+[2025-09-08 18:28:09 +0300] [12567] [INFO] Worker exiting (pid: 12567)
+[2025-09-08 18:28:09 +0300] [10248] [INFO] Handling signal: term
+[2025-09-08 18:28:09 +0300] [10248] [INFO] Shutting down: Master
+[2025-09-08 18:28:09 +0300] [21626] [INFO] Starting gunicorn 21.2.0
+[2025-09-08 18:28:09 +0300] [21626] [INFO] Listening at: http://127.0.0.1:5000 (21626)
+[2025-09-08 18:28:09 +0300] [21626] [INFO] Using worker: sync
+[2025-09-08 18:28:09 +0300] [21627] [INFO] Booting worker with pid: 21627
+[2025-09-08 18:28:09 +0300] [21628] [INFO] Booting worker with pid: 21628
+[2025-09-08 18:28:15,880] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 18:28:18,342] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 18:28:19,347] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 18:28:21,437] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 18:28:22,083] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 18:28:23,229] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-08 18:30:09,006] INFO in app: POST request to set_currency from 127.0.0.1

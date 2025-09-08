@@ -439,3 +439,13 @@ jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
 2025-09-08 17:41:47,897 INFO [app] POST request to set_currency from 127.0.0.1
 2025-09-08 17:49:42,630 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
 2025-09-08 17:49:42,641 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
+2025-09-08 18:28:09,878 INFO [app] Logging system initialized
+2025-09-08 18:28:09,878 INFO [app] Log level: INFO
+2025-09-08 18:28:09,878 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-08 18:28:15,880 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 18:28:18,342 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 18:28:19,347 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 18:28:21,437 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 18:28:22,083 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 18:28:23,229 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-08 18:30:09,006 INFO [app] POST request to set_currency from 127.0.0.1

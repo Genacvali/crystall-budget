@@ -5,3 +5,7 @@ access.log
 access.log
 error.log
 logs/crystalbudget.log
+error.log
+__pycache__/app.cpython-39.pyc
+logs/crystalbudget.log
+access.log

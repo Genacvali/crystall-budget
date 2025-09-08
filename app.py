@@ -3181,6 +3181,28 @@ def join_shared_budget():
         
     return redirect(url_for('shared_budgets'))
 
+@app.route('/shared-budgets/delete/<int:budget_id>', methods=['POST'])
+@login_required
+def delete_shared_budget(budget_id):
+    """Удаление семейного бюджета целиком (только для администратора)."""
+    conn = get_db()
+    uid = session['user_id']
+    # Проверяем что текущий пользователь админ этого бюджета
+    row = conn.execute("""
+        SELECT role FROM shared_budget_members
+        WHERE shared_budget_id=? AND user_id=?
+    """, (budget_id, uid)).fetchone()
+    if not row or row['role'] != 'admin':
+        conn.close()
+        flash('Недостаточно прав для удаления бюджета', 'error')
+        return redirect(url_for('shared_budgets'))
+    # Удаляем бюджет (участники удалятся каскадом)
+    conn.execute("DELETE FROM shared_budgets WHERE id=?", (budget_id,))
+    conn.commit()
+    conn.close()
+    flash('Семейный бюджет удалён', 'success')
+    return redirect(url_for('shared_budgets'))
+
 @app.route('/shared-budgets/<int:budget_id>')
 @login_required
 def shared_budget_detail(budget_id):

@@ -283,8 +283,42 @@
     }
     function onEscClose(e) { if (e.key === 'Escape') closeSidebar(); }
 
-    // Currency
+    /* Currency */
     const currencySymbols = { RUB: '₽', USD: '$', EUR: '€', AMD: '֏', GEL: '₾' };
+    let currentRates = {};
+    const baseCurrency = 'RUB';
+    async function loadRates() {
+      try {
+        const res = await fetch('/api/exchange-rates');
+        const data = await res.json();
+        if (data.ok) currentRates = data.rates || {};
+      } catch (e) {
+        console.warn('Failed to load exchange rates', e);
+      }
+    }
+    // Convert using local rates with base bridging
+    function convertAmountLocal(amount, fromCurrency, toCurrency) {
+      if (!Number.isFinite(amount)) return amount;
+      const from = (fromCurrency || baseCurrency).toUpperCase();
+      const to = (toCurrency || baseCurrency).toUpperCase();
+      if (from === to) return amount;
+      // Try direct
+      const directKey = `${from}_${to}`;
+      if (currentRates[directKey]) {
+        return amount * currentRates[directKey];
+      }
+      // Bridge via base currency
+      let inBase = amount;
+      if (from !== baseCurrency) {
+        const k = `${from}_${baseCurrency}`;
+        if (!currentRates[k]) return amount; // no rate, fallback original
+        inBase = amount * currentRates[k];
+      }
+      if (to === baseCurrency) return inBase;
+      const k2 = `${baseCurrency}_${to}`;
+      if (!currentRates[k2]) return amount; // no rate, fallback original
+      return inBase * currentRates[k2];
+    }
     async function setCurrency(currency) {
       localStorage.setItem('currency', currency);
       // Toggle pressed state for both desktop and sidebar groups
@@ -295,9 +329,16 @@
       });
       // Notify backend (server-side formatting)
       try {
-        await fetch('/set-currency', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currency }) });
-      } catch (e) { console.warn('Set currency failed', e); }
-      // Update all amounts on the page (client conversion)
+        await fetch('/set-currency', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currency })
+        });
+      } catch (e) {
+        console.warn('Set currency failed', e);
+      }
+      // Refresh rates and update amounts
+      await loadRates();
       await convertAllAmounts(currency);
     }
     async function convertAllAmounts(targetCurrency) {
@@ -305,14 +346,10 @@
       if (!nodes.length) return;
       for (const el of nodes) {
         const original = parseFloat(el.dataset.amount);
-        const fromCurr = (el.dataset.currency || 'RUB').toUpperCase();
-        if (!isFinite(original)) continue;
-        if (fromCurr === targetCurrency) { paintAmount(el, original, targetCurrency); continue; }
-        try {
-          const res = await fetch(`/api/convert?from=${fromCurr}&to=${targetCurrency}&amount=${encodeURIComponent(original)}`);
-          const data = await res.json();
-          if (data.ok) paintAmount(el, data.converted, targetCurrency);
-        } catch (e) { console.error('Convert failed', e); }
+        const fromCurr = (el.dataset.currency || baseCurrency).toUpperCase();
+        if (!Number.isFinite(original)) continue;
+        const converted = convertAmountLocal(original, fromCurr, targetCurrency);
+        paintAmount(el, converted, targetCurrency);
       }
     }
     function paintAmount(el, value, currency) {
