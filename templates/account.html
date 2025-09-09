@@ -37,8 +37,8 @@
     <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Настройки</h5>
   </div>
   <div class="ynab-card-body">
-    <form method="POST" action="{{ url_for('update_settings') }}" class="row g-3">
-      <div class="col-md-6">
+    <form method="POST" action="{{ url_for('set_currency') }}" class="row g-3">
+      <div class="col-md-8">
         <label class="form-label">Валюта интерфейса</label>
         <select class="form-select" name="currency">
           {% for c in ['RUB','USD','EUR','AMD','GEL'] %}
@@ -52,17 +52,9 @@
           {% endfor %}
         </select>
       </div>
-      <div class="col-md-6">
-        <label class="form-label">Тема интерфейса</label>
-        <select class="form-select" name="theme">
-          <option value="light">Светлая</option>
-          <option value="dark">Темная</option>
-          <option value="auto">Автоматическая</option>
-        </select>
-      </div>
-      <div class="col-12">
-        <button type="submit" class="btn btn-primary">
-          <i class="bi bi-check-lg me-1"></i>Сохранить настройки
+      <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-check-lg me-1"></i>Сохранить валюту
         </button>
       </div>
     </form>

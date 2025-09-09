@@ -584,3 +584,43 @@ sqlite3.IntegrityError: FOREIGN KEY constraint failed
 2025-09-09 16:21:33,646 INFO [app] POST request to set_currency from 127.0.0.1
 2025-09-09 18:55:53,343 INFO [app] POST request to set_currency from 127.0.0.1
 2025-09-09 18:56:17,195 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 19:03:31,894 INFO [app] Logging system initialized
+2025-09-09 19:03:31,895 INFO [app] Log level: INFO
+2025-09-09 19:03:31,895 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 19:03:35,403 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 19:03:37,137 ERROR [app] Exception on /account [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 894, in account
+    return render_template("account.html", user=user, currencies=CURRENCIES)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/account.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 220, in top-level template code
+    {% block content %}{% endblock %}
+  File "/home/admin/crystall-budget/templates/account.html", line 40, in block 'content'
+    <form method="POST" action="{{ url_for('update_settings') }}" class="row g-3">
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'update_settings'. Did you mean 'update_goal_progress' instead?
+2025-09-09 19:03:37,142 ERROR [app] 500 Internal Server Error: http://localhost:5000/account - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
