@@ -43,3 +43,5 @@ Thumbs.db
 check_*.py
 migrate_*.py
 test_*.py
+error.log
+error.log

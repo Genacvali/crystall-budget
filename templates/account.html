@@ -7,28 +7,31 @@
     <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Профиль пользователя</h5>
   </div>
   <div class="ynab-card-body">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label class="form-label text-muted">Email</label>
-          <div class="fw-semibold">{{ user.email }}</div>
+    <form method="POST" action="{{ url_for('update_profile') }}">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" name="email" value="{{ user.email }}" required>
         </div>
-        <div class="mb-3">
-          <label class="form-label text-muted">Имя</label>
-          <div class="fw-semibold">{{ user.name }}</div>
+        <div class="col-md-6">
+          <label class="form-label">Имя</label>
+          <input type="text" class="form-control" name="name" value="{{ user.name }}" required>
         </div>
-      </div>
-      <div class="col-md-6">
-        <div class="mb-3">
+        <div class="col-md-6">
           <label class="form-label text-muted">Дата регистрации</label>
-          <div class="fw-semibold">{{ user.created_at|format_date_with_day if user.created_at else 'Неизвестно' }}</div>
+          <div class="form-control-plaintext">{{ user.created_at|format_date_with_day if user.created_at else 'Неизвестно' }}</div>
         </div>
-        <div class="mb-3">
+        <div class="col-md-6">
           <label class="form-label text-muted">Последний вход</label>
-          <div class="fw-semibold">{{ user.last_login|format_date_with_day if user.last_login else 'Неизвестно' }}</div>
+          <div class="form-control-plaintext">{{ user.last_login|format_date_with_day if user.last_login else 'Неизвестно' }}</div>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg me-1"></i>Сохранить профиль
+          </button>
         </div>
       </div>
-    </div>
+    </form>
   </div>
 </div>
 
@@ -61,6 +64,36 @@
   </div>
 </div>
 
+<div class="ynab-card mb-4">
+  <div class="ynab-card-header">
+    <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Смена пароля</h5>
+  </div>
+  <div class="ynab-card-body">
+    <form method="POST" action="{{ url_for('account_password') }}">
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Текущий пароль</label>
+          <input type="password" class="form-control" name="old_password" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Новый пароль</label>
+          <input type="password" class="form-control" name="new_password" minlength="6" required>
+          <div class="form-text">Минимум 6 символов</div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Подтвердите новый пароль</label>
+          <input type="password" class="form-control" name="confirm_password" minlength="6" required>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-warning">
+            <i class="bi bi-key me-1"></i>Изменить пароль
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="ynab-card">
   <div class="ynab-card-header">
     <h5 class="mb-0"><i class="bi bi-download me-2"></i>Экспорт данных</h5>
@@ -78,4 +111,29 @@
   </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Валидация совпадения паролей
+    const newPasswordInput = document.querySelector('input[name="new_password"]');
+    const confirmPasswordInput = document.querySelector('input[name="confirm_password"]');
+    
+    function checkPasswordMatch() {
+        if (newPasswordInput.value && confirmPasswordInput.value) {
+            if (newPasswordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.setCustomValidity('Пароли не совпадают');
+            } else {
+                confirmPasswordInput.setCustomValidity('');
+            }
+        }
+    }
+    
+    if (newPasswordInput && confirmPasswordInput) {
+        newPasswordInput.addEventListener('input', checkPasswordMatch);
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+    }
+});
+</script>
 {% endblock %}

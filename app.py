@@ -962,6 +962,55 @@ def account_avatar():
 
     return redirect(url_for("account"))
 
+@app.route("/account/profile", methods=["POST"])
+@login_required
+def update_profile():
+    """Обновление основной информации профиля"""
+    uid = session["user_id"]
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    
+    if not name:
+        flash("Имя не может быть пустым", "error")
+        return redirect(url_for("account"))
+    
+    if not email:
+        flash("Email не может быть пустым", "error")
+        return redirect(url_for("account"))
+    
+    # Простая валидация email
+    if "@" not in email or "." not in email:
+        flash("Некорректный формат email", "error")
+        return redirect(url_for("account"))
+    
+    conn = get_db()
+    try:
+        # Проверяем, не занят ли email другим пользователем
+        existing = conn.execute(
+            "SELECT id FROM users WHERE email = ? AND id != ?", 
+            (email, uid)
+        ).fetchone()
+        
+        if existing:
+            flash("Этот email уже используется другим пользователем", "error")
+            return redirect(url_for("account"))
+        
+        # Обновляем профиль
+        conn.execute(
+            "UPDATE users SET name = ?, email = ? WHERE id = ?",
+            (name, email, uid)
+        )
+        conn.commit()
+        flash("Профиль обновлен", "success")
+        
+    except sqlite3.Error as e:
+        flash("Ошибка обновления профиля", "error")
+        app.logger.error(f"Profile update error for user {uid}: {e}")
+    finally:
+        conn.close()
+    
+    return redirect(url_for("account"))
+
 
 # -----------------------------------------------------------------------------
 # Routes: dashboard

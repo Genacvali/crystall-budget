@@ -64,3 +64,17 @@ Traceback (most recent call last):
     raise BuildError(endpoint, values, method, self)
 werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'update_settings'. Did you mean 'update_goal_progress' instead?
 [2025-09-09 19:03:37,142] ERROR in app: 500 Internal Server Error: http://localhost:5000/account - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+[2025-09-09 19:04:59 +0300] [9434] [INFO] Worker exiting (pid: 9434)
+[2025-09-09 19:04:59 +0300] [9425] [INFO] Handling signal: term
+[2025-09-09 19:04:59 +0300] [9425] [ERROR] Worker (pid:9434) was sent SIGTERM!
+[2025-09-09 19:05:09 +0300] [9433] [INFO] Worker exiting (pid: 9433)
+[2025-09-09 19:05:09 +0300] [9425] [INFO] Shutting down: Master
+[2025-09-09 19:05:10 +0300] [10244] [INFO] Starting gunicorn 21.2.0
+[2025-09-09 19:05:10 +0300] [10244] [INFO] Listening at: http://127.0.0.1:5000 (10244)
+[2025-09-09 19:05:10 +0300] [10244] [INFO] Using worker: sync
+[2025-09-09 19:05:10 +0300] [10251] [INFO] Booting worker with pid: 10251
+[2025-09-09 19:05:10 +0300] [10252] [INFO] Booting worker with pid: 10252
+[2025-09-09 19:05:19,221] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 19:07:06,933] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 19:07:07,810] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-09 19:07:08,693] INFO in app: POST request to set_currency from 127.0.0.1

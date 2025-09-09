@@ -624,3 +624,10 @@ Traceback (most recent call last):
     raise BuildError(endpoint, values, method, self)
 werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'update_settings'. Did you mean 'update_goal_progress' instead?
 2025-09-09 19:03:37,142 ERROR [app] 500 Internal Server Error: http://localhost:5000/account - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 19:05:10,040 INFO [app] Logging system initialized
+2025-09-09 19:05:10,041 INFO [app] Log level: INFO
+2025-09-09 19:05:10,041 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 19:05:19,221 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 19:07:06,933 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 19:07:07,810 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 19:07:08,693 INFO [app] POST request to set_currency from 127.0.0.1
