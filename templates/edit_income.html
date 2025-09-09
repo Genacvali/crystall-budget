@@ -1,131 +1,43 @@
 {% extends "base.html" %}
-{% block title %}✏️ Редактирование дохода — CrystalBudget{% endblock %}
+{% block title %}✏️ Редактирование дохода - CrystalBudget{% endblock %}
 
 {% block content %}
-<style>
-  .page-actions .btn { white-space: nowrap; }
-  .card-modern { border: none; box-shadow: 0 6px 18px rgba(0, 0, 0, .06); border-radius: 12px; }
-  .help-text { color: var(--bs-secondary); font-size: .875rem; }
-  .input-group-lg .input-group-text { min-width: 2.5rem; justify-content: center; }
-</style>
-
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 page-actions">
-  <h1 class="h4 m-0 d-flex align-items-center gap-2">
-    <i class="bi bi-pencil-square" aria-hidden="true"></i> Редактирование дохода
-  </h1>
-  <div class="d-flex gap-2">
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="text-gradient"><i class="bi bi-pencil-square"></i> Редактирование дохода</h2>
     <a href="{{ url_for('income') }}" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> <span class="d-none d-md-inline">Назад</span>
+        <i class="bi bi-arrow-left"></i> <span class="d-none d-md-inline">Назад</span>
     </a>
-    {% if income_delete_url %}
-    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteIncomeModal">
-      <i class="bi bi-trash3"></i> Удалить
-    </button>
-    {% endif %}
-  </div>
 </div>
 
-<div class="card card-modern">
-  <div class="card-body">
-    <form method="POST" id="edit-income-form" novalidate>
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label for="month" class="form-label">
-            <i class="bi bi-calendar"></i> Месяц
-          </label>
-          <input type="month" id="month" name="month" value="{{ income.month }}" class="form-control" required>
-          <div class="invalid-feedback">Укажите месяц дохода.</div>
-        </div>
-
-        <div class="col-md-6">
-          <label for="amount" class="form-label">
-            <i class="bi bi-currency-exchange"></i> Сумма
-          </label>
-          <div class="input-group input-group-lg">
-            <span class="input-group-text currency-display">{{ currency_symbol|default('₽') }}</span>
-            <input type="number" id="amount" name="amount" step="0.01" min="0.01" inputmode="decimal" value="{{ income.amount }}" class="form-control" required>
-          </div>
-          <div class="help-text mt-1">Используйте точку для копеек: 1234.56</div>
-          <div class="invalid-feedback">Введите корректную сумму больше нуля.</div>
-        </div>
-      </div>
-
-      <div class="d-flex gap-2 mt-4 flex-wrap">
-        <button type="submit" class="btn btn-success flex-fill" id="save-btn">
-          <i class="bi bi-check-lg"></i> Сохранить изменения
-        </button>
-        <a href="{{ url_for('income') }}" class="btn btn-outline-secondary flex-fill">
-          <i class="bi bi-x-lg"></i> Отмена
-        </a>
-      </div>
-    </form>
-  </div>
-</div>
-
-{% if income_delete_url %}
-<!-- Модальное окно удаления дохода -->
-<div class="modal fade" id="deleteIncomeModal" tabindex="-1" aria-labelledby="deleteIncomeLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteIncomeLabel">Удалить доход</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      </div>
-      <form method="POST" action="{{ income_delete_url }}">
-        <div class="modal-body">
-          <p class="mb-0">Вы уверены, что хотите удалить доход <strong>{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></strong> за <strong>{{ income.month }}</strong>?
-          <br><small class="text-muted">Действие нельзя отменить.</small></p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-danger">
-            <i class="bi bi-trash3"></i> Удалить
-          </button>
-        </div>
-      </form>
+<div class="card crystal-card">
+    <div class="card-body">
+        <form method="POST">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="month" class="form-label">
+                        <i class="bi bi-calendar"></i> Месяц
+                    </label>
+                    <input type="month" id="month" name="month" value="{{ income.month }}" 
+                           class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="amount" class="form-label">
+                        <i class="bi bi-currency-dollar"></i> Сумма
+                    </label>
+                    <input type="number" id="amount" name="amount" step="0.01" min="0.01" 
+                           inputmode="decimal" value="{{ income.amount }}" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn-modern btn-modern-success flex-fill">
+                    <i class="bi bi-check-lg"></i> Сохранить изменения
+                </button>
+                <a href="{{ url_for('income') }}" class="btn btn-outline-secondary flex-fill">
+                    <i class="bi bi-x-lg"></i> Отмена
+                </a>
+            </div>
+        </form>
     </div>
-  </div>
 </div>
-{% endif %}
-{% endblock %}
-
-{% block scripts %}
-<script>
-  (function() {
-    const form = document.getElementById('edit-income-form');
-    const amount = document.getElementById('amount');
-    const month = document.getElementById('month');
-    const saveBtn = document.getElementById('save-btn');
-
-    // Предотвратить скролл на числовых инпутах
-    amount?.addEventListener('wheel', e => e.preventDefault(), { passive: false });
-
-    function validate() {
-      const ok = !!(month?.value && parseFloat(amount?.value) > 0);
-      saveBtn.disabled = !ok;
-    }
-
-    ['input', 'change'].forEach(ev => {
-      [amount, month].forEach(el => el && el.addEventListener(ev, validate));
-    });
-    validate();
-
-    form?.addEventListener('submit', function(e) {
-      if (!form.checkValidity()) {
-        e.preventDefault();
-        e.stopPropagation();
-      }
-      form.classList.add('was-validated');
-      saveBtn.disabled = true;
-      saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Сохраняем...';
-    });
-
-    amount?.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !saveBtn.disabled) {
-        e.preventDefault();
-        form.requestSubmit();
-      }
-    });
-  })();
-</script>
 {% endblock %}

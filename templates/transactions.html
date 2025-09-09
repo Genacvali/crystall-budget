@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Транзакции — CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="ynab-card mb-3">
+  <div class="ynab-card-body d-flex align-items-center gap-2 flex-wrap">
+    <div class="badge-soft">{{ current_month_name }}</div>
+    <div class="d-flex gap-1 ms-auto">
+      <a href="?month={{ prev_month }}" class="btn-icon">&larr;</a>
+      <a href="?month={{ next_month }}" class="btn-icon">&rarr;</a>
+    </div>
+  </div>
+</div>
+
+<div class="ynab-card">
+  <div class="ynab-card-body p-0">
+    <div class="table-responsive">
+      <table class="table ynab-table mb-0">
+        <thead>
+          <tr>
+            <th>Дата</th>
+            <th>Описание</th>
+            <th class="text-end">Сумма</th>
+            <th>Категория</th>
+            <th width="1%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for transaction in transactions %}
+          <tr>
+            <td>{{ transaction.date|format_date }}</td>
+            <td>{{ transaction.description or transaction.note or '—' }}</td>
+            <td class="text-end">
+              <span class="amount {{ 'positive' if transaction.type == 'income' else 'negative' }}">
+                {{ transaction.amount|format_amount }}
+              </span>
+            </td>
+            <td>{{ transaction.category_name or '—' }}</td>
+            <td>
+              <div class="dropdown">
+                <button class="btn-icon dropdown-toggle" data-bs-toggle="dropdown">⋯</button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li><a class="dropdown-item" href="#">Редактировать</a></li>
+                  <li><a class="dropdown-item text-danger" href="#" onclick="return confirm('Удалить транзакцию?')">Удалить</a></li>
+                </ul>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% if not transactions %}
+<div class="text-center py-5">
+  <div class="text-muted mb-3">
+    <i class="bi bi-receipt" style="font-size: 3rem;"></i>
+  </div>
+  <p class="text-muted">Транзакций за этот месяц нет</p>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,11 +1,45 @@
+# Virtual environment
+venv/
+.venv/
+env/
+.env
+
+# Database
+budget.db
+*.db
+*.db-*
+
+# Logs
+*.log
+logs/*.log
 access.log
-logs/crystalbudget.log
 error.log
-access.log
-access.log
-error.log
-logs/crystalbudget.log
-error.log
-__pycache__/app.cpython-39.pyc
-logs/crystalbudget.log
-access.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*_backup.*
+*_old.*
+
+# Development scripts
+check_*.py
+migrate_*.py
+test_*.py

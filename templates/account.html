@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Профиль — CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="ynab-card mb-4">
+  <div class="ynab-card-header">
+    <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Профиль пользователя</h5>
+  </div>
+  <div class="ynab-card-body">
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label text-muted">Email</label>
+          <div class="fw-semibold">{{ user.email }}</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted">Имя</label>
+          <div class="fw-semibold">{{ user.name }}</div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label text-muted">Дата регистрации</label>
+          <div class="fw-semibold">{{ user.created_at|format_date }}</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label text-muted">Последний вход</label>
+          <div class="fw-semibold">{{ user.last_login|format_date or 'Неизвестно' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ynab-card mb-4">
+  <div class="ynab-card-header">
+    <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Настройки</h5>
+  </div>
+  <div class="ynab-card-body">
+    <form method="POST" action="{{ url_for('update_settings') }}" class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label">Валюта интерфейса</label>
+        <select class="form-select" name="currency">
+          {% for c in ['RUB','USD','EUR','AMD','GEL'] %}
+          <option value="{{ c }}" {% if c == session.get('currency', 'RUB') %}selected{% endif %}>
+            {% if c == 'RUB' %}🇷🇺 Рубли (₽){% endif %}
+            {% if c == 'USD' %}🇺🇸 Доллары ($){% endif %}
+            {% if c == 'EUR' %}🇪🇺 Евро (€){% endif %}
+            {% if c == 'AMD' %}🇦🇲 Драмы (֏){% endif %}
+            {% if c == 'GEL' %}🇬🇪 Лари (₾){% endif %}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Тема интерфейса</label>
+        <select class="form-select" name="theme">
+          <option value="light">Светлая</option>
+          <option value="dark">Темная</option>
+          <option value="auto">Автоматическая</option>
+        </select>
+      </div>
+      <div class="col-12">
+        <button type="submit" class="btn btn-primary">
+          <i class="bi bi-check-lg me-1"></i>Сохранить настройки
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="ynab-card">
+  <div class="ynab-card-header">
+    <h5 class="mb-0"><i class="bi bi-download me-2"></i>Экспорт данных</h5>
+  </div>
+  <div class="ynab-card-body">
+    <p class="text-muted mb-3">Скачайте копию всех ваших данных для резервного копирования или переноса.</p>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-primary" onclick="alert('Экспорт в разработке')">
+        <i class="bi bi-file-text me-1"></i>Экспорт CSV
+      </button>
+      <button class="btn btn-outline-primary" onclick="alert('Экспорт в разработке')">
+        <i class="bi bi-file-code me-1"></i>Экспорт JSON
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

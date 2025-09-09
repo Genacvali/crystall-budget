@@ -58,7 +58,7 @@ python3 migrate_new_tables.py
 ## Architecture Overview
 
 ### Single-File Flask Application
-The entire backend is contained in `app.py` (~3300+ lines) with:
+The entire backend is contained in `app.py` (~2000+ lines) with:
 - Multi-user authentication system with 30-day session persistence
 - SQLite database with automatic schema initialization and default data
 - Currency support (RUB, USD, EUR, AMD, GEL) with session-based selection

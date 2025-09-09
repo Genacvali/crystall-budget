@@ -9,11 +9,10 @@ from logging.handlers import RotatingFileHandler
 
 from flask import (
     Flask, render_template, render_template_string, request, redirect,
-    url_for, flash, session, abort
+    url_for, flash, session
 )
 from jinja2 import DictLoader, ChoiceLoader
 from werkzeug.security import generate_password_hash, check_password_hash
-from time import time
 
 # -----------------------------------------------------------------------------
 # App config
@@ -162,38 +161,6 @@ def _fetch_rate_exchangerate_host_base(base: str, sym: str) -> float:
         raise ValueError("no rate for symbol in latest")
     return float(rate)
 
-def _fetch_rate_erapi_base(base: str, sym: str) -> float:
-    """open.er-api.com: /v6/latest/{base} → rates[sym]"""
-    import requests
-    url = f"https://open.er-api.com/v6/latest/{base}"
-    r = requests.get(url, timeout=8)
-    r.raise_for_status()
-    data = r.json()
-    if data.get("result") != "success":
-        raise ValueError(f"erapi not success: {data.get('result')}")
-    rates = data.get("rates") or {}
-    rate = rates.get(sym)
-    if rate is None:
-        raise ValueError(f"erapi missing {base}->{sym}")
-    return float(rate)
-
-def _fetch_rate_fawaz_jsdelivr(base: str, sym: str) -> float:
-    """
-    CDN currency-api: /v1/currencies/{base}.json
-    формат: {'usd': {'rub': 92.1, ...}}
-    """
-    import requests
-    b = base.lower(); s = sym.lower()
-    url = f"https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/{b}.json"
-    r = requests.get(url, timeout=10)
-    r.raise_for_status()
-    data = r.json()
-    obj = data.get(b) or {}
-    rate = obj.get(s)
-    if rate is None:
-        raise ValueError(f"fawaz missing {base}->{sym}")
-    return float(rate)
-
 def get_exchange_rate_via_bridge(frm: str, to: str, bridge: str = BRIDGE_CURRENCY) -> float:
     """Кросс-курс через промежуточную валюту (по умолчанию USD)."""
     frm, to, bridge = _norm_cur(frm), _norm_cur(to), _norm_cur(bridge)
@@ -212,10 +179,10 @@ def get_exchange_rate_via_bridge(frm: str, to: str, bridge: str = BRIDGE_CURRENC
 
 def get_exchange_rate(frm: str, to: str) -> float:
     """
-    Улучшенная функция получения курсов с множественными провайдерами:
     1) читаем кэш из exchange_rates (TTL);
-    2) пробуем множественные источники по очереди;
-    3) сохраняем в кэш; если всё сломалось — отдаём старый кэш, если он был.
+    2) пробуем прямую пару через exchangerate.host;
+    3) пробуем кросс-курс через USD (или EXR_BRIDGE);
+    4) сохраняем в кэш; если всё сломалось — отдаём старый кэш, если он был.
     """
     from datetime import datetime, timedelta
     
@@ -231,87 +198,51 @@ def get_exchange_rate(frm: str, to: str) -> float:
             "SELECT rate, updated_at FROM exchange_rates WHERE from_currency=? AND to_currency=?",
             (frm, to)
         ).fetchone()
-
-        def row_rate():
-            if not row: 
-                return None
-            try:
-                upd = datetime.fromisoformat(row["updated_at"].replace("Z",""))
-            except Exception:
-                upd = now - timedelta(days=365)
-            if row["rate"] and float(row["rate"]) > 0:
-                return float(row["rate"]), upd
-            return None, upd
-
-        # 1) валиден кэш?
+        
         if row:
             try:
-                cached, upd = row_rate()
-                if cached is not None and (now - upd).total_seconds() < EXR_CACHE_TTL_SECONDS:
-                    return cached
+                updated = datetime.fromisoformat(row["updated_at"].replace("Z",""))
             except Exception:
-                pass
+                updated = now - timedelta(days=365)
+            if (now - updated).total_seconds() < EXR_CACHE_TTL_SECONDS and row["rate"] and row["rate"] > 0:
+                return float(row["rate"])
 
-        # 2) пробуем источники по очереди
-        attempts = []
+        # 2) прямая пара
         try:
             rate = _fetch_rate_exchangerate_host(frm, to)
-            attempts.append(("exchangerate.host direct", rate))
-        except Exception as e:
-            app.logger.warning(f"exchangerate.host direct failed {frm}->{to}: {e}")
-        
-        if not attempts:
+        except Exception:
+            rate = None
+
+        # 3) через мост (USD по умолчанию)
+        if not rate:
             try:
                 rate = get_exchange_rate_via_bridge(frm, to, BRIDGE_CURRENCY)
-                attempts.append(("exchangerate.host via bridge", rate))
-            except Exception as e:
-                app.logger.warning(f"exchangerate.host via bridge failed {frm}->{to}: {e}")
-        
-        if not attempts:
-            try:
-                rate = _fetch_rate_erapi_base(frm, to)
-                attempts.append(("open.er-api.com", rate))
-            except Exception as e:
-                app.logger.warning(f"open.er-api.com failed {frm}->{to}: {e}")
-        
-        if not attempts:
-            try:
-                rate = _fetch_rate_fawaz_jsdelivr(frm, to)
-                attempts.append(("fawaz/jsdelivr", rate))
-            except Exception as e:
-                app.logger.warning(f"fawaz/jsdelivr failed {frm}->{to}: {e}")
+            except Exception:
+                rate = None
 
-        if attempts:
-            source, rate = attempts[0]
-            if rate and rate > 0:
-                conn.execute(
-                    """
-                    INSERT INTO exchange_rates(from_currency, to_currency, rate, updated_at)
-                    VALUES(?,?,?,?)
-                    ON CONFLICT(from_currency, to_currency) DO UPDATE SET
-                      rate=excluded.rate,
-                      updated_at=excluded.updated_at
-                    """,
-                    (frm, to, float(rate), now.isoformat(timespec="seconds")+"Z"),
-                )
-                conn.commit()
-                app.logger.info(f"FX ok {frm}->{to} via {source}: {rate}")
-                return float(rate)
+        if rate and rate > 0:
+            conn.execute(
+                """
+                INSERT INTO exchange_rates(from_currency, to_currency, rate, updated_at)
+                VALUES(?,?,?,?)
+                ON CONFLICT(from_currency, to_currency) DO UPDATE SET
+                  rate=excluded.rate,
+                  updated_at=excluded.updated_at
+                """,
+                (frm, to, float(rate), now.isoformat(timespec="seconds")+"Z"),
+            )
+            conn.commit()
+            return float(rate)
 
-        # 3) нет новых — отдаём старый, если был
+        # 4) fallback: старый кэш, если был
         if row and row["rate"]:
-            old = float(row["rate"])
-            app.logger.warning(f"FX fallback to cached {frm}->{to}: {old}")
-            return old
+            return float(row["rate"])
 
-        # 4) совсем ничего
         raise RuntimeError(f"cannot fetch exchange rate {frm}->{to}")
-
+        
     except Exception as e:
         app.logger.error(f"Exchange rate error {frm}->{to}: {e}")
-        # финальный грубый fallback — НЕ 1.0, чтобы не искажать вычисления;
-        # но чтобы не падало вообще, вернём 1.0 (и пусть фронт покажет предупреждение)
-        return 1.0
+        return 1.0  # Fallback
     finally:
         conn.close()
 
@@ -636,9 +567,7 @@ def get_source_for_category(conn, user_id, category_id):
 # Делаем все сессии permanent по умолчанию
 @app.before_request
 def make_session_permanent():
-    # По умолчанию — сессия обычная (пока не поставили галочку)
-    session.permanent = bool(session.get("remember", False))
-
+    session.permanent = True
 
 # Обработка плохих запросов
 @app.before_request
@@ -664,27 +593,9 @@ def validate_request():
 def favicon():
     return redirect(url_for('static', filename='icons/icon-192.png'))
 
-# Обработчики для шумных 404 ошибок
-@app.route("/static/js/bootstrap.bundle.min.js.map")
-def _ignore_bootstrap_map():
-    # Возвращаем пустой sourcemap, чтобы не шумело в логах
-    return app.response_class("{}", mimetype="application/json")
-
-@app.route("/.well-known/appspecific/com.chrome.devtools.json")
-def _ignore_devtools_probe():
-    # Chrome/расширения иногда тыкают — вернём 204
-    return ("", 204)
-
-@app.route("/static/<path:filename>.map")
-def _ignore_sourcemaps(filename):
-    # Игнорируем все запросы к sourcemap файлам
-    return app.response_class("{}", mimetype="application/json")
-
 @app.route('/logs')
 @login_required  
 def view_logs():
-    if os.environ.get('ENABLE_LOGS_VIEW', 'false').lower() != 'true':
-        return abort(404)
     try:
         log_file = os.path.join(os.path.dirname(__file__), 'logs', 'crystalbudget.log')
         if os.path.exists(log_file):
@@ -877,54 +788,23 @@ def login():
     if request.method == "POST":
         email = request.form["email"].lower().strip()
         password = request.form["password"]
-        remember = bool(request.form.get("remember"))
-
+        
         app.logger.info(f'Login attempt for email: {email}')
-        # Simple session-based rate limiting
-        now_ts = time()
-        window = int(os.environ.get("LOGIN_WINDOW_SECONDS", "600"))
-        max_attempts = int(os.environ.get("LOGIN_MAX_ATTEMPTS", "10"))
-        fails = session.get("login_fails", [])
-        fails = [t for t in fails if now_ts - t < window]
-        if len(fails) >= max_attempts:
-            app.logger.warning(f'Rate limit exceeded for login: {email} from {request.remote_addr}')
-            flash("Слишком много попыток входа. Попробуйте позже.", "error")
-            return render_template("login.html")
-        # persist cleaned fails
-        session["login_fails"] = fails
 
         conn = get_db()
         user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
         conn.close()
-
         if user and check_password_hash(user["password_hash"], password):
-            session.clear()
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = user["name"]
-
-            # <— вот тут меняем доступ к полям
-            prefs = dict(user)
-            session["theme"] = prefs.get("theme", "light")
-            session["currency"] = prefs.get("default_currency", "RUB")
-
-            # поддержка "Запомнить меня"
-            session["remember"] = remember
-            session.permanent = remember  # либо оставь управление в before_request (см. ниже)
-
+            # Загружаем настройки пользователя
+            session["theme"] = user.get("theme", "light")
+            session["currency"] = user.get("default_currency", "RUB")
             app.logger.info(f'Successful login for user: {email} (ID: {user["id"]})')
-            # reset login fails counter
-            session["login_fails"] = []
             return redirect(url_for("dashboard"))
-
+        
         app.logger.warning(f'Failed login attempt for email: {email}')
-        # Track failed attempt within time window
-        now_ts = time()
-        window = int(os.environ.get("LOGIN_WINDOW_SECONDS", "600"))
-        fails = session.get("login_fails", [])
-        fails = [t for t in fails if now_ts - t < window]
-        fails.append(now_ts)
-        session["login_fails"] = fails
         flash("Неверный email или пароль", "error")
 
     return render_template("login.html")
@@ -1313,13 +1193,12 @@ def quick_expense():
         return redirect(url_for("dashboard", month=return_month))
 
     conn = get_db()
-    current_currency = session.get('currency', DEFAULT_CURRENCY)
     conn.execute(
         """
-        INSERT INTO expenses (user_id, date, month, category_id, amount, note, currency)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO expenses (user_id, date, month, category_id, amount, note)
+        VALUES (?, ?, ?, ?, ?, ?)
         """,
-        (uid, date_str, date_str[:7], int(category_id), amount, note, current_currency),
+        (uid, date_str, date_str[:7], int(category_id), amount, note),
     )
     conn.commit()
     conn.close()
@@ -1333,14 +1212,8 @@ def quick_expense():
 @app.route("/sources")
 @login_required
 def sources_page():
-    uid = session["user_id"]
-    conn = get_db()
-    rows = conn.execute(
-        "SELECT id, name, is_default FROM income_sources WHERE user_id=? ORDER BY is_default DESC, name",
-        (uid,)
-    ).fetchall()
-    conn.close()
-    return render_template("sources.html", sources=rows)
+    """Redirect to income page since sources are now managed there."""
+    return redirect(url_for("income_page"))
 
 
 @app.route("/sources/add", methods=["POST"])
@@ -1749,9 +1622,6 @@ def expenses():
             flash("Произошла ошибка при добавлении расхода", "error")
         finally:
             conn.close()
-        next_url = request.form.get("next") or request.args.get("next")
-        if isinstance(next_url, str) and next_url.startswith("/"):
-            return redirect(next_url)
         return redirect(url_for("expenses"))
 
     # GET
@@ -2974,89 +2844,53 @@ def api_convert():
     except Exception as e:
         return {"ok": False, "error": str(e)}, 500
 
-# Защита от частых запросов курсов
-_last_fx_try = {}  # (pair)->timestamp
-
 @app.route('/api/exchange-rates')
 @login_required 
 def get_exchange_rates():
-    """Улучшенный API для получения курсов валют с защитой от частых запросов."""
+    """API для получения курсов валют."""
     try:
-        from time import time
         conn = get_db()
-
-        # берём кэш за последний час
+        
+        # Проверяем кэш курсов (обновляем раз в час)
         cursor = conn.execute("""
         SELECT from_currency, to_currency, rate, updated_at 
         FROM exchange_rates 
         WHERE updated_at > datetime('now', '-1 hour')
         """)
-        cached = {f"{r['from_currency']}_{r['to_currency']}": float(r['rate']) for r in cursor.fetchall()}
-
-        currencies = list(CURRENCIES.keys())
-        needed = []
-        for f in currencies:
-            for t in currencies:
-                if f == t: 
-                    continue
-                key = f"{f}_{t}"
-                if key not in cached:
-                    needed.append((f, t))
-
-        now = time()
-        for f, t in needed:
-            key = f"{f}_{t}"
-            # защита от бурстов - не чаще раз в 20 секунд на пару
-            if now - _last_fx_try.get(key, 0) < 20:
-                continue
-            _last_fx_try[key] = now
-            try:
-                rate = get_exchange_rate(f, t)
-                if rate and rate > 0:
-                    cached[key] = rate
-            except Exception as e:
-                app.logger.warning(f"Failed to get rate {f}->{t}: {e}")
-
+        
+        cached_rates = {}
+        for row in cursor.fetchall():
+            key = f"{row['from_currency']}_{row['to_currency']}"
+            cached_rates[key] = float(row['rate'])
+        
+        # Если кэш пуст или нет нужных курсов, загружаем свежие данные
+        currencies = ['RUB', 'USD', 'EUR', 'AMD', 'GEL']
+        needed_pairs = []
+        
+        for from_curr in currencies:
+            for to_curr in currencies:
+                if from_curr != to_curr:
+                    key = f"{from_curr}_{to_curr}"
+                    if key not in cached_rates:
+                        needed_pairs.append((from_curr, to_curr))
+        
+        # Загружаем недостающие курсы
+        if needed_pairs:
+            for from_curr, to_curr in needed_pairs:
+                try:
+                    rate = get_exchange_rate(from_curr, to_curr)
+                    if rate and rate > 0:
+                        cached_rates[f"{from_curr}_{to_curr}"] = rate
+                except Exception as e:
+                    app.logger.warning(f"Failed to get rate {from_curr}->{to_curr}: {e}")
+        
         conn.close()
         
-        if not cached:
-            return {"ok": True, "warning": True, "rates": {}}
-        
-        return {"ok": True, "rates": cached}
+        return {"ok": True, "rates": cached_rates}
         
     except Exception as e:
         app.logger.error(f"Error in get_exchange_rates: {e}")
         return {"ok": False, "error": str(e)}, 500
-
-@app.route("/debug/exr-test")
-@login_required
-def exr_test():
-    """Диагностический роут для тестирования провайдеров курсов."""
-    frm = request.args.get("from", "USD").upper()
-    to = request.args.get("to", "RUB").upper()
-    out = {"pair": f"{frm}->{to}"}
-    
-    try: 
-        out["exchangerate_host_direct"] = _fetch_rate_exchangerate_host(frm, to)
-    except Exception as e: 
-        out["exchangerate_host_direct"] = f"ERR: {e}"
-    
-    try: 
-        out["exchangerate_host_bridge"] = get_exchange_rate_via_bridge(frm, to)
-    except Exception as e: 
-        out["exchangerate_host_bridge"] = f"ERR: {e}"
-    
-    try: 
-        out["open_erapi"] = _fetch_rate_erapi_base(frm, to)
-    except Exception as e: 
-        out["open_erapi"] = f"ERR: {e}"
-    
-    try: 
-        out["fawaz_jsdelivr"] = _fetch_rate_fawaz_jsdelivr(frm, to)
-    except Exception as e: 
-        out["fawaz_jsdelivr"] = f"ERR: {e}"
-    
-    return out
 
 # -----------------------------------------------------------------------------
 # Savings Goals
@@ -3287,28 +3121,6 @@ def join_shared_budget():
         
     return redirect(url_for('shared_budgets'))
 
-@app.route('/shared-budgets/delete/<int:budget_id>', methods=['POST'])
-@login_required
-def delete_shared_budget(budget_id):
-    """Удаление семейного бюджета целиком (только для администратора)."""
-    conn = get_db()
-    uid = session['user_id']
-    # Проверяем что текущий пользователь админ этого бюджета
-    row = conn.execute("""
-        SELECT role FROM shared_budget_members
-        WHERE shared_budget_id=? AND user_id=?
-    """, (budget_id, uid)).fetchone()
-    if not row or row['role'] != 'admin':
-        conn.close()
-        flash('Недостаточно прав для удаления бюджета', 'error')
-        return redirect(url_for('shared_budgets'))
-    # Удаляем бюджет (участники удалятся каскадом)
-    conn.execute("DELETE FROM shared_budgets WHERE id=?", (budget_id,))
-    conn.commit()
-    conn.close()
-    flash('Семейный бюджет удалён', 'success')
-    return redirect(url_for('shared_budgets'))
-
 @app.route('/shared-budgets/<int:budget_id>')
 @login_required
 def shared_budget_detail(budget_id):
@@ -3342,12 +3154,12 @@ def shared_budget_detail(budget_id):
     
     # Получаем общие расходы всех участников за текущий месяц
     cursor = conn.execute("""
-    SELECT e.amount, e.currency, e.note AS description, e.date, c.name AS category_name, u.name AS username
+    SELECT e.amount, e.note AS description, e.date, c.name AS category_name, u.name AS username
     FROM expenses e
     JOIN categories c ON e.category_id = c.id
     JOIN users u ON e.user_id = u.id
     JOIN shared_budget_members sbm ON u.id = sbm.user_id
-    WHERE sbm.shared_budget_id = ?
+    WHERE sbm.shared_budget_id = ? 
     AND strftime('%Y-%m', e.date) = strftime('%Y-%m', 'now')
     ORDER BY e.date DESC, e.id DESC
     LIMIT 50
@@ -3355,29 +3167,17 @@ def shared_budget_detail(budget_id):
     
     recent_expenses = cursor.fetchall()
     
-    # Prepare categories for quick expense form and today's date
-    categories = conn.execute(
-        "SELECT id, name FROM categories WHERE user_id=? ORDER BY name", (user_id,)
-    ).fetchall()
-    today = datetime.now().strftime("%Y-%m-%d")
-    
     conn.close()
     
-    return render_template('shared_budget_detail.html',
-                         budget=budget,
-                         members=members,
-                         recent_expenses=recent_expenses,
-                         categories=categories,
-                         today=today)
+    return render_template('shared_budget_detail.html', 
+                         budget=budget, 
+                         members=members, 
+                         recent_expenses=recent_expenses)
 @app.after_request
 def set_security_headers(response):
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
-    # Modern security headers
-    response.headers['Referrer-Policy'] = 'no-referrer'
-    response.headers['Permissions-Policy'] = "geolocation=(), microphone=(), camera=()"
-    response.headers['Cross-Origin-Opener-Policy'] = 'same-origin'
-    response.headers['Cross-Origin-Resource-Policy'] = 'same-origin'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
 
     csp_base = [
         "default-src 'self'",

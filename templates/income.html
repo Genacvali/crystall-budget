@@ -2,255 +2,162 @@
 {% block title %}Доходы и источники — CrystalBudget{% endblock %}
 
 {% block content %}
-<!-- YNAB-styled Income & Sources -->
 <div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="zen-title m-0"><i class="bi bi-cash-coin" aria-hidden="true"></i><span>Доходы</span></h1>
+  <h2 class="h4 m-0"><i class="bi bi-cash-coin text-success me-2"></i>Доходы и источники</h2>
 </div>
 
-<!-- Tabs -->
-<ul class="nav nav-pills mb-4" id="incomeTab" role="tablist" style="gap:8px;">
-  <li class="nav-item" role="presentation">
-    <button class="ynab-btn active" id="income-tab" data-bs-toggle="pill" data-bs-target="#income-panel" type="button" role="tab">
-      <i class="bi bi-arrow-up-circle me-1" aria-hidden="true"></i>Доходы
-    </button>
-  </li>
-  <li class="nav-item" role="presentation">
-    <button class="ynab-btn" id="sources-tab" data-bs-toggle="pill" data-bs-target="#sources-panel" type="button" role="tab">
-      <i class="bi bi-piggy-bank me-1" aria-hidden="true"></i>Источники
-    </button>
-  </li>
-</ul>
+<!-- Доходы -->
 
-<div class="tab-content" id="incomeTabContent">
-  <!-- Доходы -->
-  <div class="tab-pane fade show active" id="income-panel" role="tabpanel">
-
-    <!-- Форма добавления дохода -->
-    <form method="POST" action="{{ url_for('income_add') }}" class="mb-3" id="add-income-form" novalidate>
-      <div class="ynab-card">
-        <div class="ynab-card-body">
-          <div class="row g-3 align-items-end">
-            <div class="col-6 col-md-3">
-              <label for="date" class="form-label">Дата</label>
-              <input type="date" id="date" name="date" value="{{ today }}" class="form-control" required>
-              <div class="invalid-feedback">Укажите дату.</div>
-            </div>
-            <div class="col-6 col-md-3">
-              <label for="amount" class="form-label">Сумма</label>
-              <div class="input-group input-group-lg">
-                <span class="input-group-text currency-display">{{ currency_symbol|default('₽') }}</span>
-                <input type="number" id="amount" name="amount" inputmode="decimal" step="0.01" min="0.01" class="form-control" placeholder="Сумма дохода" required>
-              </div>
-              <div class="form-text d-none d-md-block">Используйте точку для копеек: 1234.56</div>
-              <div class="invalid-feedback">Введите сумму больше 0.</div>
-            </div>
-            <div class="col-12 col-md-4">
-              <label for="source_id" class="form-label">Источник</label>
-              <select id="source_id" name="source_id" class="form-select">
-                {% if income_sources and income_sources|length %}
-                  <option value="">(не указан)</option>
-                  {% for s in income_sources %}
-                    <option value="{{ s.id }}" {% if s.is_default %}selected{% endif %}>{{ s.name }}</option>
-                  {% endfor %}
-                {% else %}
-                  <option value="" selected>(сначала создайте источники на вкладке «Источники»)</option>
-                {% endif %}
-              </select>
-            </div>
-            <div class="col-12 col-md-2 d-grid">
-              <button type="submit" class="ynab-btn" style="height:48px;"><i class="bi bi-check-lg me-1"></i> Добавить доход</button>
-            </div>
-          </div>
-        </div>
+<!-- Форма добавления дохода (по дням) -->
+<form method="POST" action="{{ url_for('income_add') }}" class="mb-3" novalidate>
+  <div class="card card-body">
+    <div class="row g-3">
+      <div class="col-6 col-md-3">
+        <label for="date" class="form-label">Дата</label>
+        <input type="date" id="date" name="date"
+               value="{{ today }}" class="form-control" required>
       </div>
-    </form>
 
-    <!-- Мобильные карточки -->
-    <div class="d-block d-md-none">
-      {% for income in incomes %}
-      <div class="ynab-card mb-2">
-        <div class="ynab-card-body">
-          <div class="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <div class="amount currency positive">{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
-              <small class="muted"><i class="bi bi-calendar3"></i> {{ income.date|format_date_with_day }}</small>
-            </div>
-            {% if income.source_id %}
-              {% set src = (income_sources | selectattr('id','equalto', income.source_id) | list) %}
-              {% if src and src[0] %}
-                <span class="badge-soft">{{ src[0].name }}</span>
-              {% endif %}
-            {% endif %}
-          </div>
-          <div class="d-flex gap-2 mt-2">
-            <a href="{{ url_for('edit_income', income_id=income.id) }}" class="ynab-btn flex-fill"><i class="bi bi-pencil"></i> Изменить</a>
-            <button type="button" class="ynab-btn ynab-btn-danger flex-fill btn-delete-income" data-action="{{ url_for('delete_income', income_id=income.id) }}" data-date="{{ income.date|format_date_with_day }}" data-amount="{{ income.amount|format_amount }}"><i class="bi bi-trash"></i> Удалить</button>
-          </div>
-        </div>
+      <div class="col-6 col-md-3">
+        <label for="amount" class="form-label">Сумма</label>
+        <input type="number" id="amount" name="amount"
+               inputmode="decimal" step="0.01" min="0.01"
+               class="form-control" placeholder="Сумма дохода" required>
+        <div class="form-text d-none d-md-block">Используйте точку для копеек: 1234.56</div>
       </div>
-      {% endfor %}
-    </div>
 
-    <!-- Табличный вид для десктопа -->
-    <div class="d-none d-md-block ynab-card">
-      <div class="ynab-card-body table-wrap">
-        <table class="ynab-table w-100">
-          <thead>
-            <tr>
-              <th>Дата</th>
-              <th class="text-end">Сумма</th>
-              <th>Источник</th>
-              <th class="text-end">Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for income in incomes %}
-            <tr class="ynab-row">
-              <td>{{ income.date|format_date_with_day }}</td>
-              <td class="text-end amount currency positive">{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
-              <td>
-                {% if income.source_id %}
-                  {% set src = (income_sources | selectattr('id','equalto', income.source_id) | list) %}
-                  {{ src[0].name if src and src[0] else '—' }}
-                {% else %}—{% endif %}
-              </td>
-              <td class="text-end">
-                <a href="{{ url_for('edit_income', income_id=income.id) }}" class="ynab-btn" style="padding:6px 10px;">
-                  <i class="bi bi-pencil"></i> <span class="d-none d-lg-inline">Изменить</span>
-                </a>
-                <button type="button" class="ynab-btn ynab-btn-danger btn-delete-income" style="padding:6px 10px;" data-action="{{ url_for('delete_income', income_id=income.id) }}" data-date="{{ income.date|format_date_with_day }}" data-amount="{{ income.amount|format_amount }}">
-                  <i class="bi bi-trash"></i> <span class="d-none d-lg-inline">Удалить</span>
-                </button>
-              </td>
-            </tr>
+      <div class="col-12 col-md-4">
+        <label for="source_id" class="form-label">Источник</label>
+        <div class="input-group">
+          <select id="source_id" name="source_id" class="form-select">
+            <option value="">(не указан)</option>
+            {% for s in income_sources %}
+              <option value="{{ s.id }}" {% if s.is_default %}selected{% endif %}>{{ s.name }}</option>
             {% endfor %}
-          </tbody>
-        </table>
+          </select>
+          <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#newSourceModal">
+            <i class="bi bi-plus"></i>
+          </button>
+        </div>
       </div>
-    </div>
 
-    {% if not incomes %}
-    <div class="ynab-card" style="margin-top:24px;">
-      <div class="ynab-card-body text-center">
-        <div class="mb-3"><i class="bi bi-cash-coin display-1 muted" aria-hidden="true"></i></div>
-        <h2 class="h5 mb-2">Доходов пока нет</h2>
-        <p class="muted mb-4">Добавьте свой первый доход</p>
-        <button class="ynab-btn" onclick="document.getElementById('date')?.focus()"><i class="bi bi-plus-lg me-1"></i> Добавить первый доход</button>
+      <div class="col-12 col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-success w-100">
+          <i class="bi bi-check-lg me-1"></i> Добавить доход
+        </button>
       </div>
     </div>
-    {% endif %}
   </div>
+</form>
 
-  <!-- Источники -->
-  <div class="tab-pane fade" id="sources-panel" role="tabpanel">
-    <div class="ynab-card mb-3">
-      <div class="ynab-card-body">
-        <form method="POST" action="{{ url_for('sources_add') }}" id="add-source-form" novalidate>
-          <div class="row g-3 align-items-end">
-            <div class="col-md-6">
-              <label class="form-label" for="src_name">Название</label>
-              <input class="form-control" id="src_name" name="name" placeholder="ЗП, Аванс, Декретные" required>
-              <div class="invalid-feedback">Введите название источника.</div>
-            </div>
-            <div class="col-md-4">
-              <label class="form-label" for="src_default">По умолчанию</label>
-              <select class="form-select" id="src_default" name="is_default">
-                <option value="0">Нет</option>
-                <option value="1">Да</option>
-              </select>
-            </div>
-            <div class="col-md-2 d-grid">
-              <button class="ynab-btn" style="height:48px;"><i class="bi bi-plus-lg me-1"></i> Добавить</button>
-            </div>
-          </div>
+<!-- Мобильные карточки -->
+<div class="d-block d-md-none">
+  {% for income in incomes %}
+  <div class="card mb-2">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-start mb-2">
+        <div>
+          <h6 class="mb-1">{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></h6>
+          <small class="text-muted">
+            <i class="bi bi-calendar3"></i> {{ income.date|format_date_with_day }}
+          </small>
+        </div>
+        {% if income.source_id %}
+          {% set src = (income_sources | selectattr('id','equalto', income.source_id) | list) %}
+          {% if src and src[0] %}
+            <span class="badge text-bg-secondary">{{ src[0].name }}</span>
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="d-flex gap-2 mt-2">
+        <a href="{{ url_for('edit_income', income_id=income.id) }}"
+           class="btn btn-outline-primary flex-fill">
+          <i class="bi bi-pencil"></i> Изменить
+        </a>
+        <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="flex-fill">
+          <button type="submit" class="btn btn-outline-danger w-100"
+                  onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
+            <i class="bi bi-trash"></i> Удалить
+          </button>
         </form>
       </div>
     </div>
-
-    <div class="ynab-card">
-      <div class="ynab-card-body table-wrap">
-        <table class="ynab-table w-100">
-          <thead>
-            <tr>
-              <th>Название</th>
-              <th>По умолчанию</th>
-              <th class="text-end">Действия</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for s in income_sources %}
-            <tr class="ynab-row">
-              <td>{{ s.name }}</td>
-              <td>{{ 'Да' if s.is_default else 'Нет' }}</td>
-              <td class="text-end">
-                <form class="d-inline" method="POST" action="{{ url_for('sources_update', source_id=s.id) }}">
-                  <input type="hidden" name="name" value="{{ s.name }}">
-                  <input type="hidden" name="is_default" value="{{ 1 if not s.is_default else 0 }}">
-                  <button class="ynab-btn" style="padding:6px 10px;">{{ 'Сделать дефолтным' if not s.is_default else 'Убрать дефолт' }}</button>
-                </form>
-                <button class="ynab-btn ynab-btn-danger btn-delete-source" style="padding:6px 10px;" data-action="{{ url_for('sources_delete', source_id=s.id) }}" data-name="{{ s.name }}">
-                  Удалить
-                </button>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    {% if not income_sources %}
-    <div class="ynab-card" style="margin-top:24px;">
-      <div class="ynab-card-body text-center">
-        <div class="mb-3"><i class="bi bi-piggy-bank display-1 muted" aria-hidden="true"></i></div>
-        <h2 class="h5 mb-2">Источников дохода пока нет</h2>
-        <p class="muted mb-4">Создайте свой первый источник дохода</p>
-        <button class="ynab-btn" onclick="document.querySelector('input[name=\"name\"]')?.focus()"><i class="bi bi-plus-lg me-1"></i> Добавить первый источник</button>
-      </div>
-    </div>
-    {% endif %}
   </div>
+  {% endfor %}
 </div>
 
-<!-- Модалки удаления -->
-<div class="modal fade" id="deleteIncomeModal" tabindex="-1" aria-labelledby="deleteIncomeLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteIncomeLabel">Удалить доход</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      </div>
-      <form id="deleteIncomeForm" method="POST" action="#">
-        <div class="modal-body">
-          <p class="mb-0">Удалить доход <strong id="incAmount"></strong> от <strong id="incDate"></strong>?
-            <br><small class="muted">Действие необратимо.</small>
-          </p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="ynab-btn" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="ynab-btn ynab-btn-danger"><i class="bi bi-trash"></i> Удалить</button>
-        </div>
-      </form>
-    </div>
-  </div>
+<!-- Табличный вид для десктопа -->
+<div class="table-responsive d-none d-md-block">
+  <table class="table table-striped align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Дата</th>
+        <th class="text-end">Сумма</th>
+        <th>Источник</th>
+        <th class="text-end">Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for income in incomes %}
+      <tr>
+        <td>{{ income.date|format_date_with_day }}</td>
+        <td class="text-end fw-bold">{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
+        <td>
+          {% if income.source_id %}
+            {% set src = (income_sources | selectattr('id','equalto', income.source_id) | list) %}
+            {{ src[0].name if src and src[0] else '—' }}
+          {% else %}—{% endif %}
+        </td>
+        <td class="text-end">
+          <a href="{{ url_for('edit_income', income_id=income.id) }}"
+             class="btn btn-sm btn-outline-primary me-1">
+            <i class="bi bi-pencil"></i> Изменить
+          </a>
+          <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+            <button type="submit" class="btn btn-sm btn-outline-danger"
+                    onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
+              <i class="bi bi-trash"></i> Удалить
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 
-<div class="modal fade" id="deleteSourceModal" tabindex="-1" aria-labelledby="deleteSourceLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+{% if not incomes %}
+<div class="text-center py-5">
+  <p class="text-muted mb-3">Доходов пока нет. Используйте форму выше для добавления первого дохода.</p>
+</div>
+{% endif %}
+
+<!-- Modal для добавления источника -->
+<div class="modal fade" id="newSourceModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteSourceLabel">Удалить источник</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        <h5 class="modal-title">Новый источник дохода</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <form id="deleteSourceForm" method="POST" action="#">
+      <form method="POST" action="{{ url_for('sources_add') }}">
         <div class="modal-body">
-          <p class="mb-0">Удалить источник <strong id="srcName"></strong>?
-            <br><small class="muted">Удаление невозможно, если с источником связаны записи доходов или привязки к категориям.</small>
-          </p>
+          <div class="mb-3">
+            <label class="form-label">Название источника</label>
+            <input type="text" class="form-control" name="name" placeholder="Зарплата, Аванс, Декретные..." required>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="is_default" value="1" id="isDefaultCheck">
+            <label class="form-check-label" for="isDefaultCheck">
+              Сделать источником по умолчанию
+            </label>
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="ynab-btn" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="ynab-btn ynab-btn-danger"><i class="bi bi-trash"></i> Удалить</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-plus"></i> Добавить источник
+          </button>
         </div>
       </form>
     </div>
@@ -261,69 +168,27 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // Автодата
+  // Если дата не задана — подставляем сегодня
   const dateInput = document.getElementById('date');
   if (dateInput && !dateInput.value) {
-    dateInput.value = new Date().toISOString().slice(0, 10);
+    const now = new Date();
+    dateInput.value = now.toISOString().slice(0, 10);
   }
 
-  // Фокус на сумму после источника
+  // После выбора источника — фокус в "Сумма"
   const source = document.getElementById('source_id');
   const amount = document.getElementById('amount');
   if (source && amount) {
     source.addEventListener('change', () => setTimeout(() => amount.focus(), 60));
   }
 
-  // Нормализация суммы и запрет колёсика
+  // Нормализация суммы до двух знаков на blur
   if (amount) {
     amount.addEventListener('blur', () => {
       const v = parseFloat(amount.value);
       if (!isNaN(v) && v > 0) amount.value = v.toFixed(2);
     });
-    amount.addEventListener('wheel', e=>{ e.preventDefault(); }, {passive:false});
-    amount.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); document.getElementById('add-income-form')?.requestSubmit(); } });
   }
-
-  // Валидация форм
-  const addIncomeForm = document.getElementById('add-income-form');
-  addIncomeForm?.addEventListener('submit', (e)=>{
-    if(!addIncomeForm.checkValidity()){ e.preventDefault(); e.stopPropagation(); addIncomeForm.classList.add('was-validated'); }
-  });
-  const addSourceForm = document.getElementById('add-source-form');
-  addSourceForm?.addEventListener('submit', (e)=>{
-    if(!addSourceForm.checkValidity()){ e.preventDefault(); e.stopPropagation(); addSourceForm.classList.add('was-validated'); }
-  });
-
-  // Модалка удаления дохода
-  const incModalEl = document.getElementById('deleteIncomeModal');
-  const incModal = incModalEl ? new bootstrap.Modal(incModalEl) : null;
-  const incForm = document.getElementById('deleteIncomeForm');
-  document.querySelectorAll('.btn-delete-income').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const action = btn.getAttribute('data-action');
-      const date = btn.getAttribute('data-date');
-      const amt = btn.getAttribute('data-amount');
-      if(incForm && action) incForm.setAttribute('action', action);
-      document.getElementById('incDate').textContent = date || '';
-      const cur = (document.querySelector('.currency-display')?.textContent?.trim()||'');
-      document.getElementById('incAmount').textContent = (amt||'') + ' ' + cur;
-      incModal?.show();
-    });
-  });
-
-  // Модалка удаления источника
-  const srcModalEl = document.getElementById('deleteSourceModal');
-  const srcModal = srcModalEl ? new bootstrap.Modal(srcModalEl) : null;
-  const srcForm = document.getElementById('deleteSourceForm');
-  document.querySelectorAll('.btn-delete-source').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const action = btn.getAttribute('data-action');
-      const name = btn.getAttribute('data-name');
-      if(srcForm && action) srcForm.setAttribute('action', action);
-      document.getElementById('srcName').textContent = '«'+(name||'')+'»';
-      srcModal?.show();
-    });
-  });
 });
 </script>
 {% endblock %}

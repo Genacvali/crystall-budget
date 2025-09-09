@@ -30,219 +30,55 @@
  * Running on http://10.17.211.208:5001
 2025-09-07 23:55:05,323 INFO [werkzeug] [33mPress CTRL+C to quit[0m
 2025-09-07 23:55:12,690 INFO [werkzeug] 127.0.0.1 - - [07/Sep/2025 23:55:12] "[32mGET / HTTP/1.1[0m" 302 -
-2025-09-08 15:31:47,989 INFO [app] Logging system initialized
-2025-09-08 15:31:47,990 INFO [app] Log level: INFO
-2025-09-08 15:31:47,990 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 15:31:48,122 INFO [app] Profile columns migration completed successfully
-2025-09-08 15:31:48,123 INFO [app] New tables migration completed successfully
-2025-09-08 15:31:48,124 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.24.143.15:5000
-2025-09-08 15:31:48,124 INFO [werkzeug] [33mPress CTRL+C to quit[0m
-2025-09-08 15:34:11,394 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:11] "[32mGET / HTTP/1.0[0m" 302 -
-2025-09-08 15:34:11,472 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:11] "GET /dashboard HTTP/1.0" 200 -
-2025-09-08 15:34:12,247 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:12,248 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:12] "POST /set-currency HTTP/1.0" 200 -
-2025-09-08 15:34:16,206 INFO [app] User logout: unknown
-2025-09-08 15:34:16,207 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:16] "[32mGET /logout HTTP/1.0[0m" 302 -
-2025-09-08 15:34:16,212 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:16] "GET /login HTTP/1.0" 200 -
-2025-09-08 15:34:16,257 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:16,258 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:16] "[32mPOST /set-currency HTTP/1.0[0m" 302 -
-2025-09-08 15:34:16,268 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:16] "GET /login HTTP/1.0" 200 -
-2025-09-08 15:34:17,557 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 15:34:17,557 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 15:34:17,558 WARNING [app] Failed login attempt for email: gena12m@gmail.com
-2025-09-08 15:34:17,558 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:17] "POST /login HTTP/1.0" 200 -
-2025-09-08 15:34:17,595 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:17,596 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:17] "[32mPOST /set-currency HTTP/1.0[0m" 302 -
-2025-09-08 15:34:17,606 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:17] "GET /login HTTP/1.0" 200 -
-2025-09-08 15:34:27,015 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "[32mGET / HTTP/1.1[0m" 302 -
-2025-09-08 15:34:27,020 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /dashboard HTTP/1.1" 200 -
-2025-09-08 15:34:27,268 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /static/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1" 200 -
-2025-09-08 15:34:27,349 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /static/css/clean-theme.css HTTP/1.1" 200 -
-2025-09-08 15:34:27,653 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2?1bb88866b4085542c8ed5fb61b9393dd HTTP/1.1" 200 -
-2025-09-08 15:34:27,700 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:27] "GET /static/js/bootstrap.bundle.min.js HTTP/1.1" 200 -
-2025-09-08 15:34:28,021 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:28,022 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:28] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:34:28,036 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:28] "GET /static/favicon.ico HTTP/1.1" 200 -
-2025-09-08 15:34:28,038 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:28] "GET /static/sw.js HTTP/1.1" 200 -
-2025-09-08 15:34:28,281 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:28] "GET /static/icons/icon-192.png HTTP/1.1" 200 -
-2025-09-08 15:34:30,782 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:30] "GET /expenses HTTP/1.1" 200 -
-2025-09-08 15:34:30,812 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:30,813 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:30] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:34:30,825 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:30] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:34:30,826 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:30] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:34:31,520 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "GET /categories HTTP/1.1" 200 -
-2025-09-08 15:34:31,615 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:31,616 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:34:31,774 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "GET /income HTTP/1.1" 200 -
-2025-09-08 15:34:31,864 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:31,865 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:34:31,866 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:31] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:34:32,034 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:34:32,310 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "GET /categories HTTP/1.1" 200 -
-2025-09-08 15:34:32,348 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:32,350 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:34:32,350 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:34:32,648 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:34:32,654 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:32] "[32mGET / HTTP/1.1[0m" 302 -
-2025-09-08 15:34:33,372 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "GET /goals HTTP/1.1" 200 -
-2025-09-08 15:34:33,403 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:33,404 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:34:33,716 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:34:33,717 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:34:33,981 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:33] "GET /shared-budgets HTTP/1.1" 200 -
-2025-09-08 15:34:34,028 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:34,029 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:34] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:34:34,031 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:34] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:34:37,108 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 15:34:37,110 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:37] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
-2025-09-08 15:34:37,132 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 15:34:37,134 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:37] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
-2025-09-08 15:34:37,410 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:37] "GET /static/manifest.webmanifest HTTP/1.1" 200 -
-2025-09-08 15:34:42,356 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "GET /dashboard HTTP/1.1" 200 -
-2025-09-08 15:34:42,389 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 15:34:42,391 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "[33mGET /.well-known/appspecific/com.chrome.devtools.json HTTP/1.1[0m" 404 -
-2025-09-08 15:34:42,399 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "[36mGET /static/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1[0m" 304 -
-2025-09-08 15:34:42,716 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "[36mGET /static/css/clean-theme.css HTTP/1.1[0m" 304 -
-2025-09-08 15:34:42,727 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:42] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
-2025-09-08 15:34:43,051 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[36mGET /static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2?1bb88866b4085542c8ed5fb61b9393dd HTTP/1.1[0m" 304 -
-2025-09-08 15:34:43,051 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:34:43,052 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 15:34:43,053 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:34:43,055 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[33mGET /static/js/bootstrap.bundle.min.js.map HTTP/1.1[0m" 404 -
-2025-09-08 15:34:43,295 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:34:43,370 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:34:43,380 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:34:43] "[32mGET / HTTP/1.1[0m" 302 -
-2025-09-08 15:36:52,684 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:52] "GET /expenses HTTP/1.1" 200 -
-2025-09-08 15:36:52,770 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:52] "[36mGET /static/vendor/bootstrap-icons/bootstrap-icons.css HTTP/1.1[0m" 304 -
-2025-09-08 15:36:52,933 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:52] "[36mGET /static/css/clean-theme.css HTTP/1.1[0m" 304 -
-2025-09-08 15:36:53,021 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[36mGET /static/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2?1bb88866b4085542c8ed5fb61b9393dd HTTP/1.1[0m" 304 -
-2025-09-08 15:36:53,086 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[36mGET /static/js/bootstrap.bundle.min.js HTTP/1.1[0m" 304 -
-2025-09-08 15:36:53,251 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:36:53,252 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:36:53,405 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:36:53,406 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:36:53,414 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:36:53] "[32mGET / HTTP/1.1[0m" 302 -
-2025-09-08 15:37:21,464 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:21] "GET /categories HTTP/1.1" 200 -
-2025-09-08 15:37:21,765 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:37:21,766 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:21] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:37:21,812 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:21] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:37:21,812 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:21] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:37:29,966 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:29] "GET /income HTTP/1.1" 200 -
-2025-09-08 15:37:30,001 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:37:30,002 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:30] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:37:30,008 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:30] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:37:30,324 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:30] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:37:38,205 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:38] "GET /goals HTTP/1.1" 200 -
-2025-09-08 15:37:38,236 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:37:38,236 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:38] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:37:38,241 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:38] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:37:38,554 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:38] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 15:37:47,141 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "GET /shared-budgets HTTP/1.1" 200 -
-2025-09-08 15:37:47,177 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 15:37:47,179 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "[36mGET /static/sw.js HTTP/1.1[0m" 304 -
-2025-09-08 15:37:47,179 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "POST /set-currency HTTP/1.1" 200 -
-2025-09-08 15:37:47,189 INFO [werkzeug] 127.0.0.1 - - [08/Sep/2025 15:37:47] "[36mGET /static/favicon.ico HTTP/1.1[0m" 304 -
-2025-09-08 16:27:40,206 INFO [app] Logging system initialized
-2025-09-08 16:27:40,207 INFO [app] Log level: INFO
-2025-09-08 16:27:40,207 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:27:55,675 INFO [app] Logging system initialized
-2025-09-08 16:27:55,676 INFO [app] Log level: INFO
-2025-09-08 16:27:55,676 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:28:10,915 INFO [app] Logging system initialized
-2025-09-08 16:28:10,915 INFO [app] Log level: INFO
-2025-09-08 16:28:10,915 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:28:26,171 INFO [app] Logging system initialized
-2025-09-08 16:28:26,171 INFO [app] Log level: INFO
-2025-09-08 16:28:26,171 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:28:41,407 INFO [app] Logging system initialized
-2025-09-08 16:28:41,407 INFO [app] Log level: INFO
-2025-09-08 16:28:41,408 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:28:46,630 INFO [app] Logging system initialized
-2025-09-08 16:28:46,630 INFO [app] Log level: INFO
-2025-09-08 16:28:46,630 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:29:01,916 INFO [app] Logging system initialized
-2025-09-08 16:29:01,916 INFO [app] Log level: INFO
-2025-09-08 16:29:01,917 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:29:12,515 INFO [app] Logging system initialized
-2025-09-08 16:29:12,515 INFO [app] Log level: INFO
-2025-09-08 16:29:12,515 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:29:17,192 INFO [app] Logging system initialized
-2025-09-08 16:29:17,193 INFO [app] Log level: INFO
-2025-09-08 16:29:17,193 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:29:32,405 INFO [app] Logging system initialized
-2025-09-08 16:29:32,405 INFO [app] Log level: INFO
-2025-09-08 16:29:32,405 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:29:47,660 INFO [app] Logging system initialized
-2025-09-08 16:29:47,661 INFO [app] Log level: INFO
-2025-09-08 16:29:47,661 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:29:53,724 INFO [app] Logging system initialized
-2025-09-08 16:29:53,724 INFO [app] Log level: INFO
-2025-09-08 16:29:53,724 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:30:02,465 INFO [app] Logging system initialized
-2025-09-08 16:30:02,465 INFO [app] Log level: INFO
-2025-09-08 16:30:02,465 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:30:17,908 INFO [app] Logging system initialized
-2025-09-08 16:30:17,909 INFO [app] Log level: INFO
-2025-09-08 16:30:17,909 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:30:33,165 INFO [app] Logging system initialized
-2025-09-08 16:30:33,166 INFO [app] Log level: INFO
-2025-09-08 16:30:33,166 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:30:48,407 INFO [app] Logging system initialized
-2025-09-08 16:30:48,407 INFO [app] Log level: INFO
-2025-09-08 16:30:48,408 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:31:03,663 INFO [app] Logging system initialized
-2025-09-08 16:31:03,664 INFO [app] Log level: INFO
-2025-09-08 16:31:03,664 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:31:18,914 INFO [app] Logging system initialized
-2025-09-08 16:31:18,914 INFO [app] Log level: INFO
-2025-09-08 16:31:18,914 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:31:34,176 INFO [app] Logging system initialized
-2025-09-08 16:31:34,177 INFO [app] Log level: INFO
-2025-09-08 16:31:34,177 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:31:39,402 INFO [app] Logging system initialized
-2025-09-08 16:31:39,403 INFO [app] Log level: INFO
-2025-09-08 16:31:39,403 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:31:54,677 INFO [app] Logging system initialized
-2025-09-08 16:31:54,677 INFO [app] Log level: INFO
-2025-09-08 16:31:54,677 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:32:09,935 INFO [app] Logging system initialized
-2025-09-08 16:32:09,935 INFO [app] Log level: INFO
-2025-09-08 16:32:09,936 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:32:25,169 INFO [app] Logging system initialized
-2025-09-08 16:32:25,170 INFO [app] Log level: INFO
-2025-09-08 16:32:25,170 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:32:40,422 INFO [app] Logging system initialized
-2025-09-08 16:32:40,422 INFO [app] Log level: INFO
-2025-09-08 16:32:40,422 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:32:55,661 INFO [app] Logging system initialized
-2025-09-08 16:32:55,661 INFO [app] Log level: INFO
-2025-09-08 16:32:55,661 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:33:10,903 INFO [app] Logging system initialized
-2025-09-08 16:33:10,904 INFO [app] Log level: INFO
-2025-09-08 16:33:10,904 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:33:26,191 INFO [app] Logging system initialized
-2025-09-08 16:33:26,191 INFO [app] Log level: INFO
-2025-09-08 16:33:26,191 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:33:41,405 INFO [app] Logging system initialized
-2025-09-08 16:33:41,405 INFO [app] Log level: INFO
-2025-09-08 16:33:41,405 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:33:50,023 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:34:34,593 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 16:34:34,594 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 16:34:34,602 WARNING [app] Failed login attempt for email: gena12m@gmail.com
-2025-09-08 16:34:34,906 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:34:40,371 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 16:34:40,371 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 16:34:40,372 WARNING [app] Failed login attempt for email: gena12m@gmail.com
-2025-09-08 16:34:40,398 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:34:42,912 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:35:05,407 INFO [app] POST request to register from 127.0.0.1
-2025-09-08 16:35:05,407 INFO [app] Registration attempt for email: gena12m@gmail.com, name: ГенаДемо
-2025-09-08 16:35:05,509 INFO [app] Successful registration for user: gena12m@gmail.com (ID: 1)
-2025-09-08 16:35:05,542 ERROR [app] Exception on /dashboard [GET]
+2025-09-09 10:32:32,937 INFO [app] Logging system initialized
+2025-09-09 10:32:32,937 INFO [app] Log level: INFO
+2025-09-09 10:32:32,937 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 10:32:36,354 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 10:32:37,896 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 10:32:38,582 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 10:32:39,364 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 10:33:28,862 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 10:34:08,578 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 10:34:14,200 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 10:34:15,711 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 10:53:13,862 INFO [app] Logging system initialized
+2025-09-09 10:53:13,863 INFO [app] Log level: INFO
+2025-09-09 10:53:13,863 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 10:53:25,263 ERROR [app] Exception on /categories [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1439, in categories
+    return render_template("categories.html",
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
+    self.environment.handle_exception()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/home/admin/crystall-budget/templates/categories.html", line 1, in top-level template code
+    {% extends "base.html" %}
+  File "/home/admin/crystall-budget/templates/base.html", line 156, in top-level template code
+    <a class="dropdown-item nav-link-modern" href="{{ url_for('account_page') }}">
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'account_page'. Did you mean 'account' instead?
+2025-09-09 10:53:25,269 ERROR [app] 500 Internal Server Error: http://localhost:5000/categories - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 10:53:27,315 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -266,17 +102,34 @@ Traceback (most recent call last):
     raise rewrite_traceback_stack(source=source)
   File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
     {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
-    {% include 'partials/modals_dashboard.html' %}
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
-    return self._get_source_fast(environment, template)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
-2025-09-08 16:35:05,547 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-08 16:35:16,561 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/templates/base.html", line 156, in top-level template code
+    <a class="dropdown-item nav-link-modern" href="{{ url_for('account_page') }}">
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1121, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1110, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'account_page'. Did you mean 'account' instead?
+2025-09-09 10:53:27,317 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 10:59:57,928 INFO [app] Logging system initialized
+2025-09-09 10:59:57,929 INFO [app] Log level: INFO
+2025-09-09 10:59:57,929 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:00:10,767 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:00:12,574 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:00:13,262 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:01:03,968 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:09:04,200 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:09:10,005 INFO [app] POST request to categories_add from 127.0.0.1
+2025-09-09 11:09:10,341 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:09:13,051 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:09:14,186 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:09:15,309 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:09:16,413 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:10:15,480 INFO [app] Logging system initialized
+2025-09-09 11:10:15,480 INFO [app] Log level: INFO
+2025-09-09 11:10:15,480 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:10:19,115 ERROR [app] Exception on /categories [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -288,29 +141,11 @@ Traceback (most recent call last):
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
   File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1155, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
-    {% include 'partials/modals_dashboard.html' %}
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
-    return self._get_source_fast(environment, template)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
-2025-09-08 16:35:16,563 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-08 16:35:19,343 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1422, in categories
+    rows = conn.execute(
+sqlite3.OperationalError: no such table: categories
+2025-09-09 11:10:19,119 ERROR [app] 500 Internal Server Error: http://localhost:5000/categories - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:10:20,400 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -322,401 +157,11 @@ Traceback (most recent call last):
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
   File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1155, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 222, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 318, in block 'content'
-    {% include 'partials/modals_dashboard.html' %}
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 65, in get_source
-    return self._get_source_fast(environment, template)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 99, in _get_source_fast
-    raise TemplateNotFound(template)
-jinja2.exceptions.TemplateNotFound: partials/modals_dashboard.html
-2025-09-08 16:35:19,343 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-08 16:45:32,110 INFO [app] Logging system initialized
-2025-09-08 16:45:32,110 INFO [app] Log level: INFO
-2025-09-08 16:45:32,110 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:45:42,051 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:45:45,293 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:45:46,049 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:45:53,862 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:45:55,911 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:45:56,599 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:57:22,269 INFO [app] Logging system initialized
-2025-09-08 16:57:22,269 INFO [app] Log level: INFO
-2025-09-08 16:57:22,270 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 16:57:33,031 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:57:34,532 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:57:36,456 INFO [app] User logout: gena12m@gmail.com
-2025-09-08 16:57:36,511 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:57:38,621 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:57:47,504 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 16:57:47,504 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 16:57:47,605 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
-2025-09-08 16:57:48,000 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 16:57:51,569 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:08:14,680 INFO [app] Logging system initialized
-2025-09-08 17:08:14,680 INFO [app] Log level: INFO
-2025-09-08 17:08:14,681 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 17:08:59,798 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:09:01,541 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:09:43,447 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:09:43,995 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:09:44,729 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:16:40,835 INFO [app] Logging system initialized
-2025-09-08 17:16:40,835 INFO [app] Log level: INFO
-2025-09-08 17:16:40,836 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 17:16:44,044 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:16:46,834 INFO [app] User logout: gena12m@gmail.com
-2025-09-08 17:16:47,484 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:16:48,136 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 17:16:48,137 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 17:16:48,233 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
-2025-09-08 17:16:48,624 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:32:13,770 INFO [app] Logging system initialized
-2025-09-08 17:32:13,770 INFO [app] Log level: INFO
-2025-09-08 17:32:13,770 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 17:32:16,161 INFO [app] Logging system initialized
-2025-09-08 17:32:16,162 INFO [app] Log level: INFO
-2025-09-08 17:32:16,162 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 17:32:19,759 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:32:20,658 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:32:21,721 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:32:27,082 INFO [app] POST request to create_shared_budget from 127.0.0.1
-2025-09-08 17:32:27,119 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:32:28,984 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:32:32,350 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:32:32,794 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:01,323 INFO [app] POST request to categories_add from 127.0.0.1
-2025-09-08 17:33:01,962 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:05,890 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:16,869 INFO [app] POST request to categories_delete from 127.0.0.1
-2025-09-08 17:33:16,904 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:23,737 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:28,417 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:33,302 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:33,929 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:42,794 INFO [app] POST request to sources_add from 127.0.0.1
-2025-09-08 17:33:42,855 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:44,080 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:53,818 INFO [app] POST request to categories_add from 127.0.0.1
-2025-09-08 17:33:54,468 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:58,571 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:33:59,482 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:34:02,085 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:34:04,969 INFO [app] POST request to categories_delete from 127.0.0.1
-2025-09-08 17:34:05,324 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:34:47,651 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:34:51,059 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:35:02,694 INFO [app] POST request to categories_add from 127.0.0.1
-2025-09-08 17:35:03,040 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:35:06,479 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:35:09,699 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:35:18,868 INFO [app] POST request to income_add from 127.0.0.1
-2025-09-08 17:35:18,905 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:35:21,627 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:35:25,958 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:35:29,024 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:36:26,373 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:36:26,767 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:36:27,412 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:36:27,994 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:36:28,414 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:36:29,787 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:36:30,764 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:36:31,399 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:41:47,897 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 17:49:42,630 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 17:49:42,641 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 18:28:09,878 INFO [app] Logging system initialized
-2025-09-08 18:28:09,878 INFO [app] Log level: INFO
-2025-09-08 18:28:09,878 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 18:28:15,880 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:28:18,342 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:28:19,347 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:28:21,437 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:28:22,083 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:28:23,229 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:30:09,006 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:38:51,820 INFO [app] Logging system initialized
-2025-09-08 18:38:51,820 INFO [app] Log level: INFO
-2025-09-08 18:38:51,820 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 18:38:56,852 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:38:58,426 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:38:59,684 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:39:00,824 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:00,932 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:39:02,183 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:39:02,873 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:03,406 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:03,451 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:39:04,748 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:39:06,016 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:39:07,062 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:07,264 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:39:08,625 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:39:09,877 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:39:11,160 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:39:12,409 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:39:13,675 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:39:14,928 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:39:16,160 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:39:17,456 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:39:18,878 INFO [app] User logout: gena12m@gmail.com
-2025-09-08 18:39:19,018 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:39:20,288 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:39:21,520 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:39:22,786 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:39:24,046 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:39:24,672 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:39:25,295 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:39:25,916 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:39:26,568 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:39:27,182 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:39:27,792 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:39:28,435 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:39:29,061 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:39:29,693 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:39:30,329 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:39:30,966 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:39:31,588 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:39:32,864 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:39:33,229 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:39:34,127 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:39:34,503 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:39:34,539 INFO [app] POST request to register from 127.0.0.1
-2025-09-08 18:39:34,540 INFO [app] Registration attempt for email: gaga@yandex.ru, name: ГаянеДемо
-2025-09-08 18:39:34,640 INFO [app] Successful registration for user: gaga@yandex.ru (ID: 2)
-2025-09-08 18:39:35,342 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:35,367 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:39:36,612 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:39:36,895 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:39:37,879 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:39:37,940 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:38,178 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:39:39,453 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:39:40,704 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:39:41,740 INFO [app] POST request to join_shared_budget from 127.0.0.1
-2025-09-08 18:39:41,958 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:39:42,094 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:42,878 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:43,234 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:39:44,494 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:39:45,781 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:39:47,045 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:39:48,293 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:39:48,970 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:49,534 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:39:50,025 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:50,689 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:50,791 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:39:51,071 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:52,039 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:39:52,322 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:52,981 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:53,286 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:39:54,549 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:39:55,171 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:39:55,805 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:39:55,806 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:56,428 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:39:57,700 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:39:58,711 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:39:58,954 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:39:59,948 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:00,032 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:01,237 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:01,300 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:02,492 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:02,495 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:03,742 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:03,744 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:03,747 INFO [app] User logout: gaga@yandex.ru
-2025-09-08 18:40:03,749 INFO [app] User logout: gaga@yandex.ru
-2025-09-08 18:40:05,005 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:05,658 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:06,256 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:06,877 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:07,522 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:08,146 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:08,751 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:08,755 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 18:40:08,756 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 18:40:08,852 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
-2025-09-08 18:40:09,115 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:09,377 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:10,352 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:10,630 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:11,618 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:11,895 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:12,870 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:13,153 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:14,218 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:14,392 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:14,709 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:15,976 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:16,494 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:17,227 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:17,777 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:18,417 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:19,025 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:19,684 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:20,303 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:20,915 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:21,894 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:22,191 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:23,164 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:23,452 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:24,422 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:24,715 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:24,717 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:25,665 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:26,925 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:28,183 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:29,443 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:30,719 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:31,750 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:32,005 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:33,273 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:34,540 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:35,786 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:35,799 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:37,031 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:37,054 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:38,268 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:38,269 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:39,519 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:39,519 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:40,791 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:40,796 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:40,797 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:42,058 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:42,413 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:43,309 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:43,696 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:44,567 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:44,569 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:44,913 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:44,951 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:45,946 INFO [app] User logout: gaga@yandex.ru
-2025-09-08 18:40:46,205 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:47,477 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:47,584 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 18:40:47,584 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 18:40:47,676 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
-2025-09-08 18:40:48,331 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:48,753 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:49,572 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:50,011 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:50,831 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:51,263 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:52,109 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:52,863 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:40:53,350 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:54,143 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:40:54,616 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:55,418 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:40:55,860 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:56,697 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:40:57,106 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:40:57,948 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:40:58,378 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:40:58,380 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:58,700 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:40:59,209 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:40:59,934 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:41:00,509 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:41:01,090 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:41:01,704 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:41:01,708 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:41:01,709 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:41:02,363 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:41:03,340 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:41:03,638 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:41:04,819 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:41:04,922 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:41:06,165 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:41:07,438 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:41:08,679 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:41:09,232 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:41:09,955 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:41:11,213 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:41:12,245 INFO [app] User logout: gaga@yandex.ru
-2025-09-08 18:41:12,492 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:41:13,618 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 18:41:13,618 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 18:41:13,712 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
-2025-09-08 18:41:13,772 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:41:14,364 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 18:41:15,002 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:41:15,637 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:41:16,254 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:41:16,895 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:41:17,531 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:41:18,152 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:41:18,758 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:41:19,388 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:41:20,650 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:41:21,905 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:41:23,178 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:41:24,437 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:41:25,698 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:41:26,957 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:41:28,237 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:41:29,491 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:41:30,771 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:41:32,038 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:41:33,311 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:41:34,582 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:41:35,346 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:41:35,849 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:41:36,628 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:41:37,112 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:41:37,908 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:41:38,352 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:41:39,144 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:41:39,596 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:41:40,401 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:41:40,850 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:41:41,639 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:41:42,119 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:41:42,890 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:41:43,372 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:41:44,155 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:41:44,653 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 18:41:45,389 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 18:41:46,658 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 18:41:48,228 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 18:41:49,487 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 18:41:50,749 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 18:41:52,032 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 18:41:53,281 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 18:41:54,546 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:10:35,905 INFO [app] Logging system initialized
-2025-09-08 19:10:35,905 INFO [app] Log level: INFO
-2025-09-08 19:10:35,905 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 19:10:35,917 INFO [app] Profile columns migration completed successfully
-2025-09-08 19:10:35,917 INFO [app] New tables migration completed successfully
-2025-09-08 19:28:02,278 INFO [app] Logging system initialized
-2025-09-08 19:28:02,279 INFO [app] Log level: INFO
-2025-09-08 19:28:02,279 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 19:28:02,291 INFO [app] Profile columns migration completed successfully
-2025-09-08 19:28:02,291 INFO [app] New tables migration completed successfully
-2025-09-08 19:29:52,849 INFO [app] Logging system initialized
-2025-09-08 19:29:52,849 INFO [app] Log level: INFO
-2025-09-08 19:29:52,849 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 19:29:59,366 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1006, in dashboard
+    categories = conn.execute(
+sqlite3.OperationalError: no such table: categories
+2025-09-09 11:10:20,402 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:10:54,053 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -726,27 +171,13 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 551, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1197, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 223, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 303, in block 'content'
-    {% set has_income = total_income > 0 %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-08 19:29:59,371 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-08 19:30:17,546 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1006, in dashboard
+    categories = conn.execute(
+sqlite3.OperationalError: no such table: categories
+2025-09-09 11:10:54,053 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:10:55,747 ERROR [app] Exception on /categories [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -756,32 +187,13 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 551, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1197, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 223, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 303, in block 'content'
-    {% set has_income = total_income > 0 %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-08 19:30:17,548 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-08 19:30:20,089 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:30:21,028 INFO [app] POST request to login from 127.0.0.1
-2025-09-08 19:30:21,028 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-08 19:30:21,129 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
-2025-09-08 19:30:21,377 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:30:21,441 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1422, in categories
+    rows = conn.execute(
+sqlite3.OperationalError: no such table: categories
+2025-09-09 11:10:55,747 ERROR [app] 500 Internal Server Error: http://localhost:5000/categories - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:10:56,194 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -791,28 +203,16 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 551, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1197, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 223, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 303, in block 'content'
-    {% set has_income = total_income > 0 %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-08 19:30:21,441 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-08 19:30:22,621 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:30:23,022 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1006, in dashboard
+    categories = conn.execute(
+sqlite3.OperationalError: no such table: categories
+2025-09-09 11:10:56,195 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:11:29,241 INFO [app] Logging system initialized
+2025-09-09 11:11:29,242 INFO [app] Log level: INFO
+2025-09-09 11:11:29,242 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:12:27,632 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -822,600 +222,16 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 551, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1197, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 223, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 303, in block 'content'
-    {% set has_income = total_income > 0 %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-08 19:30:23,022 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-08 19:30:23,682 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:30:24,761 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:30:26,022 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:30:27,120 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:30:28,419 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:30:29,676 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:30:52,765 INFO [app] Logging system initialized
-2025-09-08 19:30:52,765 INFO [app] Log level: INFO
-2025-09-08 19:30:52,765 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 19:31:07,634 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:09,066 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:31:10,296 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:31:11,546 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:31:12,815 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:31:13,020 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:14,046 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:31:15,279 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:31:16,185 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:16,553 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:31:17,810 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:31:19,075 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:31:20,131 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:20,337 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:31:21,583 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:31:22,824 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:31:22,870 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:23,946 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:24,110 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:31:24,640 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:26,391 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:31:26,664 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:27,647 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:31:28,946 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:31:30,203 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:31:31,451 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:31:31,806 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:32,699 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:31:33,965 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:31:35,225 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:31:35,468 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:31:36,471 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:31:36,727 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:31:37,748 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:31:37,980 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:31:39,027 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:31:39,029 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:39,033 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:39,034 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:31:39,238 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:31:40,508 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:31:41,754 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:31:43,035 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:31:44,291 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:31:45,557 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:31:46,819 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:31:48,086 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:31:49,343 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:31:50,605 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:31:51,870 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:31:53,136 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:31:54,394 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:31:55,506 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:31:55,816 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:31:56,763 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:31:57,070 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:31:58,026 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:31:58,338 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:31:59,283 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:31:59,594 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:32:00,539 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:32:00,823 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:32:01,802 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:32:02,085 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:32:03,067 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:32:03,339 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:32:04,327 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:32:04,602 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:32:05,577 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:32:05,871 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:32:06,856 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:32:07,111 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:32:08,106 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:32:08,370 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:32:09,357 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:32:09,639 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:32:10,610 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:32:10,913 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:32:11,859 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:32:13,108 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:32:13,170 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:32:14,356 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:32:14,373 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:32:15,618 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:32:15,623 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:32:16,876 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:32:16,884 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:32:18,142 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:32:18,163 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:32:19,395 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:32:19,399 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:32:20,648 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:32:20,654 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:32:21,894 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:32:21,911 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:32:23,135 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:32:23,146 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:32:24,392 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:32:24,406 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:32:25,651 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:32:25,661 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:32:26,916 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:32:28,179 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:32:29,440 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:32:30,710 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:32:31,978 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:32:33,209 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:32:34,476 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:52:44,917 INFO [app] Logging system initialized
-2025-09-08 19:52:44,918 INFO [app] Log level: INFO
-2025-09-08 19:52:44,918 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 19:52:50,182 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:52:51,628 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:52:52,456 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:52:52,897 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:52:53,867 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:52:54,184 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:52:55,440 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:52:55,739 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:52:56,571 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:52:56,701 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:52:56,932 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:52:57,642 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:52:57,971 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:52:58,355 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:52:59,241 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:00,347 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 19:53:00,503 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:53:01,917 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:53:03,189 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:53:04,427 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:53:05,665 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:53:06,921 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:53:08,195 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:53:09,466 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:10,747 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:53:12,037 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:53:13,295 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:53:14,533 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:53:15,778 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:53:16,989 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:53:17,005 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:53:18,086 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:53:18,260 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:53:19,344 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:19,537 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:53:20,605 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:53:20,805 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:53:21,913 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:53:22,067 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:53:23,190 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:53:23,330 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:53:24,459 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:53:24,570 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:25,735 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:53:25,836 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:53:26,997 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:53:27,086 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:53:28,276 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:53:29,369 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:53:29,527 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:30,623 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:53:30,790 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:53:31,879 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:53:32,034 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:53:33,137 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:53:33,285 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:53:34,403 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:53:34,567 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:53:35,673 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:35,823 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:53:36,944 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:53:37,077 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:53:38,195 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:53:38,353 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:53:39,480 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:53:39,599 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:40,738 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:53:40,851 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:53:41,994 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:53:42,096 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 19:53:43,232 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:53:43,351 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 19:53:44,492 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:53:44,622 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 19:53:45,757 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:45,880 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 19:53:46,999 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 19:53:48,149 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 19:53:49,402 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 19:53:50,673 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 19:53:51,919 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:07:11,339 INFO [app] Logging system initialized
-2025-09-08 20:07:11,339 INFO [app] Log level: INFO
-2025-09-08 20:07:11,340 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 20:07:16,907 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:07:18,334 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:07:18,858 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:07:19,621 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:07:19,994 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:07:20,892 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:07:22,164 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:07:23,453 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:07:24,721 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:07:25,993 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:07:27,249 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:07:28,812 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:07:30,089 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:07:31,330 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:07:32,609 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:07:33,881 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:07:35,136 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:07:35,892 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:07:36,398 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:07:37,041 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:07:37,661 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:07:38,944 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:07:40,193 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:07:41,463 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:07:42,751 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:07:44,005 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:07:45,263 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:07:46,537 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:07:47,802 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:07:49,041 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:07:50,767 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:07:52,024 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:07:53,272 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:07:54,536 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:07:55,814 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:07:57,048 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:07:58,299 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:07:58,634 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:07:59,910 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:08:01,191 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:08:02,458 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:08:03,717 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:08:04,992 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:08:06,259 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:08:07,507 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:09:23,633 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:09:23,647 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:09:28,594 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:09:29,170 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:09:29,263 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:09:30,512 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:09:31,798 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:09:33,044 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:09:34,297 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:09:35,559 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:09:36,820 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:09:38,121 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:09:39,371 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:09:57,285 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:09:57,319 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:09:57,645 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:09:58,599 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:09:59,890 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:10:01,174 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:10:02,442 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:10:03,653 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:10:03,728 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:10:04,427 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:10:05,005 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:10:05,632 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:10:06,259 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:10:06,281 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:10:06,310 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:10:06,575 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:10:06,730 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:10:06,732 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:10:07,578 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:10:08,881 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:10:10,158 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:10:11,462 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:10:12,774 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:10:14,052 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:10:15,347 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:10:16,650 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:10:17,944 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:10:19,224 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:10:20,511 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:10:21,810 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:10:23,098 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:10:24,367 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:10:25,669 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:10:26,956 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:10:27,588 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:10:28,212 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:10:28,862 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:10:29,488 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:10:30,118 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:10:30,754 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:10:31,392 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:10:32,011 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:10:32,643 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:10:33,270 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:10:33,909 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:10:34,554 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:10:35,202 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:10:35,839 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:10:36,451 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:10:37,111 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:10:38,375 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:13:08,398 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:13:09,912 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:13:11,162 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:13:12,409 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:13:13,668 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:13:14,930 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:13:16,193 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:13:17,426 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:13:18,698 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:14:44,919 INFO [app] Logging system initialized
-2025-09-08 20:14:44,919 INFO [app] Log level: INFO
-2025-09-08 20:14:44,920 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 20:14:51,962 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:14:52,139 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:14:52,469 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:14:53,609 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:14:54,033 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:14:54,053 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:14:54,393 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:14:54,843 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:14:55,304 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:14:55,325 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:14:55,667 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:14:56,111 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:14:57,006 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:14:57,023 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:14:57,366 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:14:57,369 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:14:58,616 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:14:59,857 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:15:01,121 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:15:02,369 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:15:03,664 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:15:04,939 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:15:06,171 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:15:07,464 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:15:08,732 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:15:09,623 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:15:09,997 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:15:10,207 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:15:11,248 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:15:12,495 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:15:14,067 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:15:14,746 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:15:14,786 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:15:14,811 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:15:15,317 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:15:16,012 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:15:16,042 WARNING [app] 404 Not Found: http://localhost:5000/.well-known/appspecific/com.chrome.devtools.json - 127.0.0.1
-2025-09-08 20:15:16,056 WARNING [app] 404 Not Found: http://localhost:5000/static/js/bootstrap.bundle.min.js.map - 127.0.0.1
-2025-09-08 20:15:16,568 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:15:17,839 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:15:18,331 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:15:19,095 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:15:19,595 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:15:20,352 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:15:20,850 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:15:21,610 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:15:22,097 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:15:22,878 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:15:23,370 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:15:24,139 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:15:24,613 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:15:25,390 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:15:25,872 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:15:26,621 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:15:27,136 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:15:27,880 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:15:29,124 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:15:30,391 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:15:31,489 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:15:31,626 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:15:32,742 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:15:32,890 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:15:34,032 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:15:34,438 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:15:35,317 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:15:35,686 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:15:36,570 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:15:36,951 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:15:37,824 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:15:38,223 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:15:39,074 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:15:39,483 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:15:40,348 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:15:40,763 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:15:41,614 ERROR [app] Exchange rate error RUB->USD: cannot fetch exchange rate RUB->USD
-2025-09-08 20:15:42,013 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:15:42,888 ERROR [app] Exchange rate error USD->RUB: cannot fetch exchange rate USD->RUB
-2025-09-08 20:15:43,285 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:15:44,155 ERROR [app] Exchange rate error RUB->EUR: cannot fetch exchange rate RUB->EUR
-2025-09-08 20:15:45,442 ERROR [app] Exchange rate error EUR->RUB: cannot fetch exchange rate EUR->RUB
-2025-09-08 20:15:46,714 ERROR [app] Exchange rate error RUB->AMD: cannot fetch exchange rate RUB->AMD
-2025-09-08 20:15:47,997 ERROR [app] Exchange rate error AMD->RUB: cannot fetch exchange rate AMD->RUB
-2025-09-08 20:15:49,247 ERROR [app] Exchange rate error RUB->GEL: cannot fetch exchange rate RUB->GEL
-2025-09-08 20:15:50,524 ERROR [app] Exchange rate error GEL->RUB: cannot fetch exchange rate GEL->RUB
-2025-09-08 20:24:22,313 INFO [app] Logging system initialized
-2025-09-08 20:24:22,314 INFO [app] Log level: INFO
-2025-09-08 20:24:22,314 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 20:24:28,636 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:24:29,457 WARNING [app] exchangerate.host direct failed RUB->USD: no result from exchangerate.host
-2025-09-08 20:24:30,098 WARNING [app] exchangerate.host via bridge failed RUB->USD: no rate for symbol in latest
-2025-09-08 20:24:30,472 INFO [app] FX ok RUB->USD via open.er-api.com: 0.012303
-2025-09-08 20:24:31,099 WARNING [app] exchangerate.host direct failed RUB->EUR: no result from exchangerate.host
-2025-09-08 20:24:31,725 WARNING [app] exchangerate.host via bridge failed RUB->EUR: no rate for symbol in latest
-2025-09-08 20:24:31,828 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:24:32,104 INFO [app] FX ok RUB->EUR via open.er-api.com: 0.010508
-2025-09-08 20:24:32,692 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:24:32,737 WARNING [app] exchangerate.host direct failed RUB->AMD: no result from exchangerate.host
-2025-09-08 20:24:33,366 WARNING [app] exchangerate.host via bridge failed RUB->AMD: no rate for symbol in latest
-2025-09-08 20:24:33,757 INFO [app] FX ok RUB->AMD via open.er-api.com: 4.70777
-2025-09-08 20:24:34,395 WARNING [app] exchangerate.host direct failed RUB->GEL: no result from exchangerate.host
-2025-09-08 20:24:35,035 WARNING [app] exchangerate.host via bridge failed RUB->GEL: no rate for symbol in latest
-2025-09-08 20:24:35,414 INFO [app] FX ok RUB->GEL via open.er-api.com: 0.033135
-2025-09-08 20:24:36,047 WARNING [app] exchangerate.host direct failed USD->RUB: no result from exchangerate.host
-2025-09-08 20:24:36,681 WARNING [app] exchangerate.host via bridge failed USD->RUB: no rate for symbol in latest
-2025-09-08 20:24:37,057 INFO [app] FX ok USD->RUB via open.er-api.com: 81.281857
-2025-09-08 20:24:37,702 WARNING [app] exchangerate.host direct failed USD->EUR: no result from exchangerate.host
-2025-09-08 20:24:38,331 WARNING [app] exchangerate.host via bridge failed USD->EUR: no rate for symbol in latest
-2025-09-08 20:24:39,400 INFO [app] FX ok USD->EUR via open.er-api.com: 0.853794
-2025-09-08 20:24:40,026 WARNING [app] exchangerate.host direct failed USD->AMD: no result from exchangerate.host
-2025-09-08 20:24:40,647 WARNING [app] exchangerate.host via bridge failed USD->AMD: no rate for symbol in latest
-2025-09-08 20:24:41,048 INFO [app] FX ok USD->AMD via open.er-api.com: 382.62587
-2025-09-08 20:24:41,680 WARNING [app] exchangerate.host direct failed USD->GEL: no result from exchangerate.host
-2025-09-08 20:24:42,306 WARNING [app] exchangerate.host via bridge failed USD->GEL: no rate for symbol in latest
-2025-09-08 20:24:42,681 INFO [app] FX ok USD->GEL via open.er-api.com: 2.693092
-2025-09-08 20:24:43,302 WARNING [app] exchangerate.host direct failed EUR->RUB: no result from exchangerate.host
-2025-09-08 20:24:43,941 WARNING [app] exchangerate.host via bridge failed EUR->RUB: no rate for symbol in latest
-2025-09-08 20:24:44,316 INFO [app] FX ok EUR->RUB via open.er-api.com: 95.168818
-2025-09-08 20:24:44,952 WARNING [app] exchangerate.host direct failed EUR->USD: no result from exchangerate.host
-2025-09-08 20:24:45,603 WARNING [app] exchangerate.host via bridge failed EUR->USD: no rate for symbol in latest
-2025-09-08 20:24:45,983 INFO [app] FX ok EUR->USD via open.er-api.com: 1.171244
-2025-09-08 20:24:46,611 WARNING [app] exchangerate.host direct failed EUR->AMD: no result from exchangerate.host
-2025-09-08 20:24:47,238 WARNING [app] exchangerate.host via bridge failed EUR->AMD: no rate for symbol in latest
-2025-09-08 20:24:47,614 INFO [app] FX ok EUR->AMD via open.er-api.com: 448.198606
-2025-09-08 20:24:48,256 WARNING [app] exchangerate.host direct failed EUR->GEL: no result from exchangerate.host
-2025-09-08 20:24:48,874 WARNING [app] exchangerate.host via bridge failed EUR->GEL: no rate for symbol in latest
-2025-09-08 20:24:49,255 INFO [app] FX ok EUR->GEL via open.er-api.com: 3.153911
-2025-09-08 20:24:49,881 WARNING [app] exchangerate.host direct failed AMD->RUB: no result from exchangerate.host
-2025-09-08 20:24:50,506 WARNING [app] exchangerate.host via bridge failed AMD->RUB: no rate for symbol in latest
-2025-09-08 20:24:51,047 INFO [app] FX ok AMD->RUB via open.er-api.com: 0.212415
-2025-09-08 20:24:51,095 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:24:51,684 WARNING [app] exchangerate.host direct failed AMD->USD: no result from exchangerate.host
-2025-09-08 20:24:52,323 WARNING [app] exchangerate.host via bridge failed AMD->USD: no rate for symbol in latest
-2025-09-08 20:24:52,718 INFO [app] FX ok AMD->USD via open.er-api.com: 0.002614
-2025-09-08 20:24:52,783 WARNING [app] exchangerate.host direct failed AMD->USD: no result from exchangerate.host
-2025-09-08 20:24:53,340 WARNING [app] exchangerate.host via bridge failed AMD->USD: no rate for symbol in latest
-2025-09-08 20:24:53,353 WARNING [app] exchangerate.host direct failed AMD->EUR: no result from exchangerate.host
-2025-09-08 20:24:53,721 INFO [app] FX ok AMD->USD via open.er-api.com: 0.002614
-2025-09-08 20:24:54,013 WARNING [app] exchangerate.host via bridge failed AMD->EUR: no rate for symbol in latest
-2025-09-08 20:24:54,350 WARNING [app] exchangerate.host direct failed AMD->EUR: no result from exchangerate.host
-2025-09-08 20:24:54,390 INFO [app] FX ok AMD->EUR via open.er-api.com: 0.002231
-2025-09-08 20:24:54,967 WARNING [app] exchangerate.host via bridge failed AMD->EUR: no rate for symbol in latest
-2025-09-08 20:24:54,983 WARNING [app] exchangerate.host direct failed AMD->GEL: no result from exchangerate.host
-2025-09-08 20:24:55,351 INFO [app] FX ok AMD->EUR via open.er-api.com: 0.002231
-2025-09-08 20:24:55,604 WARNING [app] exchangerate.host via bridge failed AMD->GEL: no rate for symbol in latest
-2025-09-08 20:24:55,980 WARNING [app] exchangerate.host direct failed AMD->GEL: no result from exchangerate.host
-2025-09-08 20:24:55,981 INFO [app] FX ok AMD->GEL via open.er-api.com: 0.007038
-2025-09-08 20:24:56,602 WARNING [app] exchangerate.host via bridge failed AMD->GEL: no rate for symbol in latest
-2025-09-08 20:24:56,611 WARNING [app] exchangerate.host direct failed GEL->RUB: no result from exchangerate.host
-2025-09-08 20:24:56,976 INFO [app] FX ok AMD->GEL via open.er-api.com: 0.007038
-2025-09-08 20:24:57,242 WARNING [app] exchangerate.host via bridge failed GEL->RUB: no rate for symbol in latest
-2025-09-08 20:24:57,609 WARNING [app] exchangerate.host direct failed GEL->RUB: no result from exchangerate.host
-2025-09-08 20:24:57,772 INFO [app] FX ok GEL->RUB via open.er-api.com: 30.179325
-2025-09-08 20:24:58,250 WARNING [app] exchangerate.host via bridge failed GEL->RUB: no rate for symbol in latest
-2025-09-08 20:24:58,408 WARNING [app] exchangerate.host direct failed GEL->USD: no result from exchangerate.host
-2025-09-08 20:24:58,641 INFO [app] FX ok GEL->RUB via open.er-api.com: 30.179325
-2025-09-08 20:24:59,038 WARNING [app] exchangerate.host via bridge failed GEL->USD: no rate for symbol in latest
-2025-09-08 20:24:59,272 WARNING [app] exchangerate.host direct failed GEL->USD: no result from exchangerate.host
-2025-09-08 20:24:59,422 INFO [app] FX ok GEL->USD via open.er-api.com: 0.37132
-2025-09-08 20:24:59,899 WARNING [app] exchangerate.host via bridge failed GEL->USD: no rate for symbol in latest
-2025-09-08 20:25:00,038 WARNING [app] exchangerate.host direct failed GEL->EUR: no result from exchangerate.host
-2025-09-08 20:25:00,296 INFO [app] FX ok GEL->USD via open.er-api.com: 0.37132
-2025-09-08 20:25:00,672 WARNING [app] exchangerate.host via bridge failed GEL->EUR: no rate for symbol in latest
-2025-09-08 20:25:00,923 WARNING [app] exchangerate.host direct failed GEL->EUR: no result from exchangerate.host
-2025-09-08 20:25:01,049 INFO [app] FX ok GEL->EUR via open.er-api.com: 0.317067
-2025-09-08 20:25:01,557 WARNING [app] exchangerate.host via bridge failed GEL->EUR: no rate for symbol in latest
-2025-09-08 20:25:01,681 WARNING [app] exchangerate.host direct failed GEL->AMD: no result from exchangerate.host
-2025-09-08 20:25:01,940 INFO [app] FX ok GEL->EUR via open.er-api.com: 0.317067
-2025-09-08 20:25:02,317 WARNING [app] exchangerate.host via bridge failed GEL->AMD: no rate for symbol in latest
-2025-09-08 20:25:02,591 WARNING [app] exchangerate.host direct failed GEL->AMD: no result from exchangerate.host
-2025-09-08 20:25:02,696 INFO [app] FX ok GEL->AMD via open.er-api.com: 142.076826
-2025-09-08 20:25:03,242 WARNING [app] exchangerate.host via bridge failed GEL->AMD: no rate for symbol in latest
-2025-09-08 20:25:03,638 INFO [app] FX ok GEL->AMD via open.er-api.com: 142.076826
-2025-09-08 20:25:08,184 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:25:13,552 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:25:51,570 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:34:39,525 INFO [app] Logging system initialized
-2025-09-08 20:34:39,525 INFO [app] Log level: INFO
-2025-09-08 20:34:39,525 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-08 20:34:48,009 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-08 20:34:54,115 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:02:08,508 INFO [app] Logging system initialized
-2025-09-09 00:02:08,509 INFO [app] Log level: INFO
-2025-09-09 00:02:08,509 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:02:08,525 INFO [app] Profile columns migration completed successfully
-2025-09-09 00:02:08,525 INFO [app] New tables migration completed successfully
-2025-09-09 00:02:08,527 INFO [werkzeug] [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://172.24.143.15:5000
-2025-09-09 00:02:08,527 INFO [werkzeug] [33mPress CTRL+C to quit[0m
-2025-09-09 00:03:55,879 INFO [app] Logging system initialized
-2025-09-09 00:03:55,879 INFO [app] Log level: INFO
-2025-09-09 00:03:55,879 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:04:02,311 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:04:06,570 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:04:10,945 INFO [app] User logout: gena12m@gmail.com
-2025-09-09 00:04:12,664 INFO [app] POST request to login from 127.0.0.1
-2025-09-09 00:04:12,665 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-09 00:04:12,759 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
-2025-09-09 00:04:13,139 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:03,410 INFO [app] Logging system initialized
-2025-09-09 00:10:03,410 INFO [app] Log level: INFO
-2025-09-09 00:10:03,410 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:10:15,926 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:19,014 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:20,982 INFO [app] POST request to login from 127.0.0.1
-2025-09-09 00:10:20,983 INFO [app] Login attempt for email: gena12m@gmail.com
-2025-09-09 00:10:21,078 INFO [app] Successful login for user: gena12m@gmail.com (ID: 1)
-2025-09-09 00:10:21,120 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:43,777 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:44,612 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:46,501 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:47,758 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:48,830 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:49,897 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:51,166 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:51,735 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:52,044 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:52,076 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:52,218 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:10:52,358 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:16:03,574 INFO [app] Logging system initialized
-2025-09-09 00:16:03,574 INFO [app] Log level: INFO
-2025-09-09 00:16:03,575 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:16:09,044 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:19:02,065 INFO [app] Logging system initialized
-2025-09-09 00:19:02,066 INFO [app] Log level: INFO
-2025-09-09 00:19:02,066 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:19:39,877 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:19:44,776 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:19:46,182 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:19:46,845 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:19:48,930 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:22:55,896 INFO [app] Logging system initialized
-2025-09-09 00:22:55,896 INFO [app] Log level: INFO
-2025-09-09 00:22:55,896 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:22:59,977 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:23:01,281 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:23:04,792 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:23:10,092 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:24:57,105 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:24:57,674 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:24:58,995 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:25:09,146 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:26:12,183 INFO [app] Logging system initialized
-2025-09-09 00:26:12,183 INFO [app] Log level: INFO
-2025-09-09 00:26:12,183 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:26:16,755 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:26:17,634 ERROR [app] Exception on /income [GET]
+  File "/home/admin/crystall-budget/app.py", line 1006, in dashboard
+    categories = conn.execute(
+sqlite3.OperationalError: no such table: categories
+2025-09-09 11:12:27,634 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:13:30,631 INFO [app] Logging system initialized
+2025-09-09 11:13:30,631 INFO [app] Log level: INFO
+2025-09-09 11:13:30,631 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:13:33,992 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1425,35 +241,19 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1894, in income_page
-    return render_template("income.html", incomes=rows, income_sources=income_sources, today=today)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/income.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/income.html", line 7, in block 'content'
-    {% set ready_to_assign = (income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'income' is undefined
-2025-09-09 00:26:17,639 ERROR [app] 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:31:01,089 INFO [app] Logging system initialized
-2025-09-09 00:31:01,090 INFO [app] Log level: INFO
-2025-09-09 00:31:01,090 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:31:01,109 INFO [app] Profile columns migration completed successfully
-2025-09-09 00:31:01,109 INFO [app] New tables migration completed successfully
-2025-09-09 00:31:19,247 INFO [app] Logging system initialized
-2025-09-09 00:31:19,247 INFO [app] Log level: INFO
-2025-09-09 00:31:19,247 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:31:22,089 ERROR [app] Exception on /income [GET]
+  File "/home/admin/crystall-budget/app.py", line 1006, in dashboard
+    categories = conn.execute(
+sqlite3.OperationalError: no such table: categories
+2025-09-09 11:13:33,993 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:14:42,132 INFO [app] Logging system initialized
+2025-09-09 11:14:42,132 INFO [app] Log level: INFO
+2025-09-09 11:14:42,132 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:22:54,561 INFO [app] Logging system initialized
+2025-09-09 11:22:54,562 INFO [app] Log level: INFO
+2025-09-09 11:22:54,562 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:22:58,550 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1463,27 +263,13 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1894, in income_page
-    return render_template("income.html", incomes=rows, income_sources=income_sources, today=today)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/income.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/income.html", line 7, in block 'content'
-    {% set ready_to_assign = (income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'income' is undefined
-2025-09-09 00:31:22,093 ERROR [app] 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:31:24,290 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1011, in dashboard
+    income_sum = conn.execute(
+sqlite3.OperationalError: no such table: income_daily
+2025-09-09 11:22:58,553 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:23:00,078 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1493,27 +279,13 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
-    {% set ready_to_assign = (total_income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-09 00:31:24,290 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:31:57,324 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1011, in dashboard
+    income_sum = conn.execute(
+sqlite3.OperationalError: no such table: income_daily
+2025-09-09 11:23:00,080 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:23:00,579 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1523,30 +295,13 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
-    {% set ready_to_assign = (total_income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-09 00:31:57,324 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:31:57,599 INFO [app] Logging system initialized
-2025-09-09 00:31:57,599 INFO [app] Log level: INFO
-2025-09-09 00:31:57,599 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:31:58,956 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1011, in dashboard
+    income_sum = conn.execute(
+sqlite3.OperationalError: no such table: income_daily
+2025-09-09 11:23:00,580 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:23:00,738 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1556,27 +311,13 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
-    {% set ready_to_assign = (total_income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-09 00:31:58,958 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:32:01,158 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1011, in dashboard
+    income_sum = conn.execute(
+sqlite3.OperationalError: no such table: income_daily
+2025-09-09 11:23:00,739 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:23:01,378 ERROR [app] Exception on /categories [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1586,27 +327,13 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
-    {% set ready_to_assign = (total_income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-09 00:32:01,160 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:32:16,117 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1422, in categories
+    rows = conn.execute(
+sqlite3.OperationalError: no such column: category_type
+2025-09-09 11:23:01,378 ERROR [app] 500 Internal Server Error: http://localhost:5000/categories - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:23:02,153 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1616,27 +343,13 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
-    {% set ready_to_assign = (total_income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-09 00:32:16,118 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:32:16,951 ERROR [app] Exception on /dashboard [GET]
+  File "/home/admin/crystall-budget/app.py", line 1011, in dashboard
+    income_sum = conn.execute(
+sqlite3.OperationalError: no such table: income_daily
+2025-09-09 11:23:02,154 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:23:02,895 ERROR [app] Exception on /categories [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1646,33 +359,14 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1275, in dashboard
-    return render_template(
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/dashboard.html", line 7, in block 'content'
-    {% set ready_to_assign = (total_income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'total_income' is undefined
-2025-09-09 00:32:16,951 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:33:48,577 INFO [app] Logging system initialized
-2025-09-09 00:33:48,577 INFO [app] Log level: INFO
-2025-09-09 00:33:48,577 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:33:51,620 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:33:57,214 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:33:58,976 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:33:59,714 ERROR [app] Exception on /income [GET]
+  File "/home/admin/crystall-budget/app.py", line 1422, in categories
+    rows = conn.execute(
+sqlite3.OperationalError: no such column: category_type
+2025-09-09 11:23:02,895 ERROR [app] 500 Internal Server Error: http://localhost:5000/categories - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:23:03,967 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:23:04,963 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1682,31 +376,16 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1894, in income_page
-    return render_template("income.html", incomes=rows, income_sources=income_sources, today=today)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/income.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/income.html", line 7, in block 'content'
-    {% set ready_to_assign = (income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'income' is undefined
-2025-09-09 00:33:59,716 ERROR [app] 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:34:01,510 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:34:34,263 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:34:59,499 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:35:01,343 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:35:06,226 ERROR [app] Exception on /income [GET]
+  File "/home/admin/crystall-budget/app.py", line 1011, in dashboard
+    income_sum = conn.execute(
+sqlite3.OperationalError: no such table: income_daily
+2025-09-09 11:23:04,963 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:26:05,283 INFO [app] Logging system initialized
+2025-09-09 11:26:05,284 INFO [app] Log level: INFO
+2025-09-09 11:26:05,284 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:26:08,549 ERROR [app] Exception on /dashboard [GET]
 Traceback (most recent call last):
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
     response = self.full_dispatch_request()
@@ -1716,34 +395,192 @@ Traceback (most recent call last):
     rv = self.dispatch_request()
   File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
     return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
-  File "/home/admin/crystall-budget/app.py", line 613, in _wrap
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
     return f(*args, **kwargs)
-  File "/home/admin/crystall-budget/app.py", line 1894, in income_page
-    return render_template("income.html", incomes=rows, income_sources=income_sources, today=today)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 150, in render_template
-    return _render(app, template, context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/templating.py", line 131, in _render
-    rv = template.render(context)
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 1295, in render
-    self.environment.handle_exception()
-  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/jinja2/environment.py", line 942, in handle_exception
-    raise rewrite_traceback_stack(source=source)
-  File "/home/admin/crystall-budget/templates/income.html", line 1, in top-level template code
-    {% extends "base.html" %}
-  File "/home/admin/crystall-budget/templates/base.html", line 246, in top-level template code
-    {% block content %}{% endblock %}
-  File "/home/admin/crystall-budget/templates/income.html", line 7, in block 'content'
-    {% set ready_to_assign = (income - assigned_total) %}
-jinja2.exceptions.UndefinedError: 'income' is undefined
-2025-09-09 00:35:06,227 ERROR [app] 500 Internal Server Error: http://localhost:5000/income - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
-2025-09-09 00:45:06,717 INFO [app] Logging system initialized
-2025-09-09 00:45:06,718 INFO [app] Log level: INFO
-2025-09-09 00:45:06,718 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
-2025-09-09 00:45:16,715 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:45:40,133 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:45:40,833 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:45:41,708 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:45:54,198 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:46:31,561 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:46:40,075 INFO [app] POST request to set_currency from 127.0.0.1
-2025-09-09 00:46:58,804 INFO [app] POST request to set_currency from 127.0.0.1
+  File "/home/admin/crystall-budget/app.py", line 1021, in dashboard
+    expenses_rows = conn.execute(
+sqlite3.OperationalError: no such column: e.note
+2025-09-09 11:26:08,552 ERROR [app] 500 Internal Server Error: http://localhost:5000/dashboard - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:28:54,717 INFO [app] Logging system initialized
+2025-09-09 11:28:54,717 INFO [app] Log level: INFO
+2025-09-09 11:28:54,717 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:28:58,909 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:29:00,464 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:29:01,083 ERROR [app] Exception on /categories [GET]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1422, in categories
+    rows = conn.execute(
+sqlite3.OperationalError: no such column: category_type
+2025-09-09 11:29:01,086 ERROR [app] 500 Internal Server Error: http://localhost:5000/categories - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:35:32,741 INFO [app] Logging system initialized
+2025-09-09 11:35:32,742 INFO [app] Log level: INFO
+2025-09-09 11:35:32,742 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:35:35,844 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:35:43,547 INFO [app] POST request to categories_add from 127.0.0.1
+2025-09-09 11:35:43,886 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:35:58,769 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:36:00,132 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:36:00,770 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:38:30,869 INFO [app] Logging system initialized
+2025-09-09 11:38:30,870 INFO [app] Log level: INFO
+2025-09-09 11:38:30,871 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:38:35,579 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:38:41,103 INFO [app] POST request to categories_add from 127.0.0.1
+2025-09-09 11:38:41,359 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:38:42,503 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:38:43,932 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:38:44,693 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:38:45,084 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:40:38,377 INFO [app] User logout: gena12m@gmail.com
+2025-09-09 11:40:39,031 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:40:39,790 INFO [app] POST request to login from 127.0.0.1
+2025-09-09 11:40:39,790 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-09 11:40:39,791 ERROR [app] Exception on /login [POST]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 795, in login
+    user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+sqlite3.OperationalError: no such column: email
+2025-09-09 11:40:39,799 ERROR [app] 500 Internal Server Error: http://localhost:5000/login - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:40:55,759 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:43:45,937 INFO [app] Logging system initialized
+2025-09-09 11:43:45,938 INFO [app] Log level: INFO
+2025-09-09 11:43:45,938 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:43:50,087 INFO [app] POST request to login from 127.0.0.1
+2025-09-09 11:43:50,088 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-09 11:43:50,091 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-09 11:43:50,144 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:43:51,060 INFO [app] POST request to login from 127.0.0.1
+2025-09-09 11:43:51,061 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-09 11:43:51,061 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-09 11:43:51,085 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:43:51,848 INFO [app] POST request to login from 127.0.0.1
+2025-09-09 11:43:51,849 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-09 11:43:51,849 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-09 11:43:51,872 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:43:54,751 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:44:04,941 INFO [app] POST request to register from 127.0.0.1
+2025-09-09 11:44:04,942 INFO [app] Registration attempt for email: gena12m@gmail.com, name: ГенаDEMO
+2025-09-09 11:44:05,046 INFO [app] Successful registration for user: gena12m@gmail.com (ID: 1)
+2025-09-09 11:44:05,132 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:44:07,443 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:44:07,905 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:44:12,972 INFO [app] POST request to categories_add from 127.0.0.1
+2025-09-09 11:44:13,315 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:44:14,185 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:45:25,098 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:45:34,302 INFO [app] POST request to expenses from 127.0.0.1
+2025-09-09 11:45:34,643 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:45:37,283 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:45:44,981 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:45:47,456 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:45:57,356 INFO [app] POST request to sources_add from 127.0.0.1
+2025-09-09 11:45:57,718 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:46:05,484 INFO [app] POST request to income_add from 127.0.0.1
+2025-09-09 11:46:05,485 ERROR [app] Exception on /income/add [POST]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1794, in income_add
+    conn.execute(
+sqlite3.OperationalError: table income_daily has no column named currency
+2025-09-09 11:46:05,488 ERROR [app] 500 Internal Server Error: http://localhost:5000/income/add - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:55:01,259 INFO [app] Logging system initialized
+2025-09-09 11:55:01,260 INFO [app] Log level: INFO
+2025-09-09 11:55:01,260 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 11:55:09,483 INFO [app] POST request to income_add from 127.0.0.1
+2025-09-09 11:55:09,488 ERROR [app] Exception on /income/add [POST]
+Traceback (most recent call last):
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 1511, in wsgi_app
+    response = self.full_dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 919, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "/home/admin/crystall-budget/venv/lib64/python3.9/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+  File "/home/admin/crystall-budget/app.py", line 544, in _wrap
+    return f(*args, **kwargs)
+  File "/home/admin/crystall-budget/app.py", line 1794, in income_add
+    conn.execute(
+sqlite3.IntegrityError: FOREIGN KEY constraint failed
+2025-09-09 11:55:09,491 ERROR [app] 500 Internal Server Error: http://localhost:5000/income/add - 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application.
+2025-09-09 11:55:11,655 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:12,466 INFO [app] POST request to income_add from 127.0.0.1
+2025-09-09 11:55:12,492 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:23,034 INFO [app] POST request to sources_add from 127.0.0.1
+2025-09-09 11:55:23,599 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:26,354 INFO [app] User logout: gena12m@gmail.com
+2025-09-09 11:55:26,698 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:27,153 INFO [app] POST request to login from 127.0.0.1
+2025-09-09 11:55:27,154 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-09 11:55:27,154 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-09 11:55:27,182 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:28,050 INFO [app] POST request to login from 127.0.0.1
+2025-09-09 11:55:28,051 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-09 11:55:28,052 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-09 11:55:28,078 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:32,807 INFO [app] POST request to login from 127.0.0.1
+2025-09-09 11:55:32,807 INFO [app] Login attempt for email: gena12m@gmail.com
+2025-09-09 11:55:32,808 WARNING [app] Failed login attempt for email: gena12m@gmail.com
+2025-09-09 11:55:32,833 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:34,586 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:46,910 INFO [app] POST request to register from 127.0.0.1
+2025-09-09 11:55:46,911 INFO [app] Registration attempt for email: gena12m@gmail.com, name: ГенаDEMO
+2025-09-09 11:55:47,034 INFO [app] Successful registration for user: gena12m@gmail.com (ID: 1)
+2025-09-09 11:55:47,115 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:49,054 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:49,975 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:50,433 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:55:51,758 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:56:04,256 INFO [app] POST request to sources_add from 127.0.0.1
+2025-09-09 11:56:04,833 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:56:09,251 INFO [app] POST request to income_add from 127.0.0.1
+2025-09-09 11:56:09,889 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:56:11,217 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:56:15,071 INFO [app] POST request to categories_add from 127.0.0.1
+2025-09-09 11:56:15,108 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:56:16,203 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:56:20,032 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:56:25,075 INFO [app] POST request to quick_expense from 127.0.0.1
+2025-09-09 11:56:25,709 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:57:22,013 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:57:22,638 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:57:23,244 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:57:23,691 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:57:26,225 INFO [app] POST request to categories_delete from 127.0.0.1
+2025-09-09 11:57:26,271 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 11:57:28,372 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 16:00:11,318 INFO [app] Logging system initialized
+2025-09-09 16:00:11,319 INFO [app] Log level: INFO
+2025-09-09 16:00:11,320 INFO [app] Log file: /home/admin/crystall-budget/logs/crystalbudget.log
+2025-09-09 16:21:05,948 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 16:21:07,486 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 16:21:33,646 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 18:55:53,343 INFO [app] POST request to set_currency from 127.0.0.1
+2025-09-09 18:56:17,195 INFO [app] POST request to set_currency from 127.0.0.1
