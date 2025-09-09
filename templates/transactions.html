@@ -28,7 +28,7 @@
         <tbody>
           {% for transaction in transactions %}
           <tr>
-            <td>{{ transaction.date|format_date }}</td>
+            <td>{{ transaction.date|format_date_with_day }}</td>
             <td>{{ transaction.description or transaction.note or '—' }}</td>
             <td class="text-end">
               <span class="amount {{ 'positive' if transaction.type == 'income' else 'negative' }}">

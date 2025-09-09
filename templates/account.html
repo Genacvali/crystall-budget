@@ -21,11 +21,11 @@
       <div class="col-md-6">
         <div class="mb-3">
           <label class="form-label text-muted">Дата регистрации</label>
-          <div class="fw-semibold">{{ user.created_at|format_date }}</div>
+          <div class="fw-semibold">{{ user.created_at|format_date_with_day if user.created_at else 'Неизвестно' }}</div>
         </div>
         <div class="mb-3">
           <label class="form-label text-muted">Последний вход</label>
-          <div class="fw-semibold">{{ user.last_login|format_date or 'Неизвестно' }}</div>
+          <div class="fw-semibold">{{ user.last_login|format_date_with_day if user.last_login else 'Неизвестно' }}</div>
         </div>
       </div>
     </div>
