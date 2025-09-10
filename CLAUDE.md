@@ -58,7 +58,7 @@ python3 migrate_new_tables.py
 ## Architecture Overview
 
 ### Single-File Flask Application
-The entire backend is contained in `app.py` (~2000+ lines) with:
+The entire backend is contained in `app.py` (~3400 lines) with:
 - Multi-user authentication system with 30-day session persistence
 - SQLite database with automatic schema initialization and default data
 - Currency support (RUB, USD, EUR, AMD, GEL) with session-based selection
@@ -84,7 +84,7 @@ SQLite with user data isolation and automatic schema creation:
 - **Mobile-first**: Optimized for iPhone Safari and Android
 - **Bootstrap 5**: Responsive design with multiple CSS themes
 - **Russian interface**: All UI text and messages in Russian
-- **Inline editing**: Direct category editing in the interface
+- **Inline templates**: No separate template files - all HTML embedded in app.py using render_template_string
 
 ### Key Financial Features
 - **Category types**: Fixed limits (e.g., 5000₽) or percentage-based (e.g., 30% of income)

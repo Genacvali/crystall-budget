@@ -57,6 +57,16 @@
                  class="form-control" placeholder="Лимит" required>
         </div>
 
+        <div class="col-12 col-lg-3">
+          <label class="form-label">Источник дохода</label>
+          <select name="source_id" class="form-select">
+            <option value="">— Не привязан —</option>
+            {% for source in income_sources %}
+              <option value="{{ source.id }}">{{ source.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
         <div class="col-12 col-lg-auto d-grid btn-col">
           <label class="form-label d-none d-lg-block">&nbsp;</label>
           <button class="btn btn-primary">
@@ -79,6 +89,7 @@
       <thead class="table-light">
         <tr>
           <th>Название</th>
+          <th class="text-center">Источник дохода</th>
           <th class="text-end">Лимит</th>
           <th class="text-end">Действия</th>
         </tr>
@@ -87,6 +98,18 @@
         {% for cat in expense_categories %}
         <tr>
           <td class="fw-semibold">{{ cat.name }}</td>
+          <td class="text-center">
+            {% set source_id = rules_map.get(cat.id) %}
+            {% if source_id %}
+              {% for source in income_sources %}
+                {% if source.id == source_id %}
+                  <span class="badge bg-info">{{ source.name }}</span>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
           <td class="text-end">
             {% if cat.limit_type == 'percent' %}
               <strong>{{ cat.value|format_amount }}%</strong> от дохода
@@ -148,6 +171,20 @@
               <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
                      value="{{ cat.value }}" required>
             </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Источник дохода</label>
+            <select name="source_id" class="form-select">
+              <option value="">— Не привязан к источнику —</option>
+              {% for source in income_sources %}
+                <option value="{{ source.id }}" 
+                        {% if rules_map.get(cat.id) == source.id %}selected{% endif %}>
+                  {{ source.name }}
+                </option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Выберите источник дохода, который будет использоваться для финансирования этой категории</div>
           </div>
         </div>
         <div class="modal-footer">

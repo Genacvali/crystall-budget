@@ -78,3 +78,37 @@ werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'update
 [2025-09-09 19:07:06,933] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-09 19:07:07,810] INFO in app: POST request to set_currency from 127.0.0.1
 [2025-09-09 19:07:08,693] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:03:53 +0300] [969] [INFO] Starting gunicorn 21.2.0
+[2025-09-10 23:03:53 +0300] [969] [INFO] Listening at: http://127.0.0.1:5000 (969)
+[2025-09-10 23:03:53 +0300] [969] [INFO] Using worker: sync
+[2025-09-10 23:03:53 +0300] [970] [INFO] Booting worker with pid: 970
+[2025-09-10 23:03:53 +0300] [971] [INFO] Booting worker with pid: 971
+[2025-09-10 23:04:10,358] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:04:13,559] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:04:15,130] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:04:24,187] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:04:30,911] INFO in app: POST request to categories_add from 127.0.0.1
+[2025-09-10 23:04:31,178] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:04:47,321] INFO in app: POST request to categories_add from 127.0.0.1
+[2025-09-10 23:04:47,572] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:04:50,956] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:05:57,945] INFO in app: POST request to sources_add from 127.0.0.1
+[2025-09-10 23:05:58,535] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:06:02,476] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:06:03,983] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:06:46,895] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:06:47,561] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:07:32,296] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:07:32,920] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:07:33,658] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:07:35,050] INFO in app: POST request to set_currency from 127.0.0.1
+[2025-09-10 23:21:20 +0300] [970] [INFO] Worker exiting (pid: 970)
+[2025-09-10 23:21:20 +0300] [971] [INFO] Worker exiting (pid: 971)
+[2025-09-10 23:21:20 +0300] [969] [INFO] Handling signal: term
+[2025-09-10 23:21:20 +0300] [969] [INFO] Shutting down: Master
+[2025-09-10 23:21:20 +0300] [5643] [INFO] Starting gunicorn 21.2.0
+[2025-09-10 23:21:20 +0300] [5643] [INFO] Listening at: http://127.0.0.1:5000 (5643)
+[2025-09-10 23:21:20 +0300] [5643] [INFO] Using worker: sync
+[2025-09-10 23:21:20 +0300] [5644] [INFO] Booting worker with pid: 5644
+[2025-09-10 23:21:20 +0300] [5645] [INFO] Booting worker with pid: 5645
+[2025-09-10 23:21:23,056] INFO in app: POST request to set_currency from 127.0.0.1
