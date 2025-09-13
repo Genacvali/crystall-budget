@@ -799,8 +799,8 @@ def login():
             session["email"] = user["email"]
             session["name"] = user["name"]
             # Загружаем настройки пользователя
-            session["theme"] = user["theme"] if "theme" in user.keys() else "light"
-            session["currency"] = user["currency"] if "currency" in user.keys() else "RUB"
+            session["theme"] = user["theme"] if user["theme"] else "light"
+            session["currency"] = user["currency"] if user["currency"] else "RUB"
             app.logger.info(f'Successful login for user: {email} (ID: {user["id"]})')
             return redirect(url_for("dashboard"))
         
