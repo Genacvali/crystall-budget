@@ -799,8 +799,16 @@ def login():
             session["email"] = user["email"]
             session["name"] = user["name"]
             # Загружаем настройки пользователя
-            session["theme"] = user["theme"] if user["theme"] else "light"
-            session["currency"] = user["currency"] if user["currency"] else "RUB"
+            # Безопасный доступ к колонкам (могут отсутствовать в старой схеме)
+            try:
+                session["theme"] = user["theme"] if user["theme"] else "light"
+            except (KeyError, IndexError):
+                session["theme"] = "light"
+
+            try:
+                session["currency"] = user["currency"] if user["currency"] else "RUB"
+            except (KeyError, IndexError):
+                session["currency"] = "RUB"
             app.logger.info(f'Successful login for user: {email} (ID: {user["id"]})')
             return redirect(url_for("dashboard"))
         
@@ -3270,6 +3278,8 @@ def add_profile_columns_if_missing():
             add("ALTER TABLE users ADD COLUMN theme TEXT DEFAULT 'light'")
         if "avatar_path" not in cols:
             add("ALTER TABLE users ADD COLUMN avatar_path TEXT")
+        if "currency" not in cols:
+            add("ALTER TABLE users ADD COLUMN currency TEXT DEFAULT 'RUB'")
 
         conn.commit()
         conn.close()
