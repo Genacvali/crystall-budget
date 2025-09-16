@@ -1121,27 +1121,81 @@ def dashboard():
         for s in sources
     }
 
-    # расчёт лимитов категорий с учётом процента от дохода
+    # расчёт лимитов категорий с учётом процента от дохода и многоисточниковости
     limits = conn.execute(
-        "SELECT id, name, limit_type, value FROM categories WHERE user_id=?",
+        "SELECT id, name, limit_type, value, multi_source FROM categories WHERE user_id=?",
         (uid,),
     ).fetchall()
+
+    # Получаем связи категорий с источниками для многоисточниковых категорий
+    multi_source_links = {}
+    multi_source_rows = conn.execute("""
+        SELECT category_id, source_id, percentage, 
+               (SELECT name FROM income_sources WHERE id = cis.source_id) as source_name
+        FROM category_income_sources cis
+        WHERE user_id = ?
+        ORDER BY category_id, source_id
+    """, (uid,)).fetchall()
+    
+    for link in multi_source_rows:
+        cat_id = link['category_id']
+        if cat_id not in multi_source_links:
+            multi_source_links[cat_id] = []
+        multi_source_links[cat_id].append({
+            'source_id': link['source_id'],
+            'source_name': link['source_name'],
+            'percentage': float(link['percentage'])
+        })
 
     data = []
     for row in limits:
         cat_id = row["id"]
         limit_val = 0.0
+        sources_info = []
+        
         if row["limit_type"] == "fixed":
             limit_val = float(row["value"])
         else:  # percent
-            # Если категория привязана к источнику - используем доход этого источника
-            source_id = rule_map.get(cat_id)
-            if source_id and source_id in income_by_source:
-                source_income = float(income_by_source[source_id])
-                limit_val = source_income * float(row["value"]) / 100.0
+            if row["multi_source"] == 1 and cat_id in multi_source_links:
+                # Многоисточниковая категория - считаем лимит как сумму процентов от каждого источника
+                for link in multi_source_links[cat_id]:
+                    source_id = link['source_id']
+                    source_income = float(income_by_source.get(source_id, 0))
+                    source_limit = source_income * link['percentage'] / 100.0
+                    limit_val += source_limit
+                    sources_info.append({
+                        'source_name': link['source_name'],
+                        'percentage': link['percentage'],
+                        'income': source_income,
+                        'limit': source_limit
+                    })
             else:
-                # Если не привязана - используем общий доход
-                limit_val = float(income_sum) * float(row["value"]) / 100.0
+                # Обычная категория - старая логика
+                source_id = rule_map.get(cat_id)
+                if source_id and source_id in income_by_source:
+                    source_income = float(income_by_source[source_id])
+                    limit_val = source_income * float(row["value"]) / 100.0
+                    # Находим название источника
+                    source_name = None
+                    for s in sources:
+                        if s["id"] == source_id:
+                            source_name = s["name"]
+                            break
+                    sources_info.append({
+                        'source_name': source_name,
+                        'percentage': float(row["value"]),
+                        'income': source_income,
+                        'limit': limit_val
+                    })
+                else:
+                    # Если не привязана - используем общий доход
+                    limit_val = float(income_sum) * float(row["value"]) / 100.0
+                    sources_info.append({
+                        'source_name': 'Общий доход',
+                        'percentage': float(row["value"]),
+                        'income': float(income_sum),
+                        'limit': limit_val
+                    })
 
         spent = 0.0
         for s in spent_by_cat:
@@ -1149,34 +1203,39 @@ def dashboard():
                 spent = float(s["spent"])
                 break
 
-        # Получаем информацию об источнике дохода для категории
+        # Получаем информацию об источнике дохода для обычных категорий (обратная совместимость)
         source_id = rule_map.get(cat_id)
         source_name = None
-        if source_id:
+        if source_id and row["multi_source"] != 1:
             for s in sources:
                 if s["id"] == source_id:
                     source_name = s["name"]
                     break
         
         data.append(
-            dict(category_name=row["name"], limit=limit_val, spent=spent, id=cat_id, source_name=source_name)
+            dict(
+                category_name=row["name"], 
+                limit=limit_val, 
+                spent=spent, 
+                id=cat_id, 
+                source_name=source_name,
+                multi_source=row["multi_source"],
+                sources_info=sources_info
+            )
         )
 
     # ---- Балансы по источникам в выбранном месяце ----
     # (источники и доходы уже получены выше)
 
-    # расход по источнику (по правилам)
+    # расход по источнику (по правилам) - обновленная логика для многоисточниковых категорий
     expense_by_source = {s["id"]: 0.0 for s in sources}
     # лимиты по источнику (сумма всех лимитов категорий, привязанных к источнику)
     limits_by_source = {s["id"]: 0.0 for s in sources}
     
     for cat in limits:
         cat_id = cat["id"]
-        src_id = rule_map.get(cat_id)
-        if not src_id:
-            continue
-            
-        # Считаем потраченное
+        
+        # Считаем потраченное для этой категории
         spent_val = conn.execute(
             """
             SELECT COALESCE(SUM(amount),0) FROM expenses
@@ -1184,15 +1243,46 @@ def dashboard():
             """,
             (uid, month, cat_id),
         ).fetchone()[0]
-        expense_by_source[src_id] += float(spent_val)
+        spent_val = float(spent_val)
         
-        # Считаем лимит этой категории
-        if cat["limit_type"] == "fixed":
-            limit_val = float(cat["value"])
-        else:  # percent
-            source_income = float(income_by_source.get(src_id, 0))
-            limit_val = source_income * float(cat["value"]) / 100.0
-        limits_by_source[src_id] += limit_val
+        if cat["multi_source"] == 1 and cat_id in multi_source_links:
+            # Многоисточниковая категория - распределяем траты пропорционально лимитам
+            total_limit = 0.0
+            source_limits = {}
+            
+            # Сначала считаем общий лимит и лимит по каждому источнику
+            for link in multi_source_links[cat_id]:
+                source_id = link['source_id']
+                if cat["limit_type"] == "fixed":
+                    # Для фиксированных лимитов в многоисточниковых категориях 
+                    # распределяем пропорционально процентам
+                    source_limit = float(cat["value"]) * link['percentage'] / 100.0
+                else:  # percent
+                    source_income = float(income_by_source.get(source_id, 0))
+                    source_limit = source_income * link['percentage'] / 100.0
+                
+                source_limits[source_id] = source_limit
+                total_limit += source_limit
+            
+            # Распределяем траты пропорционально лимитам
+            for source_id, source_limit in source_limits.items():
+                if total_limit > 0:
+                    proportional_spent = spent_val * (source_limit / total_limit)
+                    expense_by_source[source_id] += proportional_spent
+                limits_by_source[source_id] += source_limit
+        else:
+            # Обычная категория - старая логика
+            src_id = rule_map.get(cat_id)
+            if src_id:
+                expense_by_source[src_id] += spent_val
+                
+                # Считаем лимит этой категории
+                if cat["limit_type"] == "fixed":
+                    limit_val = float(cat["value"])
+                else:  # percent
+                    source_income = float(income_by_source.get(src_id, 0))
+                    limit_val = source_income * float(cat["value"]) / 100.0
+                limits_by_source[src_id] += limit_val
 
     source_balances = []
     for s in sources:
@@ -1475,7 +1565,7 @@ def categories():
     uid = session["user_id"]
     conn = get_db()
     
-    # Получаем все категории с типами
+    # Получаем все категории с типами и флагом multi_source
     rows = conn.execute(
         "SELECT *, COALESCE(category_type, 'expense') as category_type FROM categories WHERE user_id=? ORDER BY category_type, name", (uid,)
     ).fetchall()
@@ -1488,6 +1578,26 @@ def categories():
     ).fetchall()
     rules_map = {r["category_id"]: r["source_id"] for r in rules}
     
+    # Получаем связи для многоисточниковых категорий  
+    multi_source_links = {}
+    multi_source_rows = conn.execute("""
+        SELECT category_id, source_id, percentage,
+               (SELECT name FROM income_sources WHERE id = cis.source_id) as source_name
+        FROM category_income_sources cis
+        WHERE user_id = ?
+        ORDER BY category_id, source_id
+    """, (uid,)).fetchall()
+    
+    for link in multi_source_rows:
+        cat_id = link['category_id']
+        if cat_id not in multi_source_links:
+            multi_source_links[cat_id] = []
+        multi_source_links[cat_id].append({
+            'source_id': link['source_id'],
+            'source_name': link['source_name'],
+            'percentage': float(link['percentage'])
+        })
+    
     # Разделяем категории по типам
     expense_categories = [cat for cat in rows if cat["category_type"] == "expense"]
     income_categories = [cat for cat in rows if cat["category_type"] == "income"]
@@ -1498,7 +1608,8 @@ def categories():
                          expense_categories=expense_categories,
                          income_categories=income_categories,
                          income_sources=sources, 
-                         rules_map=rules_map)
+                         rules_map=rules_map,
+                         multi_source_links=multi_source_links)
 
 
 @app.route("/categories/add", methods=["POST"])
@@ -1526,14 +1637,44 @@ def categories_add():
     conn = get_db()
     try:
         # Создаем категорию
+        multi_source = 1 if request.form.get("multi_source") else 0
         cursor = conn.execute(
-            "INSERT INTO categories (user_id, name, limit_type, value, category_type) VALUES (?,?,?,?,?)",
-            (uid, name, limit_type, amount, category_type),
+            "INSERT INTO categories (user_id, name, limit_type, value, category_type, multi_source) VALUES (?,?,?,?,?,?)",
+            (uid, name, limit_type, amount, category_type, multi_source),
         )
         category_id = cursor.lastrowid
         
-        # Если выбран источник, создаем привязку
-        if source_id:
+        # Обрабатываем источники
+        if multi_source == 1:
+            # Многоисточниковая категория - добавляем связи из формы
+            multi_sources = request.form.getlist('multi_sources')
+            for i in range(len(multi_sources)):
+                source_id_key = f'multi_sources[{i}][source_id]'
+                percentage_key = f'multi_sources[{i}][percentage]'
+                
+                source_id_val = request.form.get(source_id_key)
+                percentage_val = request.form.get(percentage_key)
+                
+                if source_id_val and percentage_val:
+                    try:
+                        source_id_int = int(source_id_val)
+                        percentage_float = float(percentage_val)
+                        
+                        # Проверяем, что источник принадлежит пользователю
+                        valid_source = conn.execute(
+                            "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
+                            (source_id_int, uid)
+                        ).fetchone()
+                        
+                        if valid_source and 0 < percentage_float <= 100:
+                            conn.execute(
+                                "INSERT INTO category_income_sources(user_id, category_id, source_id, percentage) VALUES (?,?,?,?)",
+                                (uid, category_id, source_id_int, percentage_float)
+                            )
+                    except (ValueError, TypeError):
+                        continue
+        elif source_id:
+            # Обычная категория - создаем привязку в старой таблице
             # Проверяем, что источник принадлежит пользователю
             valid_source = conn.execute(
                 "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
@@ -1636,6 +1777,181 @@ def categories_delete(cat_id):
     conn.commit()
     conn.close()
     flash("Категория удалена", "success")
+    return redirect(url_for("categories"))
+
+
+# -----------------------------------------------------------------------------
+# Routes: Multi-source categories (многоисточниковые категории)
+# -----------------------------------------------------------------------------
+
+@app.route("/categories/<int:cat_id>/toggle-multi-source", methods=["POST"])
+@login_required
+def toggle_multi_source(cat_id):
+    """Переключает режим многоисточниковости для категории."""
+    uid = session["user_id"]
+    conn = get_db()
+    
+    try:
+        # Получаем текущее состояние категории
+        category = conn.execute(
+            "SELECT multi_source FROM categories WHERE id=? AND user_id=?",
+            (cat_id, uid)
+        ).fetchone()
+        
+        if not category:
+            flash("Категория не найдена", "error")
+            return redirect(url_for("categories"))
+        
+        new_multi_source = 1 if category["multi_source"] == 0 else 0
+        
+        # Переключаем режим
+        conn.execute(
+            "UPDATE categories SET multi_source=? WHERE id=? AND user_id=?",
+            (new_multi_source, cat_id, uid)
+        )
+        
+        if new_multi_source == 0:
+            # Если выключаем многоисточниковый режим - удаляем все связи
+            conn.execute(
+                "DELETE FROM category_income_sources WHERE category_id=? AND user_id=?",
+                (cat_id, uid)
+            )
+            flash("Многоисточниковый режим отключен", "success")
+        else:
+            flash("Многоисточниковый режим включен. Теперь можно добавить источники доходов", "success")
+        
+        conn.commit()
+    except Exception as e:
+        flash(f"Ошибка: {e}", "error")
+    finally:
+        conn.close()
+    
+    return redirect(url_for("categories"))
+
+
+@app.route("/categories/<int:cat_id>/add-source", methods=["POST"])
+@login_required
+def add_source_to_category(cat_id):
+    """Добавляет источник дохода к многоисточниковой категории."""
+    uid = session["user_id"]
+    source_id = request.form.get("source_id")
+    percentage = request.form.get("percentage")
+    
+    if not source_id or not percentage:
+        flash("Необходимо выбрать источник и указать процент", "error")
+        return redirect(url_for("categories"))
+    
+    try:
+        source_id = int(source_id)
+        percentage = float(percentage)
+        if percentage <= 0 or percentage > 100:
+            raise ValueError("Процент должен быть от 0 до 100")
+    except ValueError as e:
+        flash(f"Некорректные данные: {e}", "error")
+        return redirect(url_for("categories"))
+    
+    conn = get_db()
+    try:
+        # Проверяем, что категория многоисточниковая
+        category = conn.execute(
+            "SELECT multi_source FROM categories WHERE id=? AND user_id=?",
+            (cat_id, uid)
+        ).fetchone()
+        
+        if not category or category["multi_source"] != 1:
+            flash("Категория не является многоисточниковой", "error")
+            return redirect(url_for("categories"))
+        
+        # Проверяем, что источник принадлежит пользователю
+        source_exists = conn.execute(
+            "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
+            (source_id, uid)
+        ).fetchone()
+        
+        if not source_exists:
+            flash("Источник не найден", "error")
+            return redirect(url_for("categories"))
+        
+        # Добавляем связь
+        conn.execute("""
+            INSERT INTO category_income_sources (user_id, category_id, source_id, percentage)
+            VALUES (?, ?, ?, ?)
+        """, (uid, cat_id, source_id, percentage))
+        
+        conn.commit()
+        flash("Источник добавлен к категории", "success")
+        
+    except sqlite3.IntegrityError:
+        flash("Этот источник уже добавлен к данной категории", "error")
+    except Exception as e:
+        flash(f"Ошибка: {e}", "error")
+    finally:
+        conn.close()
+    
+    return redirect(url_for("categories"))
+
+
+@app.route("/categories/<int:cat_id>/remove-source/<int:source_id>", methods=["POST"])
+@login_required
+def remove_source_from_category(cat_id, source_id):
+    """Удаляет источник дохода из многоисточниковой категории."""
+    uid = session["user_id"]
+    conn = get_db()
+    
+    try:
+        conn.execute("""
+            DELETE FROM category_income_sources 
+            WHERE category_id=? AND source_id=? AND user_id=?
+        """, (cat_id, source_id, uid))
+        
+        conn.commit()
+        flash("Источник удален из категории", "success")
+        
+    except Exception as e:
+        flash(f"Ошибка: {e}", "error")
+    finally:
+        conn.close()
+    
+    return redirect(url_for("categories"))
+
+
+@app.route("/categories/<int:cat_id>/update-source", methods=["POST"])
+@login_required  
+def update_source_percentage(cat_id):
+    """Обновляет процент источника в многоисточниковой категории."""
+    uid = session["user_id"]
+    source_id = request.form.get("source_id")
+    percentage = request.form.get("percentage")
+    
+    if not source_id or not percentage:
+        flash("Необходимо указать источник и процент", "error")
+        return redirect(url_for("categories"))
+    
+    try:
+        source_id = int(source_id)
+        percentage = float(percentage)
+        if percentage <= 0 or percentage > 100:
+            raise ValueError("Процент должен быть от 0 до 100")
+    except ValueError as e:
+        flash(f"Некорректные данные: {e}", "error")
+        return redirect(url_for("categories"))
+    
+    conn = get_db()
+    try:
+        conn.execute("""
+            UPDATE category_income_sources 
+            SET percentage=? 
+            WHERE category_id=? AND source_id=? AND user_id=?
+        """, (percentage, cat_id, source_id, uid))
+        
+        conn.commit()
+        flash("Процент обновлен", "success")
+        
+    except Exception as e:
+        flash(f"Ошибка: {e}", "error")
+    finally:
+        conn.close()
+    
     return redirect(url_for("categories"))
 
 

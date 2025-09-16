@@ -11,7 +11,8 @@
       "Bash(sudo chown:*)",
       "Bash(sudo chmod:*)",
       "Bash(sudo rm:*)",
-      "Bash(sudo systemctl:*)"
+      "Bash(sudo systemctl:*)",
+      "Bash(sudo journalctl:*)"
     ],
     "deny": [],
     "ask": []

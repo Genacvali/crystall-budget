@@ -482,9 +482,24 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
               data-source="{{ item.source_name or 'Не привязано' }}">
             <td class="cell-title">
               {{ item.category_name }}
+              {% if item.multi_source == 1 %}
+                <span class="badge bg-success bg-opacity-75 ms-2" style="font-size: 0.6rem;" title="Многоисточниковая категория">
+                  <i class="bi bi-diagram-3"></i>
+                  <span class="d-none d-lg-inline"> Мульти</span>
+                </span>
+              {% endif %}
               <!-- Мобильная версия: показываем лимит под названием -->
               <div class="d-md-none small text-muted mt-1">
                 Лимит: {{ item.limit|format_amount }} {{ currency_symbol|default("₽") }}
+                {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
+                  <div class="mt-1">
+                    {% for source_info in item.sources_info %}
+                      <span class="badge bg-primary bg-opacity-75 me-1" style="font-size: 0.6rem;">
+                        {{ source_info.source_name[:6] }}{{ '.' if source_info.source_name|length > 6 else '' }}: {{ source_info.percentage|round }}%
+                      </span>
+                    {% endfor %}
+                  </div>
+                {% endif %}
               </div>
             </td>
             <td class="text-end currency hide-mobile">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
@@ -492,34 +507,118 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
               {{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span>
               <!-- Мобильная версия: показываем прогресс под суммой -->
               <div class="d-md-none mt-1">
-                <div class="progress" style="height: 6px;">
-                  <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
-                       role="progressbar"
-                       style="width: {{ [progress_percent, 100] | min }}%;">
+                {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
+                  <!-- Составной прогресс-бар для мобильной версии -->
+                  <div class="progress" style="height: 6px;">
+                    {% set total_spent = item.spent %}
+                    {% set total_limit = item.limit %}
+                    {% set cumulative_spent = 0 %}
+                    
+                    {% for source_info in item.sources_info %}
+                      {% set source_limit = source_info.limit %}
+                      {% set source_spent = (total_spent * (source_limit / total_limit)) if total_limit > 0 else 0 %}
+                      {% set source_progress = (source_spent / source_limit * 100) if source_limit > 0 else 0 %}
+                      {% set segment_width = (source_limit / total_limit * 100) if total_limit > 0 else 0 %}
+                      
+                      <!-- Используем те же цвета что и в десктопной версии -->
+                      {% set source_colors = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-secondary'] %}
+                      {% set color_class = source_colors[loop.index0 % 5] %}
+                      
+                      <div class="progress-bar {{ color_class }} bg-opacity-100"
+                           role="progressbar"
+                           style="width: {{ [segment_width, 100 - cumulative_spent] | min }}%;"
+                           title="{{ source_info.source_name }}: {{ source_progress|round(1) }}%">
+                      </div>
+                      {% set cumulative_spent = cumulative_spent + segment_width %}
+                    {% endfor %}
                   </div>
-                </div>
+                {% else %}
+                  <!-- Обычный прогресс-бар для мобильной версии -->
+                  <div class="progress" style="height: 6px;">
+                    <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
+                         role="progressbar"
+                         style="width: {{ [progress_percent, 100] | min }}%;">
+                    </div>
+                  </div>
+                {% endif %}
                 <small class="text-muted">{{ progress_percent }}%</small>
               </div>
             </td>
             <td class="hide-mobile">
               <div class="d-flex align-items-center gap-2">
                 <div class="flex-grow-1">
-                  <div class="progress">
-                    <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
-                         role="progressbar"
-                         style="width: {{ [progress_percent, 100] | min }}%;">
+                  {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
+                    <!-- Составной прогресс-бар для многоисточниковых категорий -->
+                    <div class="progress" style="height: 12px;">
+                      {% set total_spent = item.spent %}
+                      {% set total_limit = item.limit %}
+                      {% set cumulative_spent = 0 %}
+                      
+                      {% for source_info in item.sources_info %}
+                        {% set source_limit = source_info.limit %}
+                        {% set source_spent = (total_spent * (source_limit / total_limit)) if total_limit > 0 else 0 %}
+                        {% set source_progress = (source_spent / source_limit * 100) if source_limit > 0 else 0 %}
+                        {% set segment_width = (source_limit / total_limit * 100) if total_limit > 0 else 0 %}
+                        
+                        <!-- Используем разные цвета для каждого источника -->
+                        {% set source_colors = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-secondary'] %}
+                        {% set color_class = source_colors[loop.index0 % 5] %}
+                        {% set intensity_class = 'bg-opacity-100' if source_progress < 50 else ('bg-opacity-75' if source_progress < 80 else 'bg-opacity-100') %}
+                        
+                        <div class="progress-bar {{ color_class }} {{ intensity_class }}"
+                             role="progressbar"
+                             style="width: {{ [segment_width, 100 - cumulative_spent] | min }}%;"
+                             title="{{ source_info.source_name }}: {{ source_spent|round(1) }}/{{ source_limit|format_amount }} ({{ source_progress|round(1) }}%)">
+                        </div>
+                        {% set cumulative_spent = cumulative_spent + segment_width %}
+                      {% endfor %}
                     </div>
-                  </div>
+                  {% else %}
+                    <!-- Обычный прогресс-бар -->
+                    <div class="progress">
+                      <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
+                           role="progressbar"
+                           style="width: {{ [progress_percent, 100] | min }}%;">
+                      </div>
+                    </div>
+                  {% endif %}
                 </div>
                 <small class="text-muted" style="width:48px;text-align:right;">{{ progress_percent }}%</small>
               </div>
             </td>
             <td class="text-end currency {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
             <td class="text-end mobile-compact">
-              {% if item.source_name %}
+              {% if item.multi_source == 1 %}
+                <!-- Многоисточниковая категория -->
+                {% if item.sources_info and item.sources_info|length > 0 %}
+                  <div class="d-flex flex-wrap gap-1 justify-content-end">
+                    {% for source_info in item.sources_info %}
+                      <span class="badge bg-primary bg-opacity-75 small" style="font-size: 0.65rem;" 
+                            title="{{ source_info.percentage }}% от {{ source_info.source_name }} ({{ source_info.limit|format_amount }} {{ currency_symbol|default('₽') }})">
+                        <span class="d-none d-md-inline">{{ source_info.source_name }}: {{ source_info.percentage }}%</span>
+                        <span class="d-md-none">{{ source_info.source_name[:4] }}{{ '.' if source_info.source_name|length > 4 else '' }}:{{ source_info.percentage|round }}%</span>
+                      </span>
+                    {% endfor %}
+                  </div>
+                  <div class="d-none d-md-inline">
+                    <span class="badge bg-success bg-opacity-75 mt-1" style="font-size: 0.6rem;">
+                      <i class="bi bi-diagram-3"></i> Мульти
+                    </span>
+                  </div>
+                {% else %}
+                  <span class="text-warning small">
+                    <span class="d-none d-md-inline">
+                      <i class="bi bi-exclamation-triangle"></i> Настройте источники
+                    </span>
+                    <span class="d-md-none">⚠ Настройте</span>
+                  </span>
+                {% endif %}
+              {% elif item.source_name %}
+                <!-- Обычная категория с источником -->
                 <span class="d-none d-md-inline text-primary small">{{ item.source_name }}</span>
                 <span class="d-md-none text-primary small">{{ item.source_name[:8] }}{{ '...' if item.source_name|length > 8 else '' }}</span>
               {% else %}
+                <!-- Категория без источника -->
                 <span class="text-muted small">
                   <span class="d-none d-md-inline">Не привязано</span>
                   <span class="d-md-none">—</span>
