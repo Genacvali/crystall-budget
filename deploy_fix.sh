@@ -24,6 +24,10 @@ if [ ! -f /opt/crystalbudget/crystall-budget/.env ]; then
     cp /opt/crystall-budget/.env /opt/crystalbudget/crystall-budget/.env
 fi
 
+# Добавляем таблицу password_reset_tokens в базу данных
+echo "🗄️ Добавление таблицы password_reset_tokens..."
+sqlite3 /opt/crystalbudget/crystall-budget/budget.db < /opt/crystall-budget/add_password_reset_table.sql
+
 # Перезапускаем сервис
 echo "🔄 Перезапуск crystalbudget.service..."
 sudo systemctl restart crystalbudget
