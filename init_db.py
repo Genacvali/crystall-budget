@@ -140,6 +140,16 @@ def create_database():
                 UNIQUE(from_currency, to_currency)
             );
 
+            -- Таблица токенов восстановления пароля
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                token TEXT UNIQUE NOT NULL,
+                expires_at DATETIME NOT NULL,
+                used INTEGER DEFAULT 0,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+
             -- Создание индексов для производительности
             CREATE INDEX IF NOT EXISTS idx_expenses_user_month ON expenses(user_id, month);
             CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id);
@@ -149,6 +159,8 @@ def create_database():
             CREATE INDEX IF NOT EXISTS idx_shared_budget_members_budget ON shared_budget_members(shared_budget_id);
             CREATE INDEX IF NOT EXISTS idx_shared_budget_members_user ON shared_budget_members(user_id);
             CREATE INDEX IF NOT EXISTS idx_exchange_rates_currencies ON exchange_rates(from_currency, to_currency);
+            CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user ON password_reset_tokens(user_id);
+            CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token);
         """)
         
         conn.commit()

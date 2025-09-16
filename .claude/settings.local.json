@@ -14,7 +14,9 @@
       "Bash(sudo systemctl:*)",
       "Bash(sudo journalctl:*)",
       "Bash(export SECRET_KEY=test)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(pkill:*)",
+      "Bash(systemctl restart:*)"
     ],
     "deny": [],
     "ask": []

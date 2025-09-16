@@ -2,10 +2,18 @@ import os
 import sqlite3
 import logging
 import requests 
+import smtplib
+import secrets
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
 from logging.handlers import RotatingFileHandler
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from flask import (
     Flask, render_template, render_template_string, request, redirect,
@@ -380,6 +388,19 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id);
         CREATE INDEX IF NOT EXISTS idx_categories_user ON categories(user_id);
         CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+        
+        -- Таблица для токенов восстановления пароля
+        CREATE TABLE IF NOT EXISTS password_reset_tokens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+            token TEXT UNIQUE NOT NULL,
+            expires_at DATETIME NOT NULL,
+            used INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        
+        CREATE INDEX IF NOT EXISTS idx_reset_tokens_token ON password_reset_tokens(token);
+        CREATE INDEX IF NOT EXISTS idx_reset_tokens_user ON password_reset_tokens(user_id);
         """
     )
     conn.commit()
@@ -543,6 +564,76 @@ def login_required(f):
             return redirect(url_for("login"))
         return f(*args, **kwargs)
     return _wrap
+
+
+def send_reset_email(email, token):
+    """Отправляет email с токеном для восстановления пароля."""
+    smtp_server = os.environ.get('SMTP_SERVER', 'smtp.gmail.com')
+    smtp_port = int(os.environ.get('SMTP_PORT', 587))
+    smtp_user = os.environ.get('SMTP_USER')
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    
+    if not smtp_user or not smtp_password:
+        app.logger.error("SMTP credentials not configured")
+        return False
+    
+    try:
+        reset_link = url_for('reset_password', token=token, _external=True)
+        
+        msg = MIMEMultipart()
+        msg['From'] = smtp_user
+        msg['To'] = email
+        msg['Subject'] = "Восстановление пароля - CrystalBudget"
+        
+        body = f"""
+        Здравствуйте!
+        
+        Вы запросили восстановление пароля для вашего аккаунта в CrystalBudget.
+        
+        Перейдите по ссылке для создания нового пароля:
+        {reset_link}
+        
+        Ссылка действительна в течение 1 часа.
+        
+        Если вы не запрашивали восстановление пароля, просто проигнорируйте это письмо.
+        
+        С уважением,
+        Команда CrystalBudget
+        """
+        
+        msg.attach(MIMEText(body, 'plain', 'utf-8'))
+        
+        server = smtplib.SMTP(smtp_server, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_password)
+        server.send_message(msg)
+        server.quit()
+        
+        return True
+    except Exception as e:
+        app.logger.error(f"Failed to send reset email to {email}: {e}")
+        return False
+
+
+def create_reset_token(user_id):
+    """Создает токен для восстановления пароля."""
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.now() + timedelta(hours=1)
+    
+    conn = get_db()
+    try:
+        # Удаляем старые токены для этого пользователя
+        conn.execute("DELETE FROM password_reset_tokens WHERE user_id = ?", (user_id,))
+        
+        # Создаем новый токен
+        conn.execute(
+            "INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)",
+            (user_id, token, expires_at)
+        )
+        conn.commit()
+        return token
+    finally:
+        conn.close()
 
 
 # -----------------------------------------------------------------------------
@@ -824,6 +915,82 @@ def logout():
     app.logger.info(f'User logout: {user_email}')
     session.clear()
     return redirect(url_for("login"))
+
+
+@app.route("/forgot-password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        email = request.form.get("email", "").lower().strip()
+        if not email:
+            flash("Введите email", "error")
+            return render_template("forgot_password.html")
+        
+        conn = get_db()
+        user = conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+        conn.close()
+        
+        if user:
+            token = create_reset_token(user["id"])
+            if send_reset_email(email, token):
+                flash("Ссылка для восстановления пароля отправлена на ваш email", "success")
+            else:
+                flash("Ошибка отправки email. Попробуйте позже", "error")
+        else:
+            # Не показываем, что email не найден (безопасность)
+            flash("Если такой email существует, ссылка для восстановления пароля отправлена", "info")
+        
+        return redirect(url_for("login"))
+    
+    return render_template("forgot_password.html")
+
+
+@app.route("/reset-password/<token>", methods=["GET", "POST"])
+def reset_password(token):
+    conn = get_db()
+    try:
+        # Проверяем токен
+        reset_token = conn.execute(
+            "SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0 AND expires_at > ?",
+            (token, datetime.now())
+        ).fetchone()
+        
+        if not reset_token:
+            flash("Недействительная или истёкшая ссылка для восстановления пароля", "error")
+            return redirect(url_for("login"))
+        
+        if request.method == "POST":
+            password = request.form.get("password", "").strip()
+            confirm_password = request.form.get("confirm_password", "").strip()
+            
+            if not password or len(password) < 6:
+                flash("Пароль должен содержать минимум 6 символов", "error")
+                return render_template("reset_password.html", token=token)
+            
+            if password != confirm_password:
+                flash("Пароли не совпадают", "error")
+                return render_template("reset_password.html", token=token)
+            
+            # Обновляем пароль
+            password_hash = generate_password_hash(password)
+            conn.execute(
+                "UPDATE users SET password_hash = ? WHERE id = ?",
+                (password_hash, reset_token["user_id"])
+            )
+            
+            # Помечаем токен как использованный
+            conn.execute(
+                "UPDATE password_reset_tokens SET used = 1 WHERE id = ?",
+                (reset_token["id"],)
+            )
+            
+            conn.commit()
+            flash("Пароль успешно изменён", "success")
+            return redirect(url_for("login"))
+        
+        return render_template("reset_password.html", token=token)
+    
+    finally:
+        conn.close()
 
 
 # -----------------------------------------------------------------------------

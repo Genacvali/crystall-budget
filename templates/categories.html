@@ -19,11 +19,12 @@
   .saving-dots { display: none; font-size: .8rem; color:#6c757d; }
   .saving .saving-dots { display: inline; }
   .input-group-text { min-width: 2.25rem; justify-content: center; }
+  .btn-group .btn + .btn { margin-left: 2px; }
 </style>
 
-<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <h2 class="h4 m-0">Категории расходов</h2>
-  <button class="btn btn-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm">
+  <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addExpenseCategoryForm">
     <i class="bi bi-plus me-1"></i>
     Добавить категорию
   </button>
@@ -37,7 +38,7 @@
     </h5>
     <form method="POST" action="{{ url_for('categories_add') }}">
       <input type="hidden" name="category_type" value="expense">
-      <div class="row g-2 g-md-3 align-items-end">
+      <div class="row g-3 align-items-end">
         <div class="col-12 col-lg-4">
           <label class="form-label">Название</label>
           <input type="text" name="name" class="form-control" placeholder="Например, Продукты" required>

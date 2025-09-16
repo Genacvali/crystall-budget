@@ -41,7 +41,7 @@
                                     Запомнить меня
                                 </label>
                             </div>
-                            <a href="#" class="text-decoration-none small text-muted" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">
+                            <a href="{{ url_for('forgot_password') }}" class="text-decoration-none small text-muted">
                                 Забыли пароль?
                             </a>
                         </div>
@@ -65,31 +65,6 @@
     </div>
 </div>
 
-<!-- Forgot Password Modal -->
-<div class="modal fade" id="forgotPasswordModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="bi bi-key"></i> Восстановление пароля
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    Для восстановления пароля обратитесь к администратору системы.
-                </div>
-                <p class="text-muted">
-                    В будущих версиях будет добавлена функция автоматического восстановления пароля по email.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

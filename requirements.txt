@@ -1,5 +1,6 @@
 flask>=3.0,<4.0
 werkzeug>=3.0,<4.0
 requests>=2.31,<3.0
+python-dotenv>=1.0,<2.0
 # для прод-запуска без Docker:
 gunicorn>=21.0,<22.0

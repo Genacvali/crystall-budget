@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Доходы и источники — CrystalBudget{% endblock %}
 
-
 {% block content %}
+<style>
+  .btn-group .btn + .btn { margin-left: 2px; }
+</style>
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="h4 m-0"><i class="bi bi-cash-coin text-success me-2"></i>Доходы и источники</h2>
 </div>
@@ -12,7 +14,7 @@
 <!-- Форма добавления дохода (по дням) -->
 <form method="POST" action="{{ url_for('income_add') }}" class="mb-3" novalidate>
   <div class="card card-body">
-    <div class="row g-3">
+    <div class="row g-3 align-items-end">
       <div class="col-6 col-md-3">
         <label for="date" class="form-label">Дата</label>
         <input type="date" id="date" name="date"
@@ -24,7 +26,6 @@
         <input type="number" id="amount" name="amount"
                inputmode="decimal" step="0.01" min="0.01"
                class="form-control" placeholder="Сумма дохода" required>
-        <div class="form-text d-none d-md-block">Используйте точку для копеек: 1234.56</div>
       </div>
 
       <div class="col-12 col-md-4">
@@ -42,8 +43,8 @@
         </div>
       </div>
 
-      <div class="col-12 col-md-2 d-flex mt-2 mt-md-0">
-        <button type="submit" class="btn btn-success btn-lg w-100 align-self-end">
+      <div class="col-12 col-md-2 d-flex">
+        <button type="submit" class="btn btn-success w-100 align-self-end">
           <i class="bi bi-check-lg me-1"></i> Добавить доход
         </button>
       </div>
@@ -110,16 +111,18 @@
           {% else %}—{% endif %}
         </td>
         <td class="text-end">
-          <a href="{{ url_for('edit_income', income_id=income.id) }}"
-             class="btn btn-sm btn-outline-primary me-1">
-            <i class="bi bi-pencil"></i> Изменить
-          </a>
-          <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
-            <button type="submit" class="btn btn-sm btn-outline-danger"
-                    onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
-              <i class="bi bi-trash"></i> Удалить
-            </button>
-          </form>
+          <div class="btn-group" role="group">
+            <a href="{{ url_for('edit_income', income_id=income.id) }}"
+               class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-pencil"></i> Изменить
+            </a>
+            <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+              <button type="submit" class="btn btn-sm btn-outline-danger"
+                      onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
+                <i class="bi bi-trash"></i> Удалить
+              </button>
+            </form>
+          </div>
         </td>
       </tr>
       {% endfor %}
