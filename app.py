@@ -10,10 +10,13 @@ from functools import wraps
 from logging.handlers import RotatingFileHandler
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
+# Load environment variables from .env file (optional)
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # python-dotenv not installed, skip loading .env file
+    pass
 
 from flask import (
     Flask, render_template, render_template_string, request, redirect,
