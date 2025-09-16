@@ -2,8 +2,9 @@ const CACHE_NAME = 'cb-shell-v1';
 const SHELL = [
   '/', '/dashboard', '/expenses', '/categories', '/income',
   '/static/css/clean-theme.css',
-  'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
-  'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css'
+  '/static/vendor/bootstrap/bootstrap.min.css',
+  '/static/vendor/bootstrap-icons/bootstrap-icons.css',
+  '/static/vendor/bootstrap-icons/bootstrap-icons.woff2'
 ];
 
 self.addEventListener('install', (e) => {

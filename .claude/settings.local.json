@@ -12,7 +12,9 @@
       "Bash(sudo chmod:*)",
       "Bash(sudo rm:*)",
       "Bash(sudo systemctl:*)",
-      "Bash(sudo journalctl:*)"
+      "Bash(sudo journalctl:*)",
+      "Bash(export SECRET_KEY=test)",
+      "Bash(sed:*)"
     ],
     "deny": [],
     "ask": []

@@ -512,24 +512,37 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
                   <div class="progress" style="height: 6px;">
                     {% set total_spent = item.spent %}
                     {% set total_limit = item.limit %}
-                    {% set cumulative_spent = 0 %}
                     
+                    {% set remaining_spent = total_spent %}
                     {% for source_info in item.sources_info %}
                       {% set source_limit = source_info.limit %}
-                      {% set source_spent = (total_spent * (source_limit / total_limit)) if total_limit > 0 else 0 %}
+                      {% set source_spent = [remaining_spent, source_limit] | min %}
+                      {% set remaining_spent = remaining_spent - source_spent %}
                       {% set source_progress = (source_spent / source_limit * 100) if source_limit > 0 else 0 %}
                       {% set segment_width = (source_limit / total_limit * 100) if total_limit > 0 else 0 %}
+                      {% set fill_width = (source_progress / 100 * segment_width) %}
                       
                       <!-- Используем те же цвета что и в десктопной версии -->
                       {% set source_colors = ['bg-primary', 'bg-warning', 'bg-danger', 'bg-info', 'bg-success'] %}
                       {% set color_class = source_colors[loop.index0 % 5] %}
                       
-                      <div class="progress-bar {{ color_class }} bg-opacity-100"
+                      <!-- Фоновый сегмент (пустая часть лимита) -->
+                      {% if segment_width > fill_width %}
+                      <div class="progress-bar {{ color_class }} bg-opacity-25"
                            role="progressbar"
-                           style="width: {{ [segment_width, 100 - cumulative_spent] | min }}%;"
+                           style="width: {{ segment_width - fill_width }}%;"
+                           title="{{ source_info.source_name }}: остаток">
+                      </div>
+                      {% endif %}
+                      
+                      <!-- Заполненная часть -->
+                      {% if fill_width > 0 %}
+                      <div class="progress-bar {{ color_class }}"
+                           role="progressbar"
+                           style="width: {{ fill_width }}%;"
                            title="{{ source_info.source_name }}: {{ source_progress|round(1) }}%">
                       </div>
-                      {% set cumulative_spent = cumulative_spent + segment_width %}
+                      {% endif %}
                     {% endfor %}
                   </div>
                 {% else %}
@@ -552,25 +565,37 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
                     <div class="progress" style="height: 12px;">
                       {% set total_spent = item.spent %}
                       {% set total_limit = item.limit %}
-                      {% set cumulative_spent = 0 %}
                       
+                      {% set remaining_spent = total_spent %}
                       {% for source_info in item.sources_info %}
                         {% set source_limit = source_info.limit %}
-                        {% set source_spent = (total_spent * (source_limit / total_limit)) if total_limit > 0 else 0 %}
+                        {% set source_spent = [remaining_spent, source_limit] | min %}
+                        {% set remaining_spent = remaining_spent - source_spent %}
                         {% set source_progress = (source_spent / source_limit * 100) if source_limit > 0 else 0 %}
                         {% set segment_width = (source_limit / total_limit * 100) if total_limit > 0 else 0 %}
+                        {% set fill_width = (source_progress / 100 * segment_width) %}
                         
                         <!-- Используем разные цвета для каждого источника -->
                         {% set source_colors = ['bg-primary', 'bg-warning', 'bg-danger', 'bg-info', 'bg-success'] %}
                         {% set color_class = source_colors[loop.index0 % 5] %}
-                        {% set intensity_class = 'bg-opacity-100' if source_progress < 50 else ('bg-opacity-75' if source_progress < 80 else 'bg-opacity-100') %}
                         
-                        <div class="progress-bar {{ color_class }} {{ intensity_class }}"
+                        <!-- Фоновый сегмент (пустая часть лимита) -->
+                        {% if segment_width > fill_width %}
+                        <div class="progress-bar {{ color_class }} bg-opacity-25"
                              role="progressbar"
-                             style="width: {{ [segment_width, 100 - cumulative_spent] | min }}%;"
+                             style="width: {{ segment_width - fill_width }}%;"
+                             title="{{ source_info.source_name }}: остаток {{ (source_limit - source_spent)|round(1) }}">
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Заполненная часть -->
+                        {% if fill_width > 0 %}
+                        <div class="progress-bar {{ color_class }}"
+                             role="progressbar"
+                             style="width: {{ fill_width }}%;"
                              title="{{ source_info.source_name }}: {{ source_spent|round(1) }}/{{ source_limit|format_amount }} ({{ source_progress|round(1) }}%)">
                         </div>
-                        {% set cumulative_spent = cumulative_spent + segment_width %}
+                        {% endif %}
                       {% endfor %}
                     </div>
                   {% else %}
