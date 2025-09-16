@@ -1,0 +1,31 @@
+[Unit]
+Description=CrystalBudget Admin Panel
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=admin
+Group=admin
+WorkingDirectory=/opt/crystalbudget/crystall-budget
+Environment=BUDGET_DB=/opt/crystalbudget/crystall-budget/budget.db
+Environment=ADMIN_USERNAME=admin
+Environment=ADMIN_PASSWORD=CHANGE_THIS_PASSWORD
+Environment=ADMIN_SECRET_KEY=CHANGE_THIS_SECRET_KEY
+ExecStart=/opt/crystalbudget/venv/bin/python admin_panel.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=admin-panel
+
+# Безопасность
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/crystalbudget/crystall-budget
+ReadOnlyPaths=/opt/crystalbudget/crystall-budget/budget.db
+
+[Install]
+WantedBy=multi-user.target

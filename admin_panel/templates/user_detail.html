@@ -1,0 +1,239 @@
+{% extends "admin_panel/base.html" %}
+{% block title %}{{ user.email }} — Пользователи — Админская панель{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <a href="{{ url_for('users') }}" class="text-decoration-none text-muted me-2">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <i class="bi bi-person-circle text-primary"></i> {{ user.name }}
+    </h2>
+    
+    <div class="btn-group">
+        {% if user.role == 'admin' %}
+            <span class="badge bg-warning fs-6 me-2">
+                <i class="bi bi-shield-check"></i> Администратор
+            </span>
+        {% else %}
+            <span class="badge bg-secondary fs-6 me-2">Пользователь</span>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Основная информация -->
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person"></i> Основная информация
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="small text-muted">ID пользователя</label>
+                    <div class="fw-semibold">{{ user.id }}</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="small text-muted">Email</label>
+                    <div class="fw-semibold">{{ user.email }}</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="small text-muted">Имя</label>
+                    <div class="fw-semibold">{{ user.name }}</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="small text-muted">Роль</label>
+                    <div>
+                        {% if user.role == 'admin' %}
+                            <span class="badge bg-warning">
+                                <i class="bi bi-shield-check"></i> Администратор
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">Пользователь</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="small text-muted">Валюта по умолчанию</label>
+                    <div class="fw-semibold">{{ user.default_currency or 'RUB' }}</div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="small text-muted">Дата регистрации</label>
+                    <div class="fw-semibold">{{ user.created_at }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Опасная зона -->
+        <div class="card stat-card mt-4">
+            <div class="card-header bg-danger text-white">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Опасные действия
+                </h6>
+            </div>
+            <div class="card-body danger-zone">
+                <div class="mb-3">
+                    <h6>Сброс пароля</h6>
+                    <p class="small text-muted mb-2">
+                        Создает новый временный пароль для пользователя
+                    </p>
+                    <form method="POST" action="{{ url_for('reset_user_password', user_id=user.id) }}">
+                        <button type="submit" class="btn btn-danger btn-sm w-100"
+                                onclick="return confirm('Сбросить пароль для {{ user.email }}?\n\nБудет создан новый временный пароль.')">
+                            <i class="bi bi-key"></i> Сбросить пароль
+                        </button>
+                    </form>
+                </div>
+                
+                <div>
+                    <h6>Роль пользователя</h6>
+                    <p class="small text-muted mb-2">
+                        Переключить между ролями пользователя и администратора
+                    </p>
+                    <form method="POST" action="{{ url_for('toggle_user_role', user_id=user.id) }}">
+                        {% if user.role == 'admin' %}
+                            <button type="submit" class="btn btn-warning btn-sm w-100"
+                                    onclick="return confirm('Убрать админские права у {{ user.email }}?')">
+                                <i class="bi bi-shield-x"></i> Убрать админа
+                            </button>
+                        {% else %}
+                            <button type="submit" class="btn btn-success btn-sm w-100"
+                                    onclick="return confirm('Дать админские права {{ user.email }}?')">
+                                <i class="bi bi-shield-plus"></i> Сделать админом
+                            </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Статистика -->
+    <div class="col-md-8">
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="card stat-card text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-wallet2 fs-3 text-danger"></i>
+                        <h4 class="mt-2 mb-1">{{ stats.expenses_count }}</h4>
+                        <small class="text-muted">Расходов</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-tags fs-3 text-primary"></i>
+                        <h4 class="mt-2 mb-1">{{ stats.categories_count }}</h4>
+                        <small class="text-muted">Категорий</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-cash-coin fs-3 text-success"></i>
+                        <h4 class="mt-2 mb-1">{{ stats.income_count }}</h4>
+                        <small class="text-muted">Доходов</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="card stat-card text-center">
+                    <div class="card-body py-3">
+                        <i class="bi bi-clock-history fs-3 text-info"></i>
+                        <h4 class="mt-2 mb-1">{{ recent_expenses|length }}</h4>
+                        <small class="text-muted">Недавних операций</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Последние расходы -->
+        <div class="card stat-card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history"></i> Последние расходы
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if recent_expenses %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Категория</th>
+                                <th>Заметка</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for expense in recent_expenses %}
+                            <tr>
+                                <td>{{ expense.date }}</td>
+                                <td>{{ expense.category_name }}</td>
+                                <td class="text-muted">{{ expense.note or '—' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-3 text-muted">
+                    <i class="bi bi-inbox"></i>
+                    <p class="mb-0">Расходов пока нет</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Категории -->
+        <div class="card stat-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-tags"></i> Категории пользователя
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if categories %}
+                <div class="row g-2">
+                    {% for category in categories %}
+                    <div class="col-md-6">
+                        <div class="d-flex justify-content-between align-items-center p-2 border rounded">
+                            <div>
+                                <div class="fw-semibold">{{ category.name }}</div>
+                                <small class="text-muted">
+                                    {{ category.limit_type }}: 
+                                    {% if category.limit_type == 'percent' %}
+                                        {{ category.value }}%
+                                    {% else %}
+                                        {{ "%.0f"|format(category.value) }} ₽
+                                    {% endif %}
+                                </small>
+                            </div>
+                            <span class="badge bg-light text-dark">{{ category.currency or 'RUB' }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-3 text-muted">
+                    <i class="bi bi-inbox"></i>
+                    <p class="mb-0">Категорий пока нет</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

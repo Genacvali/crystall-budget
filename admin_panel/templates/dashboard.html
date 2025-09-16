@@ -1,0 +1,220 @@
+{% extends "admin_panel/base.html" %}
+
+{% block content %}
+<!-- Статистика -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card text-center">
+            <div class="card-body">
+                <i class="bi bi-people fs-1 text-primary"></i>
+                <h3 class="mt-2 mb-1">{{ users_data.total_users }}</h3>
+                <p class="text-muted mb-0">Всего пользователей</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card text-center">
+            <div class="card-body">
+                <i class="bi bi-shield-check fs-1 text-warning"></i>
+                <h3 class="mt-2 mb-1">{{ users_data.admin_users }}</h3>
+                <p class="text-muted mb-0">Администраторов</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card text-center">
+            <div class="card-body">
+                <i class="bi bi-wallet2 fs-1 text-success"></i>
+                <h3 class="mt-2 mb-1">{{ activity_data.total_expenses }}</h3>
+                <p class="text-muted mb-0">Всего расходов</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card stat-card text-center">
+            <div class="card-body">
+                <i class="bi bi-activity fs-1 text-info"></i>
+                <h3 class="mt-2 mb-1">{{ activity_data.recent_expenses }}</h3>
+                <p class="text-muted mb-0">Недавних операций</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Детальная статистика -->
+    <div class="col-md-8">
+        <div class="card stat-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-graph-up"></i> Детальная статистика
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-primary bg-opacity-10 p-2 rounded">
+                                    <i class="bi bi-person-plus text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-semibold">Новых за неделю</div>
+                                <div class="h5 mb-0">{{ users_data.new_users_week }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-success bg-opacity-10 p-2 rounded">
+                                    <i class="bi bi-calendar-month text-success"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-semibold">Новых за месяц</div>
+                                <div class="h5 mb-0">{{ users_data.new_users_month }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-info bg-opacity-10 p-2 rounded">
+                                    <i class="bi bi-activity text-info"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-semibold">Активных пользователей</div>
+                                <div class="h5 mb-0">{{ activity_data.active_users }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <div class="bg-warning bg-opacity-10 p-2 rounded">
+                                    <i class="bi bi-clock-history text-warning"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <div class="fw-semibold">Недавних расходов</div>
+                                <div class="h5 mb-0">{{ activity_data.recent_expenses }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Системная информация -->
+    <div class="col-md-4">
+        <div class="card stat-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle"></i> Система
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Размер базы данных</small>
+                    <div class="fw-semibold">{{ "%.2f"|format(db_size / 1024 / 1024) }} MB</div>
+                </div>
+                
+                <div class="mb-3">
+                    <small class="text-muted">Статус</small>
+                    <div>
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Работает
+                        </span>
+                    </div>
+                </div>
+                
+                <div>
+                    <small class="text-muted">Быстрые действия</small>
+                    <div class="mt-2">
+                        <a href="{{ url_for('backup') }}" class="btn btn-outline-primary btn-sm w-100 mb-2">
+                            <i class="bi bi-download"></i> Создать бэкап
+                        </a>
+                        <a href="{{ url_for('sql_console') }}" class="btn btn-outline-info btn-sm w-100">
+                            <i class="bi bi-terminal"></i> SQL Консоль
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Последние пользователи -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card stat-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-clock-history"></i> Последние регистрации
+                </h5>
+                <a href="{{ url_for('users') }}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-arrow-right"></i> Все пользователи
+                </a>
+            </div>
+            <div class="card-body">
+                {% if recent_users %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Email</th>
+                                <th>Имя</th>
+                                <th>Роль</th>
+                                <th>Дата регистрации</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in recent_users %}
+                            <tr>
+                                <td><span class="badge bg-light text-dark">{{ user.id }}</span></td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.name }}</td>
+                                <td>
+                                    {% if user.role == 'admin' %}
+                                        <span class="badge bg-warning">
+                                            <i class="bi bi-shield-check"></i> Админ
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Пользователь</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-muted">{{ user.created_at }}</td>
+                                <td>
+                                    <a href="{{ url_for('user_detail', user_id=user.id) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-eye"></i> Просмотр
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4 text-muted">
+                    <i class="bi bi-inbox fs-1"></i>
+                    <p class="mt-2">Пользователи не найдены</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

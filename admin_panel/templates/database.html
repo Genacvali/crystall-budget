@@ -1,0 +1,179 @@
+{% extends "admin_panel/base.html" %}
+{% block title %}База данных — Админская панель{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="bi bi-database text-success"></i> Структура базы данных
+    </h2>
+    <div>
+        <a href="{{ url_for('sql_console') }}" class="btn btn-primary">
+            <i class="bi bi-terminal"></i> SQL Консоль
+        </a>
+        <a href="{{ url_for('backup') }}" class="btn btn-outline-success">
+            <i class="bi bi-download"></i> Создать бэкап
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    {% for table in tables_info %}
+    <div class="col-lg-6 mb-4">
+        <div class="card stat-card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-table"></i> {{ table.name }}
+                </h5>
+                <div>
+                    <span class="badge bg-primary me-2">{{ table.count }} записей</span>
+                    <span class="badge bg-secondary">{{ table.columns }} колонок</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Структура таблицы -->
+                <div class="table-responsive">
+                    <table class="table table-sm table-borderless">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Колонка</th>
+                                <th>Тип</th>
+                                <th>Ограничения</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for column in table.structure %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <strong>{{ column.name }}</strong>
+                                        {% if column.pk %}
+                                            <i class="bi bi-key-fill text-warning ms-1" title="Primary Key"></i>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <code class="small">{{ column.type }}</code>
+                                </td>
+                                <td>
+                                    <div class="small">
+                                        {% if column.notnull %}
+                                            <span class="badge bg-danger bg-opacity-25 text-danger">NOT NULL</span>
+                                        {% endif %}
+                                        {% if column.dflt_value %}
+                                            <span class="badge bg-info bg-opacity-25 text-info">DEFAULT</span>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Пример данных -->
+                {% if table.sample %}
+                <div class="mt-3">
+                    <h6 class="text-muted">Пример записи:</h6>
+                    <div class="bg-light p-2 rounded small">
+                        {% for key in table.sample.keys() %}
+                            <div><strong>{{ key }}:</strong> 
+                                {% set value = table.sample[key] %}
+                                {% if value is none %}
+                                    <span class="text-muted">NULL</span>
+                                {% elif value == '' %}
+                                    <span class="text-muted">(пустая строка)</span>
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Быстрые запросы -->
+                <div class="mt-3">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" 
+                                onclick="setQuery('SELECT * FROM {{ table.name }} LIMIT 10;')">
+                            <i class="bi bi-eye"></i> Просмотр
+                        </button>
+                        <button type="button" class="btn btn-outline-info btn-sm" 
+                                onclick="setQuery('SELECT COUNT(*) FROM {{ table.name }};')">
+                            <i class="bi bi-hash"></i> Подсчет
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" 
+                                onclick="setQuery('PRAGMA table_info({{ table.name }});')">
+                            <i class="bi bi-info-circle"></i> Схема
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Общая информация -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card stat-card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle"></i> Общая информация
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Статистика по таблицам:</h6>
+                        <ul class="list-unstyled">
+                            {% for table in tables_info %}
+                            <li class="d-flex justify-content-between">
+                                <span>{{ table.name }}:</span>
+                                <span class="fw-semibold">{{ table.count }} записей</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Полезные команды:</h6>
+                        <div class="small">
+                            <div class="mb-2">
+                                <code>VACUUM;</code> — оптимизация БД
+                            </div>
+                            <div class="mb-2">
+                                <code>PRAGMA integrity_check;</code> — проверка целостности
+                            </div>
+                            <div class="mb-2">
+                                <code>PRAGMA foreign_key_check;</code> — проверка связей
+                            </div>
+                            <div>
+                                <code>ANALYZE;</code> — обновление статистики
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function setQuery(query) {
+    // Переходим к SQL консоли с предустановленным запросом
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '{{ url_for("sql_console") }}';
+    
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'query';
+    input.value = query;
+    
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+}
+</script>
+{% endblock %}

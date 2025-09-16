@@ -1,0 +1,153 @@
+{% extends "admin_panel/base.html" %}
+{% block title %}Пользователи — Админская панель{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="bi bi-people text-primary"></i> Управление пользователями
+    </h2>
+    
+    <!-- Поиск -->
+    <form method="GET" class="d-flex">
+        <input type="search" name="search" value="{{ search }}" 
+               class="form-control me-2" placeholder="Поиск по email или имени">
+        <button type="submit" class="btn btn-outline-primary">
+            <i class="bi bi-search"></i>
+        </button>
+    </form>
+</div>
+
+<div class="card stat-card">
+    <div class="card-body">
+        {% if users %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Email</th>
+                        <th>Имя</th>
+                        <th>Роль</th>
+                        <th>Валюта</th>
+                        <th>Расходов</th>
+                        <th>Последний расход</th>
+                        <th>Регистрация</th>
+                        <th class="text-end">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <span class="badge bg-light text-dark fw-bold">{{ user.id }}</span>
+                        </td>
+                        <td>
+                            <div>{{ user.email }}</div>
+                            {% if user.expenses_count > 0 %}
+                                <small class="text-success">
+                                    <i class="bi bi-check-circle"></i> Активен
+                                </small>
+                            {% else %}
+                                <small class="text-muted">
+                                    <i class="bi bi-clock"></i> Новый
+                                </small>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.name }}</td>
+                        <td>
+                            {% if user.role == 'admin' %}
+                                <span class="badge bg-warning">
+                                    <i class="bi bi-shield-check"></i> Админ
+                                </span>
+                            {% else %}
+                                <span class="badge bg-secondary">Пользователь</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark">{{ user.default_currency or 'RUB' }}</span>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">{{ user.expenses_count }}</div>
+                            <small class="text-muted">{{ user.categories_count }} категорий</small>
+                        </td>
+                        <td>
+                            {% if user.last_expense_date %}
+                                <div class="text-muted small">{{ user.last_expense_date }}</div>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="text-muted small">{{ user.created_at }}</div>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group" role="group">
+                                <a href="{{ url_for('user_detail', user_id=user.id) }}" 
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                
+                                <!-- Быстрый сброс роли -->
+                                <form method="POST" 
+                                      action="{{ url_for('toggle_user_role', user_id=user.id) }}" 
+                                      class="d-inline">
+                                    {% if user.role == 'admin' %}
+                                        <button type="submit" class="btn btn-outline-warning btn-sm"
+                                                onclick="return confirm('Убрать админские права у {{ user.email }}?')">
+                                            <i class="bi bi-shield-x"></i>
+                                        </button>
+                                    {% else %}
+                                        <button type="submit" class="btn btn-outline-success btn-sm"
+                                                onclick="return confirm('Дать админские права {{ user.email }}?')">
+                                            <i class="bi bi-shield-plus"></i>
+                                        </button>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox fs-1 text-muted"></i>
+            <p class="text-muted mt-3">
+                {% if search %}
+                    Пользователи не найдены по запросу "{{ search }}"
+                {% else %}
+                    Пользователи не найдены
+                {% endif %}
+            </p>
+            {% if search %}
+                <a href="{{ url_for('users') }}" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left"></i> Показать всех
+                </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Информационная панель -->
+<div class="alert alert-info mt-4">
+    <h6 class="alert-heading">
+        <i class="bi bi-lightbulb"></i> Быстрые действия
+    </h6>
+    <div class="row">
+        <div class="col-md-6">
+            <ul class="mb-0 small">
+                <li><strong>👁️</strong> Просмотр — детальная информация о пользователе</li>
+                <li><strong>🛡️</strong> Щит — переключение роли администратора</li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <ul class="mb-0 small">
+                <li>Активные пользователи имеют хотя бы один расход</li>
+                <li>Новые пользователи еще не добавляли данные</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
