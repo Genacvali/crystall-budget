@@ -1622,22 +1622,33 @@ def categories_add():
     source_id = request.form.get("source_id")
     category_type = request.form.get("category_type", "expense")  # по умолчанию тратная категория
 
-    if not name or not limit_type or not value:
+    # Проверяем многоисточниковый режим
+    multi_source = 1 if request.form.get("multi_source") else 0
+    
+    if not name or not limit_type:
+        flash("Пожалуйста, заполните все поля", "error")
+        return redirect(url_for("categories"))
+        
+    # Для многоисточниковых категорий value не обязательно
+    if not multi_source and not value:
         flash("Пожалуйста, заполните все поля", "error")
         return redirect(url_for("categories"))
         
     if category_type not in ["expense", "income"]:
         category_type = "expense"
 
-    amount = validate_amount(value)
-    if amount is None:
-        flash("Введите корректное значение лимита", "error")
-        return redirect(url_for("categories"))
+    # Для многоисточниковых категорий используем 0 как значение по умолчанию
+    if multi_source and not value:
+        amount = 0.0
+    else:
+        amount = validate_amount(value)
+        if amount is None:
+            flash("Введите корректное значение лимита", "error")
+            return redirect(url_for("categories"))
 
     conn = get_db()
     try:
         # Создаем категорию
-        multi_source = 1 if request.form.get("multi_source") else 0
         cursor = conn.execute(
             "INSERT INTO categories (user_id, name, limit_type, value, category_type, multi_source) VALUES (?,?,?,?,?,?)",
             (uid, name, limit_type, amount, category_type, multi_source),
@@ -1647,32 +1658,38 @@ def categories_add():
         # Обрабатываем источники
         if multi_source == 1:
             # Многоисточниковая категория - добавляем связи из формы
-            multi_sources = request.form.getlist('multi_sources')
-            for i in range(len(multi_sources)):
+            # Находим все поля с источниками
+            i = 0
+            while True:
                 source_id_key = f'multi_sources[{i}][source_id]'
                 percentage_key = f'multi_sources[{i}][percentage]'
                 
                 source_id_val = request.form.get(source_id_key)
                 percentage_val = request.form.get(percentage_key)
                 
-                if source_id_val and percentage_val:
-                    try:
-                        source_id_int = int(source_id_val)
-                        percentage_float = float(percentage_val)
+                if not source_id_val or not percentage_val:
+                    break
+                    
+                try:
+                    source_id_int = int(source_id_val)
+                    percentage_float = float(percentage_val)
+                    
+                    # Проверяем, что источник принадлежит пользователю
+                    valid_source = conn.execute(
+                        "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
+                        (source_id_int, uid)
+                    ).fetchone()
                         
-                        # Проверяем, что источник принадлежит пользователю
-                        valid_source = conn.execute(
-                            "SELECT 1 FROM income_sources WHERE id=? AND user_id=?",
-                            (source_id_int, uid)
-                        ).fetchone()
-                        
-                        if valid_source and 0 < percentage_float <= 100:
-                            conn.execute(
-                                "INSERT INTO category_income_sources(user_id, category_id, source_id, percentage) VALUES (?,?,?,?)",
-                                (uid, category_id, source_id_int, percentage_float)
-                            )
-                    except (ValueError, TypeError):
-                        continue
+                    if valid_source and 0 < percentage_float <= 100:
+                        conn.execute(
+                            "INSERT INTO category_income_sources(user_id, category_id, source_id, percentage) VALUES (?,?,?,?)",
+                            (uid, category_id, source_id_int, percentage_float)
+                        )
+                        app.logger.info(f"Добавлен источник {source_id_int} с процентом {percentage_float} для категории {category_id}")
+                except (ValueError, TypeError):
+                    pass
+                    
+                i += 1
         elif source_id:
             # Обычная категория - создаем привязку в старой таблице
             # Проверяем, что источник принадлежит пользователю
@@ -3554,9 +3571,9 @@ def set_security_headers(response):
 
     csp_base = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
-        "font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net",
+        "script-src 'self' 'unsafe-inline'",
+        "style-src 'self' 'unsafe-inline'",
+        "font-src 'self' data: https://r2cdn.perplexity.ai",
         "img-src 'self' data:",
         "connect-src 'self' https://api.exchangerate.host"
     ]

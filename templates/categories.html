@@ -51,7 +51,7 @@
           </select>
         </div>
 
-        <div class="col-6 col-lg-2">
+        <div class="col-6 col-lg-2" id="addValueField">
           <label class="form-label">Размер лимита</label>
           <input type="number" name="value" step="0.01" min="0.01" inputmode="decimal"
                  class="form-control" placeholder="Лимит" required>
@@ -63,7 +63,7 @@
             <input class="form-check-input" type="checkbox" name="multi_source" id="addMultiSource"
                    onchange="toggleNewCategorySourceField(this.checked)">
             <label class="form-check-label" for="addMultiSource">
-              <small>Многоисточн.</small>
+              <small>Многоисточниковая</small>
             </label>
           </div>
           <div class="form-text" style="font-size: 0.7rem;">Несколько источников дохода</div>
@@ -140,7 +140,7 @@
             {% if cat.multi_source == 1 %}
               <!-- Многоисточниковая категория -->
               {% set cat_sources = multi_source_links.get(cat.id, []) %}
-              {% if cat_sources %}
+              {% if cat_sources and cat_sources|length > 0 %}
                 <div class="d-flex flex-wrap gap-1 justify-content-center">
                   {% for source_info in cat_sources %}
                     <span class="badge bg-primary" title="{{ source_info.percentage }}% от {{ source_info.source_name }}">
@@ -232,10 +232,10 @@
                 <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>Процент от дохода</option>
               </select>
             </div>
-            <div class="col-6">
+            <div class="col-6" id="editValueField{{ cat.id }}" {% if cat.multi_source == 1 %}style="display: none;"{% endif %}>
               <label class="form-label">Размер лимита</label>
               <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
-                     value="{{ cat.value }}" required>
+                     value="{{ cat.value }}" {% if cat.multi_source != 1 %}required{% endif %}>
             </div>
           </div>
           
@@ -461,10 +461,14 @@
 function toggleNewCategorySourceField(enabled) {
   const singleSourceField = document.getElementById('singleSourceField');
   const multiSourceConfig = document.getElementById('multiSourceConfig');
+  const valueField = document.getElementById('addValueField');
   
   if (enabled) {
     singleSourceField.style.display = 'none';
     multiSourceConfig.style.display = 'block';
+    valueField.style.display = 'none';
+    // Убираем required с поля лимита
+    valueField.querySelector('input').removeAttribute('required');
     // Добавляем первый источник по умолчанию
     if (document.getElementById('sourcesList').children.length === 0) {
       addSourceToNewCategory();
@@ -472,6 +476,9 @@ function toggleNewCategorySourceField(enabled) {
   } else {
     singleSourceField.style.display = 'block';
     multiSourceConfig.style.display = 'none';
+    valueField.style.display = 'block';
+    // Возвращаем required для поля лимита
+    valueField.querySelector('input').setAttribute('required', 'required');
     // Очищаем список источников
     document.getElementById('sourcesList').innerHTML = '';
   }
@@ -539,13 +546,20 @@ function toggleMultiSourceMode(categoryId, enabled) {
       // Показываем/скрываем соответствующие блоки
       const singleSourceDiv = document.getElementById(`singleSourceDiv${categoryId}`);
       const multiSourceInfo = document.getElementById(`multiSourceInfo${categoryId}`);
+      const editValueField = document.getElementById(`editValueField${categoryId}`);
       
       if (enabled) {
         singleSourceDiv.style.display = 'none';
         multiSourceInfo.style.display = 'block';
+        editValueField.style.display = 'none';
+        // Убираем required с поля лимита
+        editValueField.querySelector('input').removeAttribute('required');
       } else {
         singleSourceDiv.style.display = 'block';
         multiSourceInfo.style.display = 'none';
+        editValueField.style.display = 'block';
+        // Возвращаем required для поля лимита
+        editValueField.querySelector('input').setAttribute('required', 'required');
       }
       
       // Перезагружаем страницу через секунду для обновления интерфейса

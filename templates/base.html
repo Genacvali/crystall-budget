@@ -49,50 +49,6 @@
     body{padding:var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left)}
     .container-fluid{padding-left:max(15px,var(--safe-area-inset-left));padding-right:max(15px,var(--safe-area-inset-right))}
     
-    /* Final Fantasy Crystal in corner */
-    .ff-crystal-corner {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      width: 80px;
-      height: 80px;
-      z-index: 1000;
-      pointer-events: none;
-      animation: crystal-float 6s ease-in-out infinite;
-    }
-    
-    @keyframes crystal-float {
-      0%, 100% { transform: translateY(0px) rotate(0deg); }
-      25% { transform: translateY(-5px) rotate(90deg); }
-      50% { transform: translateY(0px) rotate(180deg); }
-      75% { transform: translateY(-3px) rotate(270deg); }
-    }
-    
-    .ff-crystal-corner svg {
-      width: 100%;
-      height: 100%;
-      filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
-    }
-    
-    @media (max-width: 768px) {
-      .ff-crystal-corner {
-        width: 40px;
-        height: 40px;
-        top: 15px;
-        right: 15px;
-      }
-    }
-    
-    /* Отступ для контента, чтобы кристалл не мешал */
-    .container, .container-fluid {
-      padding-right: 120px !important;
-    }
-    
-    @media (max-width: 768px) {
-      .container, .container-fluid {
-        padding-right: 70px !important;
-      }
-    }
     .navbar-modern{position:relative}
     .navbar-modern .container-fluid{display:flex;align-items:center;gap:.5rem;flex-wrap:nowrap;position:relative}
     .navbar-brand-modern{margin-right:auto;white-space:nowrap}
@@ -140,60 +96,6 @@
   </style>
 </head>
 <body>
-  <!-- Final Fantasy Crystal in corner -->
-  <div class="ff-crystal-corner">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="crystalCore" cx="50%" cy="30%">
-          <stop offset="0%" style="stop-color:#E0F2FE;stop-opacity:1"/>
-          <stop offset="30%" style="stop-color:#0EA5E9;stop-opacity:0.9"/>
-          <stop offset="70%" style="stop-color:#0284C7;stop-opacity:0.8"/>
-          <stop offset="100%" style="stop-color:#0C4A6E;stop-opacity:1"/>
-        </radialGradient>
-        <linearGradient id="crystalFacet1" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:0.6"/>
-          <stop offset="100%" style="stop-color:#0EA5E9;stop-opacity:0.3"/>
-        </linearGradient>
-        <linearGradient id="crystalFacet2" x1="100%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" style="stop-color:#0EA5E9;stop-opacity:0.4"/>
-          <stop offset="100%" style="stop-color:#0C4A6E;stop-opacity:0.8"/>
-        </linearGradient>
-      </defs>
-      
-      <!-- Crystal base -->
-      <path d="M50,15 L75,35 L70,75 L50,85 L30,75 L25,35 Z" 
-            fill="url(#crystalCore)" 
-            stroke="#0C4A6E" stroke-width="1"/>
-      
-      <!-- Left facet -->
-      <path d="M50,15 L25,35 L50,50 Z" 
-            fill="url(#crystalFacet1)"/>
-      
-      <!-- Right facet -->
-      <path d="M50,15 L75,35 L50,50 Z" 
-            fill="url(#crystalFacet2)"/>
-      
-      <!-- Bottom left facet -->
-      <path d="M25,35 L30,75 L50,50 Z" 
-            fill="rgba(14,165,233,0.2)"/>
-      
-      <!-- Bottom right facet -->
-      <path d="M75,35 L70,75 L50,50 Z" 
-            fill="rgba(12,74,110,0.4)"/>
-      
-      <!-- Crystal tip highlight -->
-      <ellipse cx="50" cy="25" rx="8" ry="15" 
-               fill="rgba(255,255,255,0.5)" 
-               transform="rotate(0 50 25)"/>
-      
-      <!-- Inner magical glow -->
-      <circle cx="50" cy="50" r="20" 
-              fill="none" 
-              stroke="rgba(14,165,233,0.4)" 
-              stroke-width="1.5"
-              stroke-dasharray="5,5"/>
-    </svg>
-  </div>
 
   {% if session.user_id %}
   <nav class="navbar navbar-expand-lg navbar-light navbar-modern">
