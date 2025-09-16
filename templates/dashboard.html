@@ -521,7 +521,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
                       {% set segment_width = (source_limit / total_limit * 100) if total_limit > 0 else 0 %}
                       
                       <!-- Используем те же цвета что и в десктопной версии -->
-                      {% set source_colors = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-secondary'] %}
+                      {% set source_colors = ['bg-primary', 'bg-warning', 'bg-danger', 'bg-info', 'bg-success'] %}
                       {% set color_class = source_colors[loop.index0 % 5] %}
                       
                       <div class="progress-bar {{ color_class }} bg-opacity-100"
@@ -561,7 +561,7 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
                         {% set segment_width = (source_limit / total_limit * 100) if total_limit > 0 else 0 %}
                         
                         <!-- Используем разные цвета для каждого источника -->
-                        {% set source_colors = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-secondary'] %}
+                        {% set source_colors = ['bg-primary', 'bg-warning', 'bg-danger', 'bg-info', 'bg-success'] %}
                         {% set color_class = source_colors[loop.index0 % 5] %}
                         {% set intensity_class = 'bg-opacity-100' if source_progress < 50 else ('bg-opacity-75' if source_progress < 80 else 'bg-opacity-100') %}
                         
