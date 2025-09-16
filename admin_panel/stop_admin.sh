@@ -24,9 +24,9 @@ if [ -f "admin_panel.pid" ]; then
     rm -f admin_panel.pid
 else
     # Ищем процесс по имени
-    if pgrep -f "admin_panel/admin_panel.py" > /dev/null; then
-        echo "   Останавливаем все процессы admin_panel/admin_panel.py"
-        pkill -f "admin_panel/admin_panel.py"
+    if pgrep -f "admin_panel.py" > /dev/null; then
+        echo "   Останавливаем все процессы admin_panel.py"
+        pkill -f "admin_panel.py"
         echo "✅ Админская панель остановлена"
     else
         echo "   Админская панель не запущена"

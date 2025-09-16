@@ -7,24 +7,22 @@ echo "🚀 Запуск админской панели CrystalBudget"
 echo "=========================================="
 
 # Проверяем наличие виртуального окружения
-if [ ! -d ".venv" ]; then
+if [ ! -d "../.venv" ]; then
     echo "❌ Виртуальное окружение не найдено. Создаем..."
-    python3 -m venv .venv
-    source .venv/bin/activate
-    pip install -r requirements.txt
+    cd .. && python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && cd admin_panel
 else
     echo "✅ Активируем виртуальное окружение"
-    source .venv/bin/activate
+    source ../.venv/bin/activate
 fi
 
 # Проверяем наличие базы данных
-if [ ! -f "budget.db" ]; then
+if [ ! -f "../budget.db" ]; then
     echo "⚠️  База данных не найдена. Создаем..."
-    python init_db.py
+    cd .. && python init_db.py && cd admin_panel
 fi
 
 # Устанавливаем переменные окружения для админки
-export BUDGET_DB="budget.db"
+export BUDGET_DB="../budget.db"
 export ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 export ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
 export ADMIN_SECRET_KEY="${ADMIN_SECRET_KEY:-admin-panel-secret-$(date +%s)}"
@@ -55,9 +53,9 @@ echo "   http://localhost:5001"
 echo ""
 
 # Проверяем, не запущена ли уже панель
-if pgrep -f "admin_panel/admin_panel.py" > /dev/null; then
+if pgrep -f "admin_panel.py" > /dev/null; then
     echo "⚠️  Админская панель уже запущена!"
-    echo "   PID: $(pgrep -f admin_panel/admin_panel.py)"
+    echo "   PID: $(pgrep -f admin_panel.py)"
     echo ""
     echo "   Для остановки: ./stop_admin.sh"
     echo "   Для перезапуска: ./restart_admin.sh"
@@ -66,7 +64,7 @@ fi
 
 # Запускаем админскую панель в фоне
 echo "🚀 Запускаем админскую панель в фоновом режиме..."
-nohup python admin_panel/admin_panel.py > logs/admin_panel.log 2>&1 &
+nohup python admin_panel.py > ../logs/admin_panel.log 2>&1 &
 ADMIN_PID=$!
 
 # Сохраняем PID для возможности остановки

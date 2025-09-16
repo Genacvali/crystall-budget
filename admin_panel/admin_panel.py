@@ -14,9 +14,9 @@ from werkzeug.security import generate_password_hash
 import json
 
 # Конфигурация
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.secret_key = os.environ.get('ADMIN_SECRET_KEY', 'admin-panel-secret-key-change-me')
-DB_PATH = os.environ.get('BUDGET_DB', 'budget.db')
+DB_PATH = os.environ.get('BUDGET_DB', '../budget.db')
 
 # Простая авторизация админки
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
@@ -88,7 +88,7 @@ def index():
     
     conn.close()
     
-    return render_template('admin_panel/dashboard.html',
+    return render_template('dashboard.html',
                          users_data=users_data,
                          activity_data=activity_data,
                          db_size=db_size,
@@ -108,7 +108,7 @@ def login():
         else:
             flash('Неверный логин или пароль', 'error')
     
-    return render_template('admin_panel/login.html')
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():
@@ -148,7 +148,7 @@ def users():
     users_list = conn.execute(query, params).fetchall()
     conn.close()
     
-    return render_template('admin_panel/users.html', 
+    return render_template('users.html', 
                          users=users_list, 
                          search=search)
 
@@ -196,7 +196,7 @@ def user_detail(user_id):
     
     conn.close()
     
-    return render_template('admin_panel/user_detail.html',
+    return render_template('user_detail.html',
                          user=user,
                          stats=stats,
                          recent_expenses=recent_expenses,
@@ -282,7 +282,7 @@ def database():
     
     conn.close()
     
-    return render_template('admin_panel/database.html', tables_info=tables_info)
+    return render_template('database.html', tables_info=tables_info)
 
 @app.route('/sql', methods=['GET', 'POST'])
 @login_required
@@ -317,7 +317,7 @@ def sql_console():
         finally:
             conn.close()
     
-    return render_template('admin_panel/sql.html',
+    return render_template('sql.html',
                          query=query,
                          result=result,
                          error=error)
