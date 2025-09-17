@@ -337,6 +337,36 @@ def sanitize_string(s, max_length=255):
         return ""
     return str(s).strip()[:max_length]
 
+def generate_months_list(current_month=None):
+    """Генерирует список месяцев для селектора с данными для dropdown и select"""
+    if not current_month:
+        current_month = datetime.now().strftime("%Y-%m")
+    
+    # Определяем диапазон: 2 года назад, текущий год + 1 год вперед
+    current_year = int(current_month.split('-')[0])
+    start_year = current_year - 2
+    end_year = current_year + 1
+    
+    month_names_ru = [
+        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    ]
+    
+    months = []
+    for year in range(start_year, end_year + 1):
+        for month in range(1, 13):
+            ym = f"{year}-{month:02d}"
+            month_name = month_names_ru[month - 1]
+            months.append({
+                'y': year,
+                'm': month,
+                'ym': ym,
+                'label': f"{month_name} {year}",
+                'url': f"?month={ym}"
+            })
+    
+    return months
+
 # -----------------------------------------------------------------------------
 # DB helpers
 # -----------------------------------------------------------------------------
@@ -1567,6 +1597,9 @@ def dashboard():
 
     conn.close()
 
+    # Генерируем список месяцев для селектора
+    months_list = generate_months_list(month)
+    
     today = datetime.now().strftime("%Y-%m-%d")
     return render_template(
         "dashboard.html",
@@ -1576,8 +1609,13 @@ def dashboard():
         income=income_sum,
         current_month=month,
         current_month_name=current_month_name,
+        current_month_human=current_month_name,  # Человекочитаемое название для кнопки
+        current_ym=month,  # Текущий месяц в формате YYYY-MM
         prev_month=prev_month,
+        prev_month_url=f"?month={prev_month}",
         next_month=next_month,
+        next_month_url=f"?month={next_month}",
+        months=months_list,
         month_names=month_names,
         today=today,
         source_balances=source_balances,

@@ -251,6 +251,91 @@
       .mobile-hide{display:none}
     }
     @media (min-width:768px){.mobile-hide{display:inline}}
+    /* Compact Category Row */
+    .cat-row{
+      display:flex; align-items:center; gap:.75rem;
+      padding:.75rem .875rem; border:1px solid var(--bs-border-color);
+      border-radius:12px; background:var(--bs-body-bg);
+    }
+    .cat-row + .cat-row{ margin-top:.75rem }
+    .cat-color{
+      width:4px; align-self:stretch; border-radius:8px; opacity:.9;
+    }
+    .cat-ico{
+      width:36px; height:36px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--bs-secondary-bg); color:var(--bs-success);
+    }
+    .cat-main{ flex:1; min-width:0 }
+    .cat-title{ display:flex; align-items:center; gap:.5rem }
+    .cat-title h6{ margin:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .cat-sub{ font-size:.85rem; color:var(--bs-gray-600) }
+
+    /* tiny progress */
+    .cat-progress{
+      position:relative; height:6px; border-radius:999px; overflow:hidden;
+      background:rgba(var(--bs-primary-rgb), .12); margin-top:.4rem;
+    }
+    .cat-progress > i{
+      display:block; height:100%; width:0%;
+      background:var(--bs-primary); border-radius:inherit; transition:width .3s ease;
+    }
+
+    /* progress colors based on percentage */
+    .cat-progress.warning > i{ background:var(--bs-warning) }
+    .cat-progress.danger > i{ background:var(--bs-danger) }
+
+    /* right side numbers */
+    .cat-right{
+      display:flex; flex-direction:column; align-items:flex-end; gap:.25rem;
+      margin-left:.5rem; text-align:right; white-space:nowrap;
+    }
+    .cat-percent{
+      font-size:.8rem; font-weight:700; padding:.2rem .45rem; border-radius:9999px;
+      background:var(--bs-secondary-bg); color:var(--bs-body-color);
+    }
+    .cat-remaining{ font-weight:700 }
+    .cat-remaining.negative{ color:var(--bs-danger) }
+    .cat-remaining.positive{ color:var(--bs-success) }
+
+    /* kebab menu button */
+    .kebab-btn{
+      width:24px; height:24px; border:none; background:transparent;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:6px; color:var(--bs-gray-500);
+      transition:all .15s ease;
+    }
+    .kebab-btn:hover{ background:var(--bs-secondary-bg); color:var(--bs-body-color) }
+
+    /* modern dropdown items */
+    .dropdown-menu-modern{
+      border-radius:12px; border:none; padding:.5rem;
+      box-shadow:0 8px 32px rgba(0,0,0,.12);
+    }
+    .dropdown-item-modern{
+      border-radius:8px; padding:.5rem .75rem; border:none; background:transparent;
+      display:flex; align-items:center; gap:.5rem; width:100%;
+      font-size:.9rem; transition:all .15s ease;
+    }
+    .dropdown-item-modern:hover{ background:var(--bs-secondary-bg) }
+    .dropdown-item-modern.danger{ color:var(--bs-danger) }
+    .dropdown-item-modern.danger:hover{ background:color-mix(in srgb, var(--bs-danger) 10%, transparent) }
+
+    /* mobile tweaks */
+    @media (max-width:575.98px){
+      .cat-row{ padding:.6rem .7rem; border-radius:10px }
+      .cat-ico{ width:32px; height:32px; border-radius:9px }
+      .cat-percent{ font-size:.75rem }
+    }
+
+    /* color helpers */
+    .cat-success{ color:#16a34a }
+    .cat-primary{ color:#2563eb }
+    .cat-warning{ color:#f59e0b }
+    .cat-danger { color:#ef4444 }
+    
+    /* utility */
+    .d-contents{ display:contents }
   </style>
 </head>
 <body>

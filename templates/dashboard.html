@@ -217,6 +217,34 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 [data-bs-theme="dark"] .source-card .k{color:var(--bs-secondary)}
 [data-bs-theme="dark"] .source-card .v{color:var(--bs-body-color)}
 
+/* Month selector styles */
+.month-menu{
+  max-height: 60vh;
+  overflow: auto;
+  padding: .25rem 0;
+  border: none;
+  border-radius: .75rem;
+  box-shadow: 0 12px 30px rgba(0,0,0,.2);
+}
+.month-menu .dropdown-item{
+  padding: .45rem .9rem;
+  border-radius: .5rem;
+}
+.month-menu .dropdown-item.active{
+  font-weight: 600;
+  background: var(--bs-primary-bg-subtle);
+  color: var(--bs-primary);
+}
+.month-menu .dropdown-divider{ margin: .25rem 0 }
+.sticky-year{
+  position: sticky; top: 0;
+  background: var(--bs-body-bg);
+  z-index: 1;
+  padding: .5rem .9rem;
+  font-weight: 700; color: var(--bs-secondary);
+}
+.month-select{ min-width: 180px }
+
 /* --- Мобильно-адаптивная таблица категорий --- */
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 
@@ -275,46 +303,46 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
         <small class="text-muted" id="current-day-display"></small>
       </div>
       
-      <div class="d-flex align-items-center gap-2">
-        <!-- Навигация по месяцам -->
-        <div class="btn-group" role="group">
-          <a href="?month={{ prev_month }}" class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-chevron-left"></i>
-          </a>
-          <span class="btn btn-outline-primary btn-sm disabled d-none d-sm-inline" style="min-width: 120px;">
-            {{ current_month_name }}
-          </span>
-          <span class="btn btn-outline-primary btn-sm disabled d-sm-none" style="min-width: 80px;">
-            {{ current_month_name.split()[0][:3] }}
-          </span>
-          <a href="?month={{ next_month }}" class="btn btn-outline-primary btn-sm">
-            <i class="bi bi-chevron-right"></i>
-          </a>
-        </div>
-        
-        <!-- Быстрый выбор -->
-        <div class="dropdown">
-          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            <i class="bi bi-calendar3 d-md-none"></i>
-            <span class="d-none d-md-inline"><i class="bi bi-calendar3"></i> Выбрать месяц</span>
+      <div class="btn-group align-items-stretch" role="group">
+        <!-- prev -->
+        <a class="btn btn-sm btn-outline-secondary" href="{{ prev_month_url }}" aria-label="Предыдущий месяц">
+          <i class="bi bi-chevron-left"></i>
+        </a>
+
+        <!-- desktop dropdown -->
+        <div class="dropdown d-none d-md-block">
+          <button class="btn btn-sm btn-outline-secondary dropdown-toggle" id="monthDropdown"
+                  type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-calendar3 me-1"></i>{{ current_month_human }}
           </button>
-        <div class="dropdown-menu">
-          {% for i in range(12) %}
-            {% set month_num = (loop.index) %}
-            {% set month_val = "2024-%02d"|format(month_num) %}
-            <a class="dropdown-item" href="?month={{ month_val }}">
-              {{ month_names[month_num - 1] }} 2024
-            </a>
-          {% endfor %}
-          <div class="dropdown-divider"></div>
-          {% for i in range(12) %}
-            {% set month_num = (loop.index) %}
-            {% set month_val = "2025-%02d"|format(month_num) %}
-            <a class="dropdown-item" href="?month={{ month_val }}">
-              {{ month_names[month_num - 1] }} 2025
-            </a>
-          {% endfor %}
+
+          <div class="dropdown-menu dropdown-menu-end month-menu" aria-labelledby="monthDropdown">
+            {% for year, group in months|groupby('y') %}
+              <div class="dropdown-header sticky-year">{{ year }}</div>
+              {% for it in group %}
+                <a class="dropdown-item {% if it.ym == current_ym %}active{% endif %}" href="{{ it.url }}">
+                  {{ it.label }}
+                </a>
+              {% endfor %}
+              {% if not loop.last %}<div class="dropdown-divider"></div>{% endif %}
+            {% endfor %}
+          </div>
         </div>
+
+        <!-- mobile select -->
+        <select class="form-select form-select-sm d-md-none month-select"
+                onchange="if(this.value) location.href=this.value" aria-label="Выбрать месяц">
+          {% for it in months %}
+            <option value="{{ it.url }}" {% if it.ym == current_ym %}selected{% endif %}>
+              {{ it.label }}
+            </option>
+          {% endfor %}
+        </select>
+
+        <!-- next -->
+        <a class="btn btn-sm btn-outline-secondary" href="{{ next_month_url }}" aria-label="Следующий месяц">
+          <i class="bi bi-chevron-right"></i>
+        </a>
       </div>
     </div>
   </div>
@@ -383,300 +411,86 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
 </div>
 {% endif %}
 
-<!-- Категории карточками (мобильная версия) -->
+<!-- Компактные категории -->
 {% if budget_data %}
-<div class="d-md-none mb-4">
+<div class="mb-4">
   <h5 class="mb-3">Категории ({{ budget_data|length }})</h5>
-  <div class="row g-3">
-    {% for item in budget_data %}
-      {% set total_limit = item.total_available_limit or item.limit %}
-      {% set progress_percent = (total_limit > 0 and (item.spent / total_limit * 100) or 0) | round(1) %}
-      {% set rest = total_limit - item.spent %}
-      {% set color_class = 'success' if progress_percent < 50 else ('warning' if progress_percent < 80 else 'danger') %}
-      <div class="col-12">
-        <div class="card category-card">
-          <div class="category-color bg-{{ color_class }}"></div>
-          <div class="card-body">
-            <div class="d-flex align-items-center">
-              <div class="category-icon bg-{{ color_class }}-subtle text-{{ color_class }}">
-                <i class="bi bi-tag"></i>
-              </div>
-              <div class="flex-grow-1">
-                <h6 class="mb-1 fw-bold">{{ item.category_name }}</h6>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="small">
-                    <span class="text-muted">{{ item.spent|format_amount }} / {{ total_limit|format_amount }} ₽</span>
-                    {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
-                      <div class="text-success" style="font-size: 0.75rem;">
-                        <i class="bi bi-arrow-up-circle"></i> +{{ item.accumulated_rollover|format_amount }} с прошлых месяцев
-                      </div>
-                    {% endif %}
-                  </div>
-                  <span class="badge bg-{{ color_class }}-subtle text-{{ color_class }}">{{ progress_percent }}%</span>
-                </div>
-              </div>
-              <div class="progress-circle-wrapper">
-                <svg class="progress-ring" viewBox="0 0 84 84">
-                  <circle class="bg" cx="42" cy="42" r="40"></circle>
-                  <circle class="progress progress-{{ color_class }}" cx="42" cy="42" r="40" 
-                          style="stroke-dashoffset: {{ 251.3 * (1 - progress_percent / 100) }}"></circle>
-                </svg>
-                <div class="progress-circle-text">{{ progress_percent }}%</div>
-              </div>
-            </div>
-            
-            <div class="category-stats">
-              <div>
-                <small class="text-muted">Осталось:</small>
-                <div class="fw-semibold {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} ₽</div>
-              </div>
-              {% if item.source_name %}
-              <div class="text-end">
-                <small class="text-muted">Источник:</small>
-                <div class="text-primary small fw-semibold">{{ item.source_name }}</div>
-              </div>
-              {% endif %}
-            </div>
+  {% for item in budget_data %}
+    {% set total_limit = item.total_available_limit or item.limit %}
+    {% set progress_percent = (total_limit > 0 and (item.spent / total_limit * 100) or 0) | round(1) %}
+    {% set rest = total_limit - item.spent %}
+    {% set color_class = 'success' if progress_percent < 70 else ('warning' if progress_percent < 100 else 'danger') %}
+    {% set color_value = '#16a34a' if color_class == 'success' else ('#f59e0b' if color_class == 'warning' else '#ef4444') %}
+    
+    <div class="cat-row">
+      <!-- вертикальная цветная полоска категории -->
+      <div class="cat-color" style="background:{{ color_value }}"></div>
+
+      <!-- иконка -->
+      <div class="cat-ico" style="color:{{ color_value }}; background:color-mix(in srgb, {{ color_value }} 10%, transparent);">
+        <i class="bi bi-tag"></i>
+      </div>
+
+      <!-- центр -->
+      <div class="cat-main">
+        <div class="cat-title">
+          <h6>{{ item.category_name }}</h6>
+          {% if item.multi_source == 1 %}
+            <span class="badge rounded-pill text-bg-success-subtle text-success">Мульти</span>
+          {% endif %}
+        </div>
+
+        <div class="cat-sub">
+          {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
+            Проценты: {% for source_info in item.sources_info %}{{ source_info.source_name }} {{ source_info.percentage|round }}%{% if not loop.last %} · {% endif %}{% endfor %}
+          {% else %}
+            {{ item.spent|format_amount }} / {{ total_limit|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
+            {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
+              <small class="text-success">(+{{ item.accumulated_rollover|format_amount }} накоплено)</small>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        <!-- прогресс (процент траты относительно лимита) -->
+        <div class="cat-progress {{ color_class }}">
+          <i style="width: {{ [progress_percent, 200] | min }}%;"></i>
+        </div>
+      </div>
+
+      <!-- правая часть -->
+      <div class="cat-right">
+        <span class="cat-percent">{{ progress_percent }}%</span>
+        <div class="cat-remaining {{ 'negative' if rest < 0 else 'positive' }}">
+          {{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
+        </div>
+
+        <!-- кебаб-меню действий -->
+        <div class="dropdown">
+          <button class="kebab-btn" data-bs-toggle="dropdown" aria-label="Действия">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+          <div class="dropdown-menu dropdown-menu-end dropdown-menu-modern">
+            <button class="dropdown-item dropdown-item-modern" onclick="window.location.href='/categories'">
+              <i class="bi bi-pencil"></i> Изменить
+            </button>
+            {% if item.multi_source == 1 %}
+            <button class="dropdown-item dropdown-item-modern" onclick="window.location.href='/categories'">
+              <i class="bi bi-diagram-3"></i> Источники
+            </button>
+            {% endif %}
+            <form method="POST" action="/categories/delete/{{ item.id }}" class="d-contents">
+              <button class="dropdown-item dropdown-item-modern danger"
+                      onclick="return confirm('Удалить категорию «{{ item.category_name }}»?')" type="submit">
+                <i class="bi bi-trash3"></i> Удалить
+              </button>
+            </form>
           </div>
         </div>
       </div>
-    {% endfor %}
-  </div>
+    </div>
+  {% endfor %}
 </div>
 
-<!-- Категории таблицей (десктоп) -->
-<div class="d-none d-md-block modern-card">
-  <div class="card-body table-wrap">
-    <table class="table-modern w-100" id="categoriesTable">
-      <thead>
-        <tr>
-          <th class="sortable" data-sort="category">
-            Категория <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
-          </th>
-          <th class="text-end sortable hide-mobile" data-sort="limit">
-            Лимит <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
-          </th>
-          <th class="text-end sortable" data-sort="spent">
-            <span class="d-none d-md-inline">Потрачено</span>
-            <span class="d-md-none">Трат</span>
-            <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
-          </th>
-          <th class="sortable hide-mobile" data-sort="progress" style="min-width:200px">
-            Прогресс <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
-          </th>
-          <th class="text-end sortable" data-sort="remaining">
-            <span class="d-none d-md-inline">Остаток</span>
-            <span class="d-md-none">Ост</span>
-            <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
-          </th>
-          <th class="text-end sortable mobile-compact" data-sort="source">
-            <span class="d-none d-md-inline">Источник дохода</span>
-            <span class="d-md-none">Источник</span>
-            <i class="bi bi-arrow-down-up ms-1 sort-icon"></i>
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in budget_data %}
-          {% set total_limit = item.total_available_limit or item.limit %}
-          {% set progress_percent = (total_limit > 0 and (item.spent / total_limit * 100) or 0) | round(1) %}
-          {% set rest = total_limit - item.spent %}
-          {% set status_order = 3 if item.spent > total_limit else (2 if total_limit > 0 and (item.spent / total_limit) > 0.8 else 1) %}
-          <tr data-category="{{ item.category_name }}" 
-              data-limit="{{ item.limit }}" 
-              data-spent="{{ item.spent }}" 
-              data-progress="{{ progress_percent }}"
-              data-remaining="{{ rest }}"
-              data-status="{{ status_order }}"
-              data-source="{{ item.source_name or 'Не привязано' }}">
-            <td class="cell-title">
-              {{ item.category_name }}
-              {% if item.multi_source == 1 %}
-                <span class="badge bg-success bg-opacity-75 ms-2" style="font-size: 0.6rem;" title="Многоисточниковая категория">
-                  <i class="bi bi-diagram-3"></i>
-                  <span class="d-none d-lg-inline"> Мульти</span>
-                </span>
-              {% endif %}
-              <!-- Мобильная версия: показываем лимит под названием -->
-              <div class="d-md-none small text-muted mt-1">
-                Лимит: {{ total_limit|format_amount }} {{ currency_symbol|default("₽") }}
-                {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
-                  <span class="text-success">
-                    (+{{ item.accumulated_rollover|format_amount }} накоплено)
-                  </span>
-                {% endif %}
-                {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
-                  <div class="mt-1">
-                    {% for source_info in item.sources_info %}
-                      <span class="badge bg-primary bg-opacity-75 me-1" style="font-size: 0.6rem;">
-                        {{ source_info.source_name[:6] }}{{ '.' if source_info.source_name|length > 6 else '' }}: {{ source_info.percentage|round }}%
-                      </span>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </div>
-            </td>
-            <td class="text-end currency hide-mobile">
-              {{ total_limit|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span>
-              {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
-                <div class="small text-success">
-                  +{{ item.accumulated_rollover|format_amount }} накоплено
-                </div>
-              {% endif %}
-            </td>
-            <td class="text-end currency {{ 'text-danger' if item.spent > item.limit else '' }}">
-              {{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span>
-              <!-- Мобильная версия: показываем прогресс под суммой -->
-              <div class="d-md-none mt-1">
-                {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
-                  <!-- Составной прогресс-бар для мобильной версии -->
-                  <div class="progress" style="height: 6px;">
-                    {% set total_spent = item.spent %}
-                    {% set total_limit = item.limit %}
-                    
-                    {% set remaining_spent = total_spent %}
-                    {% for source_info in item.sources_info %}
-                      {% set source_limit = source_info.limit %}
-                      {% set source_spent = [remaining_spent, source_limit] | min %}
-                      {% set remaining_spent = remaining_spent - source_spent %}
-                      {% set source_progress = (source_spent / source_limit * 100) if source_limit > 0 else 0 %}
-                      {% set segment_width = (source_limit / total_limit * 100) if total_limit > 0 else 0 %}
-                      {% set fill_width = (source_progress / 100 * segment_width) %}
-                      
-                      <!-- Используем те же цвета что и в десктопной версии -->
-                      {% set source_colors = ['bg-primary', 'bg-warning', 'bg-danger', 'bg-info', 'bg-success'] %}
-                      {% set color_class = source_colors[loop.index0 % 5] %}
-                      
-                      <!-- Фоновый сегмент (пустая часть лимита) -->
-                      {% if segment_width > fill_width %}
-                      <div class="progress-bar {{ color_class }} bg-opacity-25"
-                           role="progressbar"
-                           style="width: {{ segment_width - fill_width }}%;"
-                           title="{{ source_info.source_name }}: остаток">
-                      </div>
-                      {% endif %}
-                      
-                      <!-- Заполненная часть -->
-                      {% if fill_width > 0 %}
-                      <div class="progress-bar {{ color_class }}"
-                           role="progressbar"
-                           style="width: {{ fill_width }}%;"
-                           title="{{ source_info.source_name }}: {{ source_progress|round(1) }}%">
-                      </div>
-                      {% endif %}
-                    {% endfor %}
-                  </div>
-                {% else %}
-                  <!-- Обычный прогресс-бар для мобильной версии -->
-                  <div class="progress" style="height: 6px;">
-                    <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
-                         role="progressbar"
-                         style="width: {{ [progress_percent, 100] | min }}%;">
-                    </div>
-                  </div>
-                {% endif %}
-                <small class="text-muted">{{ progress_percent }}%</small>
-              </div>
-            </td>
-            <td class="hide-mobile">
-              <div class="d-flex align-items-center gap-2">
-                <div class="flex-grow-1">
-                  {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
-                    <!-- Составной прогресс-бар для многоисточниковых категорий -->
-                    <div class="progress" style="height: 12px;">
-                      {% set total_spent = item.spent %}
-                      {% set total_limit = item.limit %}
-                      
-                      {% set remaining_spent = total_spent %}
-                      {% for source_info in item.sources_info %}
-                        {% set source_limit = source_info.limit %}
-                        {% set source_spent = [remaining_spent, source_limit] | min %}
-                        {% set remaining_spent = remaining_spent - source_spent %}
-                        {% set source_progress = (source_spent / source_limit * 100) if source_limit > 0 else 0 %}
-                        {% set segment_width = (source_limit / total_limit * 100) if total_limit > 0 else 0 %}
-                        {% set fill_width = (source_progress / 100 * segment_width) %}
-                        
-                        <!-- Используем разные цвета для каждого источника -->
-                        {% set source_colors = ['bg-primary', 'bg-warning', 'bg-danger', 'bg-info', 'bg-success'] %}
-                        {% set color_class = source_colors[loop.index0 % 5] %}
-                        
-                        <!-- Фоновый сегмент (пустая часть лимита) -->
-                        {% if segment_width > fill_width %}
-                        <div class="progress-bar {{ color_class }} bg-opacity-25"
-                             role="progressbar"
-                             style="width: {{ segment_width - fill_width }}%;"
-                             title="{{ source_info.source_name }}: остаток {{ (source_limit - source_spent)|round(1) }}">
-                        </div>
-                        {% endif %}
-                        
-                        <!-- Заполненная часть -->
-                        {% if fill_width > 0 %}
-                        <div class="progress-bar {{ color_class }}"
-                             role="progressbar"
-                             style="width: {{ fill_width }}%;"
-                             title="{{ source_info.source_name }}: {{ source_spent|round(1) }}/{{ source_limit|format_amount }} ({{ source_progress|round(1) }}%)">
-                        </div>
-                        {% endif %}
-                      {% endfor %}
-                    </div>
-                  {% else %}
-                    <!-- Обычный прогресс-бар -->
-                    <div class="progress">
-                      <div class="progress-bar {% if progress_percent < 50 %}bg-success{% elif progress_percent < 80 %}bg-warning{% else %}bg-danger{% endif %}"
-                           role="progressbar"
-                           style="width: {{ [progress_percent, 100] | min }}%;">
-                      </div>
-                    </div>
-                  {% endif %}
-                </div>
-                <small class="text-muted" style="width:48px;text-align:right;">{{ progress_percent }}%</small>
-              </div>
-            </td>
-            <td class="text-end currency {{ 'text-danger' if rest < 0 else 'text-success' }}">{{ rest|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
-            <td class="text-end mobile-compact">
-              {% if item.multi_source == 1 %}
-                <!-- Многоисточниковая категория -->
-                {% if item.sources_info and item.sources_info|length > 0 %}
-                  <div class="d-flex flex-wrap gap-1 justify-content-end">
-                    {% for source_info in item.sources_info %}
-                      <span class="badge bg-primary bg-opacity-75 small" style="font-size: 0.65rem;" 
-                            title="{{ source_info.percentage }}% от {{ source_info.source_name }} ({{ source_info.limit|format_amount }} {{ currency_symbol|default('₽') }})">
-                        <span class="d-none d-md-inline">{{ source_info.source_name }}: {{ source_info.percentage }}%</span>
-                        <span class="d-md-none">{{ source_info.source_name[:4] }}{{ '.' if source_info.source_name|length > 4 else '' }}:{{ source_info.percentage|round }}%</span>
-                      </span>
-                    {% endfor %}
-                  </div>
-                  <div class="d-none d-md-inline">
-                    <span class="badge bg-success bg-opacity-75 mt-1" style="font-size: 0.6rem;">
-                      <i class="bi bi-diagram-3"></i> Мульти
-                    </span>
-                  </div>
-                {% else %}
-                  <span class="text-warning small">
-                    <span class="d-none d-md-inline">
-                      <i class="bi bi-exclamation-triangle"></i> Настройте источники
-                    </span>
-                    <span class="d-md-none">⚠ Настройте</span>
-                  </span>
-                {% endif %}
-              {% elif item.source_name %}
-                <!-- Обычная категория с источником -->
-                <span class="d-none d-md-inline text-primary small">{{ item.source_name }}</span>
-                <span class="d-md-none text-primary small">{{ item.source_name[:8] }}{{ '...' if item.source_name|length > 8 else '' }}</span>
-              {% else %}
-                <!-- Категория без источника -->
-                <span class="text-muted small">
-                  <span class="d-none d-md-inline">Не привязано</span>
-                  <span class="d-md-none">—</span>
-                </span>
-              {% endif %}
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
 {% else %}
 <!-- Пустое состояние -->
 <div class="empty-state">
@@ -995,92 +809,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
   validateExpenseForm();
   validateIncomeForm();
-
-  // --- Сортировка таблицы категорий ---
-  document.querySelectorAll('.sortable').forEach(header => {
-    header.style.cursor = 'pointer';
-    header.style.userSelect = 'none';
-    
-    header.addEventListener('click', () => {
-      const table = document.getElementById('categoriesTable');
-      const tbody = table.querySelector('tbody');
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-      const sortKey = header.dataset.sort;
-      const icon = header.querySelector('.sort-icon');
-      
-      // Определяем направление сортировки
-      let ascending = true;
-      if (header.classList.contains('sort-asc')) {
-        ascending = false;
-        header.classList.remove('sort-asc');
-        header.classList.add('sort-desc');
-      } else {
-        ascending = true;
-        header.classList.remove('sort-desc');
-        header.classList.add('sort-asc');
-      }
-      
-      // Убираем классы сортировки с других заголовков
-      document.querySelectorAll('.sortable').forEach(h => {
-        if (h !== header) {
-          h.classList.remove('sort-asc', 'sort-desc');
-          h.querySelector('.sort-icon').className = 'bi bi-arrow-down-up ms-1 sort-icon';
-        }
-      });
-      
-      // Обновляем иконку
-      if (ascending) {
-        icon.className = 'bi bi-arrow-up ms-1 sort-icon';
-      } else {
-        icon.className = 'bi bi-arrow-down ms-1 sort-icon';
-      }
-      
-      // Сортируем строки
-      rows.sort((a, b) => {
-        let aVal = a.dataset[sortKey];
-        let bVal = b.dataset[sortKey];
-        
-        // Для числовых значений преобразуем в числа
-        if (['limit', 'spent', 'progress', 'remaining', 'status'].includes(sortKey)) {
-          aVal = parseFloat(aVal);
-          bVal = parseFloat(bVal);
-        }
-        
-        // For source sorting, handle text values
-        if (sortKey === 'source') {
-          aVal = String(aVal).toLowerCase();
-          bVal = String(bVal).toLowerCase();
-        }
-        
-        if (aVal < bVal) return ascending ? -1 : 1;
-        if (aVal > bVal) return ascending ? 1 : -1;
-        return 0;
-      });
-      
-      // Перестраиваем таблицу
-      rows.forEach(row => tbody.appendChild(row));
-    });
+  
+  // Автопрокрутка к активному месяцу в dropdown
+  document.addEventListener('shown.bs.dropdown', function (e) {
+    if (e.target.id !== 'monthDropdown') return;
+    const menu = e.target.nextElementSibling;
+    const active = menu.querySelector('.dropdown-item.active');
+    if (active) {
+      const top = active.offsetTop - 80; // чуть ниже хедера года
+      menu.scrollTo({ top, behavior: 'instant' });
+    }
   });
+
 });
 </script>
 
-<style>
-.sortable {
-  transition: background-color 0.2s ease;
-}
-
-.sortable:hover {
-  background-color: rgba(0,0,0,0.05);
-}
-
-.sort-icon {
-  font-size: 0.8em;
-  opacity: 0.6;
-}
-
-.sortable.sort-asc .sort-icon,
-.sortable.sort-desc .sort-icon {
-  opacity: 1;
-}
-</style>
 {% endblock %}
