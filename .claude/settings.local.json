@@ -19,7 +19,8 @@
       "Bash(systemctl restart:*)",
       "Bash(lsof:*)",
       "Bash(ss:*)",
-      "Bash(kill:*)"
+      "Bash(kill:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

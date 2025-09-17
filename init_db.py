@@ -47,7 +47,8 @@ def create_database():
                 limit_type TEXT NOT NULL CHECK(limit_type IN ('fixed','percent')),
                 value REAL NOT NULL,
                 currency TEXT DEFAULT 'RUB',
-                category_type TEXT DEFAULT 'expense' CHECK(category_type IN ('expense','income'))
+                category_type TEXT DEFAULT 'expense' CHECK(category_type IN ('expense','income')),
+                multi_source INTEGER NOT NULL DEFAULT 0
             );
 
             -- Таблица ежедневных доходов
@@ -97,6 +98,17 @@ def create_database():
                 priority INTEGER NOT NULL DEFAULT 100,
                 allocation_percent REAL NOT NULL DEFAULT 0.0,
                 UNIQUE(user_id, source_id, category_id)
+            );
+
+            -- Таблица связей категорий с источниками доходов (для многоисточниковых категорий)
+            CREATE TABLE IF NOT EXISTS category_income_sources (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+                source_id INTEGER NOT NULL REFERENCES income_sources(id) ON DELETE CASCADE,
+                percentage REAL NOT NULL CHECK(percentage > 0 AND percentage <= 100),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(category_id, source_id)
             );
 
             -- Таблица целей накоплений
@@ -150,6 +162,20 @@ def create_database():
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
 
+            -- Таблица для хранения накопленных остатков по категориям
+            CREATE TABLE IF NOT EXISTS budget_rollover (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+                month TEXT NOT NULL,
+                limit_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                spent_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                rollover_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(user_id, category_id, month)
+            );
+
             -- Создание индексов для производительности
             CREATE INDEX IF NOT EXISTS idx_expenses_user_month ON expenses(user_id, month);
             CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id);
@@ -161,6 +187,10 @@ def create_database():
             CREATE INDEX IF NOT EXISTS idx_exchange_rates_currencies ON exchange_rates(from_currency, to_currency);
             CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user ON password_reset_tokens(user_id);
             CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_token ON password_reset_tokens(token);
+            CREATE INDEX IF NOT EXISTS idx_category_income_sources_category ON category_income_sources(category_id);
+            CREATE INDEX IF NOT EXISTS idx_category_income_sources_user ON category_income_sources(user_id);
+            CREATE INDEX IF NOT EXISTS idx_budget_rollover_user_category ON budget_rollover(user_id, category_id);
+            CREATE INDEX IF NOT EXISTS idx_budget_rollover_month ON budget_rollover(month);
         """)
         
         conn.commit()
@@ -251,12 +281,13 @@ def check_database():
             SELECT name FROM sqlite_master 
             WHERE type='table' AND name IN (
                 'users', 'categories', 'expenses', 'income_daily', 
-                'savings_goals', 'shared_budgets'
+                'savings_goals', 'shared_budgets', 'budget_rollover', 
+                'category_income_sources', 'income_sources'
             )
         """)
         
         tables = [row[0] for row in cursor.fetchall()]
-        expected_tables = ['users', 'categories', 'expenses', 'income_daily', 'savings_goals', 'shared_budgets']
+        expected_tables = ['users', 'categories', 'expenses', 'income_daily', 'savings_goals', 'shared_budgets', 'budget_rollover', 'category_income_sources', 'income_sources']
         
         print(f"📊 Найденные таблицы: {', '.join(tables)}")
         
