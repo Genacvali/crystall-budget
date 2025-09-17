@@ -45,7 +45,7 @@
 </style>
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h2 class="h4 m-0"><i class="bi bi-wallet2 text-danger me-2"></i>Мои расходы</h2>
-    <button class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
+    <button class="btn-fintech btn-fintech-primary" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
         <i class="bi bi-plus-lg me-1"></i>
         <span class="d-none d-sm-inline">Добавить </span>Расход
     </button>
@@ -79,8 +79,8 @@
                 </div>
                 <div class="col-12 col-md-auto d-grid btn-col">
                     <label class="form-label d-none d-md-block">&nbsp;</label>
-                    <button type="submit" class="btn btn-success">
-                      <i class="bi bi-check-lg me-1"></i> Добавить
+                    <button type="submit" class="btn-fintech btn-fintech-primary">
+                      <i class="bi bi-plus-lg me-1"></i>Добавить
                     </button>
                 </div>
             </div>
@@ -91,39 +91,37 @@
 <!-- Мобильные карточки -->
 <div class="d-block d-md-none">
     {% for expense in expenses %}
-    <div class="card expense-card mb-3">
-        <div class="card-body">
-            <div class="row align-items-center">
-                <div class="col-8">
-                    <div class="expense-amount text-danger">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
-                    <div class="expense-category">{{ expense.category_name }}</div>
-                    <div class="expense-date">
-                        <i class="bi bi-calendar3 me-1"></i>{{ expense.date|format_date_with_day }}
-                    </div>
+    <div class="card-fintech mobile-card">
+        <div class="mobile-card-header">
+            <div>
+                <div class="mobile-card-amount text-danger">-{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
+                <div class="mobile-card-meta">
+                    <i class="bi bi-calendar3 me-1"></i>{{ expense.date|format_date_with_day }}
                     {% if expense.note %}
-                    <div class="expense-note mt-1">
-                        <i class="bi bi-chat-dots me-1"></i>{{ expense.note }}
-                    </div>
+                    <br><i class="bi bi-chat-dots me-1"></i>{{ expense.note }}
                     {% endif %}
                 </div>
-                <div class="col-4 text-end">
-                    <div class="action-buttons justify-content-end">
-                        <div data-bs-toggle="tooltip" data-bs-title="Изменить">
-                            <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="btn-chip btn-chip-sm btn-chip-icon-only btn-chip-primary">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                        </div>
-                        <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-                            <div data-bs-toggle="tooltip" data-bs-title="Удалить">
-                                <button type="submit" class="btn-chip btn-chip-sm btn-chip-icon-only btn-chip-danger"
-                                        onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
             </div>
+            <span class="tag-fintech tag-fintech-secondary">{{ expense.category_name }}</span>
+        </div>
+        <div class="d-inline-flex gap-2">
+            <!-- Изменить (primary soft) -->
+            <div data-bs-toggle="tooltip" data-bs-title="Изменить">
+                <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="icon-btn icon-sm icon-primary icon-faded" aria-label="Изменить">
+                    <i class="bi bi-pencil"></i>
+                </a>
+            </div>
+
+            <!-- Удалить (solid danger) -->
+            <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
+                <div data-bs-toggle="tooltip" data-bs-title="Удалить">
+                    <button type="submit" class="icon-btn icon-sm icon-danger"
+                            onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')"
+                            aria-label="Удалить">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
     {% endfor %}
@@ -149,18 +147,22 @@
                 <td class="text-end fw-bold">{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></td>
                 <td>{{ expense.note or '' }}</td>
                 <td class="text-end">
-                    <div class="action-buttons justify-content-end">
+                    <div class="d-inline-flex gap-2 justify-content-end">
+                        <!-- Изменить (primary soft) -->
                         <div data-bs-toggle="tooltip" data-bs-title="Изменить">
                             <a href="{{ url_for('edit_expense', expense_id=expense.id) }}"
-                               class="btn-chip btn-chip-sm btn-chip-primary">
-                                <i class="bi bi-pencil"></i> Изменить
+                               class="icon-btn icon-sm icon-primary icon-faded" aria-label="Изменить">
+                                <i class="bi bi-pencil"></i>
                             </a>
                         </div>
+
+                        <!-- Удалить (solid danger) -->
                         <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
                             <div data-bs-toggle="tooltip" data-bs-title="Удалить">
-                                <button type="submit" class="btn-chip btn-chip-sm btn-chip-danger"
-                                        onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')">
-                                    <i class="bi bi-trash"></i> Удалить
+                                <button type="submit" class="icon-btn icon-sm icon-danger"
+                                        onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')"
+                                        aria-label="Удалить">
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </div>
                         </form>

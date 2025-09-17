@@ -38,7 +38,7 @@
             {% endfor %}
           </select>
           <div data-bs-toggle="tooltip" data-bs-title="Добавить источник">
-            <button type="button" class="btn-chip btn-chip-sm btn-chip-icon-only btn-chip-secondary" data-bs-toggle="modal" data-bs-target="#newSourceModal">
+            <button type="button" class="icon-btn icon-sm icon-success icon-faded" data-bs-toggle="modal" data-bs-target="#newSourceModal" aria-label="Добавить источник">
               <i class="bi bi-plus"></i>
             </button>
           </div>
@@ -46,8 +46,8 @@
       </div>
 
       <div class="col-12 col-md-2 d-flex">
-        <button type="submit" class="btn btn-success w-100 align-self-end">
-          <i class="bi bi-check-lg me-1"></i> Добавить доход
+        <button type="submit" class="btn-fintech btn-fintech-primary w-100">
+          <i class="bi bi-plus-lg me-1"></i>Добавить доход
         </button>
       </div>
     </div>
@@ -57,38 +57,44 @@
 <!-- Мобильные карточки -->
 <div class="d-block d-md-none">
   {% for income in incomes %}
-  <div class="card mb-2">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-start mb-2">
-        <div>
-          <h6 class="mb-1">{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></h6>
-          <small class="text-muted">
-            <i class="bi bi-calendar3"></i> {{ income.date|format_date_with_day }}
-          </small>
+  <div class="card-fintech mobile-card">
+    <div class="mobile-card-header">
+      <div>
+        <div class="mobile-card-amount text-success">+{{ income.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
+        <div class="mobile-card-meta">
+          <i class="bi bi-calendar3 me-1"></i>{{ income.date|format_date_with_day }}
         </div>
-        {% if income.source_id %}
-          {% set src = (income_sources | selectattr('id','equalto', income.source_id) | list) %}
-          {% if src and src[0] %}
-            <span class="badge text-bg-secondary">{{ src[0].name }}</span>
-          {% endif %}
+      </div>
+      {% if income.source_id %}
+        {% set src = (income_sources | selectattr('id','equalto', income.source_id) | list) %}
+        {% if src and src[0] %}
+          <span class="tag-fintech tag-fintech-success">{{ src[0].name }}</span>
+        {% else %}
+          <span class="tag-fintech tag-fintech-secondary">Источник</span>
         {% endif %}
+      {% else %}
+        <span class="tag-fintech tag-fintech-secondary">Доход</span>
+      {% endif %}
+    </div>
+    <div class="d-inline-flex gap-2">
+      <!-- Изменить (primary soft) -->
+      <div data-bs-toggle="tooltip" data-bs-title="Изменить">
+        <a href="{{ url_for('edit_income', income_id=income.id) }}"
+           class="icon-btn icon-sm icon-primary icon-faded" aria-label="Изменить">
+          <i class="bi bi-pencil"></i>
+        </a>
       </div>
-      <div class="action-buttons mt-2 justify-content-center">
-        <div data-bs-toggle="tooltip" data-bs-title="Изменить">
-          <a href="{{ url_for('edit_income', income_id=income.id) }}"
-             class="btn-chip btn-chip-primary">
-            <i class="bi bi-pencil"></i> Изменить
-          </a>
+
+      <!-- Удалить (solid danger) -->
+      <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+        <div data-bs-toggle="tooltip" data-bs-title="Удалить">
+          <button type="submit" class="icon-btn icon-sm icon-danger"
+                  onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')"
+                  aria-label="Удалить">
+            <i class="bi bi-trash"></i>
+          </button>
         </div>
-        <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
-          <div data-bs-toggle="tooltip" data-bs-title="Удалить">
-            <button type="submit" class="btn-chip btn-chip-danger"
-                    onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
-              <i class="bi bi-trash"></i> Удалить
-            </button>
-          </div>
-        </form>
-      </div>
+      </form>
     </div>
   </div>
   {% endfor %}
@@ -117,18 +123,22 @@
           {% else %}—{% endif %}
         </td>
         <td class="text-end">
-          <div class="action-buttons justify-content-end">
+          <div class="d-inline-flex gap-2 justify-content-end">
+            <!-- Изменить (primary soft) -->
             <div data-bs-toggle="tooltip" data-bs-title="Изменить">
               <a href="{{ url_for('edit_income', income_id=income.id) }}"
-                 class="btn-chip btn-chip-sm btn-chip-primary">
-                <i class="bi bi-pencil"></i> Изменить
+                 class="icon-btn icon-sm icon-primary icon-faded" aria-label="Изменить">
+                <i class="bi bi-pencil"></i>
               </a>
             </div>
+
+            <!-- Удалить (solid danger) -->
             <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
               <div data-bs-toggle="tooltip" data-bs-title="Удалить">
-                <button type="submit" class="btn-chip btn-chip-sm btn-chip-danger"
-                        onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')">
-                  <i class="bi bi-trash"></i> Удалить
+                <button type="submit" class="icon-btn icon-sm icon-danger"
+                        onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')"
+                        aria-label="Удалить">
+                  <i class="bi bi-trash"></i>
                 </button>
               </div>
             </form>

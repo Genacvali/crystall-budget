@@ -1191,6 +1191,94 @@ def update_profile():
 
 
 # -----------------------------------------------------------------------------
+# Helper Functions: Budget Rollover
+# -----------------------------------------------------------------------------
+def calculate_accumulated_rollover(user_id, category_id, current_month):
+    """
+    Вычисляет накопленный остаток для категории на начало текущего месяца.
+    Рассматривает все предыдущие месяцы где был остаток (лимит > трат).
+    """
+    conn = get_db()
+    
+    # Получаем все месяцы до текущего с данными по этой категории
+    rollover_data = conn.execute("""
+        SELECT month, limit_amount, spent_amount, rollover_amount
+        FROM budget_rollover 
+        WHERE user_id = ? AND category_id = ? AND month < ?
+        ORDER BY month
+    """, (user_id, category_id, current_month)).fetchall()
+    
+    total_rollover = 0.0
+    
+    for row in rollover_data:
+        month_limit = float(row['limit_amount'])
+        month_spent = float(row['spent_amount'])
+        month_rollover = float(row['rollover_amount'])
+        
+        # Остаток = лимит - потраченное + накопленный остаток с предыдущих месяцев
+        month_surplus = month_limit - month_spent + month_rollover
+        if month_surplus > 0:
+            total_rollover += month_surplus
+    
+    conn.close()
+    return total_rollover
+
+def update_rollover_for_month(user_id, category_id, month, limit_amount, spent_amount):
+    """
+    Обновляет запись в budget_rollover для указанного месяца.
+    """
+    conn = get_db()
+    
+    # Получаем накопленный остаток с предыдущих месяцев
+    accumulated_rollover = calculate_accumulated_rollover(user_id, category_id, month)
+    
+    try:
+        # Используем INSERT OR REPLACE для обновления/создания записи
+        conn.execute("""
+            INSERT OR REPLACE INTO budget_rollover 
+            (user_id, category_id, month, limit_amount, spent_amount, rollover_amount, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        """, (user_id, category_id, month, limit_amount, spent_amount, accumulated_rollover))
+        
+        conn.commit()
+    except sqlite3.Error as e:
+        app.logger.error(f"Error updating rollover for user {user_id}, category {category_id}, month {month}: {e}")
+    finally:
+        conn.close()
+
+def get_category_total_limit(user_id, category_id, month):
+    """
+    Возвращает общий доступный лимит для категории в месяце (лимит месяца + накопленный остаток).
+    """
+    conn = get_db()
+    
+    # Получаем базовый лимит для месяца (из логики dashboard)
+    category = conn.execute(
+        "SELECT limit_type, value, multi_source FROM categories WHERE user_id=? AND id=?",
+        (user_id, category_id)
+    ).fetchone()
+    
+    if not category:
+        conn.close()
+        return 0.0
+    
+    # Тут нужно повторить логику расчета лимита из dashboard
+    # Пока упростим - возьмем из существующей записи rollover или вычислим базово
+    rollover_record = conn.execute("""
+        SELECT limit_amount, rollover_amount FROM budget_rollover 
+        WHERE user_id = ? AND category_id = ? AND month = ?
+    """, (user_id, category_id, month)).fetchone()
+    
+    if rollover_record:
+        base_limit = float(rollover_record['limit_amount'])
+        accumulated = float(rollover_record['rollover_amount'])
+        conn.close()
+        return base_limit + accumulated
+    
+    conn.close()
+    return 0.0  # Если нет данных, возвращаем 0
+
+# -----------------------------------------------------------------------------
 # Routes: dashboard
 # -----------------------------------------------------------------------------
 @app.route("/dashboard")
@@ -1382,6 +1470,15 @@ def dashboard():
                     source_name = s["name"]
                     break
         
+        # Обновляем данные rollover для этой категории и месяца
+        update_rollover_for_month(uid, cat_id, month, limit_val, spent)
+        
+        # Получаем накопленный остаток с предыдущих месяцев
+        accumulated_rollover = calculate_accumulated_rollover(uid, cat_id, month)
+        
+        # Общий доступный лимит = лимит месяца + накопленный остаток
+        total_available_limit = limit_val + accumulated_rollover
+        
         data.append(
             dict(
                 category_name=row["name"], 
@@ -1390,7 +1487,9 @@ def dashboard():
                 id=cat_id, 
                 source_name=source_name,
                 multi_source=row["multi_source"],
-                sources_info=sources_info
+                sources_info=sources_info,
+                accumulated_rollover=accumulated_rollover,
+                total_available_limit=total_available_limit
             )
         )
 
@@ -3860,6 +3959,25 @@ def ensure_new_tables():
             )
             """)
             app.logger.info("Created exchange_rates table")
+            
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='budget_rollover'")
+        if not cursor.fetchone():
+            # Таблица для хранения накопленных остатков по категориям
+            conn.execute("""
+            CREATE TABLE budget_rollover (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+              category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+              month TEXT NOT NULL,
+              limit_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+              spent_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+              rollover_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              UNIQUE(user_id, category_id, month)
+            )
+            """)
+            app.logger.info("Created budget_rollover table")
             
         conn.commit()
         conn.close()

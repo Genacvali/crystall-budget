@@ -389,8 +389,9 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
   <h5 class="mb-3">Категории ({{ budget_data|length }})</h5>
   <div class="row g-3">
     {% for item in budget_data %}
-      {% set progress_percent = (item.limit > 0 and (item.spent / item.limit * 100) or 0) | round(1) %}
-      {% set rest = item.limit - item.spent %}
+      {% set total_limit = item.total_available_limit or item.limit %}
+      {% set progress_percent = (total_limit > 0 and (item.spent / total_limit * 100) or 0) | round(1) %}
+      {% set rest = total_limit - item.spent %}
       {% set color_class = 'success' if progress_percent < 50 else ('warning' if progress_percent < 80 else 'danger') %}
       <div class="col-12">
         <div class="card category-card">
@@ -403,7 +404,14 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
               <div class="flex-grow-1">
                 <h6 class="mb-1 fw-bold">{{ item.category_name }}</h6>
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="text-muted small">{{ item.spent|format_amount }} / {{ item.limit|format_amount }} ₽</span>
+                  <div class="small">
+                    <span class="text-muted">{{ item.spent|format_amount }} / {{ total_limit|format_amount }} ₽</span>
+                    {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
+                      <div class="text-success" style="font-size: 0.75rem;">
+                        <i class="bi bi-arrow-up-circle"></i> +{{ item.accumulated_rollover|format_amount }} с прошлых месяцев
+                      </div>
+                    {% endif %}
+                  </div>
                   <span class="badge bg-{{ color_class }}-subtle text-{{ color_class }}">{{ progress_percent }}%</span>
                 </div>
               </div>
@@ -470,9 +478,10 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
       </thead>
       <tbody>
         {% for item in budget_data %}
-          {% set progress_percent = (item.limit > 0 and (item.spent / item.limit * 100) or 0) | round(1) %}
-          {% set rest = item.limit - item.spent %}
-          {% set status_order = 3 if item.spent > item.limit else (2 if item.limit > 0 and (item.spent / item.limit) > 0.8 else 1) %}
+          {% set total_limit = item.total_available_limit or item.limit %}
+          {% set progress_percent = (total_limit > 0 and (item.spent / total_limit * 100) or 0) | round(1) %}
+          {% set rest = total_limit - item.spent %}
+          {% set status_order = 3 if item.spent > total_limit else (2 if total_limit > 0 and (item.spent / total_limit) > 0.8 else 1) %}
           <tr data-category="{{ item.category_name }}" 
               data-limit="{{ item.limit }}" 
               data-spent="{{ item.spent }}" 
@@ -490,7 +499,12 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
               {% endif %}
               <!-- Мобильная версия: показываем лимит под названием -->
               <div class="d-md-none small text-muted mt-1">
-                Лимит: {{ item.limit|format_amount }} {{ currency_symbol|default("₽") }}
+                Лимит: {{ total_limit|format_amount }} {{ currency_symbol|default("₽") }}
+                {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
+                  <span class="text-success">
+                    (+{{ item.accumulated_rollover|format_amount }} накоплено)
+                  </span>
+                {% endif %}
                 {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
                   <div class="mt-1">
                     {% for source_info in item.sources_info %}
@@ -502,7 +516,14 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
                 {% endif %}
               </div>
             </td>
-            <td class="text-end currency hide-mobile">{{ item.limit|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span></td>
+            <td class="text-end currency hide-mobile">
+              {{ total_limit|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span>
+              {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
+                <div class="small text-success">
+                  +{{ item.accumulated_rollover|format_amount }} накоплено
+                </div>
+              {% endif %}
+            </td>
             <td class="text-end currency {{ 'text-danger' if item.spent > item.limit else '' }}">
               {{ item.spent|format_amount }} <span class="currency-display">{{ currency_symbol|default("₽") }}</span>
               <!-- Мобильная версия: показываем прогресс под суммой -->
