@@ -1597,6 +1597,12 @@ def dashboard():
 
     conn.close()
 
+    # Сортируем категории по проценту использования (от наиболее критичных к менее критичным)
+    data.sort(key=lambda x: (
+        x['spent'] / x['total_available_limit'] if x['total_available_limit'] > 0 else 0,
+        x['category_name'].lower()  # алфавит как вторичная сортировка
+    ), reverse=True)
+
     # Генерируем список месяцев для селектора
     months_list = generate_months_list(month)
     

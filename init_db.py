@@ -176,6 +176,20 @@ def create_database():
                 UNIQUE(user_id, category_id, month)
             );
 
+            -- Таблица для связи пользователей с Telegram
+            CREATE TABLE IF NOT EXISTS user_telegram (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                telegram_id TEXT UNIQUE NOT NULL,
+                telegram_username TEXT,
+                telegram_first_name TEXT,
+                telegram_last_name TEXT,
+                is_verified INTEGER NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                verified_at TIMESTAMP NULL,
+                UNIQUE(user_id)
+            );
+
             -- Создание индексов для производительности
             CREATE INDEX IF NOT EXISTS idx_expenses_user_month ON expenses(user_id, month);
             CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id);
@@ -191,6 +205,8 @@ def create_database():
             CREATE INDEX IF NOT EXISTS idx_category_income_sources_user ON category_income_sources(user_id);
             CREATE INDEX IF NOT EXISTS idx_budget_rollover_user_category ON budget_rollover(user_id, category_id);
             CREATE INDEX IF NOT EXISTS idx_budget_rollover_month ON budget_rollover(month);
+            CREATE INDEX IF NOT EXISTS idx_user_telegram_user ON user_telegram(user_id);
+            CREATE INDEX IF NOT EXISTS idx_user_telegram_telegram_id ON user_telegram(telegram_id);
         """)
         
         conn.commit()

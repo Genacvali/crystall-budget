@@ -444,10 +444,14 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
           {% if item.multi_source == 1 and item.sources_info and item.sources_info|length > 0 %}
             Проценты: {% for source_info in item.sources_info %}{{ source_info.source_name }} {{ source_info.percentage|round }}%{% if not loop.last %} · {% endif %}{% endfor %}
           {% else %}
-            {{ item.spent|format_amount }} / {{ total_limit|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
-            {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
-              <small class="text-success">(+{{ item.accumulated_rollover|format_amount }} накоплено)</small>
-            {% endif %}
+            <div class="d-flex flex-wrap align-items-center gap-1">
+              <span>{{ item.spent|format_amount }} / {{ total_limit|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></span>
+              {% if item.accumulated_rollover and item.accumulated_rollover > 0 %}
+                <span class="badge bg-success-subtle text-success-emphasis" title="Накопленный остаток с прошлых месяцев">
+                  +{{ item.accumulated_rollover|format_amount }}
+                </span>
+              {% endif %}
+            </div>
           {% endif %}
         </div>
 

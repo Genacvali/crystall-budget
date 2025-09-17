@@ -47,3 +47,4 @@ test_*.py
 # Cleanup
 *.sh.bak
 nginx-*-temp.conf
+init_db.py
