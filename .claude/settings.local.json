@@ -16,7 +16,10 @@
       "Bash(export SECRET_KEY=test)",
       "Bash(sed:*)",
       "Bash(pkill:*)",
-      "Bash(systemctl restart:*)"
+      "Bash(systemctl restart:*)",
+      "Bash(lsof:*)",
+      "Bash(ss:*)",
+      "Bash(kill:*)"
     ],
     "deny": [],
     "ask": []

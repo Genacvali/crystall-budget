@@ -29,13 +29,44 @@ python app.py
 gunicorn -w 2 -b 0.0.0.0:5000 app:app
 ```
 
+### Testing and Code Quality
+```bash
+# No formal test suite - manual testing via web interface
+# Test database initialization
+python init_db.py
+
+# Test database migration
+python migrate_db.py
+
+# Verify application startup
+python app.py
+# Then visit http://localhost:5000 to test functionality
+```
+
 ### Production Deployment
 ```bash
-# Deploy to server
+# Deploy to server (CentOS/RHEL)
 ./deploy.sh
 
-# Setup HTTPS
+# Setup HTTPS with Let's Encrypt
 ./setup-https.sh
+
+# Admin panel deployment (separate service)
+cd admin_panel && ./deploy_admin.sh
+```
+
+### Service Management
+```bash
+# Main application service
+sudo systemctl start/stop/restart crystalbudget
+sudo systemctl status crystalbudget
+
+# Admin panel service  
+sudo systemctl start/stop/restart admin-panel
+
+# View logs
+sudo journalctl -u crystalbudget -f
+sudo journalctl -u admin-panel -f
 ```
 
 ## Architecture Overview
@@ -82,15 +113,35 @@ SQLite with strict user isolation and automatic schema migration:
 - **Logging**: Configurable log levels via LOG_LEVEL environment variable
 - **Database**: Configurable path via BUDGET_DB environment variable
 
+### Admin Panel
+Separate Flask application in `/admin_panel/` for system administration:
+- `admin_panel.py` - Admin interface for user management and system monitoring
+- Runs on port 5001 with its own systemd service (`admin-panel.service`)
+- Includes user management, system stats, and log viewing capabilities
+- Deployment scripts: `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`
+
+### Environment Variables
+```bash
+# Required for production
+SECRET_KEY="your-secure-secret-key"
+HTTPS_MODE="true"  # Enables secure cookies and HSTS headers
+
+# Optional configuration  
+BUDGET_DB="/path/to/budget.db"  # Database location (default: ./budget.db)
+LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
+```
+
 ### Production Files
 Essential files for CentOS/RHEL deployment:
-- `app.py` - Main Flask application (3381 lines)
+- `app.py` - Main Flask application (~3400 lines)
 - `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn)
 - `templates/` - 16 Jinja2 templates with Russian UI
 - `static/` - PWA assets and service workers
 - `deploy.sh` - Automated CentOS/RHEL deployment script with systemd setup
-- `setup-https.sh` - HTTPS/SSL certificate setup
+- `setup-https.sh` - HTTPS/SSL certificate setup with Let's Encrypt
 - `crystalbudget.service` - Systemd service configuration
 - `nginx-crystalbudget.conf` - Nginx reverse proxy configuration
 - `init_db.py` - Database initialization script
 - `migrate_db.py` - Database schema migration utility
+- `migrate_multi_source_categories.py` - Special migration for multi-source category support
+- `admin_panel/` - Administrative interface and management tools
