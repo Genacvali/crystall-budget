@@ -67,26 +67,37 @@ BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 # -----------------------------------------------------------------------------
 # Telegram authentication helpers
 # -----------------------------------------------------------------------------
-def verify_telegram_auth(data: dict, bot_token: str, max_age_sec: int = 86400) -> bool:
-    """Проверяет подпись Telegram и давность auth_date."""
+TG_ALLOWED_KEYS = {"id", "first_name", "last_name", "username", "photo_url", "auth_date"}
+
+def verify_telegram_auth(args, bot_token: str, max_age_sec: int = 600) -> bool:
+    """
+    Проверяет подпись Telegram и давность auth_date.
+    args — это request.args (MultiDict) или dict c уже ДЕКОДИРОВАННЫМИ строками.
+    Берём ТОЛЬКО ключи, документированные Telegram.
+    """
     if not bot_token:
         app.logger.warning("No bot token provided")
         return False
         
-    data = dict(data)  # не мутируем оригинал
-    hash_from_tg = data.pop("hash", None)
+    # 1) достаём hash
+    hash_from_tg = args.get("hash")
     if not hash_from_tg:
         app.logger.warning("No hash in Telegram data")
         return False
 
-    # Сформировать data_check_string только из полей Telegram (исключаем next и другие наши параметры)
-    telegram_fields = {'id', 'first_name', 'last_name', 'username', 'photo_url', 'auth_date'}
-    pairs = [f"{k}={v}" for k, v in sorted(data.items()) 
-             if v is not None and k in telegram_fields]
+    # 2) собираем только допустимые пары "k=v" (строго строки, без кастов)
+    pairs = []
+    for k in sorted(TG_ALLOWED_KEYS):
+        if k in args:
+            v = args.get(k)
+            # ВАЖНО: не преобразовывать типы (id/ts оставлять строками)
+            if v is not None:
+                pairs.append(f"{k}={v}")
+
     data_check_string = "\n".join(pairs)
-    
     app.logger.info(f"Telegram data_check_string: {data_check_string}")
 
+    # 3) считаем HMAC-SHA256(data_check_string, key=sha256(bot_token))
     secret_key = hashlib.sha256(bot_token.encode("utf-8")).digest()
     calc_hash = hmac.new(secret_key, data_check_string.encode("utf-8"),
                          hashlib.sha256).hexdigest()
@@ -94,17 +105,18 @@ def verify_telegram_auth(data: dict, bot_token: str, max_age_sec: int = 86400) -
     app.logger.info(f"Calculated hash: {calc_hash}")
     app.logger.info(f"Telegram hash: {hash_from_tg}")
 
+    # 4) сравнение и проверка давности
     if not hmac.compare_digest(calc_hash, hash_from_tg):
         app.logger.warning("Hash mismatch")
         return False
 
-    # Доп. защита: окно валидности
     try:
-        auth_ts = int(data.get("auth_date", "0"))
+        auth_ts = int(args.get("auth_date", "0"))
     except ValueError:
         app.logger.warning("Invalid auth_date")
         return False
     
+    # сужаем окно валидности (10 минут)
     time_diff = time.time() - auth_ts
     app.logger.info(f"Auth time difference: {time_diff} seconds")
     if time_diff > max_age_sec:
@@ -1211,10 +1223,10 @@ def logout():
 @app.route("/auth/telegram")
 def auth_telegram():
     """Авторизация через Telegram Widget"""
-    args = request.args.to_dict()
+    args = request.args  # НЕ преобразуем в dict, передаем MultiDict
     next_url = args.get("next") or url_for("dashboard")
 
-    app.logger.info(f'Telegram auth request: {args}')
+    app.logger.info(f'Telegram auth request: {dict(args)}')
     app.logger.info(f'BOT_TOKEN configured: {bool(BOT_TOKEN)}')
     
     if not BOT_TOKEN:
