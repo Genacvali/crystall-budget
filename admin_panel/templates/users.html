@@ -45,7 +45,9 @@
                             {% if user.auth_type == 'telegram' %}
                                 <div>
                                     <i class="bi bi-telegram text-info"></i> 
-                                    {{ user.telegram_username or ('ID:' + user.telegram_id) }}
+                                    {{ user.telegram_username if user.telegram_username
+   else ('ID:' ~ user.telegram_id) if user.telegram_id is not none
+   else '—' }}
                                 </div>
                             {% else %}
                                 <div>{{ user.email }}</div>
