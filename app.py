@@ -891,50 +891,9 @@ def index():
     return redirect(url_for("login"))
 
 
-def verify_telegram_auth(auth_data, bot_token):
-    """
-    Проверяет подлинность данных авторизации Telegram
-    https://core.telegram.org/widgets/login#checking-authorization
-    """
-    check_hash = auth_data.get('hash')
-    if not check_hash:
-        return False
-    
-    # Создаем строку для проверки
-    auth_data_copy = auth_data.copy()
-    del auth_data_copy['hash']
-    
-    data_check_arr = []
-    for key, value in sorted(auth_data_copy.items()):
-        if value:  # Пропускаем пустые значения
-            data_check_arr.append(f"{key}={value}")
-    
-    data_check_string = "\n".join(data_check_arr)
-    
-    # Создаем secret key из bot token
-    secret_key = hashlib.sha256(bot_token.encode()).digest()
-    
-    # Вычисляем hash
-    calculated_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-    
-    return hmac.compare_digest(calculated_hash, check_hash)
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    # Проверяем Telegram авторизацию через параметры URL
-    telegram_data = {
-        'id': request.args.get('id'),
-        'username': request.args.get('username'),
-        'first_name': request.args.get('first_name'), 
-        'last_name': request.args.get('last_name'),
-        'hash': request.args.get('hash')
-    }
-    
-    # Если есть данные Telegram, регистрируем через Telegram
-    if telegram_data['id'] and telegram_data['hash']:
-        return register_telegram(telegram_data)
-    
-    # Иначе обрабатываем как email регистрацию
     return register_email()
 
 def register_telegram(telegram_data):
@@ -1095,20 +1054,6 @@ def register_email():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Проверяем Telegram авторизацию через параметры URL
-    telegram_data = {
-        'id': request.args.get('id'),
-        'username': request.args.get('username'),
-        'first_name': request.args.get('first_name'), 
-        'last_name': request.args.get('last_name'),
-        'hash': request.args.get('hash')
-    }
-    
-    # Если есть данные Telegram, авторизуем через Telegram
-    if telegram_data['id'] and telegram_data['hash']:
-        return login_telegram(telegram_data)
-    
-    # Иначе обрабатываем как email авторизацию
     return login_email()
 
 def login_telegram(telegram_data):
