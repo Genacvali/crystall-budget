@@ -20,7 +20,9 @@
       "Bash(lsof:*)",
       "Bash(ss:*)",
       "Bash(kill:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(export FLASK_RUN_PORT=5050)",
+      "Bash(systemctl:*)"
     ],
     "deny": [],
     "ask": []

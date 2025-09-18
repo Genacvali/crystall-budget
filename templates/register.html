@@ -11,82 +11,16 @@
                     <p class="text-muted">Создайте свой аккаунт CrystalBudget</p>
                 </div>
                 
-                <form method="POST" novalidate id="registerForm">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">
-                            <i class="bi bi-person"></i> Имя
-                        </label>
-                        <div class="input-group">
-                            <input type="text" id="name" name="name" class="form-control" 
-                                   placeholder="Ваше имя" required autocomplete="name"
-                                   aria-describedby="name-feedback">
-                            <span class="input-group-text validation-icon d-none">
-                                <i class="bi bi-check-circle text-success"></i>
-                            </span>
-                        </div>
-                        <div id="name-feedback" class="invalid-feedback">
-                            Пожалуйста, введите ваше имя (минимум 2 символа)
-                        </div>
-                        <div class="valid-feedback">
-                            Отлично! Имя введено корректно
-                        </div>
+                <!-- Telegram Registration -->
+                <div class="text-center mb-4">
+                    <div id="telegram-login-widget">
+                        <!-- Fallback button while widget loads -->
+                        <button type="button" class="btn btn-success w-100" id="telegram-login-fallback" style="display: none;">
+                            <i class="bi bi-telegram"></i> Зарегистрироваться через Telegram
+                        </button>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="email" class="form-label">
-                            <i class="bi bi-envelope"></i> Email
-                        </label>
-                        <div class="input-group">
-                            <input type="email" id="email" name="email" class="form-control" 
-                                   placeholder="your@email.com" required autocomplete="email"
-                                   aria-describedby="email-feedback">
-                            <span class="input-group-text validation-icon d-none">
-                                <i class="bi bi-check-circle text-success"></i>
-                            </span>
-                        </div>
-                        <div id="email-feedback" class="invalid-feedback">
-                            Пожалуйста, введите корректный email адрес
-                        </div>
-                        <div class="valid-feedback">
-                            Email адрес корректный
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label for="password" class="form-label">
-                            <i class="bi bi-lock"></i> Пароль
-                        </label>
-                        <div class="input-group">
-                            <input type="password" id="password" name="password" class="form-control" 
-                                   placeholder="Создайте пароль" required autocomplete="new-password"
-                                   minlength="6" aria-describedby="password-feedback">
-                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                <i class="bi bi-eye" id="togglePasswordIcon"></i>
-                            </button>
-                            <span class="input-group-text validation-icon d-none">
-                                <i class="bi bi-check-circle text-success"></i>
-                            </span>
-                        </div>
-                        <div class="form-text password-strength" id="password-strength">
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="strength-bar">
-                                    <div class="strength-fill"></div>
-                                </div>
-                                <small class="strength-text">Введите пароль</small>
-                            </div>
-                        </div>
-                        <div id="password-feedback" class="invalid-feedback">
-                            Пароль должен содержать минимум 6 символов и не содержать пробелов
-                        </div>
-                        <div class="valid-feedback">
-                            Отличный пароль!
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-success w-100 mb-3" id="submitBtn">
-                        <i class="bi bi-person-plus"></i> Создать аккаунт
-                    </button>
-                </form>
+                </div>
+                
                 
                 <div class="text-center">
                     <p class="text-muted mb-0">
@@ -98,243 +32,59 @@
                 </div>
             </div>
         </div>
-        
-        <div class="mt-4 text-center">
-            <div class="card border-0 bg-transparent">
-                <div class="card-body">
-                    <h6 class="text-white-50 mb-2">
-                        <i class="bi bi-lightbulb"></i> Добро пожаловать в CrystalBudget!
-                    </h6>
-                    <p class="small text-white-50 mb-0">
-                        После регистрации вы сможете создавать свои категории трат 
-                        и отслеживать бюджет
-                    </p>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
-<style>
-/* Live validation styles */
-.validation-icon {
-    border-left: 0 !important;
-}
-
-.strength-bar {
-    width: 100px;
-    height: 4px;
-    background-color: var(--bs-gray-300);
-    border-radius: 2px;
-    overflow: hidden;
-}
-
-.strength-fill {
-    height: 100%;
-    transition: width 0.3s ease, background-color 0.3s ease;
-    width: 0%;
-    background-color: var(--bs-gray-400);
-}
-
-.strength-weak { background-color: var(--bs-danger) !important; }
-.strength-medium { background-color: var(--bs-warning) !important; }
-.strength-strong { background-color: var(--bs-success) !important; }
-
-.form-control.is-valid {
-    border-color: var(--bs-success);
-    background-image: none;
-}
-
-.form-control.is-invalid {
-    border-color: var(--bs-danger);
-    background-image: none;
-}
-
-.form-control:focus {
-    border-color: var(--bs-primary);
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-}
-
-.form-control.is-valid:focus {
-    border-color: var(--bs-success);
-    box-shadow: 0 0 0 0.2rem rgba(25, 135, 84, 0.25);
-}
-
-.form-control.is-invalid:focus {
-    border-color: var(--bs-danger);
-    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-}
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('registerForm');
-    const nameInput = document.getElementById('name');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const togglePassword = document.getElementById('togglePassword');
-    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-    const submitBtn = document.getElementById('submitBtn');
-
-    // Password toggle functionality
-    togglePassword.addEventListener('click', function() {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
+    // Telegram Login Widget initialization
+    function initTelegramWidget() {
+        const widgetContainer = document.getElementById('telegram-login-widget');
+        const fallbackButton = document.getElementById('telegram-login-fallback');
         
-        togglePasswordIcon.classList.toggle('bi-eye');
-        togglePasswordIcon.classList.toggle('bi-eye-slash');
-    });
-
-    // Live validation functions
-    function validateName(input) {
-        const value = input.value.trim();
-        const isValid = value.length >= 2 && value.length <= 50;
+        // Show fallback button initially
+        fallbackButton.style.display = 'block';
         
-        updateFieldState(input, isValid);
-        return isValid;
+        // Try to load Telegram widget
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://telegram.org/js/telegram-widget.js?22';
+        script.setAttribute('data-telegram-login', 'crystalbudget_bot');
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('data-auth-url', window.location.origin + '/register');
+        script.setAttribute('data-request-access', 'write');
+        script.setAttribute('data-lang', 'ru');
+        
+        // Handle widget load success
+        script.onload = function() {
+            // Check if widget actually loaded (has iframe)
+            setTimeout(() => {
+                const iframe = widgetContainer.querySelector('iframe');
+                if (iframe) {
+                    fallbackButton.style.display = 'none';
+                } else {
+                    // Widget failed to load, keep fallback
+                    console.warn('Telegram widget failed to load, using fallback button');
+                }
+            }, 1000);
+        };
+        
+        // Handle widget load error
+        script.onerror = function() {
+            console.warn('Failed to load Telegram widget script');
+            fallbackButton.style.display = 'block';
+        };
+        
+        widgetContainer.appendChild(script);
+        
+        // Fallback button click handler
+        fallbackButton.addEventListener('click', function() {
+            alert('Telegram авторизация не настроена.\n\nАдминистратор должен:\n1. Создать Telegram бота\n2. Настроить TELEGRAM_BOT_TOKEN\n3. Настроить домен в @BotFather\n\nДля настройки см. TELEGRAM_AUTH_SETUP.md');
+        });
     }
-
-    function validateEmail(input) {
-        const value = input.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const isValid = emailRegex.test(value);
-        
-        updateFieldState(input, isValid);
-        return isValid;
-    }
-
-    function validatePassword(input) {
-        const value = input.value;
-        const hasNoSpaces = !/\s/.test(value);
-        const hasMinLength = value.length >= 6;
-        const isValid = hasNoSpaces && hasMinLength;
-        
-        // Update strength indicator
-        updatePasswordStrength(value);
-        updateFieldState(input, isValid);
-        return isValid;
-    }
-
-    function updatePasswordStrength(password) {
-        const strengthBar = document.querySelector('.strength-fill');
-        const strengthText = document.querySelector('.strength-text');
-        
-        if (password.length === 0) {
-            strengthBar.style.width = '0%';
-            strengthBar.className = 'strength-fill';
-            strengthText.textContent = 'Введите пароль';
-            return;
-        }
-        
-        let strength = 0;
-        let strengthClass = '';
-        let strengthLabel = '';
-        
-        // Basic checks
-        if (password.length >= 6) strength++;
-        if (password.length >= 8) strength++;
-        if (/[A-Z]/.test(password)) strength++;
-        if (/[0-9]/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++;
-        
-        if (strength <= 2) {
-            strengthClass = 'strength-weak';
-            strengthLabel = 'Слабый пароль';
-            strengthBar.style.width = '33%';
-        } else if (strength <= 3) {
-            strengthClass = 'strength-medium';
-            strengthLabel = 'Средний пароль';
-            strengthBar.style.width = '66%';
-        } else {
-            strengthClass = 'strength-strong';
-            strengthLabel = 'Сильный пароль';
-            strengthBar.style.width = '100%';
-        }
-        
-        strengthBar.className = `strength-fill ${strengthClass}`;
-        strengthText.textContent = strengthLabel;
-    }
-
-    function updateFieldState(input, isValid) {
-        const validationIcon = input.parentElement.querySelector('.validation-icon');
-        
-        input.classList.remove('is-valid', 'is-invalid');
-        
-        if (input.value.trim() === '') {
-            validationIcon?.classList.add('d-none');
-            return;
-        }
-        
-        if (isValid) {
-            input.classList.add('is-valid');
-            validationIcon?.classList.remove('d-none');
-            validationIcon?.querySelector('i').className = 'bi bi-check-circle text-success';
-        } else {
-            input.classList.add('is-invalid');
-            validationIcon?.classList.remove('d-none');
-            validationIcon?.querySelector('i').className = 'bi bi-x-circle text-danger';
-        }
-    }
-
-    function updateSubmitButton() {
-        const nameValid = validateName(nameInput);
-        const emailValid = validateEmail(emailInput);
-        const passwordValid = validatePassword(passwordInput);
-        
-        const allValid = nameValid && emailValid && passwordValid;
-        submitBtn.disabled = !allValid;
-        
-        if (allValid) {
-            submitBtn.classList.remove('btn-secondary');
-            submitBtn.classList.add('btn-success');
-        } else {
-            submitBtn.classList.remove('btn-success');
-            submitBtn.classList.add('btn-secondary');
-        }
-    }
-
-    // Add event listeners
-    nameInput.addEventListener('input', () => {
-        validateName(nameInput);
-        updateSubmitButton();
-    });
-
-    nameInput.addEventListener('blur', () => {
-        validateName(nameInput);
-        updateSubmitButton();
-    });
-
-    emailInput.addEventListener('input', () => {
-        validateEmail(emailInput);
-        updateSubmitButton();
-    });
-
-    emailInput.addEventListener('blur', () => {
-        validateEmail(emailInput);
-        updateSubmitButton();
-    });
-
-    passwordInput.addEventListener('input', () => {
-        validatePassword(passwordInput);
-        updateSubmitButton();
-    });
-
-    passwordInput.addEventListener('blur', () => {
-        validatePassword(passwordInput);
-        updateSubmitButton();
-    });
-
-    // Form submission with loading state
-    form.addEventListener('submit', function(e) {
-        if (!validateName(nameInput) || !validateEmail(emailInput) || !validatePassword(passwordInput)) {
-            e.preventDefault();
-            return;
-        }
-        
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Создаем аккаунт...';
-    });
+    
+    // Initialize Telegram Widget
+    initTelegramWidget();
 });
 </script>
 {% endblock %}

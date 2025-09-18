@@ -4,6 +4,8 @@ import logging
 import requests 
 import smtplib
 import secrets
+import hashlib
+import hmac
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
@@ -59,6 +61,7 @@ else:
 # app.config['SESSION_COOKIE_DOMAIN'] = '.yourdomain.com'
 
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
+BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 
 # Uploads (аватары)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2 MB
@@ -840,106 +843,224 @@ def index():
     return redirect(url_for("login"))
 
 
+def verify_telegram_auth(auth_data, bot_token):
+    """
+    Проверяет подлинность данных авторизации Telegram
+    https://core.telegram.org/widgets/login#checking-authorization
+    """
+    check_hash = auth_data.get('hash')
+    if not check_hash:
+        return False
+    
+    # Создаем строку для проверки
+    auth_data_copy = auth_data.copy()
+    del auth_data_copy['hash']
+    
+    data_check_arr = []
+    for key, value in sorted(auth_data_copy.items()):
+        if value:  # Пропускаем пустые значения
+            data_check_arr.append(f"{key}={value}")
+    
+    data_check_string = "\n".join(data_check_arr)
+    
+    # Создаем secret key из bot token
+    secret_key = hashlib.sha256(bot_token.encode()).digest()
+    
+    # Вычисляем hash
+    calculated_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
+    
+    return hmac.compare_digest(calculated_hash, check_hash)
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    # Только Telegram авторизация
+    telegram_data = {
+        'id': request.args.get('id'),
+        'username': request.args.get('username'),
+        'first_name': request.args.get('first_name'), 
+        'last_name': request.args.get('last_name'),
+        'hash': request.args.get('hash')
+    }
+    
+    # Если есть данные Telegram, регистрируем через Telegram
+    if telegram_data['id'] and telegram_data['hash']:
+        return register_telegram(telegram_data)
+    
+    # Если это POST запрос без Telegram данных - показываем ошибку
     if request.method == "POST":
-        try:
-            email = request.form.get("email", "").lower().strip()
-            name = request.form.get("name", "").strip()
-            password = request.form.get("password", "")
-            
-            app.logger.info(f'Registration attempt for email: {email}, name: {name}')
+        flash("Регистрация возможна только через Telegram", "error")
+        
+    return render_template("register.html")
 
-            # Валидация на сервере
-            if not email or not name or not password:
-                app.logger.warning(f'Registration failed - missing fields for email: {email}')
-                flash("Все поля обязательны для заполнения", "error")
-                return render_template("register.html")
-            
-            if len(password) < 6:
-                app.logger.warning(f'Registration failed - password too short for email: {email}')
-                flash("Пароль должен содержать минимум 6 символов", "error")
-                return render_template("register.html")
-            
-            if ' ' in password:
-                app.logger.warning(f'Registration failed - password contains spaces for email: {email}')
-                flash("Пароль не должен содержать пробелы", "error")
-                return render_template("register.html")
-                
-        except Exception as e:
-            app.logger.error(f'Registration form parsing error: {e} - {request.remote_addr}')
-            flash("Ошибка обработки формы. Попробуйте еще раз", "error")
+def register_telegram(telegram_data):
+    """Регистрация через Telegram"""
+    try:
+        # Валидируем hash если есть bot token
+        if BOT_TOKEN and not verify_telegram_auth(telegram_data, BOT_TOKEN):
+            app.logger.warning(f'Invalid Telegram auth hash for registration: {telegram_data.get("id")}')
+            flash("Ошибка авторизации Telegram. Попробуйте еще раз", "error")
             return render_template("register.html")
-
+        
+        telegram_id = telegram_data['id']
+        username = telegram_data.get('username', '')
+        first_name = telegram_data.get('first_name', '')
+        last_name = telegram_data.get('last_name', '')
+        
+        # Формируем имя пользователя
+        display_name = first_name
+        if last_name:
+            display_name += f" {last_name}"
+        if not display_name.strip():
+            display_name = username or f"User{telegram_id}"
+        
+        app.logger.info(f'Telegram registration attempt for ID: {telegram_id}, username: {username}')
+        
         conn = get_db()
         try:
-            conn.execute(
-                "INSERT INTO users(email, name, password_hash) VALUES (?,?,?)",
-                (email, name, generate_password_hash(password)),
-            )
+            # Проверяем, не существует ли уже такой Telegram ID
+            existing_user = conn.execute(
+                "SELECT * FROM users WHERE telegram_id = ?", (telegram_id,)
+            ).fetchone()
+            
+            if existing_user:
+                # Пользователь уже существует, логиним его
+                session["user_id"] = existing_user["id"]
+                session["email"] = existing_user["email"]
+                session["name"] = existing_user["name"]
+                session["theme"] = existing_user["theme"] or "light"
+                session["currency"] = existing_user["currency"] or "RUB"
+                session["auth_type"] = "telegram"
+                session["telegram_id"] = telegram_id
+                
+                app.logger.info(f'Existing Telegram user logged in: {telegram_id} (ID: {existing_user["id"]})')
+                return redirect(url_for("dashboard"))
+            
+            # Создаем нового пользователя
+            conn.execute("""
+                INSERT INTO users(name, telegram_id, telegram_username, telegram_first_name, 
+                                telegram_last_name, auth_type) 
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (display_name, telegram_id, username, first_name, last_name, 'telegram'))
+            
             conn.commit()
+            
             user = conn.execute(
-                "SELECT id FROM users WHERE email=?", (email,)
+                "SELECT * FROM users WHERE telegram_id = ?", (telegram_id,)
             ).fetchone()
             
             if not user:
                 raise Exception("Failed to retrieve user after insertion")
-                
-            app.logger.info(f'Successful registration for user: {email} (ID: {user["id"]})')
             
+            app.logger.info(f'Successful Telegram registration: {telegram_id} (ID: {user["id"]})')
+            
+            # Устанавливаем сессию
             session["user_id"] = user["id"]
-            session["email"] = email
-            session["name"] = name
+            session["email"] = user["email"]
+            session["name"] = user["name"]
+            session["theme"] = user["theme"] or "light"
+            session["currency"] = user["currency"] or "RUB"
+            session["auth_type"] = "telegram"
+            session["telegram_id"] = telegram_id
+            
             conn.close()
+            flash("Добро пожаловать! Аккаунт создан через Telegram", "success")
             return redirect(url_for("dashboard"))
             
-        except sqlite3.IntegrityError as e:
-            app.logger.warning(f'Registration failed - email already exists: {email} - {e}')
-            flash("Email уже зарегистрирован", "error")
-            conn.close()
-            return render_template("register.html")
         except Exception as e:
-            app.logger.error(f'Database error during registration for {email}: {e}')
+            app.logger.error(f'Database error during Telegram registration for {telegram_id}: {e}')
             flash("Ошибка сервера. Попробуйте позже", "error")
             conn.close()
             return render_template("register.html")
+            
+    except Exception as e:
+        app.logger.error(f'Telegram registration error: {e}')
+        flash("Ошибка авторизации через Telegram", "error")
+        return render_template("register.html")
 
-    return render_template("register.html")
+# Email registration removed - only Telegram auth is supported
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    # Только Telegram авторизация
+    telegram_data = {
+        'id': request.args.get('id'),
+        'username': request.args.get('username'),
+        'first_name': request.args.get('first_name'), 
+        'last_name': request.args.get('last_name'),
+        'hash': request.args.get('hash')
+    }
+    
+    # Если есть данные Telegram, авторизуем через Telegram
+    if telegram_data['id'] and telegram_data['hash']:
+        return login_telegram(telegram_data)
+    
+    # Если это POST запрос без Telegram данных - показываем ошибку
     if request.method == "POST":
-        email = request.form["email"].lower().strip()
-        password = request.form["password"]
+        flash("Вход возможен только через Telegram", "error")
         
-        app.logger.info(f'Login attempt for email: {email}')
+    return render_template("login.html")
 
+def login_telegram(telegram_data):
+    """Авторизация через Telegram"""
+    try:
+        # Валидируем hash если есть bot token
+        if BOT_TOKEN and not verify_telegram_auth(telegram_data, BOT_TOKEN):
+            app.logger.warning(f'Invalid Telegram auth hash for login: {telegram_data.get("id")}')
+            flash("Ошибка авторизации Telegram. Попробуйте еще раз", "error")
+            return render_template("login.html")
+        
+        telegram_id = telegram_data['id']
+        username = telegram_data.get('username', '')
+        first_name = telegram_data.get('first_name', '')
+        last_name = telegram_data.get('last_name', '')
+        
+        app.logger.info(f'Telegram login attempt for ID: {telegram_id}')
+        
         conn = get_db()
-        user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
+        user = conn.execute("SELECT * FROM users WHERE telegram_id=?", (telegram_id,)).fetchone()
         conn.close()
-        if user and check_password_hash(user["password_hash"], password):
+        
+        if user:
+            # Обновляем данные пользователя из Telegram если они изменились
+            display_name = first_name
+            if last_name:
+                display_name += f" {last_name}"
+            if not display_name.strip():
+                display_name = username or f"User{telegram_id}"
+            
+            # Обновляем информацию
+            conn = get_db()
+            conn.execute("""
+                UPDATE users 
+                SET telegram_username=?, telegram_first_name=?, telegram_last_name=?, name=?
+                WHERE telegram_id=?
+            """, (username, first_name, last_name, display_name, telegram_id))
+            conn.commit()
+            conn.close()
+            
+            # Устанавливаем сессию
             session["user_id"] = user["id"]
             session["email"] = user["email"]
-            session["name"] = user["name"]
-            # Загружаем настройки пользователя
-            # Безопасный доступ к колонкам (могут отсутствовать в старой схеме)
-            try:
-                session["theme"] = user["theme"] if user["theme"] else "light"
-            except (KeyError, IndexError):
-                session["theme"] = "light"
-
-            try:
-                session["currency"] = user["currency"] if user["currency"] else "RUB"
-            except (KeyError, IndexError):
-                session["currency"] = "RUB"
-            app.logger.info(f'Successful login for user: {email} (ID: {user["id"]})')
+            session["name"] = display_name
+            session["theme"] = user["theme"] or "light"
+            session["currency"] = user["currency"] or "RUB"
+            session["auth_type"] = "telegram"
+            session["telegram_id"] = telegram_id
+            
+            app.logger.info(f'Successful Telegram login: {telegram_id} (ID: {user["id"]})')
             return redirect(url_for("dashboard"))
-        
-        app.logger.warning(f'Failed login attempt for email: {email}')
-        flash("Неверный email или пароль", "error")
+        else:
+            app.logger.warning(f'Telegram login failed - user not found: {telegram_id}')
+            flash("Пользователь не найден. Сначала зарегистрируйтесь", "error")
+            return redirect(url_for("register", **telegram_data))
+            
+    except Exception as e:
+        app.logger.error(f'Telegram login error: {e}')
+        flash("Ошибка авторизации через Telegram", "error")
+        return render_template("login.html")
 
-    return render_template("login.html")
+# Email login removed - only Telegram auth is supported
 
 
 @app.route("/logout")

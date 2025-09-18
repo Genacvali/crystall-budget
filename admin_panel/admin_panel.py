@@ -127,6 +127,7 @@ def users():
     
     query = """
         SELECT u.id, u.email, u.name, u.role, u.created_at, u.default_currency,
+               u.auth_type, u.telegram_id, u.telegram_username,
                COUNT(DISTINCT e.id) as expenses_count,
                COUNT(DISTINCT c.id) as categories_count,
                MAX(e.date) as last_expense_date
@@ -244,6 +245,148 @@ def toggle_user_role(user_id):
     
     flash(f'Роль пользователя {user["email"]} изменена на "{new_role}"', 'success')
     return redirect(url_for('user_detail', user_id=user_id))
+
+@app.route('/users/<int:user_id>/delete', methods=['POST'])
+@login_required
+def delete_user(user_id):
+    """Удаление пользователя и всех связанных данных."""
+    conn = get_db()
+    
+    # Проверяем что пользователь существует
+    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        flash('Пользователь не найден', 'error')
+        return redirect(url_for('users'))
+    
+    try:
+        # Начинаем транзакцию
+        conn.execute("BEGIN TRANSACTION")
+        
+        # Удаляем связанные данные в правильном порядке (из-за foreign keys)
+        
+        # 1. Удаляем правила распределения доходов
+        conn.execute("DELETE FROM source_category_rules WHERE user_id = ?", (user_id,))
+        
+        # 2. Удаляем ежедневные доходы
+        conn.execute("DELETE FROM income_daily WHERE user_id = ?", (user_id,))
+        
+        # 3. Удаляем источники доходов
+        conn.execute("DELETE FROM income_sources WHERE user_id = ?", (user_id,))
+        
+        # 4. Удаляем старые доходы
+        conn.execute("DELETE FROM income WHERE user_id = ?", (user_id,))
+        
+        # 5. Удаляем расходы
+        conn.execute("DELETE FROM expenses WHERE user_id = ?", (user_id,))
+        
+        # 6. Удаляем цели сбережений
+        try:
+            conn.execute("DELETE FROM savings_goals WHERE user_id = ?", (user_id,))
+        except sqlite3.OperationalError:
+            pass  # Таблица может не существовать
+        
+        # 7. Удаляем участие в семейных бюджетах
+        try:
+            conn.execute("DELETE FROM shared_budget_members WHERE user_id = ?", (user_id,))
+        except sqlite3.OperationalError:
+            pass  # Таблица может не существовать
+            
+        # 8. Удаляем семейные бюджеты, созданные пользователем
+        try:
+            conn.execute("DELETE FROM shared_budgets WHERE owner_id = ?", (user_id,))
+        except sqlite3.OperationalError:
+            pass  # Таблица может не существовать
+        
+        # 9. Удаляем категории
+        conn.execute("DELETE FROM categories WHERE user_id = ?", (user_id,))
+        
+        # 10. Удаляем переносы бюджета
+        try:
+            conn.execute("DELETE FROM budget_rollover WHERE user_id = ?", (user_id,))
+        except sqlite3.OperationalError:
+            pass  # Таблица может не существовать
+        
+        # 11. Наконец удаляем самого пользователя
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        
+        # Подтверждаем транзакцию
+        conn.commit()
+        
+        # Удаляем аватар если есть
+        if user.get('avatar_path'):
+            avatar_full_path = os.path.join(os.path.dirname(__file__), '..', user['avatar_path'])
+            try:
+                if os.path.exists(avatar_full_path):
+                    os.remove(avatar_full_path)
+            except Exception as e:
+                print(f"Warning: Could not delete avatar file: {e}")
+        
+        user_identifier = user.get('email') or user.get('telegram_username') or f"ID:{user['id']}"
+        flash(f'Пользователь {user_identifier} и все его данные успешно удалены', 'success')
+        
+    except Exception as e:
+        # Откатываем транзакцию при ошибке
+        conn.execute("ROLLBACK")
+        flash(f'Ошибка при удалении пользователя: {e}', 'error')
+        print(f"Error deleting user {user_id}: {e}")
+    
+    finally:
+        conn.close()
+    
+    return redirect(url_for('users'))
+
+@app.route('/users/<int:user_id>/migrate-to-telegram', methods=['GET', 'POST'])
+@login_required
+def migrate_user_to_telegram(user_id):
+    """Миграция пользователя с email авторизации на Telegram."""
+    conn = get_db()
+    
+    user = conn.execute("SELECT * FROM users WHERE id = ? AND auth_type = 'email'", (user_id,)).fetchone()
+    if not user:
+        flash('Пользователь не найден или уже использует Telegram авторизацию', 'error')
+        return redirect(url_for('users'))
+    
+    if request.method == 'POST':
+        telegram_id = request.form.get('telegram_id', '').strip()
+        telegram_username = request.form.get('telegram_username', '').strip()
+        telegram_first_name = request.form.get('telegram_first_name', '').strip()
+        telegram_last_name = request.form.get('telegram_last_name', '').strip()
+        
+        if not telegram_id:
+            flash('Telegram ID обязателен для миграции', 'error')
+            return render_template('migrate_user.html', user=user)
+        
+        try:
+            # Проверяем что такой telegram_id не используется
+            existing = conn.execute("SELECT id FROM users WHERE telegram_id = ?", (telegram_id,)).fetchone()
+            if existing:
+                flash('Этот Telegram ID уже используется другим пользователем', 'error')
+                return render_template('migrate_user.html', user=user)
+            
+            # Обновляем пользователя
+            conn.execute("""
+                UPDATE users 
+                SET auth_type = 'telegram', 
+                    telegram_id = ?, 
+                    telegram_username = ?, 
+                    telegram_first_name = ?, 
+                    telegram_last_name = ?
+                WHERE id = ?
+            """, (telegram_id, telegram_username, telegram_first_name, telegram_last_name, user_id))
+            
+            conn.commit()
+            conn.close()
+            
+            flash(f'Пользователь {user["email"]} успешно мигрирован на Telegram авторизацию', 'success')
+            return redirect(url_for('user_detail', user_id=user_id))
+            
+        except Exception as e:
+            flash(f'Ошибка миграции: {e}', 'error')
+            conn.close()
+            return render_template('migrate_user.html', user=user)
+    
+    conn.close()
+    return render_template('migrate_user.html', user=user)
 
 @app.route('/database')
 @login_required

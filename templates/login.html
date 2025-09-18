@@ -11,46 +11,16 @@
                     <p class="text-muted">Войдите в свой аккаунт CrystalBudget</p>
                 </div>
                 
-                <form method="POST" novalidate>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">
-                            <i class="bi bi-envelope"></i> Email
-                        </label>
-                        <input type="email" id="email" name="email" class="form-control" 
-                               placeholder="your@email.com" required autocomplete="email">
+                <!-- Telegram Login -->
+                <div class="text-center mb-4">
+                    <div id="telegram-login-widget">
+                        <!-- Fallback button while widget loads -->
+                        <button type="button" class="btn btn-info w-100" id="telegram-login-fallback" style="display: none;">
+                            <i class="bi bi-telegram"></i> Войти через Telegram
+                        </button>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="password" class="form-label">
-                            <i class="bi bi-lock"></i> Пароль
-                        </label>
-                        <div class="input-group">
-                            <input type="password" id="password" name="password" class="form-control" 
-                                   placeholder="Введите пароль" required autocomplete="current-password">
-                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                <i class="bi bi-eye" id="togglePasswordIcon"></i>
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="remember" name="remember">
-                                <label class="form-check-label" for="remember">
-                                    Запомнить меня
-                                </label>
-                            </div>
-                            <a href="{{ url_for('forgot_password') }}" class="text-decoration-none small text-muted">
-                                Забыли пароль?
-                            </a>
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary w-100 mb-3">
-                        <i class="bi bi-box-arrow-in-right"></i> Войти
-                    </button>
-                </form>
+                </div>
+                
                 
                 <div class="text-center">
                     <p class="text-muted mb-0">
@@ -68,36 +38,56 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const passwordInput = document.getElementById('password');
-    const togglePassword = document.getElementById('togglePassword');
-    const togglePasswordIcon = document.getElementById('togglePasswordIcon');
-    const loginForm = document.querySelector('form');
-    const submitBtn = document.querySelector('button[type="submit"]');
-
-    // Password toggle functionality
-    togglePassword.addEventListener('click', function() {
-        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordInput.setAttribute('type', type);
+    
+    // Telegram Login Widget initialization
+    function initTelegramWidget() {
+        const widgetContainer = document.getElementById('telegram-login-widget');
+        const fallbackButton = document.getElementById('telegram-login-fallback');
+        const separator = document.getElementById('login-separator');
         
-        togglePasswordIcon.classList.toggle('bi-eye');
-        togglePasswordIcon.classList.toggle('bi-eye-slash');
-    });
-
-    // Form submission with loading state
-    loginForm.addEventListener('submit', function(e) {
-        // Show loading state
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Вход...';
+        // Show fallback button initially
+        fallbackButton.style.display = 'block';
         
-        // Re-enable after 3 seconds if form doesn't submit (error case)
-        setTimeout(() => {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> Войти';
-        }, 3000);
-    });
-
-    // Auto-focus email field
-    document.getElementById('email').focus();
+        // Try to load Telegram widget
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = 'https://telegram.org/js/telegram-widget.js?22';
+        script.setAttribute('data-telegram-login', 'crystalbudget_bot');
+        script.setAttribute('data-size', 'large');
+        script.setAttribute('data-auth-url', window.location.origin + '/login');
+        script.setAttribute('data-request-access', 'write');
+        script.setAttribute('data-lang', 'ru');
+        
+        // Handle widget load success
+        script.onload = function() {
+            // Check if widget actually loaded (has iframe)
+            setTimeout(() => {
+                const iframe = widgetContainer.querySelector('iframe');
+                if (iframe) {
+                    fallbackButton.style.display = 'none';
+                } else {
+                    // Widget failed to load, keep fallback
+                    console.warn('Telegram widget failed to load, using fallback button');
+                }
+            }, 1000);
+        };
+        
+        // Handle widget load error
+        script.onerror = function() {
+            console.warn('Failed to load Telegram widget script');
+            fallbackButton.style.display = 'block';
+        };
+        
+        widgetContainer.appendChild(script);
+        
+        // Fallback button click handler
+        fallbackButton.addEventListener('click', function() {
+            alert('Telegram авторизация не настроена.\n\nАдминистратор должен:\n1. Создать Telegram бота\n2. Настроить TELEGRAM_BOT_TOKEN\n3. Настроить домен в @BotFather\n\nПока используйте вход по email.');
+        });
+    }
+    
+    // Initialize Telegram Widget
+    initTelegramWidget();
 });
 </script>
 {% endblock %}

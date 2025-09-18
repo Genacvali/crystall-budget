@@ -25,10 +25,10 @@
                 <thead class="table-light">
                     <tr>
                         <th>ID</th>
-                        <th>Email</th>
+                        <th>Email / Telegram</th>
                         <th>Имя</th>
                         <th>Роль</th>
-                        <th>Валюта</th>
+                        <th>Тип авторизации</th>
                         <th>Расходов</th>
                         <th>Последний расход</th>
                         <th>Регистрация</th>
@@ -42,7 +42,14 @@
                             <span class="badge bg-light text-dark fw-bold">{{ user.id }}</span>
                         </td>
                         <td>
-                            <div>{{ user.email }}</div>
+                            {% if user.auth_type == 'telegram' %}
+                                <div>
+                                    <i class="bi bi-telegram text-info"></i> 
+                                    {{ user.telegram_username or ('ID:' + user.telegram_id) }}
+                                </div>
+                            {% else %}
+                                <div>{{ user.email }}</div>
+                            {% endif %}
                             {% if user.expenses_count > 0 %}
                                 <small class="text-success">
                                     <i class="bi bi-check-circle"></i> Активен
@@ -64,7 +71,15 @@
                             {% endif %}
                         </td>
                         <td>
-                            <span class="badge bg-light text-dark">{{ user.default_currency or 'RUB' }}</span>
+                            {% if user.auth_type == 'telegram' %}
+                                <span class="badge bg-info">
+                                    <i class="bi bi-telegram"></i> Telegram
+                                </span>
+                            {% else %}
+                                <span class="badge bg-primary">
+                                    <i class="bi bi-envelope"></i> Email
+                                </span>
+                            {% endif %}
                         </td>
                         <td>
                             <div class="fw-semibold">{{ user.expenses_count }}</div>

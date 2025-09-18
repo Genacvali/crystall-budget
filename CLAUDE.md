@@ -38,6 +38,15 @@ python init_db.py
 # Test database migration
 python migrate_db.py
 
+# Emergency database fixes (production)
+python emergency_fix.py
+
+# Migrate database for Telegram authentication support
+python migrate_telegram_auth.py
+
+# Set up Telegram authentication (see TELEGRAM_AUTH_SETUP.md)
+export TELEGRAM_BOT_TOKEN="your-bot-token"
+
 # Verify application startup
 python app.py
 # Then visit http://localhost:5000 to test functionality
@@ -67,13 +76,15 @@ sudo systemctl start/stop/restart admin-panel
 # View logs
 sudo journalctl -u crystalbudget -f
 sudo journalctl -u admin-panel -f
+
 ```
 
 ## Architecture Overview
 
 ### Single-File Flask Application
 The entire backend is in `app.py` (~3400 lines) with:
-- Multi-user authentication with 30-day sessions and secure cookie configuration
+- Telegram-only authentication system (email auth disabled)
+- 30-day sessions with secure cookie configuration
 - SQLite database with automatic schema initialization and migration system
 - Multi-currency support (RUB, USD, EUR, AMD, GEL) with live exchange rates
 - PWA support with service worker and offline functionality
@@ -82,7 +93,7 @@ The entire backend is in `app.py` (~3400 lines) with:
 
 ### Database Design
 SQLite with strict user isolation and automatic schema migration:
-- **users**: Authentication, preferences, avatar paths
+- **users**: Telegram-only authentication (telegram_id required), preferences, avatar paths
 - **categories**: Budget categories with fixed/percentage limits and rollover logic
 - **expenses**: User expense records with multi-currency support
 - **income**: Monthly income tracking per user
@@ -117,8 +128,11 @@ SQLite with strict user isolation and automatic schema migration:
 Separate Flask application in `/admin_panel/` for system administration:
 - `admin_panel.py` - Admin interface for user management and system monitoring
 - Runs on port 5001 with its own systemd service (`admin-panel.service`)
-- Includes user management, system stats, and log viewing capabilities
+- User management: view, delete, migrate between auth types, role management
+- Data migration tools for converting email users to Telegram authentication
+- System stats, database overview, and log viewing capabilities
 - Deployment scripts: `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`
+
 
 ### Environment Variables
 ```bash
@@ -129,6 +143,7 @@ HTTPS_MODE="true"  # Enables secure cookies and HSTS headers
 # Optional configuration  
 BUDGET_DB="/path/to/budget.db"  # Database location (default: ./budget.db)
 LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
+
 ```
 
 ### Production Files
@@ -143,5 +158,8 @@ Essential files for CentOS/RHEL deployment:
 - `nginx-crystalbudget.conf` - Nginx reverse proxy configuration
 - `init_db.py` - Database initialization script
 - `migrate_db.py` - Database schema migration utility
+- `migrate_telegram_auth.py` - Migration script for Telegram authentication support
+- `emergency_fix.py` - Emergency database repair script for production issues
 - `migrate_multi_source_categories.py` - Special migration for multi-source category support
+- `TELEGRAM_AUTH_SETUP.md` - Complete setup guide for Telegram authentication
 - `admin_panel/` - Administrative interface and management tools

@@ -37,9 +37,46 @@
                 </div>
                 
                 <div class="mb-3">
+                    <label class="small text-muted">Тип авторизации</label>
+                    <div>
+                        {% if user.auth_type == 'telegram' %}
+                            <span class="badge bg-info">
+                                <i class="bi bi-telegram"></i> Telegram
+                            </span>
+                        {% else %}
+                            <span class="badge bg-primary">
+                                <i class="bi bi-envelope"></i> Email
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {% if user.auth_type == 'telegram' %}
+                <div class="mb-3">
+                    <label class="small text-muted">Telegram ID</label>
+                    <div class="fw-semibold">{{ user.telegram_id }}</div>
+                </div>
+                
+                {% if user.telegram_username %}
+                <div class="mb-3">
+                    <label class="small text-muted">Telegram Username</label>
+                    <div class="fw-semibold">@{{ user.telegram_username }}</div>
+                </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <label class="small text-muted">Telegram имя</label>
+                    <div class="fw-semibold">
+                        {{ user.telegram_first_name or '' }}
+                        {{ user.telegram_last_name or '' }}
+                    </div>
+                </div>
+                {% else %}
+                <div class="mb-3">
                     <label class="small text-muted">Email</label>
                     <div class="fw-semibold">{{ user.email }}</div>
                 </div>
+                {% endif %}
                 
                 <div class="mb-3">
                     <label class="small text-muted">Имя</label>
@@ -92,7 +129,7 @@
                     </form>
                 </div>
                 
-                <div>
+                <div class="mb-3">
                     <h6>Роль пользователя</h6>
                     <p class="small text-muted mb-2">
                         Переключить между ролями пользователя и администратора
@@ -109,6 +146,32 @@
                                 <i class="bi bi-shield-plus"></i> Сделать админом
                             </button>
                         {% endif %}
+                    </form>
+                </div>
+
+                {% if user.auth_type == 'email' or not user.auth_type %}
+                <div class="mb-3">
+                    <h6>Миграция на Telegram</h6>
+                    <p class="small text-muted mb-2">
+                        Перевести пользователя с email авторизации на Telegram
+                    </p>
+                    <a href="{{ url_for('migrate_user_to_telegram', user_id=user.id) }}" 
+                       class="btn btn-info btn-sm w-100">
+                        <i class="bi bi-telegram"></i> Мигрировать на Telegram
+                    </a>
+                </div>
+                {% endif %}
+
+                <div>
+                    <h6>Удаление пользователя</h6>
+                    <p class="small text-muted mb-2">
+                        Полностью удалить пользователя и все его данные. Это действие нельзя отменить!
+                    </p>
+                    <form method="POST" action="{{ url_for('delete_user', user_id=user.id) }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm w-100"
+                                onclick="return confirm('ВНИМАНИЕ! Это полностью удалит пользователя {{ user.email or user.name }} и ВСЕ его данные:\n\n• Все расходы и доходы\n• Все категории бюджета\n• Все цели сбережений\n• Участие в семейных бюджетах\n• Аватар и настройки\n\nЭто действие НЕЛЬЗЯ отменить!\n\nВы уверены?')">
+                            <i class="bi bi-trash3"></i> Удалить пользователя
+                        </button>
                     </form>
                 </div>
             </div>

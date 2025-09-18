@@ -27,16 +27,25 @@ def create_database():
             -- Таблица пользователей
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                email TEXT UNIQUE NOT NULL,
+                email TEXT UNIQUE,
                 name TEXT NOT NULL,
-                password_hash TEXT NOT NULL,
+                password_hash TEXT,
+                telegram_id TEXT UNIQUE,
+                telegram_username TEXT,
+                telegram_first_name TEXT,
+                telegram_last_name TEXT,
+                auth_type TEXT DEFAULT 'email' CHECK(auth_type IN ('email','telegram')),
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 timezone TEXT DEFAULT 'UTC',
                 locale TEXT DEFAULT 'ru',
                 default_currency TEXT DEFAULT 'RUB',
                 currency TEXT DEFAULT 'RUB',
                 theme TEXT DEFAULT 'light',
-                avatar_path TEXT
+                avatar_path TEXT,
+                CHECK (
+                    (auth_type = 'email' AND email IS NOT NULL AND password_hash IS NOT NULL) OR
+                    (auth_type = 'telegram' AND telegram_id IS NOT NULL)
+                )
             );
 
             -- Таблица категорий бюджета
