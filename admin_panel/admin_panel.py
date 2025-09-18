@@ -357,90 +357,67 @@ def toggle_user_role(user_id):
 @app.route('/users/<int:user_id>/delete', methods=['POST'])
 @login_required
 def delete_user(user_id):
-    """Удаление пользователя и всех связанных данных."""
     conn = get_db()
-    
-    # Проверяем что пользователь существует
-    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
-    if not user:
+
+    row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not row:
         flash('Пользователь не найден', 'error')
         return redirect(url_for('users'))
-    
+
+    user = dict(row)  # теперь можно безопасно user.get(...)
     try:
-        # Начинаем транзакцию
-        conn.execute("BEGIN TRANSACTION")
-        
-        # Удаляем связанные данные в правильном порядке (из-за foreign keys)
-        
-        # 1. Удаляем правила распределения доходов
+        # Явно открываем транзакцию
+        conn.execute("BEGIN")
+
+        # 1. Связанные данные
         conn.execute("DELETE FROM source_category_rules WHERE user_id = ?", (user_id,))
-        
-        # 2. Удаляем ежедневные доходы
         conn.execute("DELETE FROM income_daily WHERE user_id = ?", (user_id,))
-        
-        # 3. Удаляем источники доходов
         conn.execute("DELETE FROM income_sources WHERE user_id = ?", (user_id,))
-        
-        # 4. Удаляем старые доходы
         conn.execute("DELETE FROM income WHERE user_id = ?", (user_id,))
-        
-        # 5. Удаляем расходы
         conn.execute("DELETE FROM expenses WHERE user_id = ?", (user_id,))
-        
-        # 6. Удаляем цели сбережений
-        try:
-            conn.execute("DELETE FROM savings_goals WHERE user_id = ?", (user_id,))
-        except sqlite3.OperationalError:
-            pass  # Таблица может не существовать
-        
-        # 7. Удаляем участие в семейных бюджетах
-        try:
-            conn.execute("DELETE FROM shared_budget_members WHERE user_id = ?", (user_id,))
-        except sqlite3.OperationalError:
-            pass  # Таблица может не существовать
-            
-        # 8. Удаляем семейные бюджеты, созданные пользователем
-        try:
-            conn.execute("DELETE FROM shared_budgets WHERE owner_id = ?", (user_id,))
-        except sqlite3.OperationalError:
-            pass  # Таблица может не существовать
-        
-        # 9. Удаляем категории
         conn.execute("DELETE FROM categories WHERE user_id = ?", (user_id,))
-        
-        # 10. Удаляем переносы бюджета
-        try:
-            conn.execute("DELETE FROM budget_rollover WHERE user_id = ?", (user_id,))
-        except sqlite3.OperationalError:
-            pass  # Таблица может не существовать
-        
-        # 11. Наконец удаляем самого пользователя
+
+        # Опциональные таблицы
+        try: conn.execute("DELETE FROM savings_goals WHERE user_id = ?", (user_id,))
+        except sqlite3.OperationalError: pass
+
+        try: conn.execute("DELETE FROM shared_budget_members WHERE user_id = ?", (user_id,))
+        except sqlite3.OperationalError: pass
+
+        # В схеме поле называется creator_id
+        try: conn.execute("DELETE FROM shared_budgets WHERE creator_id = ?", (user_id,))
+        except sqlite3.OperationalError: pass
+
+        try: conn.execute("DELETE FROM budget_rollover WHERE user_id = ?", (user_id,))
+        except sqlite3.OperationalError: pass
+
+        # 2. Сам пользователь
         conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
-        
-        # Подтверждаем транзакцию
+
+        # 3. Фиксируем изменения в БД
         conn.commit()
-        
-        # Удаляем аватар если есть
-        if user.get('avatar_path'):
-            avatar_full_path = os.path.join(os.path.dirname(__file__), '..', user['avatar_path'])
-            try:
-                if os.path.exists(avatar_full_path):
-                    os.remove(avatar_full_path)
-            except Exception as e:
-                print(f"Warning: Could not delete avatar file: {e}")
-        
-        user_identifier = user.get('email') or user.get('telegram_username') or f"ID:{user['id']}"
-        flash(f'Пользователь {user_identifier} и все его данные успешно удалены', 'success')
-        
+
     except Exception as e:
-        # Откатываем транзакцию при ошибке
-        conn.execute("ROLLBACK")
-        flash(f'Ошибка при удалении пользователя: {e}', 'error')
-        print(f"Error deleting user {user_id}: {e}")
-    
-    finally:
+        # Откатываем только если есть незавершённая транзакция
+        if conn.in_transaction:
+            conn.rollback()
         conn.close()
-    
+        flash(f'Ошибка при удалении пользователя: {e}', 'error')
+        return redirect(url_for('users'))
+
+    # 4. Удаляем аватар на диске (не влияет на БД)
+    avatar_path = user.get('avatar_path')
+    if avatar_path:
+        avatar_full_path = os.path.normpath(os.path.join(os.path.dirname(__file__), '..', avatar_path))
+        try:
+            if os.path.exists(avatar_full_path):
+                os.remove(avatar_full_path)
+        except Exception as e:
+            print(f"Warning: Could not delete avatar file: {e}")
+
+    user_identifier = user.get('email') or user.get('telegram_username') or f"ID:{user.get('id')}"
+    conn.close()
+    flash(f'Пользователь {user_identifier} и все его данные успешно удалены', 'success')
     return redirect(url_for('users'))
 
 @app.route('/users/<int:user_id>/migrate-to-telegram', methods=['GET', 'POST'])
