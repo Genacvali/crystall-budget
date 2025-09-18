@@ -408,6 +408,13 @@ def get_db():
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
+def safe_get_row_value(row, key, default=None):
+    """Безопасно получить значение из sqlite3.Row"""
+    try:
+        return row[key] if row[key] is not None else default
+    except (IndexError, KeyError):
+        return default
+
 
 def init_db():
     conn = get_db()
@@ -983,8 +990,8 @@ def register_telegram(telegram_data):
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = user["name"]
-            session["theme"] = user["theme"] or "light"
-            session["currency"] = user["currency"] or "RUB"
+            session["theme"] = safe_get_row_value(user, "theme", "light")
+            session["currency"] = safe_get_row_value(user, "currency", "RUB")
             session["auth_type"] = "telegram"
             session["telegram_id"] = telegram_id
             
@@ -1053,8 +1060,8 @@ def register_email():
             session["user_id"] = user["id"]
             session["email"] = email
             session["name"] = name
-            session["theme"] = user["theme"] or "light"
-            session["currency"] = user["currency"] or "RUB"
+            session["theme"] = safe_get_row_value(user, "theme", "light")
+            session["currency"] = safe_get_row_value(user, "currency", "RUB")
             session["auth_type"] = "email"
             
             conn.close()
@@ -1134,8 +1141,8 @@ def login_telegram(telegram_data):
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = display_name
-            session["theme"] = user["theme"] or "light"
-            session["currency"] = user["currency"] or "RUB"
+            session["theme"] = safe_get_row_value(user, "theme", "light")
+            session["currency"] = safe_get_row_value(user, "currency", "RUB")
             session["auth_type"] = "telegram"
             session["telegram_id"] = telegram_id
             
@@ -1166,8 +1173,8 @@ def login_email():
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = user["name"]
-            session["theme"] = user["theme"] or "light"
-            session["currency"] = user["currency"] or "RUB"
+            session["theme"] = safe_get_row_value(user, "theme", "light")
+            session["currency"] = safe_get_row_value(user, "currency", "RUB")
             session["auth_type"] = "email"
             
             app.logger.info(f'Successful email login: {email} (ID: {user["id"]})')
@@ -1281,10 +1288,10 @@ def auth_telegram():
 
     # Логиним пользователя
     session["user_id"] = user["id"]
-    session["email"] = user["email"]
+    session["email"] = safe_get_row_value(user, "email")
     session["name"] = user["name"]
-    session["theme"] = user["theme"] or "light"
-    session["currency"] = user["currency"] or "RUB"
+    session["theme"] = safe_get_row_value(user, "theme", "light")
+    session["currency"] = safe_get_row_value(user, "currency", "RUB")
     session["auth_type"] = "telegram"
     
     app.logger.info(f'Successful Telegram login: {tg_id} (ID: {user["id"]})')
