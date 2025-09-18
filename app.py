@@ -873,7 +873,7 @@ def verify_telegram_auth(auth_data, bot_token):
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    # Только Telegram авторизация
+    # Проверяем Telegram авторизацию через параметры URL
     telegram_data = {
         'id': request.args.get('id'),
         'username': request.args.get('username'),
@@ -886,11 +886,8 @@ def register():
     if telegram_data['id'] and telegram_data['hash']:
         return register_telegram(telegram_data)
     
-    # Если это POST запрос без Telegram данных - показываем ошибку
-    if request.method == "POST":
-        flash("Регистрация возможна только через Telegram", "error")
-        
-    return render_template("register.html")
+    # Иначе обрабатываем как email регистрацию
+    return register_email()
 
 def register_telegram(telegram_data):
     """Регистрация через Telegram"""
@@ -977,12 +974,80 @@ def register_telegram(telegram_data):
         flash("Ошибка авторизации через Telegram", "error")
         return render_template("register.html")
 
-# Email registration removed - only Telegram auth is supported
+def register_email():
+    """Регистрация через email"""
+    if request.method == "POST":
+        try:
+            email = request.form.get("email", "").lower().strip()
+            name = request.form.get("name", "").strip()
+            password = request.form.get("password", "")
+            
+            app.logger.info(f'Registration attempt for email: {email}, name: {name}')
+
+            # Валидация на сервере
+            if not email or not name or not password:
+                app.logger.warning(f'Registration failed - missing fields for email: {email}')
+                flash("Все поля обязательны для заполнения", "error")
+                return render_template("register.html")
+            
+            if len(password) < 6:
+                app.logger.warning(f'Registration failed - password too short for email: {email}')
+                flash("Пароль должен содержать минимум 6 символов", "error")
+                return render_template("register.html")
+            
+            if ' ' in password:
+                app.logger.warning(f'Registration failed - password contains spaces for email: {email}')
+                flash("Пароль не должен содержать пробелы", "error")
+                return render_template("register.html")
+                
+        except Exception as e:
+            app.logger.error(f'Registration form parsing error: {e} - {request.remote_addr}')
+            flash("Ошибка обработки формы. Попробуйте еще раз", "error")
+            return render_template("register.html")
+
+        conn = get_db()
+        try:
+            conn.execute(
+                "INSERT INTO users(email, name, password_hash, auth_type) VALUES (?,?,?,?)",
+                (email, name, generate_password_hash(password), 'email'),
+            )
+            conn.commit()
+            user = conn.execute(
+                "SELECT * FROM users WHERE email=?", (email,)
+            ).fetchone()
+            
+            if not user:
+                raise Exception("Failed to retrieve user after insertion")
+                
+            app.logger.info(f'Successful registration for user: {email} (ID: {user["id"]})')
+            
+            session["user_id"] = user["id"]
+            session["email"] = email
+            session["name"] = name
+            session["theme"] = user["theme"] or "light"
+            session["currency"] = user["currency"] or "RUB"
+            session["auth_type"] = "email"
+            
+            conn.close()
+            return redirect(url_for("dashboard"))
+            
+        except sqlite3.IntegrityError as e:
+            app.logger.warning(f'Registration failed - email already exists: {email} - {e}')
+            flash("Email уже зарегистрирован", "error")
+            conn.close()
+            return render_template("register.html")
+        except Exception as e:
+            app.logger.error(f'Database error during registration for {email}: {e}')
+            flash("Ошибка сервера. Попробуйте позже", "error")
+            conn.close()
+            return render_template("register.html")
+
+    return render_template("register.html")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # Только Telegram авторизация
+    # Проверяем Telegram авторизацию через параметры URL
     telegram_data = {
         'id': request.args.get('id'),
         'username': request.args.get('username'),
@@ -995,11 +1060,8 @@ def login():
     if telegram_data['id'] and telegram_data['hash']:
         return login_telegram(telegram_data)
     
-    # Если это POST запрос без Telegram данных - показываем ошибку
-    if request.method == "POST":
-        flash("Вход возможен только через Telegram", "error")
-        
-    return render_template("login.html")
+    # Иначе обрабатываем как email авторизацию
+    return login_email()
 
 def login_telegram(telegram_data):
     """Авторизация через Telegram"""
@@ -1060,7 +1122,32 @@ def login_telegram(telegram_data):
         flash("Ошибка авторизации через Telegram", "error")
         return render_template("login.html")
 
-# Email login removed - only Telegram auth is supported
+def login_email():
+    """Авторизация через email"""
+    if request.method == "POST":
+        email = request.form["email"].lower().strip()
+        password = request.form["password"]
+        
+        app.logger.info(f'Email login attempt for: {email}')
+
+        conn = get_db()
+        user = conn.execute("SELECT * FROM users WHERE email=? AND auth_type='email'", (email,)).fetchone()
+        conn.close()
+        if user and check_password_hash(user["password_hash"], password):
+            session["user_id"] = user["id"]
+            session["email"] = user["email"]
+            session["name"] = user["name"]
+            session["theme"] = user["theme"] or "light"
+            session["currency"] = user["currency"] or "RUB"
+            session["auth_type"] = "email"
+            
+            app.logger.info(f'Successful email login: {email} (ID: {user["id"]})')
+            return redirect(url_for("dashboard"))
+        
+        app.logger.warning(f'Failed email login attempt: {email}')
+        flash("Неверный email или пароль", "error")
+
+    return render_template("login.html")
 
 
 @app.route("/logout")
