@@ -73,21 +73,33 @@ def verify_telegram_auth(args, bot_token: str, max_age_sec: int = 600) -> bool:
     """Проверяет подпись Telegram и давность auth_date."""
     tg_hash = args.get("hash")
     if not tg_hash:
+        app.logger.warning("No hash in Telegram data")
         return False
         
     pairs = [f"{k}={args.get(k)}" for k in sorted(TG_KEYS) if args.get(k) is not None]
     data_check_string = "\n".join(pairs)
     
+    app.logger.info(f"TG data_check_string: {repr(data_check_string)}")
+    app.logger.info(f"TG bot token length: {len(bot_token)}")
+    
     secret = hashlib.sha256(bot_token.encode()).digest()
     calc = hmac.new(secret, data_check_string.encode(), hashlib.sha256).hexdigest()
     
+    app.logger.info(f"TG calculated hash: {calc}")
+    app.logger.info(f"TG received hash: {tg_hash}")
+    
     if not hmac.compare_digest(calc, tg_hash):
+        app.logger.warning("TG hash mismatch")
         return False
         
     try:
-        if time.time() - int(args.get("auth_date", "0")) > max_age_sec:
+        time_diff = time.time() - int(args.get("auth_date", "0"))
+        app.logger.info(f"TG time diff: {time_diff} seconds")
+        if time_diff > max_age_sec:
+            app.logger.warning(f"TG auth too old: {time_diff} > {max_age_sec}")
             return False
     except ValueError:
+        app.logger.warning("TG invalid auth_date")
         return False
         
     return True
