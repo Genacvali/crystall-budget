@@ -4222,11 +4222,12 @@ def set_security_headers(response):
 
     csp_base = [
         "default-src 'self'",
-        "script-src 'self' 'unsafe-inline'",
+        "script-src 'self' 'unsafe-inline' https://telegram.org",
         "style-src 'self' 'unsafe-inline'",
         "font-src 'self' data: https://r2cdn.perplexity.ai",
         "img-src 'self' data:",
-        "connect-src 'self' https://api.exchangerate.host"
+        "connect-src 'self' https://api.exchangerate.host",
+        "frame-src https://oauth.telegram.org"
     ]
 
     response.headers['Content-Security-Policy'] = "; ".join(csp_base)
