@@ -70,30 +70,43 @@ BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 def verify_telegram_auth(data: dict, bot_token: str, max_age_sec: int = 86400) -> bool:
     """Проверяет подпись Telegram и давность auth_date."""
     if not bot_token:
+        app.logger.warning("No bot token provided")
         return False
         
     data = dict(data)  # не мутируем оригинал
     hash_from_tg = data.pop("hash", None)
     if not hash_from_tg:
+        app.logger.warning("No hash in Telegram data")
         return False
 
     # Сформировать data_check_string из ВСЕХ полей, кроме hash
-    pairs = [f"{k}={v}" for k, v in sorted(data.items())]
+    pairs = [f"{k}={v}" for k, v in sorted(data.items()) if v is not None]
     data_check_string = "\n".join(pairs)
+    
+    app.logger.info(f"Telegram data_check_string: {data_check_string}")
 
     secret_key = hashlib.sha256(bot_token.encode("utf-8")).digest()
     calc_hash = hmac.new(secret_key, data_check_string.encode("utf-8"),
                          hashlib.sha256).hexdigest()
 
+    app.logger.info(f"Calculated hash: {calc_hash}")
+    app.logger.info(f"Telegram hash: {hash_from_tg}")
+
     if not hmac.compare_digest(calc_hash, hash_from_tg):
+        app.logger.warning("Hash mismatch")
         return False
 
     # Доп. защита: окно валидности
     try:
         auth_ts = int(data.get("auth_date", "0"))
     except ValueError:
+        app.logger.warning("Invalid auth_date")
         return False
-    if time.time() - auth_ts > max_age_sec:
+    
+    time_diff = time.time() - auth_ts
+    app.logger.info(f"Auth time difference: {time_diff} seconds")
+    if time_diff > max_age_sec:
+        app.logger.warning(f"Auth too old: {time_diff} > {max_age_sec}")
         return False
 
     return True
@@ -1172,8 +1185,8 @@ def login_email():
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = user["name"]
-            session["theme"] = user["theme"] or "light"
-            session["currency"] = user["currency"] or "RUB"
+            session["theme"] = user.get("theme") or "light"
+            session["currency"] = user.get("currency") or "RUB"
             session["auth_type"] = "email"
             
             app.logger.info(f'Successful email login: {email} (ID: {user["id"]})')
@@ -1199,8 +1212,15 @@ def auth_telegram():
     args = request.args.to_dict()
     next_url = args.get("next") or url_for("dashboard")
 
-    if not BOT_TOKEN or not verify_telegram_auth(args, BOT_TOKEN):
-        app.logger.warning(f'Invalid Telegram auth attempt: {args.get("id")}')
+    app.logger.info(f'Telegram auth request: {args}')
+    app.logger.info(f'BOT_TOKEN configured: {bool(BOT_TOKEN)}')
+    
+    if not BOT_TOKEN:
+        app.logger.error('BOT_TOKEN not configured')
+        abort(403)
+        
+    if not verify_telegram_auth(args, BOT_TOKEN):
+        app.logger.warning(f'Invalid Telegram auth attempt: {args.get("id")} - signature verification failed')
         abort(403)
 
     tg_id = int(args["id"])
