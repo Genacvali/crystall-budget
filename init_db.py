@@ -12,12 +12,49 @@ import sys
 import os
 from datetime import datetime
 
-# Путь к БД (можно переопределить через переменную окружения)
-DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
+def ask_db_path():
+    """Спрашивает пользователя путь к базе данных"""
+    print("\n📁 Выберите базу данных:")
+    print("1. /opt/crystall-budget/budget.db (разработка)")
+    print("2. /var/lib/crystalbudget/budget.db (продакшн)")  
+    print("3. Указать свой путь")
+    
+    while True:
+        choice = input("\nВведите номер (1-3): ").strip()
+        
+        if choice == "1":
+            return "/opt/crystall-budget/budget.db"
+        elif choice == "2":
+            return "/var/lib/crystalbudget/budget.db"
+        elif choice == "3":
+            custom_path = input("Введите полный путь к базе данных: ").strip()
+            if not custom_path:
+                print("❌ Путь не может быть пустым!")
+                continue
+            return custom_path
+        else:
+            print("❌ Неверный выбор! Введите 1, 2 или 3")
+
+# Определяем путь к БД
+if len(sys.argv) > 1:
+    # Если путь передан как аргумент командной строки
+    DB_PATH = sys.argv[1]
+elif "BUDGET_DB" in os.environ:
+    # Если путь задан через переменную окружения
+    DB_PATH = os.environ["BUDGET_DB"]
+else:
+    # Интерактивно спрашиваем у пользователя
+    DB_PATH = ask_db_path()
 
 def create_database():
     """Создает все таблицы базы данных"""
     print(f"🗄️  Инициализация базы данных: {DB_PATH}")
+    
+    # Создаем директорию если её нет
+    db_dir = os.path.dirname(DB_PATH)
+    if db_dir and not os.path.exists(db_dir):
+        print(f"📁 Создаю директорию: {db_dir}")
+        os.makedirs(db_dir, exist_ok=True)
     
     try:
         conn = sqlite3.connect(DB_PATH)
@@ -216,6 +253,7 @@ def create_database():
             CREATE INDEX IF NOT EXISTS idx_budget_rollover_month ON budget_rollover(month);
             CREATE INDEX IF NOT EXISTS idx_user_telegram_user ON user_telegram(user_id);
             CREATE INDEX IF NOT EXISTS idx_user_telegram_telegram_id ON user_telegram(telegram_id);
+            CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
         """)
         
         conn.commit()
