@@ -48,3 +48,4 @@ test_*.py
 *.sh.bak
 nginx-*-temp.conf
 init_db.py
+budget-2025-09-18-181522.bak

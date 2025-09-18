@@ -6,6 +6,7 @@ import smtplib
 import secrets
 import hashlib
 import hmac
+import time
 from datetime import datetime, timedelta
 from decimal import Decimal, ROUND_HALF_UP
 from functools import wraps
@@ -22,7 +23,7 @@ except ImportError:
 
 from flask import (
     Flask, render_template, render_template_string, request, redirect,
-    url_for, flash, session
+    url_for, flash, session, abort
 )
 from jinja2 import DictLoader, ChoiceLoader
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -62,6 +63,40 @@ else:
 
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+
+# -----------------------------------------------------------------------------
+# Telegram authentication helpers
+# -----------------------------------------------------------------------------
+def verify_telegram_auth(data: dict, bot_token: str, max_age_sec: int = 86400) -> bool:
+    """Проверяет подпись Telegram и давность auth_date."""
+    if not bot_token:
+        return False
+        
+    data = dict(data)  # не мутируем оригинал
+    hash_from_tg = data.pop("hash", None)
+    if not hash_from_tg:
+        return False
+
+    # Сформировать data_check_string из ВСЕХ полей, кроме hash
+    pairs = [f"{k}={v}" for k, v in sorted(data.items())]
+    data_check_string = "\n".join(pairs)
+
+    secret_key = hashlib.sha256(bot_token.encode("utf-8")).digest()
+    calc_hash = hmac.new(secret_key, data_check_string.encode("utf-8"),
+                         hashlib.sha256).hexdigest()
+
+    if not hmac.compare_digest(calc_hash, hash_from_tg):
+        return False
+
+    # Доп. защита: окно валидности
+    try:
+        auth_ts = int(data.get("auth_date", "0"))
+    except ValueError:
+        return False
+    if time.time() - auth_ts > max_age_sec:
+        return False
+
+    return True
 
 # Uploads (аватары)
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # 2 MB
@@ -1156,6 +1191,101 @@ def logout():
     app.logger.info(f'User logout: {user_email}')
     session.clear()
     return redirect(url_for("login"))
+
+
+@app.route("/auth/telegram")
+def auth_telegram():
+    """Авторизация через Telegram Widget"""
+    args = request.args.to_dict()
+    next_url = args.get("next") or url_for("dashboard")
+
+    if not BOT_TOKEN or not verify_telegram_auth(args, BOT_TOKEN):
+        app.logger.warning(f'Invalid Telegram auth attempt: {args.get("id")}')
+        abort(403)
+
+    tg_id = int(args["id"])
+    username = args.get("username")
+    first_name = args.get("first_name")
+    last_name = args.get("last_name")
+    photo_url = args.get("photo_url")
+
+    app.logger.info(f'Telegram auth attempt for ID: {tg_id}')
+
+    conn = get_db()
+    conn.row_factory = sqlite3.Row
+
+    # 1) ищем пользователя по telegram_id
+    user = conn.execute(
+        "SELECT * FROM users WHERE telegram_id = ?", (tg_id,)
+    ).fetchone()
+
+    if user is None:
+        # 2) если пользователь уже залогинен (связывание аккаунта)
+        current_uid = session.get("user_id")
+        if current_uid:
+            conn.execute("""
+                UPDATE users
+                   SET telegram_id=?,
+                       telegram_username=?,
+                       telegram_first_name=?,
+                       telegram_last_name=?,
+                       telegram_photo_url=?,
+                       auth_type=CASE WHEN auth_type='email' THEN 'email' ELSE 'telegram' END
+                 WHERE id=?
+            """, (tg_id, username, first_name, last_name, photo_url, current_uid))
+            conn.commit()
+            user = conn.execute("SELECT * FROM users WHERE id=?", (current_uid,)).fetchone()
+            flash("Аккаунт Telegram успешно привязан!", "success")
+        else:
+            # 3) создаём нового TG-пользователя
+            display_name = first_name or ""
+            if last_name:
+                display_name += f" {last_name}" if display_name else last_name
+            if not display_name.strip():
+                display_name = username or f"User{tg_id}"
+                
+            conn.execute("""
+                INSERT INTO users (name, auth_type, telegram_id, telegram_username,
+                                   telegram_first_name, telegram_last_name, telegram_photo_url)
+                VALUES (?, 'telegram', ?, ?, ?, ?, ?)
+            """, (display_name, tg_id, username, first_name, last_name, photo_url))
+            conn.commit()
+            user = conn.execute(
+                "SELECT * FROM users WHERE telegram_id=?", (tg_id,)
+            ).fetchone()
+            app.logger.info(f'Created new Telegram user: {tg_id} (ID: {user["id"]})')
+    else:
+        # 4) мягко обновим метаданные (username/имя могли поменяться)
+        display_name = first_name or ""
+        if last_name:
+            display_name += f" {last_name}" if display_name else last_name
+        if not display_name.strip():
+            display_name = username or f"User{tg_id}"
+            
+        conn.execute("""
+            UPDATE users
+               SET telegram_username=?,
+                   telegram_first_name=?,
+                   telegram_last_name=?,
+                   telegram_photo_url=?,
+                   name=?,
+                   auth_type='telegram'
+             WHERE id=?
+        """, (username, first_name, last_name, photo_url, display_name, user["id"]))
+        conn.commit()
+        user = conn.execute("SELECT * FROM users WHERE id=?", (user["id"],)).fetchone()
+
+    # Логиним пользователя
+    session["user_id"] = user["id"]
+    session["email"] = user["email"]
+    session["name"] = user["name"]
+    session["theme"] = user["theme"] or "light"
+    session["currency"] = user["currency"] or "RUB"
+    session["auth_type"] = "telegram"
+    
+    app.logger.info(f'Successful Telegram login: {tg_id} (ID: {user["id"]})')
+    conn.close()
+    return redirect(next_url)
 
 
 @app.route("/forgot-password", methods=["GET", "POST"])

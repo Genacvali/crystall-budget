@@ -24,13 +24,41 @@
 
                 <!-- Telegram Login -->
                 <div class="text-center mb-4">
-                    <div id="telegram-login-widget">
-                        <!-- Fallback button while widget loads -->
-                        <button type="button" class="btn btn-info w-100" id="telegram-login-fallback" style="display: none;">
-                            <i class="bi bi-telegram"></i> Войти через Telegram
-                        </button>
+                    <div id="telegram-widget-container">
+                        <script async src="https://telegram.org/js/telegram-widget.js?22"
+                          data-telegram-login="crystalbudget_bot"
+                          data-size="large"
+                          data-userpic="false" 
+                          data-request-access="write"
+                          data-auth-url="{{ request.url_root }}auth/telegram?next={{ request.path }}">
+                        </script>
+                    </div>
+                    <!-- Fallback button if widget doesn't load -->
+                    <div id="telegram-fallback" style="display: none;" class="mt-2">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Telegram виджет не загружается. Возможные причины:
+                            <ul class="mt-2 mb-0">
+                                <li>Домен не настроен в @BotFather</li>
+                                <li>Требуется HTTPS</li> 
+                                <li>Блокировщик рекламы</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
+                
+                <script>
+                // Check if Telegram widget loaded after 3 seconds
+                setTimeout(function() {
+                    const container = document.getElementById('telegram-widget-container');
+                    const fallback = document.getElementById('telegram-fallback');
+                    
+                    if (!container.querySelector('iframe')) {
+                        console.warn('Telegram widget failed to load');
+                        fallback.style.display = 'block';
+                    }
+                }, 3000);
+                </script>
                 
                 <!-- Разделитель -->
                 <div class="text-center my-4">
@@ -63,59 +91,4 @@
     </div>
 </div>
 
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    
-    // Telegram Login Widget initialization
-    function initTelegramWidget() {
-        const widgetContainer = document.getElementById('telegram-login-widget');
-        const fallbackButton = document.getElementById('telegram-login-fallback');
-        const separator = document.getElementById('login-separator');
-        
-        // Show fallback button initially
-        fallbackButton.style.display = 'block';
-        
-        // Try to load Telegram widget
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://telegram.org/js/telegram-widget.js?22';
-        script.setAttribute('data-telegram-login', 'crystalbudget_bot');
-        script.setAttribute('data-size', 'large');
-        script.setAttribute('data-auth-url', window.location.origin + '/login');
-        script.setAttribute('data-request-access', 'write');
-        script.setAttribute('data-lang', 'ru');
-        
-        // Handle widget load success
-        script.onload = function() {
-            // Check if widget actually loaded (has iframe)
-            setTimeout(() => {
-                const iframe = widgetContainer.querySelector('iframe');
-                if (iframe) {
-                    fallbackButton.style.display = 'none';
-                } else {
-                    // Widget failed to load, keep fallback
-                    console.warn('Telegram widget failed to load, using fallback button');
-                }
-            }, 1000);
-        };
-        
-        // Handle widget load error
-        script.onerror = function() {
-            console.warn('Failed to load Telegram widget script');
-            fallbackButton.style.display = 'block';
-        };
-        
-        widgetContainer.appendChild(script);
-        
-        // Fallback button click handler
-        fallbackButton.addEventListener('click', function() {
-            alert('Telegram авторизация не настроена.\n\nАдминистратор должен:\n1. Создать Telegram бота\n2. Настроить TELEGRAM_BOT_TOKEN\n3. Настроить домен в @BotFather\n\nПока используйте вход по email.');
-        });
-    }
-    
-    // Initialize Telegram Widget
-    initTelegramWidget();
-});
-</script>
 {% endblock %}
