@@ -13,7 +13,6 @@ from functools import wraps
 from logging.handlers import RotatingFileHandler
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from urllib.parse import urlparse
 # Load environment variables from .env file (optional)
 try:
     from dotenv import load_dotenv
@@ -1055,9 +1054,7 @@ def register_email():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    # NEW: если сессия уже есть — на дашборд
-    if "user_id" in session:
-        return redirect(url_for("dashboard"))
+    return login_email()
 
 def login_telegram(telegram_data):
     """Авторизация через Telegram"""
@@ -1223,7 +1220,7 @@ def auth_telegram():
                        telegram_last_name, telegram_photo_url)
                 VALUES (?, ?, ?, 'telegram', ?, ?, ?, ?, ?)
             """, (fake_email, display_name, fake_pw_hash,
-                tg_id, username, first_name, last_name, photo_url))
+            tg_id, username, first_name, last_name, photo_url))
             conn.commit()
             user = conn.execute(
                 "SELECT * FROM users WHERE telegram_id=?", (tg_id,)
