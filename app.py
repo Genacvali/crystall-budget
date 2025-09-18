@@ -1166,8 +1166,8 @@ def login_email():
             session["user_id"] = user["id"]
             session["email"] = user["email"]
             session["name"] = user["name"]
-            session["theme"] = user.get("theme") or "light"
-            session["currency"] = user.get("currency") or "RUB"
+            session["theme"] = user["theme"] or "light"
+            session["currency"] = user["currency"] or "RUB"
             session["auth_type"] = "email"
             
             app.logger.info(f'Successful email login: {email} (ID: {user["id"]})')
