@@ -1212,11 +1212,15 @@ def auth_telegram():
             if not display_name.strip():
                 display_name = username or f"User{tg_id}"
                 
+            fake_email = f"tg{tg_id}@telegram.local"
+            fake_pw_hash = generate_password_hash(secrets.token_urlsafe(32))
             conn.execute("""
-                INSERT INTO users (name, auth_type, telegram_id, telegram_username,
-                                   telegram_first_name, telegram_last_name, telegram_photo_url)
-                VALUES (?, 'telegram', ?, ?, ?, ?, ?)
-            """, (display_name, tg_id, username, first_name, last_name, photo_url))
+            INSERT INTO users (email, name, password_hash, auth_type,
+                       telegram_id, telegram_username, telegram_first_name,
+                       telegram_last_name, telegram_photo_url)
+                VALUES (?, ?, ?, 'telegram', ?, ?, ?, ?, ?)
+            """, (fake_email, display_name, fake_pw_hash,
+                tg_id, username, first_name, last_name, photo_url))
             conn.commit()
             user = conn.execute(
                 "SELECT * FROM users WHERE telegram_id=?", (tg_id,)
