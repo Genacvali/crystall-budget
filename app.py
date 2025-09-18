@@ -79,8 +79,10 @@ def verify_telegram_auth(data: dict, bot_token: str, max_age_sec: int = 86400) -
         app.logger.warning("No hash in Telegram data")
         return False
 
-    # Сформировать data_check_string из ВСЕХ полей, кроме hash
-    pairs = [f"{k}={v}" for k, v in sorted(data.items()) if v is not None]
+    # Сформировать data_check_string только из полей Telegram (исключаем next и другие наши параметры)
+    telegram_fields = {'id', 'first_name', 'last_name', 'username', 'photo_url', 'auth_date'}
+    pairs = [f"{k}={v}" for k, v in sorted(data.items()) 
+             if v is not None and k in telegram_fields]
     data_check_string = "\n".join(pairs)
     
     app.logger.info(f"Telegram data_check_string: {data_check_string}")
