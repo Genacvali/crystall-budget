@@ -22,7 +22,9 @@
       "Bash(kill:*)",
       "Bash(find:*)",
       "Bash(export FLASK_RUN_PORT=5050)",
-      "Bash(systemctl:*)"
+      "Bash(systemctl:*)",
+      "Read(//var/**)",
+      "Read(//opt/**)"
     ],
     "deny": [],
     "ask": []
