@@ -1156,8 +1156,10 @@ def logout():
 
 @app.route("/auth/telegram")
 def auth_telegram():
-    args = request.args
+    """Авторизация через Telegram Widget"""
+    args = request.args  # НЕ преобразуем в dict, передаем MultiDict
     next_url = args.get("next") or url_for("dashboard")
+
     app.logger.info(f'Telegram auth request: {dict(args)}')
     app.logger.info(f'BOT_TOKEN configured: {bool(BOT_TOKEN)}')
     
