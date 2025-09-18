@@ -226,6 +226,114 @@ def reset_user_password(user_id):
     
     flash(f'Пароль пользователя {user["email"]} сброшен. Новый пароль: {new_password}', 'success')
     return redirect(url_for('user_detail', user_id=user_id))
+import re
+from werkzeug.security import generate_password_hash
+
+EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+
+def _norm_email(s: str) -> str:
+    return (s or "").strip().lower()
+
+def _valid_email(s: str) -> bool:
+    return bool(EMAIL_RE.match(s or ""))
+
+@app.route('/users/<int:user_id>/link-email', methods=['GET', 'POST'])
+@login_required
+def link_email(user_id):
+    """Привязать/обновить email у существующего пользователя (обычно TG-аккаунт)."""
+    conn = get_db()
+    user = conn.execute("SELECT id, email, name, auth_type, telegram_id, telegram_username FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        conn.close()
+        flash('Пользователь не найден', 'error')
+        return redirect(url_for('users'))
+
+    generated_password = None  # отобразим один раз после обновления
+
+    if request.method == 'POST':
+        new_email = _norm_email(request.form.get('email'))
+        make_primary = request.form.get('make_primary') == 'on'
+        pwd_mode = request.form.get('pwd_mode', 'generate')  # generate | manual | keep
+
+        # валидация email
+        if not _valid_email(new_email):
+            flash('Некорректный email', 'error')
+            conn.close()
+            return render_template('link_email.html', user=user)
+
+        # уникальность email
+        exists = conn.execute(
+            "SELECT id FROM users WHERE lower(email)=lower(?) AND id<>?",
+            (new_email, user_id)
+        ).fetchone()
+        if exists:
+            flash('Такой email уже используется другим пользователем', 'error')
+            conn.close()
+            return render_template('link_email.html', user=user)
+
+        # решаем, менять ли пароль
+        password_hash = None
+        if pwd_mode == 'generate':
+            import secrets
+            generated_password = secrets.token_urlsafe(12)
+            password_hash = generate_password_hash(generated_password)
+        elif pwd_mode == 'manual':
+            p1 = (request.form.get('password') or '').strip()
+            p2 = (request.form.get('password_confirm') or '').strip()
+            if len(p1) < 6:
+                flash('Пароль должен быть не короче 6 символов', 'error')
+                conn.close()
+                return render_template('link_email.html', user=user)
+            if p1 != p2:
+                flash('Пароли не совпадают', 'error')
+                conn.close()
+                return render_template('link_email.html', user=user)
+            password_hash = generate_password_hash(p1)
+        else:
+            # keep — не трогаем password_hash
+            pass
+
+        # обновляем
+        try:
+            if password_hash is not None and make_primary:
+                conn.execute(
+                    "UPDATE users SET email=?, password_hash=?, auth_type='email' WHERE id=?",
+                    (new_email, password_hash, user_id)
+                )
+            elif password_hash is not None:
+                conn.execute(
+                    "UPDATE users SET email=?, password_hash=? WHERE id=?",
+                    (new_email, password_hash, user_id)
+                )
+            elif make_primary:
+                conn.execute(
+                    "UPDATE users SET email=?, auth_type='email' WHERE id=?",
+                    (new_email, user_id)
+                )
+            else:
+                conn.execute(
+                    "UPDATE users SET email=? WHERE id=?",
+                    (new_email, user_id)
+                )
+            conn.commit()
+        except Exception as e:
+            conn.close()
+            flash(f'Ошибка обновления: {e}', 'error')
+            return render_template('link_email.html', user=user)
+
+        conn.close()
+
+        if generated_password:
+            # показываем временный пароль один раз
+            flash(f'Email привязан. Временный пароль: {generated_password}', 'success')
+        else:
+            flash('Email привязан', 'success')
+
+        return redirect(url_for('user_detail', user_id=user_id))
+
+    # GET
+    conn.close()
+    return render_template('link_email.html', user=user)
 
 @app.route('/users/<int:user_id>/toggle-role', methods=['POST'])
 @login_required

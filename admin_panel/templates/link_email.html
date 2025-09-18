@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Привязка e-mail — Admin{% endblock %}
+{% block content %}
+<div class="container" style="max-width:640px">
+  <h3 class="mb-3">Привязка e-mail к пользователю #{{ user.id }}</h3>
+
+  <div class="card mb-3">
+    <div class="card-body">
+      <div class="mb-2"><strong>Имя:</strong> {{ user.name or '—' }}</div>
+      <div class="mb-2"><strong>Текущий e-mail:</strong> {{ user.email or '—' }}</div>
+      <div class="mb-2"><strong>Auth type:</strong> {{ user.auth_type or '—' }}</div>
+      <div class="mb-2"><strong>Telegram:</strong>
+        {% if user.telegram_id %}
+          ID {{ user.telegram_id }} {% if user.telegram_username %}(@{{ user.telegram_username }}){% endif %}
+        {% else %}—{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <form method="post" class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <label class="form-label">Новый e-mail</label>
+        <input type="email" name="email" class="form-control" placeholder="user@example.com" required>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Пароль</label>
+        <div class="form-text mb-2">Выберите режим:</div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="pwd_mode" id="pm_gen" value="generate" checked>
+          <label class="form-check-label" for="pm_gen">Сгенерировать временный пароль</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="pwd_mode" id="pm_manual" value="manual">
+          <label class="form-check-label" for="pm_manual">Задать вручную</label>
+        </div>
+        <div class="form-check mb-2">
+          <input class="form-check-input" type="radio" name="pwd_mode" id="pm_keep" value="keep">
+          <label class="form-check-label" for="pm_keep">Не менять пароль</label>
+        </div>
+
+        <div id="manual_pwd_block" class="row g-2" style="display:none">
+          <div class="col-md-6">
+            <input class="form-control" type="password" name="password" placeholder="Новый пароль (мин. 6)">
+          </div>
+          <div class="col-md-6">
+            <input class="form-control" type="password" name="password_confirm" placeholder="Повторите пароль">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" name="make_primary" id="mp">
+        <label class="form-check-label" for="mp">
+          Сделать e-mail основным способом входа (auth_type='email')
+        </label>
+      </div>
+
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary">Сохранить</button>
+        <a class="btn btn-secondary" href="{{ url_for('user_detail', user_id=user.id) }}">Отмена</a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const radios = document.querySelectorAll('input[name="pwd_mode"]');
+  const block = document.getElementById('manual_pwd_block');
+  function sync() {
+    const v = document.querySelector('input[name="pwd_mode"]:checked')?.value;
+    block.style.display = (v === 'manual') ? 'block' : 'none';
+  }
+  radios.forEach(r => r.addEventListener('change', sync));
+  sync();
+});
+</script>
+{% endblock %}
