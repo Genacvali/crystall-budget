@@ -341,49 +341,78 @@ def migrate_user_to_telegram(user_id):
     """Миграция пользователя с email авторизации на Telegram."""
     conn = get_db()
     
-    user = conn.execute("SELECT * FROM users WHERE id = ? AND auth_type = 'email'", (user_id,)).fetchone()
+    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     if not user:
-        flash('Пользователь не найден или уже использует Telegram авторизацию', 'error')
+        flash('Пользователь не найден', 'error')
         return redirect(url_for('users'))
     
     if request.method == 'POST':
-        telegram_id = request.form.get('telegram_id', '').strip()
-        telegram_username = request.form.get('telegram_username', '').strip()
-        telegram_first_name = request.form.get('telegram_first_name', '').strip()
-        telegram_last_name = request.form.get('telegram_last_name', '').strip()
+        action = request.form.get('action')
         
-        if not telegram_id:
-            flash('Telegram ID обязателен для миграции', 'error')
-            return render_template('migrate_user.html', user=user)
-        
-        try:
-            # Проверяем что такой telegram_id не используется
-            existing = conn.execute("SELECT id FROM users WHERE telegram_id = ?", (telegram_id,)).fetchone()
-            if existing:
-                flash('Этот Telegram ID уже используется другим пользователем', 'error')
+        if action == 'link_telegram':
+            # Привязка Telegram к существующему email аккаунту
+            telegram_id = request.form.get('telegram_id', '').strip()
+            telegram_username = request.form.get('telegram_username', '').strip()
+            telegram_first_name = request.form.get('telegram_first_name', '').strip()
+            telegram_last_name = request.form.get('telegram_last_name', '').strip()
+            telegram_photo_url = request.form.get('telegram_photo_url', '').strip()
+            
+            if not telegram_id:
+                flash('Telegram ID обязателен', 'error')
                 return render_template('migrate_user.html', user=user)
             
-            # Обновляем пользователя
-            conn.execute("""
-                UPDATE users 
-                SET auth_type = 'telegram', 
-                    telegram_id = ?, 
-                    telegram_username = ?, 
-                    telegram_first_name = ?, 
-                    telegram_last_name = ?
-                WHERE id = ?
-            """, (telegram_id, telegram_username, telegram_first_name, telegram_last_name, user_id))
-            
-            conn.commit()
-            conn.close()
-            
-            flash(f'Пользователь {user["email"]} успешно мигрирован на Telegram авторизацию', 'success')
-            return redirect(url_for('user_detail', user_id=user_id))
-            
-        except Exception as e:
-            flash(f'Ошибка миграции: {e}', 'error')
-            conn.close()
-            return render_template('migrate_user.html', user=user)
+            try:
+                # Проверяем что такой telegram_id не используется
+                existing = conn.execute("SELECT id FROM users WHERE telegram_id = ? AND id != ?", 
+                                       (telegram_id, user_id)).fetchone()
+                if existing:
+                    flash('Этот Telegram ID уже используется другим пользователем', 'error')
+                    return render_template('migrate_user.html', user=user)
+                
+                # Привязываем Telegram к аккаунту (не меняем auth_type)
+                conn.execute("""
+                    UPDATE users 
+                    SET telegram_id = ?, 
+                        telegram_username = ?, 
+                        telegram_first_name = ?, 
+                        telegram_last_name = ?,
+                        telegram_photo_url = ?
+                    WHERE id = ?
+                """, (telegram_id, telegram_username, telegram_first_name, 
+                     telegram_last_name, telegram_photo_url, user_id))
+                
+                conn.commit()
+                flash(f'Telegram аккаунт успешно привязан к пользователю {user["email"]}', 'success')
+                
+            except Exception as e:
+                flash(f'Ошибка привязки: {e}', 'error')
+                
+        elif action == 'switch_to_telegram':
+            # Переключение на Telegram как основной способ авторизации
+            if not user['telegram_id']:
+                flash('Сначала привяжите Telegram аккаунт', 'error')
+            else:
+                try:
+                    conn.execute("UPDATE users SET auth_type = 'telegram' WHERE id = ?", (user_id,))
+                    conn.commit()
+                    flash(f'Пользователь переключен на Telegram авторизацию', 'success')
+                except Exception as e:
+                    flash(f'Ошибка переключения: {e}', 'error')
+                    
+        elif action == 'switch_to_email':
+            # Переключение обратно на email авторизацию
+            if not user['email'] or not user['password_hash']:
+                flash('У пользователя нет email/пароля для переключения', 'error')
+            else:
+                try:
+                    conn.execute("UPDATE users SET auth_type = 'email' WHERE id = ?", (user_id,))
+                    conn.commit()
+                    flash(f'Пользователь переключен на email авторизацию', 'success')
+                except Exception as e:
+                    flash(f'Ошибка переключения: {e}', 'error')
+        
+        # Обновляем данные пользователя после изменений
+        user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     
     conn.close()
     return render_template('migrate_user.html', user=user)

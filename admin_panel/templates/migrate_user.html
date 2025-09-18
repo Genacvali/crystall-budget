@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Миграция на Telegram - {{ user.email }} - CrystalBudget Admin</title>
+    <title>Управление Telegram - {{ user.name or user.email }} - CrystalBudget Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 </head>
@@ -26,130 +26,252 @@
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Главная</a></li>
                         <li class="breadcrumb-item"><a href="{{ url_for('users') }}">Пользователи</a></li>
-                        <li class="breadcrumb-item"><a href="{{ url_for('user_detail', user_id=user.id) }}">{{ user.name }}</a></li>
-                        <li class="breadcrumb-item active">Миграция на Telegram</li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('user_detail', user_id=user.id) }}">{{ user.name or user.email }}</a></li>
+                        <li class="breadcrumb-item active">Управление Telegram</li>
                     </ol>
                 </nav>
             </div>
         </div>
 
         <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <div class="card">
+            <div class="col-lg-10 mx-auto">
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Информация о пользователе -->
+                <div class="card mb-4">
                     <div class="card-header">
                         <h4 class="card-title mb-0">
-                            <i class="bi bi-telegram"></i> Миграция пользователя на Telegram авторизацию
+                            <i class="bi bi-person-badge"></i> Информация о пользователе
                         </h4>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i>
-                            <strong>Внимание!</strong> После миграции пользователь сможет авторизоваться только через Telegram.
-                            Email авторизация будет отключена.
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>ID:</strong></td>
+                                        <td>{{ user.id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Email:</strong></td>
+                                        <td>{{ user.email or '<em>не указан</em>' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Имя:</strong></td>
+                                        <td>{{ user.name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Тип авторизации:</strong></td>
+                                        <td>
+                                            <span class="badge bg-{{ 'success' if user.auth_type == 'telegram' else 'primary' }}">
+                                                {{ user.auth_type or 'email' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>Telegram ID:</strong></td>
+                                        <td>{{ user.telegram_id or '<em>не привязан</em>' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Username:</strong></td>
+                                        <td>{{ ('@' + user.telegram_username) if user.telegram_username else '<em>нет</em>' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Имя в TG:</strong></td>
+                                        <td>{{ (user.telegram_first_name + ' ' + (user.telegram_last_name or '')) if user.telegram_first_name else '<em>нет</em>' }}</td>
+                                    </tr>
+                                    {% if user.telegram_photo_url %}
+                                    <tr>
+                                        <td><strong>Аватар:</strong></td>
+                                        <td>
+                                            <img src="{{ user.telegram_photo_url }}" alt="Avatar" class="rounded-circle" width="32" height="32">
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
                         </div>
+                    </div>
+                </div>
 
-                        <div class="mb-4">
-                            <h6 class="text-muted">Текущая информация о пользователе:</h6>
-                            <table class="table table-sm">
-                                <tr>
-                                    <td><strong>ID:</strong></td>
-                                    <td>{{ user.id }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Email:</strong></td>
-                                    <td>{{ user.email }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Имя:</strong></td>
-                                    <td>{{ user.name }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Тип авторизации:</strong></td>
-                                    <td><span class="badge bg-primary">{{ user.auth_type or 'email' }}</span></td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <!-- Flash messages -->
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
-                                        {{ message }}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                                    </div>
-                                {% endfor %}
+                <!-- Управление Telegram -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-telegram"></i> 
+                            {% if user.telegram_id %}
+                                Управление Telegram аккаунтом
+                            {% else %}
+                                Привязка Telegram аккаунта
                             {% endif %}
-                        {% endwith %}
-
-                        <form method="POST">
-                            <div class="mb-3">
-                                <label for="telegram_id" class="form-label">Telegram ID *</label>
-                                <input type="text" class="form-control" id="telegram_id" name="telegram_id" required
-                                       placeholder="123456789">
-                                <div class="form-text">
-                                    Уникальный числовой ID пользователя в Telegram. Можно получить через @userinfobot
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if not user.telegram_id %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                Telegram аккаунт не привязан. Добавьте данные Telegram для этого пользователя.
+                            </div>
+                            
+                            <form method="POST">
+                                <input type="hidden" name="action" value="link_telegram">
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="telegram_id" class="form-label">Telegram ID *</label>
+                                            <input type="text" class="form-control" id="telegram_id" name="telegram_id" required
+                                                   placeholder="148767610">
+                                            <div class="form-text">
+                                                Получить через @userinfobot или @RawDataBot
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="telegram_username" class="form-label">Username</label>
+                                            <input type="text" class="form-control" id="telegram_username" name="telegram_username"
+                                                   placeholder="Gena12M">
+                                            <div class="form-text">Без символа @</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="telegram_username" class="form-label">Telegram Username</label>
-                                <input type="text" class="form-control" id="telegram_username" name="telegram_username"
-                                       placeholder="username">
-                                <div class="form-text">
-                                    Username в Telegram (без @). Может отсутствовать
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="telegram_first_name" class="form-label">Имя</label>
+                                            <input type="text" class="form-control" id="telegram_first_name" name="telegram_first_name"
+                                                   placeholder="Гена">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="telegram_last_name" class="form-label">Фамилия</label>
+                                            <input type="text" class="form-control" id="telegram_last_name" name="telegram_last_name"
+                                                   placeholder="Миквабия">
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                                
+                                <div class="mb-3">
+                                    <label for="telegram_photo_url" class="form-label">URL аватара</label>
+                                    <input type="url" class="form-control" id="telegram_photo_url" name="telegram_photo_url"
+                                           placeholder="https://t.me/i/userpic/320/...">
+                                    <div class="form-text">Необязательно</div>
+                                </div>
 
-                            <div class="mb-3">
-                                <label for="telegram_first_name" class="form-label">Имя в Telegram</label>
-                                <input type="text" class="form-control" id="telegram_first_name" name="telegram_first_name"
-                                       placeholder="Иван">
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="telegram_last_name" class="form-label">Фамилия в Telegram</label>
-                                <input type="text" class="form-control" id="telegram_last_name" name="telegram_last_name"
-                                       placeholder="Иванов">
-                            </div>
-
-                            <div class="alert alert-warning">
-                                <i class="bi bi-exclamation-triangle"></i>
-                                <strong>Важно!</strong> Убедитесь, что указанный Telegram ID принадлежит именно этому пользователю.
-                                После миграции восстановить доступ через email будет невозможно без администратора.
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-warning">
-                                    <i class="bi bi-arrow-repeat"></i> Мигрировать на Telegram
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-link-45deg"></i> Привязать Telegram
                                 </button>
-                                <a href="{{ url_for('user_detail', user_id=user.id) }}" class="btn btn-secondary">
-                                    <i class="bi bi-arrow-left"></i> Отмена
-                                </a>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle"></i>
+                                Telegram аккаунт привязан: <strong>{{ user.telegram_id }}</strong>
+                                {% if user.telegram_username %}(@{{ user.telegram_username }}){% endif %}
                             </div>
-                        </form>
+                            
+                            <!-- Переключение типа авторизации -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6>Переключить на Telegram авторизацию</h6>
+                                            <p class="text-muted small">Пользователь сможет входить только через Telegram</p>
+                                            {% if user.auth_type == 'telegram' %}
+                                                <span class="badge bg-success">Уже используется</span>
+                                            {% else %}
+                                                <form method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="switch_to_telegram">
+                                                    <button type="submit" class="btn btn-warning btn-sm" 
+                                                            onclick="return confirm('Переключить на Telegram авторизацию?')">
+                                                        <i class="bi bi-telegram"></i> Переключить
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if user.email and user.password_hash %}
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6>Переключить на Email авторизацию</h6>
+                                            <p class="text-muted small">Пользователь сможет входить через email/пароль</p>
+                                            {% if user.auth_type == 'email' %}
+                                                <span class="badge bg-primary">Уже используется</span>
+                                            {% else %}
+                                                <form method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="switch_to_email">
+                                                    <button type="submit" class="btn btn-primary btn-sm"
+                                                            onclick="return confirm('Переключить на Email авторизацию?')">
+                                                        <i class="bi bi-envelope"></i> Переключить
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Инструкции -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-question-circle"></i> Как получить Telegram данные?
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Через @userinfobot:</h6>
+                                <ol>
+                                    <li>Попросите пользователя написать <code>@userinfobot</code></li>
+                                    <li>Бот пришлет ID и другую информацию</li>
+                                    <li>Скопируйте данные в форму выше</li>
+                                </ol>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Через веб-версию Telegram:</h6>
+                                <ol>
+                                    <li>Откройте <a href="https://web.telegram.org" target="_blank">web.telegram.org</a></li>
+                                    <li>Найдите пользователя</li>
+                                    <li>ID будет в URL: <code>https://web.telegram.org/k/#<strong>ID</strong></code></li>
+                                </ol>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Важно:</strong> Убедитесь, что Telegram ID принадлежит именно этому пользователю!
+                        </div>
                     </div>
                 </div>
 
                 <div class="mt-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <h6 class="card-title mb-0">
-                                <i class="bi bi-question-circle"></i> Как получить Telegram ID?
-                            </h6>
-                        </div>
-                        <div class="card-body">
-                            <p>Для получения Telegram ID пользователя:</p>
-                            <ol>
-                                <li>Попросите пользователя написать боту <strong>@userinfobot</strong></li>
-                                <li>Бот ответит информацией, включая числовой ID</li>
-                                <li>Скопируйте этот ID в поле выше</li>
-                            </ol>
-                            <p class="text-muted small mb-0">
-                                Также ID можно получить программно через Telegram Bot API или веб-версию Telegram.
-                            </p>
-                        </div>
-                    </div>
+                    <a href="{{ url_for('user_detail', user_id=user.id) }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к пользователю
+                    </a>
                 </div>
             </div>
         </div>
