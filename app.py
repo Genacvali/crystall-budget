@@ -3099,10 +3099,12 @@ BASE_HTML = """
           
           // Save currency preference to session (async)
           const selectedCurrency = this.value;
+          const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
           fetch('/set-currency', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'X-CSRFToken': csrfToken
             },
             body: JSON.stringify({currency: selectedCurrency})
           }).catch(error => {

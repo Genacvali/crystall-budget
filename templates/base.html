@@ -16,6 +16,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="color-scheme" content="light dark">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
 
   <!-- Favicon -->
@@ -541,9 +542,13 @@
 
     // Сообщим бэкенду (для серверного форматирования)
     try {
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
       await fetch('/set-currency', {
         method:'POST',
-        headers:{'Content-Type':'application/json'},
+        headers:{
+          'Content-Type':'application/json',
+          'X-CSRFToken': csrfToken
+        },
         body: JSON.stringify({currency})
       });
     } catch(e){ console.warn('Set currency failed', e); }
