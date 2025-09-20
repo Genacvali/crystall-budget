@@ -725,14 +725,15 @@ def api_stats():
 if __name__ == '__main__':
     # Определяем режим работы
     debug_mode = os.environ.get('FLASK_ENV') == 'development'
+    port = int(os.environ.get('FLASK_RUN_PORT', 5001))
     
     if debug_mode:
         print("🔧 Запуск админской панели CrystalBudget (DEV)")
         print(f"📊 База данных: {DB_PATH}")
         print(f"👤 Логин: {ADMIN_USERNAME}")
         print(f"🔒 Пароль: {ADMIN_PASSWORD}")
-        print("🌐 Доступ: http://localhost:5001")
+        print(f"🌐 Доступ: http://localhost:{port}")
     else:
         print("🚀 Админская панель CrystalBudget запущена (PROD)")
     
-    app.run(host='0.0.0.0', port=5001, debug=debug_mode)
+    app.run(host='0.0.0.0', port=port, debug=debug_mode)

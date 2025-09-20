@@ -29,7 +29,10 @@
       "Bash(./restart_admin.sh:*)",
       "Bash(FLASK_RUN_PORT=5002 python app.py)",
       "Bash(netstat:*)",
-      "Bash(.venv/bin/pip install:*)"
+      "Bash(.venv/bin/pip install:*)",
+      "WebFetch(domain:adminlte.io)",
+      "WebFetch(domain:cdn.jsdelivr.net)",
+      "Bash(FLASK_RUN_PORT=5003 python admin_panel.py)"
     ],
     "deny": [],
     "ask": []
