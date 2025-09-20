@@ -1,0 +1,635 @@
+{% macro tooltip_button(content, tooltip_text) -%}
+<div class="tooltip-wrapper" data-bs-toggle="tooltip" data-bs-title="{{ tooltip_text }}">
+  {{ content }}
+</div>
+{%- endmacro %}
+
+{% macro tooltip_link(href, content, tooltip_text, class="") -%}
+<a href="{{ href }}" class="{{ class }}" data-bs-toggle="tooltip" data-bs-title="{{ tooltip_text }}">
+  {{ content }}
+</a>
+{%- endmacro %}
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
+
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <link rel="icon" type="image/png" sizes="512x512" href="{{ url_for('static', filename='icons/icon-512.png') }}">
+
+  <!-- PWA -->
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.webmanifest') }}">
+  <meta name="theme-color" content="#4fb3d9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CrystalBudget">
+  <link rel="apple-touch-icon" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+  <link rel="apple-touch-icon" sizes="512x512" href="{{ url_for('static', filename='icons/icon-512.png') }}">
+  <meta name="format-detection" content="telephone=no">
+
+  <!-- Bootstrap CSS и Icons -->
+  <link href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
+  <!-- ВАШи стили -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/clean-theme.css') }}">
+
+  <!-- Мгновенное применение темы -->
+  <script>
+    (function() {
+      const serverTheme = '{{ session.get("theme", "light") }}';
+      const savedTheme = localStorage.getItem('theme') || serverTheme ||
+        (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      const meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.content = savedTheme === 'dark' ? '#212529' : '#4fb3d9';
+    })();
+  </script>
+
+  <style>
+    :root{
+      --safe-area-inset-top: env(safe-area-inset-top, 0px);
+      --safe-area-inset-right: env(safe-area-inset-right, 0px);
+      --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-area-inset-left: env(safe-area-inset-left, 0px);
+    }
+    body{padding:var(--safe-area-inset-top) var(--safe-area-inset-right) var(--safe-area-inset-bottom) var(--safe-area-inset-left)}
+    .container-fluid{padding-left:max(15px,var(--safe-area-inset-left));padding-right:max(15px,var(--safe-area-inset-right))}
+    
+    /* Tooltip wrapper styles */
+    [data-bs-toggle="tooltip"] {
+      display: inline-block;
+    }
+    .btn-group [data-bs-toggle="tooltip"] {
+      display: inline-flex;
+    }
+    .tooltip-wrapper {
+      display: contents;
+    }
+    
+    /* --- Container modern (чтобы контент не "растекался") --- */
+    .container-modern{
+      width:100%;
+      max-width:1024px;     /* комфортная ширина для моб./планш./десктоп */
+      margin:0 auto;
+      padding-left:max(16px, var(--safe-area-inset-left));
+      padding-right:max(16px, var(--safe-area-inset-right));
+    }
+
+    /* --- Типографика mobile-first --- */
+    :root{
+      --fs-xxs:.75rem;  /* 12px */
+      --fs-xs:.8125rem; /* 13px */
+      --fs-sm:.875rem;  /* 14px */
+      --fs-md:1rem;     /* 16px */
+      --fs-lg:1.125rem; /* 18px */
+      --fs-xl:1.375rem; /* 22px */
+    }
+    body{font-size:var(--fs-md)}
+    h1,h2,h3{letter-spacing:.2px}
+    @media (max-width:480px){
+      h1{font-size:var(--fs-xl)}
+      h2{font-size:var(--fs-lg)}
+    }
+
+    /* --- Кнопки: единый язык --- */
+    .btn-fintech{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:.5rem; padding:.625rem 1rem; border-radius:9999px;
+      font-size:var(--fs-sm); font-weight:600; border:2px solid transparent;
+      min-height:44px; cursor:pointer; user-select:none;
+      transition:transform .15s ease, box-shadow .15s ease, background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .btn-fintech:focus-visible{outline:2px solid color-mix(in srgb, var(--bs-primary) 60%, transparent); outline-offset:2px}
+    .btn-fintech:active{transform:translateY(0)} /* убираем "подпрыгивание" */
+    .btn-fintech[disabled], .btn-fintech.disabled{opacity:.6; cursor:not-allowed}
+
+    /* размеры */
+    .btn-fintech-sm{min-height:36px; padding:.375rem .75rem; font-size:var(--fs-xs)}
+    .btn-fintech-icon{width:44px;height:44px;padding:0;border-radius:50%}
+    .btn-fintech-icon.btn-fintech-sm{width:36px;height:36px}
+
+    /* варианты */
+    .btn-fintech-primary{background:var(--bs-primary); color:#fff; border-color:var(--bs-primary)}
+    .btn-fintech-primary:hover{box-shadow:0 8px 24px rgba(var(--bs-primary-rgb),.35)}
+    .btn-fintech-secondary{background:transparent; color:var(--bs-primary); border-color:var(--bs-primary)}
+    .btn-fintech-secondary:hover{background:rgba(var(--bs-primary-rgb),.08)}
+    .btn-fintech-success{background:transparent; color:var(--bs-success); border-color:var(--bs-success)}
+    .btn-fintech-success:hover{background:rgba(var(--bs-success-rgb),.08)}
+    .btn-fintech-danger{background:transparent; color:var(--bs-gray-600); border-color:var(--bs-gray-300)}
+    .btn-fintech-danger:hover{background:var(--bs-danger); border-color:var(--bs-danger); color:#fff; box-shadow:0 8px 20px rgba(var(--bs-danger-rgb),.3)}
+
+    /* --- Кнопки на мобильном: текст скрыть, оставить иконку --- */
+    @media (max-width:480px){
+      .btn-text{display:none}      /* добавим span.btn-text вокруг подписей */
+    }
+
+    /* Icon Squircle Buttons */
+    .icon-btn{
+      --size: 44px;                /* 36/44/52 — см. модификаторы ниже */
+      --radius: 14px;              /* «squircle» ощущение */
+      --bg: var(--bs-secondary-bg);
+      --fg: var(--bs-body-color);
+      --ring: 0 0 0 0 rgba(0,0,0,0);
+      width: var(--size); height: var(--size);
+      border: none; border-radius: var(--radius);
+      display: inline-flex; align-items:center; justify-content:center;
+      background: var(--bg); color: var(--fg);
+      box-shadow:
+        0 1px 0 rgba(0,0,0,.12),
+        0 6px 14px rgba(0,0,0,.18);
+      transition: transform .15s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+      cursor: pointer;
+    }
+    .icon-btn i, .icon-btn svg{ font-size: 1.05rem }
+    .icon-btn:focus-visible{ outline: none; box-shadow: var(--ring), 0 6px 14px rgba(0,0,0,.18) }
+    .icon-btn:hover{ transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,.22) }
+    .icon-btn:active{ transform: translateY(0); box-shadow: 0 6px 14px rgba(0,0,0,.18) }
+    .icon-btn[disabled]{ opacity:.6; cursor:not-allowed }
+
+    /* sizes */
+    .icon-sm{ --size: 36px; --radius: 12px }
+    .icon-lg{ --size: 52px; --radius: 16px }
+
+    /* variants (solid) */
+    .icon-primary{ --bg: #2563eb; --fg: #fff }
+    .icon-success{ --bg: #16a34a; --fg: #fff }
+    .icon-danger { --bg: #ef4444; --fg: #fff }
+    .icon-warning{ --bg: #f59e0b; --fg: #1f2937 }
+
+    /* faded (soft) */
+    .icon-faded{ 
+      --fg: var(--bs-body-color);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 6px 14px rgba(0,0,0,.18);
+    }
+    .icon-primary.icon-faded{ --bg: color-mix(in srgb, #2563eb 16%, transparent) }
+    .icon-success.icon-faded{ --bg: color-mix(in srgb, #16a34a 16%, transparent) }
+    .icon-danger .bi, .icon-warning .bi{ filter: drop-shadow(0 1px 0 rgba(255,255,255,.2)) }
+
+    /* subtle ring on focus */
+    .icon-primary:focus-visible{ --ring: 0 0 0 3px rgba(37,99,235,.35) }
+    .icon-success:focus-visible{ --ring: 0 0 0 3px rgba(22,163,74,.35) }
+    .icon-danger:focus-visible { --ring: 0 0 0 3px rgba(239,68,68,.35) }
+    .icon-warning:focus-visible{ --ring: 0 0 0 3px rgba(245,158,11,.35) }
+
+    /* optional: square-ish roundness on dark для более «iOS-стиль» */
+    :root[data-bs-theme="dark"] .icon-btn{
+      box-shadow: 0 1px 0 rgba(255,255,255,.04), 0 10px 26px rgba(0,0,0,.45);
+    }
+
+    /* --- Карточки --- */
+    .card-fintech{
+      background:var(--bs-body-bg);
+      border:1px solid var(--bs-border-color);
+      border-radius:1rem; padding:1rem; margin-bottom:1rem;
+      box-shadow:0 2px 8px rgba(0,0,0,.04); transition:box-shadow .15s ease, transform .15s ease;
+    }
+    .card-fintech:hover{box-shadow:0 6px 18px rgba(0,0,0,.08); transform:translateY(-1px)}
+    .mobile-card{display:flex;flex-direction:column;gap:.75rem}
+    .mobile-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem}
+    .mobile-card-amount{font-size:1.25rem;font-weight:800}
+    .mobile-card-meta{font-size:var(--fs-sm);color:var(--bs-gray-600)}
+    .mobile-card-actions{display:flex;gap:.5rem;justify-content:flex-end}
+
+    /* --- Теги --- */
+    .tag-fintech{display:inline-flex;align-items:center;padding:.25rem .625rem;border-radius:9999px;font-size:var(--fs-xs);font-weight:700}
+    .tag-fintech.primary{background:var(--bs-primary);color:#fff}
+    .tag-fintech.neutral{background:var(--bs-secondary-bg);color:var(--bs-secondary)}
+    .tag-fintech.success{background:var(--bs-success);color:#fff}
+    .tag-fintech.danger{background:var(--bs-danger);color:#fff}
+
+    /* --- Tooltip обёртка --- */
+    [data-bs-toggle="tooltip"]{display:inline-flex;align-items:center}
+    .tooltip-wrapper{display:contents}
+    
+    .navbar-modern{position:relative}
+    .navbar-modern .container-fluid{display:flex;align-items:center;gap:.5rem;flex-wrap:nowrap;position:relative}
+    .navbar-brand-modern{margin-right:auto;white-space:nowrap}
+    .navbar-modern .navbar-nav .nav-link-modern,.navbar-modern .btn,.navbar-modern .currency-selector{white-space:nowrap}
+    @media (max-width: 992px){
+      .navbar-modern .navbar-nav .nav-link-modern,.navbar-modern .btn{padding:.4rem .6rem;font-size:.95rem}
+      .currency-selector .currency-option{padding:.25rem .5rem;min-width:2.25rem}
+      .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1040;opacity:0;visibility:hidden;transition:.3s}
+      .sidebar-overlay.show{opacity:1;visibility:visible}
+      .sidebar{position:fixed;top:0;left:-280px;width:280px;height:100%;background:var(--bs-body-bg);border-right:1px solid var(--bs-border-color);box-shadow:4px 0 12px rgba(0,0,0,.15);z-index:1050;transition:left .3s;display:flex;flex-direction:column;overflow-y:auto}
+      .sidebar.show{left:0}
+      .sidebar-header{padding:1rem;border-bottom:1px solid var(--bs-border-color);display:flex;align-items:center;justify-content:space-between}
+      .sidebar-brand{font-weight:700;font-size:1.25rem;color:var(--bs-primary);text-decoration:none;display:flex;align-items:center;gap:8px}
+      .sidebar-close{background:none;border:none;font-size:1.5rem;color:var(--bs-secondary);cursor:pointer;padding:.25rem;display:flex;align-items:center;justify-content:center}
+      .sidebar-nav{flex:1;padding:1rem 0}
+      .sidebar-nav .nav-item{margin:.25rem 0}
+      .sidebar-nav .nav-link-modern{display:flex;align-items:center;gap:.75rem;padding:.875rem 1rem;margin:0 .5rem;border-radius:.5rem;color:var(--bs-body-color);text-decoration:none;font-weight:500;transition:.2s;border:1px solid transparent}
+      .sidebar-nav .nav-link-modern:hover{background:var(--bs-primary-bg-subtle);color:var(--bs-primary);transform:translateX(4px)}
+      .sidebar-nav .nav-link-modern.active{background:var(--bs-primary);color:#fff;font-weight:600;border-color:var(--bs-primary)}
+      .sidebar-nav .nav-link-modern i{width:20px;text-align:center}
+      .sidebar-footer{padding:1rem;border-top:1px solid var(--bs-border-color);background:var(--bs-secondary-bg)}
+      .sidebar-controls{display:flex;flex-direction:column;gap:1rem}
+      .sidebar-section{display:flex;flex-direction:column;gap:.5rem}
+      .sidebar-section-title{font-size:.75rem;font-weight:600;color:var(--bs-secondary);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.25rem}
+      .currency-selector{display:grid;grid-template-columns:repeat(5,1fr);gap:.25rem}
+      .currency-option{padding:.5rem .25rem;text-align:center;border:1px solid var(--bs-border-color);border-radius:.375rem;background:var(--bs-body-bg);font-size:.875rem;cursor:pointer;transition:.2s}
+      .currency-option:hover{background:var(--bs-secondary-bg)}
+      .currency-option.active{background:var(--bs-primary);color:#fff;border-color:var(--bs-primary)}
+      .theme-toggle{display:flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem;border:1px solid var(--bs-border-color);border-radius:.5rem;background:var(--bs-body-bg);cursor:pointer;transition:.2s}
+      .theme-toggle:hover{background:var(--bs-secondary-bg)}
+      .user-profile{display:flex;align-items:center;gap:.75rem;padding:.75rem;border:1px solid var(--bs-border-color);border-radius:.5rem;background:var(--bs-body-bg);text-decoration:none;color:var(--bs-body-color);transition:.2s;margin-bottom:.5rem}
+      .user-profile:hover{background:var(--bs-secondary-bg)}
+      .user-info{flex:1;display:flex;flex-direction:column}
+      .user-name{font-weight:600;font-size:.875rem;line-height:1.2}
+      .user-email{font-size:.75rem;color:var(--bs-secondary);line-height:1.2}
+      .logout-btn{background:var(--bs-danger);color:#fff;border:none;border-radius:.375rem;padding:.5rem 1rem;font-size:.875rem;font-weight:500;cursor:pointer;transition:.2s;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.5rem}
+      .logout-btn:hover{background:var(--bs-danger-dark,#c82333);color:#fff;transform:translateY(-1px)}
+      .navbar-collapse{display:none!important}
+      .table-responsive{font-size:.9rem}
+      .btn-group .btn-sm{font-size:.8rem;padding:.25rem .5rem}
+      .card{margin-bottom:1rem}
+      .mobile-hide{display:none}
+    }
+    @media (min-width:768px){.mobile-hide{display:inline}}
+    /* Compact Category Row */
+    .cat-row{
+      display:flex; align-items:center; gap:.75rem;
+      padding:.75rem .875rem; border:1px solid var(--bs-border-color);
+      border-radius:12px; background:var(--bs-body-bg);
+    }
+    .cat-row + .cat-row{ margin-top:.75rem }
+    .cat-color{
+      width:4px; align-self:stretch; border-radius:8px; opacity:.9;
+    }
+    .cat-ico{
+      width:36px; height:36px; border-radius:10px;
+      display:flex; align-items:center; justify-content:center;
+      background:var(--bs-secondary-bg); color:var(--bs-success);
+    }
+    .cat-main{ flex:1; min-width:0 }
+    .cat-title{ display:flex; align-items:center; gap:.5rem }
+    .cat-title h6{ margin:0; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    .cat-sub{ 
+      font-size:.85rem; color:var(--bs-gray-600); 
+      line-height:1.3;
+    }
+    .cat-sub .badge{
+      font-size:.7rem; padding:.25em .5em; 
+      font-weight:600; white-space:nowrap;
+    }
+
+    /* tiny progress */
+    .cat-progress{
+      position:relative; height:6px; border-radius:999px; overflow:hidden;
+      background:rgba(var(--bs-primary-rgb), .12); margin-top:.4rem;
+    }
+    .cat-progress > i{
+      display:block; height:100%; width:0%;
+      background:var(--bs-primary); border-radius:inherit; transition:width .3s ease;
+    }
+
+    /* progress colors based on percentage */
+    .cat-progress.warning > i{ background:var(--bs-warning) }
+    .cat-progress.danger > i{ background:var(--bs-danger) }
+
+    /* right side numbers */
+    .cat-right{
+      display:flex; flex-direction:column; align-items:flex-end; gap:.25rem;
+      margin-left:.5rem; text-align:right; white-space:nowrap;
+    }
+    .cat-percent{
+      font-size:.8rem; font-weight:700; padding:.2rem .45rem; border-radius:9999px;
+      background:var(--bs-secondary-bg); color:var(--bs-body-color);
+    }
+    .cat-remaining{ font-weight:700 }
+    .cat-remaining.negative{ color:var(--bs-danger) }
+    .cat-remaining.positive{ color:var(--bs-success) }
+
+    /* kebab menu button */
+    .kebab-btn{
+      width:24px; height:24px; border:none; background:transparent;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:6px; color:var(--bs-gray-500);
+      transition:all .15s ease;
+    }
+    .kebab-btn:hover{ background:var(--bs-secondary-bg); color:var(--bs-body-color) }
+
+    /* modern dropdown items */
+    .dropdown-menu-modern{
+      border-radius:12px; border:none; padding:.5rem;
+      box-shadow:0 8px 32px rgba(0,0,0,.12);
+    }
+    .dropdown-item-modern{
+      border-radius:8px; padding:.5rem .75rem; border:none; background:transparent;
+      display:flex; align-items:center; gap:.5rem; width:100%;
+      font-size:.9rem; transition:all .15s ease;
+    }
+    .dropdown-item-modern:hover{ background:var(--bs-secondary-bg) }
+    .dropdown-item-modern.danger{ color:var(--bs-danger) }
+    .dropdown-item-modern.danger:hover{ background:color-mix(in srgb, var(--bs-danger) 10%, transparent) }
+
+    /* mobile tweaks */
+    @media (max-width:575.98px){
+      .cat-row{ padding:.6rem .7rem; border-radius:10px }
+      .cat-ico{ width:32px; height:32px; border-radius:9px }
+      .cat-percent{ font-size:.75rem }
+    }
+
+    /* color helpers */
+    .cat-success{ color:#16a34a }
+    .cat-primary{ color:#2563eb }
+    .cat-warning{ color:#f59e0b }
+    .cat-danger { color:#ef4444 }
+    
+    /* utility */
+    .d-contents{ display:contents }
+  </style>
+</head>
+<body>
+
+  {% if session.user_id %}
+  <nav class="navbar navbar-expand-lg navbar-light navbar-modern">
+    <div class="container-fluid">
+      <a class="navbar-brand-modern" href="{{ url_for('dashboard') }}">
+        <!-- логотип -->
+        <svg class="ff-crystal" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="crystalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#60A5FA;stop-opacity:1"/><stop offset="25%" style="stop-color:#3B82F6;stop-opacity:1"/><stop offset="50%" style="stop-color:#1D4ED8;stop-opacity:1"/><stop offset="75%" style="stop-color:#1E40AF;stop-opacity:1"/><stop offset="100%" style="stop-color:#1E3A8A;stop-opacity:1"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 2L16 6L20 10L16 18L12 22L8 18L4 10L8 6L12 2Z" fill="url(#crystalGradient)"/>
+        </svg>
+        CrystalBudget
+      </a>
+
+      <button class="navbar-toggler" type="button" onclick="toggleSidebar()">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="d-none d-lg-flex collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+              <i class="bi bi-house-door"></i> Дашборд
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}">
+              <i class="bi bi-wallet2"></i> Расходы
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}">
+              <i class="bi bi-tags"></i> Категории
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('income_page') }}">
+              <i class="bi bi-cash-coin"></i> Доходы
+            </a>
+          </li>
+        </ul>
+
+        <ul class="navbar-nav">
+          <li class="nav-item me-3">
+            <div class="theme-toggle" onclick="toggleTheme()">
+              <i class="bi bi-sun-fill" id="light-icon"></i>
+              <div class="theme-switch" id="theme-switch"></div>
+              <i class="bi bi-moon-fill" id="dark-icon"></i>
+            </div>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link-modern dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle"></i> {{ session.name or session.email }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end modern-card" style="border:none;">
+              <li>
+                <a class="dropdown-item nav-link-modern" href="{{ url_for('account') }}">
+                  <i class="bi bi-gear"></i> Личный кабинет
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}">
+                  <i class="bi bi-box-arrow-right"></i> Выйти
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Мобильный сайдбар -->
+  <div class="sidebar-overlay d-lg-none" id="sidebarOverlay" onclick="closeSidebar()"></div>
+  <div class="sidebar d-lg-none" id="sidebar">
+    <div class="sidebar-header">
+      <a class="sidebar-brand" href="{{ url_for('dashboard') }}">CrystalBudget</a>
+      <button class="sidebar-close" onclick="closeSidebar()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}" onclick="closeSidebar()"><i class="bi bi-house-door"></i> Дашборд</a></div>
+      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}" onclick="closeSidebar()"><i class="bi bi-wallet2"></i> Расходы</a></div>
+      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}" onclick="closeSidebar()"><i class="bi bi-tags"></i> Категории</a></div>
+      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('income_page') }}" onclick="closeSidebar()"><i class="bi bi-cash-coin"></i> Доходы</a></div>
+      <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}" onclick="closeSidebar()"><i class="bi bi-gear"></i> Личный кабинет</a></div>
+    </nav>
+    <div class="sidebar-footer">
+      <a class="user-profile" href="#"><i class="bi bi-person-circle" style="font-size:1.5rem;"></i>
+        <div class="user-info">
+          <div class="user-name">{{ session.name or 'Пользователь' }}</div>
+          <div class="user-email">{{ session.email }}</div>
+        </div>
+      </a>
+      <div class="sidebar-controls">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Тема</div>
+          <div class="theme-toggle" onclick="toggleTheme()">
+            <i class="bi bi-sun-fill" id="light-icon-sidebar"></i>
+            <div class="theme-switch" id="theme-switch-sidebar"></div>
+            <i class="bi bi-moon-fill" id="dark-icon-sidebar"></i>
+          </div>
+        </div>
+      </div>
+      <a class="logout-btn" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="container-modern py-4">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+
+    <div class="toast-container position-fixed top-0 end-0 p-3" id="toastContainer"></div>
+  </div>
+
+  <!-- Bootstrap JS (bundle с Popper) -->
+  <script defer src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+
+  <!-- PWA SW -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/static/sw.js').catch(console.error);
+      });
+    }
+  </script>
+
+  <!-- Объединённый скрипт: Тема и Валюта -->
+  <script>
+  // === Тема ===
+  function toggleTheme(){
+    const cur = document.documentElement.getAttribute('data-bs-theme') || 'light';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-bs-theme', next);
+    localStorage.setItem('theme', next);
+
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.content = next === 'dark' ? '#212529' : '#4fb3d9';
+
+    updateThemeToggle(next);
+  }
+
+  function updateThemeToggle(theme){
+    const light = document.getElementById('light-icon');
+    const dark  = document.getElementById('dark-icon');
+    if (light) light.style.opacity = theme==='dark' ? '0.5' : '1';
+    if (dark)  dark.style.opacity  = theme==='dark' ? '1' : '0.5';
+
+    const ls = document.getElementById('light-icon-sidebar');
+    const ds = document.getElementById('dark-icon-sidebar');
+    if (ls) ls.style.opacity = theme==='dark' ? '0.5' : '1';
+    if (ds) ds.style.opacity  = theme==='dark' ? '1' : '0.5';
+  }
+
+  // === Сайдбар ===
+  function toggleSidebar(){
+    const s=document.getElementById('sidebar'); const o=document.getElementById('sidebarOverlay');
+    s.classList.add('show'); o.classList.add('show'); document.body.style.overflow='hidden';
+  }
+  function closeSidebar(){
+    const s=document.getElementById('sidebar'); const o=document.getElementById('sidebarOverlay');
+    s.classList.remove('show'); o.classList.remove('show'); document.body.style.overflow='';
+  }
+
+  // === Валюты ===
+  const currencySymbols = {RUB:'₽', USD:'$', EUR:'€', AMD:'֏', GEL:'₾'};
+
+  async function setCurrency(currency){
+    localStorage.setItem('currency', currency);
+
+    // Подсветка кнопок (десктоп)
+    document.querySelectorAll('.currency-option').forEach(b=>b.classList.remove('active'));
+    const desktopBtn = document.getElementById('curr-'+currency.toLowerCase());
+    if (desktopBtn) desktopBtn.classList.add('active');
+
+    // Подсветка кнопок (сайдбар)
+    document.querySelectorAll('.sidebar .currency-option').forEach(b=>b.classList.remove('active'));
+    const sidebarBtn = document.getElementById('curr-'+currency.toLowerCase()+'-sidebar');
+    if (sidebarBtn) sidebarBtn.classList.add('active');
+
+    // Сообщим бэкенду (для серверного форматирования)
+    try {
+      await fetch('/set-currency', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({currency})
+      });
+    } catch(e){ console.warn('Set currency failed', e); }
+
+    // Перекрасим все суммы на странице (клиентская конвертация)
+    await convertAllAmounts(currency);
+  }
+
+  async function convertAllAmounts(targetCurrency){
+    const nodes = document.querySelectorAll('[data-amount]');
+    if (!nodes.length) return;
+
+    // Групповая конвертация (по одной, но надёжно)
+    for (const el of nodes){
+      const original = parseFloat(el.dataset.amount);
+      const fromCurr = (el.dataset.currency || 'RUB').toUpperCase();
+      if (!isFinite(original)) continue;
+      if (fromCurr === targetCurrency) {
+        // только символ обновим
+        paintAmount(el, original, targetCurrency);
+        continue;
+      }
+
+      try {
+        const res = await fetch(`/api/convert?from=${fromCurr}&to=${targetCurrency}&amount=${encodeURIComponent(original)}`);
+        const data = await res.json();
+        if (data.ok) {
+          paintAmount(el, data.converted, targetCurrency);
+        } else {
+          console.warn('Convert error:', data.error || data);
+        }
+      } catch(e){
+        console.error('Convert failed', e);
+      }
+    }
+  }
+
+  function paintAmount(el, value, currency){
+    const text = Number(value).toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const symbol = currencySymbols[currency] || '';
+    // Если рядом отдельный символ → обновим его; иначе пишем всё в один элемент
+    const symHolder = el.parentElement?.querySelector?.('.currency-display');
+    if (symHolder) {
+      el.textContent = text;
+      symHolder.textContent = symbol;
+    } else {
+      el.textContent = `${text} ${symbol}`;
+    }
+  }
+
+  // === Toast ===
+  function showToast(message,type='info'){
+    const c=document.getElementById('toastContainer'); if(!c) return;
+    const id='toast-'+Date.now();
+    c.insertAdjacentHTML('afterbegin',`
+      <div id="${id}" class="toast" role="alert" data-bs-autohide="true" data-bs-delay="5000">
+        <div class="toast-header">
+          <i class="bi bi-${type==='danger'?'exclamation-triangle':type==='success'?'check-circle':'info-circle'} text-${type} me-2"></i>
+          <strong class="me-auto">CrystalBudget</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+        </div>
+        <div class="toast-body">${message}</div>
+      </div>`);
+    const el=document.getElementById(id);
+    if (typeof bootstrap!=='undefined') new bootstrap.Toast(el).show();
+    else { el.style.display='block'; setTimeout(()=>el.remove(),5000); }
+  }
+
+  // === Init ===
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // тема
+    const theme = document.documentElement.getAttribute('data-bs-theme') || 'light';
+    updateThemeToggle(theme);
+    // валюта
+    const saved = localStorage.getItem('currency') || 'RUB';
+    setCurrency(saved);
+    // tooltips
+    if (typeof bootstrap !== 'undefined') {
+      const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+      const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+      });
+    }
+  });
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -483,7 +483,6 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
             </button>
             {% endif %}
             <form method="POST" action="/categories/delete/{{ item.id }}" class="d-contents">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <button class="dropdown-item dropdown-item-modern danger"
                       onclick="return confirm('Удалить категорию «{{ item.category_name }}»?')" type="submit">
                 <i class="bi bi-trash3"></i> Удалить
@@ -524,7 +523,6 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <form id="expense-form" method="POST" action="/quick-expense">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <input type="hidden" name="return_month" value="{{ current_month }}">
         <div class="modal-body">
           <div class="row g-3">
@@ -585,7 +583,6 @@ select.form-select option,.form-modern option{position:relative;z-index:9999}
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <form id="income-form" method="POST" action="{{ url_for('income_add') }}">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-12">

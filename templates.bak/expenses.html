@@ -54,7 +54,6 @@
 <div class="collapse mb-3" id="addExpenseForm">
     <div class="card card-body">
         <form method="POST" action="/expenses">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <div class="row g-2 g-md-3 align-items-end">
                 <div class="col-6 col-md-3">
                     <label for="date" class="form-label">Дата</label>
@@ -115,7 +114,6 @@
 
             <!-- Удалить (solid danger) -->
             <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <div data-bs-toggle="tooltip" data-bs-title="Удалить">
                     <button type="submit" class="icon-btn icon-sm icon-danger"
                             onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')"
@@ -160,7 +158,6 @@
 
                         <!-- Удалить (solid danger) -->
                         <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <div data-bs-toggle="tooltip" data-bs-title="Удалить">
                                 <button type="submit" class="icon-btn icon-sm icon-danger"
                                         onclick="return confirm('Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}')"

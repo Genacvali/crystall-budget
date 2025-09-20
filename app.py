@@ -13,6 +13,7 @@ from functools import wraps
 from logging.handlers import RotatingFileHandler
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from flask_wtf.csrf import CSRFProtect
 # Load environment variables from .env file (optional)
 try:
     from dotenv import load_dotenv
@@ -57,9 +58,14 @@ if https_mode:
 else:
     # В разработке используем стандартные настройки
     app.config['SESSION_COOKIE_NAME'] = 'session'
+    app.config['WTF_CSRF_SSL_STRICT'] = False  # Отключаем проверку SSL для CSRF
+    app.config['WTF_CSRF_TIME_LIMIT'] = None  # Отключаем лимит времени для CSRF
 
 # Если нужны поддомены, раскомментируй:
 # app.config['SESSION_COOKIE_DOMAIN'] = '.yourdomain.com'
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
 
 DB_PATH = os.environ.get("BUDGET_DB", "budget.db")
 BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
@@ -331,6 +337,9 @@ def format_amount(value, from_currency=None):
         return str(value)
     # округлим до 2 знаков – но целые покажем без дробной части
     q = d.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+    # Исправляем проблему с отрицательным нулем
+    if q == 0:
+        q = Decimal("0.00")
     s = f"{q:,.2f}".replace(",", " ")
     return s[:-3] if s.endswith("00") else s
 
@@ -339,6 +348,9 @@ def format_percent(value):
     """Проценты без лишних хвостов, максимум 2 знака после точки."""
     try:
         v = float(value)
+        # Исправляем проблему с отрицательным нулем
+        if abs(v) < 1e-9:
+            v = 0.0
         # целые без .0, иначе до 2 знаков
         return f"{int(v)}" if abs(v - int(v)) < 1e-9 else f"{v:.2f}".rstrip('0').rstrip('.')
     except:
@@ -1536,7 +1548,8 @@ def update_profile():
 def calculate_accumulated_rollover(user_id, category_id, current_month):
     """
     Вычисляет накопленный остаток для категории на начало текущего месяца.
-    Рассматривает все предыдущие месяцы где был остаток (лимит > трат).
+    Рассматривает все предыдущие месяцы и переносит как положительные остатки, 
+    так и отрицательные (превышения бюджета).
     """
     conn = get_db()
     
@@ -1557,10 +1570,13 @@ def calculate_accumulated_rollover(user_id, category_id, current_month):
         
         # Остаток = лимит - потраченное + накопленный остаток с предыдущих месяцев
         month_surplus = month_limit - month_spent + month_rollover
-        if month_surplus > 0:
-            total_rollover += month_surplus
+        # Переносим и положительные остатки и отрицательные (превышения)
+        total_rollover += month_surplus
     
     conn.close()
+    # Исправляем проблему с отрицательным нулем
+    if abs(total_rollover) < 1e-9:
+        total_rollover = 0.0
     return total_rollover
 
 def update_rollover_for_month(user_id, category_id, month, limit_amount, spent_amount):
@@ -1900,9 +1916,15 @@ def dashboard():
         sp = float(expense_by_source.get(sid, 0.0))
         limits_total = float(limits_by_source.get(sid, 0.0))
         remaining_after_limits = inc - limits_total  # остается после всех запланированных лимитов
+        rest = inc - sp
+        # Исправляем проблему с отрицательным нулем
+        if abs(rest) < 1e-9:
+            rest = 0.0
+        if abs(remaining_after_limits) < 1e-9:
+            remaining_after_limits = 0.0
         source_balances.append(
             dict(source_id=sid, source_name=s["name"], income=inc, spent=sp, 
-                 rest=inc - sp, limits_total=limits_total, remaining_after_limits=remaining_after_limits)
+                 rest=rest, limits_total=limits_total, remaining_after_limits=remaining_after_limits)
         )
 
     conn.close()

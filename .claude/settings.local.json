@@ -26,7 +26,10 @@
       "Read(//var/**)",
       "Read(//opt/**)",
       "Bash(./start_admin.sh:*)",
-      "Bash(./restart_admin.sh:*)"
+      "Bash(./restart_admin.sh:*)",
+      "Bash(FLASK_RUN_PORT=5002 python app.py)",
+      "Bash(netstat:*)",
+      "Bash(.venv/bin/pip install:*)"
     ],
     "deny": [],
     "ask": []
