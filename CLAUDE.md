@@ -27,25 +27,36 @@ python app.py
 
 # Production with Gunicorn
 gunicorn -w 2 -b 0.0.0.0:5000 app:app
+
+# Development with environment variables
+export SECRET_KEY="dev-secret"
+export BUDGET_DB="./budget.db"
+export LOG_LEVEL="DEBUG"
+python app.py
 ```
 
-### Testing and Code Quality
+### Database Management and Migrations
 ```bash
 # No formal test suite - manual testing via web interface
-# Test database initialization
+
+# Database initialization and testing
 python init_db.py
 
-# Test database migration
-python migrate_db.py
+# Database migration (migration scripts not present - database auto-migrates via app.py)
+# Run these if specific migration scripts are available:
+# python migrate_db.py
+# python migrate_telegram_auth.py 
+# python migrate_multi_source_categories.py
 
-# Emergency database fixes (production)
+# Emergency database fixes (production use only)
 python emergency_fix.py
 
-# Migrate database for Telegram authentication support
-python migrate_telegram_auth.py
+# CSRF protection fixes
+python fix_csrf.py
 
-# Set up Telegram authentication (see TELEGRAM_AUTH_SETUP.md)
-export TELEGRAM_BOT_TOKEN="your-bot-token"
+# Endpoint security fixes
+python fix_endpoints.py
+python fix_endpoints_correct.py
 
 # Verify application startup
 python app.py
@@ -54,14 +65,20 @@ python app.py
 
 ### Production Deployment
 ```bash
-# Deploy to server (CentOS/RHEL)
-./deploy.sh
+# Deploy to server (CentOS/RHEL) - script not present, manual deployment required
+# ./deploy.sh
 
 # Setup HTTPS with Let's Encrypt
 ./setup-https.sh
 
 # Admin panel deployment (separate service)
 cd admin_panel && ./deploy_admin.sh
+
+# Admin panel management
+cd admin_panel && ./start_admin.sh
+cd admin_panel && ./stop_admin.sh
+cd admin_panel && ./restart_admin.sh
+cd admin_panel && ./logs_admin.sh
 ```
 
 ### Service Management
@@ -77,6 +94,38 @@ sudo systemctl start/stop/restart admin-panel
 sudo journalctl -u crystalbudget -f
 sudo journalctl -u admin-panel -f
 
+```
+
+## Directory Structure
+
+```
+/opt/crystall-budget/
+├── app.py                          # Main Flask application (~3400 lines)
+├── requirements.txt                # Python dependencies
+├── init_db.py                      # Database initialization script
+├── emergency_fix.py                # Emergency database repair script
+├── fix_csrf.py                     # CSRF protection fixes
+├── fix_endpoints.py               # Endpoint security fixes (v1)
+├── fix_endpoints_correct.py       # Endpoint security fixes (v2)
+├── setup-https.sh                 # HTTPS setup script
+├── crystalbudget.service          # Systemd service configuration
+├── nginx-crystalbudget.conf       # Nginx configuration
+├── TELEGRAM_AUTH_SETUP.md         # Telegram bot setup guide
+├── SECURITY_FIXES_COMPLETED.md    # Security documentation
+├── .env.example                   # Environment variables template
+├── budget.db                      # SQLite database (created at runtime)
+├── templates/                     # Jinja2 templates
+├── static/                        # Static assets (CSS, JS, PWA files)
+├── admin_panel/                   # Admin interface (separate Flask app)
+│   ├── admin_panel.py             # Admin application
+│   ├── admin-panel.service        # Admin systemd service
+│   ├── deploy_admin.sh            # Admin deployment script
+│   ├── start_admin.sh             # Start admin service
+│   ├── stop_admin.sh              # Stop admin service
+│   ├── restart_admin.sh           # Restart admin service
+│   ├── logs_admin.sh              # View admin logs
+│   └── templates/                 # Admin templates
+└── logs/                          # Application logs directory
 ```
 
 ## Architecture Overview
@@ -103,7 +152,7 @@ SQLite with strict user isolation and automatic schema migration:
 - **exchange_rates**: Currency exchange rate cache with expiration
 
 ### Frontend Structure
-- **Templates**: 16 HTML templates using Bootstrap 5 and Russian localization
+- **Templates**: HTML templates using Bootstrap 5 and Russian localization
 - **PWA**: Complete Progressive Web App with manifest, service worker, offline support
 - **Mobile-first**: Optimized for iOS Safari and Android with swipe gestures
 - **Static assets**: PWA files, favicon, service workers in `/static/`
@@ -144,22 +193,51 @@ HTTPS_MODE="true"  # Enables secure cookies and HSTS headers
 BUDGET_DB="/path/to/budget.db"  # Database location (default: ./budget.db)
 LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 
+# Telegram Bot Configuration (see TELEGRAM_AUTH_SETUP.md)
+TELEGRAM_BOT_TOKEN="your-bot-token"
+
+# SMTP Configuration (for password recovery - see .env.example)
+SMTP_SERVER="smtp-relay.brevo.com"
+SMTP_PORT="587"
+SMTP_USERNAME="your_brevo_login"
+SMTP_PASSWORD="your_brevo_smtp_key"
+SMTP_FROM_EMAIL="your_verified_sender@domain.com"
 ```
 
 ### Production Files
 Essential files for CentOS/RHEL deployment:
 - `app.py` - Main Flask application (~3400 lines)
 - `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn)
-- `templates/` - 16 Jinja2 templates with Russian UI
-- `static/` - PWA assets and service workers
-- `deploy.sh` - Automated CentOS/RHEL deployment script with systemd setup
+- `templates/` - Jinja2 templates with Russian UI and Bootstrap 5
+- `static/` - PWA assets, service workers, CSS, JS, and vendor libraries
+- `deploy.sh` - Automated CentOS/RHEL deployment script with systemd setup (not present in current codebase)
 - `setup-https.sh` - HTTPS/SSL certificate setup with Let's Encrypt
 - `crystalbudget.service` - Systemd service configuration
 - `nginx-crystalbudget.conf` - Nginx reverse proxy configuration
 - `init_db.py` - Database initialization script
-- `migrate_db.py` - Database schema migration utility
-- `migrate_telegram_auth.py` - Migration script for Telegram authentication support
+- `migrate_db.py` - Database schema migration utility (referenced but not present)
+- `migrate_telegram_auth.py` - Migration script for Telegram authentication support (referenced but not present)
+- `migrate_multi_source_categories.py` - Special migration for multi-source category support (referenced but not present)
 - `emergency_fix.py` - Emergency database repair script for production issues
-- `migrate_multi_source_categories.py` - Special migration for multi-source category support
+- `fix_csrf.py` - CSRF protection fixes for security
+- `fix_endpoints.py` / `fix_endpoints_correct.py` - Endpoint security fixes
 - `TELEGRAM_AUTH_SETUP.md` - Complete setup guide for Telegram authentication
+- `SECURITY_FIXES_COMPLETED.md` - Documentation of completed security fixes
 - `admin_panel/` - Administrative interface and management tools
+- `.env.example` - Environment variable template for SMTP and security config
+
+## Development Workflow
+
+### Making Changes to the Application
+1. **Always backup the database before applying fixes**: `cp budget.db budget_backup_$(date +%Y%m%d_%H%M%S).db`
+2. **Test changes locally first**: Run `python app.py` and verify functionality at http://localhost:5000
+3. **For database schema changes**: Create migration script following the pattern of existing migrate_*.py files
+4. **For security fixes**: Document changes in SECURITY_FIXES_COMPLETED.md
+5. **Production deployment**: Always test migration scripts on backup data first
+
+### Common Development Tasks
+- **Adding new database tables**: Create migration script, update init_db.py for fresh installs
+- **Modifying authentication**: Review impact on both email and Telegram auth systems
+- **Template changes**: All templates use Russian localization and Bootstrap 5
+- **Static asset changes**: Remember PWA manifest and service worker updates for offline support
+- **Admin panel changes**: Separate deployment process via admin_panel/ directory

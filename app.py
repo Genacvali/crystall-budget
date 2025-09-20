@@ -458,6 +458,7 @@ def init_db():
             name TEXT NOT NULL,
             limit_type TEXT NOT NULL CHECK(limit_type IN ('fixed','percent')),
             value REAL NOT NULL,
+            sort_order INTEGER DEFAULT 0,
             UNIQUE(user_id, name)
         );
 
@@ -1566,10 +1567,9 @@ def calculate_accumulated_rollover(user_id, category_id, current_month):
     for row in rollover_data:
         month_limit = float(row['limit_amount'])
         month_spent = float(row['spent_amount'])
-        month_rollover = float(row['rollover_amount'])
         
-        # Остаток = лимит - потраченное + накопленный остаток с предыдущих месяцев
-        month_surplus = month_limit - month_spent + month_rollover
+        # Остаток месяца = лимит - потраченное (без добавления rollover_amount чтобы избежать двойного счета)
+        month_surplus = month_limit - month_spent
         # Переносим и положительные остатки и отрицательные (превышения)
         total_rollover += month_surplus
     
@@ -1585,8 +1585,8 @@ def update_rollover_for_month(user_id, category_id, month, limit_amount, spent_a
     """
     conn = get_db()
     
-    # Получаем накопленный остаток с предыдущих месяцев
-    accumulated_rollover = calculate_accumulated_rollover(user_id, category_id, month)
+    # Остаток текущего месяца = лимит - потраченное (без накопленного остатка)
+    current_month_surplus = limit_amount - spent_amount
     
     try:
         # Используем INSERT OR REPLACE для обновления/создания записи
@@ -1594,7 +1594,7 @@ def update_rollover_for_month(user_id, category_id, month, limit_amount, spent_a
             INSERT OR REPLACE INTO budget_rollover 
             (user_id, category_id, month, limit_amount, spent_amount, rollover_amount, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-        """, (user_id, category_id, month, limit_amount, spent_amount, accumulated_rollover))
+        """, (user_id, category_id, month, limit_amount, spent_amount, current_month_surplus))
         
         conn.commit()
     except sqlite3.Error as e:
@@ -1675,7 +1675,7 @@ def dashboard():
 
     # категории пользователя
     categories = conn.execute(
-        "SELECT * FROM categories WHERE user_id=? ORDER BY name", (uid,)
+        "SELECT * FROM categories WHERE user_id=? ORDER BY sort_order, name", (uid,)
     ).fetchall()
 
     # доход месяца из income_daily
@@ -1737,7 +1737,7 @@ def dashboard():
 
     # расчёт лимитов категорий с учётом процента от дохода и многоисточниковости
     limits = conn.execute(
-        "SELECT id, name, limit_type, value, multi_source FROM categories WHERE user_id=?",
+        "SELECT id, name, limit_type, value, multi_source FROM categories WHERE user_id=? ORDER BY sort_order, name",
         (uid,),
     ).fetchall()
 
@@ -1832,20 +1832,30 @@ def dashboard():
         # Получаем накопленный остаток с предыдущих месяцев
         accumulated_rollover = calculate_accumulated_rollover(uid, cat_id, month)
         
-        # Общий доступный лимит = лимит месяца + накопленный остаток
-        total_available_limit = limit_val + accumulated_rollover
+        # Разделяем базовый лимит и общий доступный лимит
+        base_limit = limit_val
+        available_limit = limit_val + accumulated_rollover
+        remaining = available_limit - spent
+        progress = 0.0
+        if available_limit > 0:
+            progress = round((spent / available_limit) * 100.0, 1)
         
         data.append(
             dict(
                 category_name=row["name"], 
-                limit=limit_val, 
+                limit=limit_val,  # оставляем для обратной совместимости
+                base_limit=round(base_limit, 2),
                 spent=spent, 
                 id=cat_id, 
                 source_name=source_name,
                 multi_source=row["multi_source"],
                 sources_info=sources_info,
                 accumulated_rollover=accumulated_rollover,
-                total_available_limit=total_available_limit
+                available_limit=round(available_limit, 2),
+                remaining=round(remaining, 2),
+                progress=progress,
+                limit_type=row["limit_type"],
+                value=row["value"]
             )
         )
 
@@ -1931,7 +1941,7 @@ def dashboard():
 
     # Сортируем категории по проценту использования (от наиболее критичных к менее критичным)
     data.sort(key=lambda x: (
-        x['spent'] / x['total_available_limit'] if x['total_available_limit'] > 0 else 0,
+        x['spent'] / x['available_limit'] if x['available_limit'] > 0 else 0,
         x['category_name'].lower()  # алфавит как вторичная сортировка
     ), reverse=True)
 
@@ -2212,7 +2222,7 @@ def categories():
     
     # Получаем все категории с типами и флагом multi_source
     rows = conn.execute(
-        "SELECT *, COALESCE(category_type, 'expense') as category_type FROM categories WHERE user_id=? ORDER BY category_type, name", (uid,)
+        "SELECT *, COALESCE(category_type, 'expense') as category_type FROM categories WHERE user_id=? ORDER BY category_type, sort_order, name", (uid,)
     ).fetchall()
     
     sources = conn.execute(
@@ -2440,6 +2450,33 @@ def categories_delete(cat_id):
     conn.close()
     flash("Категория удалена", "success")
     return redirect(url_for("categories"))
+
+
+@app.route("/api/categories/reorder", methods=["POST"])
+@login_required
+@csrf.exempt
+def categories_reorder():
+    """API для изменения порядка категорий"""
+    uid = session["user_id"]
+    data = request.get_json()
+    
+    if not data or 'categories' not in data:
+        return {"error": "Invalid data"}, 400
+    
+    conn = get_db()
+    try:
+        for idx, cat_id in enumerate(data['categories']):
+            conn.execute(
+                "UPDATE categories SET sort_order = ? WHERE id = ? AND user_id = ?",
+                (idx, cat_id, uid)
+            )
+        conn.commit()
+        return {"success": True}
+    except Exception as e:
+        app.logger.error(f"Error reordering categories: {e}")
+        return {"error": "Database error"}, 500
+    finally:
+        conn.close()
 
 
 # -----------------------------------------------------------------------------
@@ -4357,6 +4394,13 @@ def ensure_new_tables():
             )
             """)
             app.logger.info("Created budget_rollover table")
+            
+        # Добавляем поле sort_order в categories если его нет
+        cursor = conn.execute("PRAGMA table_info(categories)")
+        columns = [col[1] for col in cursor.fetchall()]
+        if 'sort_order' not in columns:
+            conn.execute("ALTER TABLE categories ADD COLUMN sort_order INTEGER DEFAULT 0")
+            app.logger.info("Added sort_order column to categories table")
             
         conn.commit()
         conn.close()
