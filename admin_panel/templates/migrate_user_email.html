@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управление Email - {{ user.name or user.telegram_username or user.telegram_id }} - CrystalBudget Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="bi bi-shield-check"></i> CrystalBudget Admin
+            </a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="{{ url_for('logout') }}">Выход</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Главная</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('users') }}">Пользователи</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('user_detail', user_id=user.id) }}">{{ user.name or user.telegram_username or user.telegram_id }}</a></li>
+                        <li class="breadcrumb-item active">Управление Email</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-10 mx-auto">
+                <!-- Flash messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Информация о пользователе -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4 class="card-title mb-0">
+                            <i class="bi bi-person-badge"></i> Информация о пользователе
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>ID:</strong></td>
+                                        <td>{{ user.id }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Имя:</strong></td>
+                                        <td>{{ user.name }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Email:</strong></td>
+                                        <td>{{ user.email or '<em>не указан</em>' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Тип авторизации:</strong></td>
+                                        <td>
+                                            <span class="badge bg-{{ 'primary' if user.auth_type == 'email' else 'success' }}">
+                                                {{ user.auth_type or 'email' }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <td><strong>Telegram ID:</strong></td>
+                                        <td>{{ user.telegram_id or '<em>не привязан</em>' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Username:</strong></td>
+                                        <td>{{ ('@' + user.telegram_username) if user.telegram_username else '<em>нет</em>' }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Имя в TG:</strong></td>
+                                        <td>{{ (user.telegram_first_name + ' ' + (user.telegram_last_name or '')) if user.telegram_first_name else '<em>нет</em>' }}</td>
+                                    </tr>
+                                    {% if user.telegram_photo_url %}
+                                    <tr>
+                                        <td><strong>Аватар:</strong></td>
+                                        <td>
+                                            <img src="{{ user.telegram_photo_url }}" alt="Avatar" class="rounded-circle" width="32" height="32">
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Управление Email -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-envelope"></i> 
+                            {% if user.email and user.password_hash %}
+                                Управление Email аккаунтом
+                            {% else %}
+                                Привязка Email аккаунта
+                            {% endif %}
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        {% if not user.email or not user.password_hash %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                Email аккаунт не настроен. Добавьте email и пароль для этого пользователя.
+                            </div>
+                            
+                            <form method="POST">
+                                <input type="hidden" name="action" value="link_email">
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="email" class="form-label">Email *</label>
+                                            <input type="email" class="form-control" id="email" name="email" required
+                                                   value="{{ user.email or '' }}"
+                                                   placeholder="example@mail.com">
+                                            <div class="form-text">
+                                                Адрес электронной почты для входа
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Пароль *</label>
+                                            <input type="password" class="form-control" id="password" name="password" required
+                                                   placeholder="Новый пароль">
+                                            <div class="form-text">Минимум 6 символов</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Отображаемое имя</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                           value="{{ user.name or '' }}"
+                                           placeholder="Имя пользователя">
+                                    <div class="form-text">Если не указано, будет использовано текущее имя</div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-link-45deg"></i> Привязать Email
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-success">
+                                <i class="bi bi-check-circle"></i>
+                                Email аккаунт настроен: <strong>{{ user.email }}</strong>
+                            </div>
+                            
+                            <!-- Переключение типа авторизации -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6>Переключить на Email авторизацию</h6>
+                                            <p class="text-muted small">Пользователь сможет входить через email/пароль</p>
+                                            {% if user.auth_type == 'email' %}
+                                                <span class="badge bg-primary">Уже используется</span>
+                                            {% else %}
+                                                <form method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="switch_to_email">
+                                                    <button type="submit" class="btn btn-primary btn-sm" 
+                                                            onclick="return confirm('Переключить на Email авторизацию?')">
+                                                        <i class="bi bi-envelope"></i> Переключить
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {% if user.telegram_id %}
+                                <div class="col-md-6">
+                                    <div class="card">
+                                        <div class="card-body text-center">
+                                            <h6>Переключить на Telegram авторизацию</h6>
+                                            <p class="text-muted small">Пользователь сможет входить только через Telegram</p>
+                                            {% if user.auth_type == 'telegram' %}
+                                                <span class="badge bg-success">Уже используется</span>
+                                            {% else %}
+                                                <form method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="switch_to_telegram">
+                                                    <button type="submit" class="btn btn-warning btn-sm"
+                                                            onclick="return confirm('Переключить на Telegram авторизацию?')">
+                                                        <i class="bi bi-telegram"></i> Переключить
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Инструкции -->
+                <div class="card">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0">
+                            <i class="bi bi-question-circle"></i> Рекомендации по безопасности
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Создание пароля:</h6>
+                                <ul>
+                                    <li>Используйте сложный пароль (минимум 8 символов)</li>
+                                    <li>Включите цифры и специальные символы</li>
+                                    <li>Не используйте словарные слова</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Проверка email:</h6>
+                                <ul>
+                                    <li>Убедитесь, что email принадлежит пользователю</li>
+                                    <li>Проверьте правильность написания</li>
+                                    <li>Не используйте чужие адреса</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Важно:</strong> Убедитесь, что email адрес принадлежит именно этому пользователю!
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{{ url_for('user_detail', user_id=user.id) }}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к пользователю
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

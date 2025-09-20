@@ -502,6 +502,87 @@ def migrate_user_to_telegram(user_id):
     conn.close()
     return render_template('migrate_user.html', user=user)
 
+@app.route('/users/<int:user_id>/migrate-to-email', methods=['GET', 'POST'])
+@login_required
+def migrate_user_to_email(user_id):
+    """Миграция пользователя с Telegram авторизации на email."""
+    conn = get_db()
+    
+    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not user:
+        flash('Пользователь не найден', 'error')
+        return redirect(url_for('users'))
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        
+        if action == 'link_email':
+            # Привязка email к существующему Telegram аккаунту
+            email = request.form.get('email', '').strip()
+            password = request.form.get('password', '').strip()
+            name = request.form.get('name', '').strip()
+            
+            if not email or not password:
+                flash('Email и пароль обязательны', 'error')
+                return render_template('migrate_user_email.html', user=user)
+            
+            if not name:
+                name = user['name'] or f"User{user['id']}"
+            
+            try:
+                # Проверяем что такой email не используется
+                existing = conn.execute("SELECT id FROM users WHERE email = ? AND id != ?", 
+                                       (email, user_id)).fetchone()
+                if existing:
+                    flash('Этот email уже используется другим пользователем', 'error')
+                    return render_template('migrate_user_email.html', user=user)
+                
+                # Привязываем email к аккаунту (не меняем auth_type)
+                password_hash = generate_password_hash(password)
+                conn.execute("""
+                    UPDATE users 
+                    SET email = ?, 
+                        password_hash = ?,
+                        name = ?
+                    WHERE id = ?
+                """, (email, password_hash, name, user_id))
+                
+                conn.commit()
+                flash(f'Email аккаунт успешно привязан к пользователю {user["telegram_username"] or user["telegram_id"]}', 'success')
+                
+            except Exception as e:
+                flash(f'Ошибка привязки: {e}', 'error')
+                
+        elif action == 'switch_to_email':
+            # Переключение на email как основной способ авторизации
+            if not user['email'] or not user['password_hash']:
+                flash('Сначала привяжите email аккаунт', 'error')
+            else:
+                try:
+                    conn.execute("UPDATE users SET auth_type = 'email' WHERE id = ?", (user_id,))
+                    conn.commit()
+                    flash(f'Пользователь переключен на email авторизацию', 'success')
+                except Exception as e:
+                    flash(f'Ошибка переключения: {e}', 'error')
+                    
+        elif action == 'switch_to_telegram':
+            # Переключение обратно на Telegram авторизацию
+            if not user['telegram_id']:
+                flash('У пользователя нет Telegram ID для переключения', 'error')
+            else:
+                try:
+                    conn.execute("UPDATE users SET auth_type = 'telegram' WHERE id = ?", (user_id,))
+                    conn.commit()
+                    flash(f'Пользователь переключен на Telegram авторизацию', 'success')
+                except Exception as e:
+                    flash(f'Ошибка переключения: {e}', 'error')
+        
+        # Обновляем данные пользователя после изменений
+        user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+    
+    conn.close()
+    return render_template('migrate_user_email.html', user=user)
+
 @app.route('/database')
 @login_required
 def database():
