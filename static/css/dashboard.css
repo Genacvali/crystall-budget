@@ -1,0 +1,291 @@
+/* ===== iOS-ish tokens ===== */
+:root{
+  --radius-xl: 16px;
+  --radius-lg: 12px;
+  --shadow-soft: 0 4px 20px rgba(0,0,0,.06);
+  --border: 1px solid rgba(0,0,0,.06);
+  --surface: #fff;
+  --bg: #f5f7fb;
+  --text: #0b1220;
+  --muted: #6b7280;
+  --ok: #22c55e;
+  --warn: #f59e0b;
+  --bad: #ef4444;
+  --info: #0ea5e9;
+  --hero-a: #4f46e5;
+  --hero-b: #0ea5e9;
+}
+
+/* ручное переключение темы */
+[data-bs-theme="dark"]{
+  --surface:#0f141a;
+  --bg:#0a0e13;
+  --text:#f5f7fb;
+  --muted:#a7b0ba;
+  --border:1px solid rgba(255,255,255,.08);
+  --shadow-soft:0 10px 30px rgba(0,0,0,.5);
+}
+
+/* авто по системной теме */
+@media (prefers-color-scheme: dark){
+  :root{
+    --surface:#0f141a;
+    --bg:#0a0e13;
+    --text:#f5f7fb;
+    --muted:#a7b0ba;
+    --border:1px solid rgba(255,255,255,.08);
+    --shadow-soft:0 10px 30px rgba(0,0,0,.5);
+  }
+}
+
+/* ===== base ===== */
+.page-wrap{ background: var(--bg); }
+.page-title{ font-weight: 800; letter-spacing: .2px; }
+.shadow-soft{ box-shadow: var(--shadow-soft); }
+.dropdown-menu{ border-radius: 14px; border: var(--border); }
+
+/* ===== iOS-ish containers ===== */
+.card-soft{
+  background: var(--surface,#fff);
+  border: 1px solid rgba(0,0,0,.06);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ===== card row ===== */
+.cat-row{
+  display: grid;
+  grid-template-columns: 1fr 420px 220px auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 14px 16px;
+}
+@media (max-width: 1200px){ .cat-row{ grid-template-columns: 1fr 360px 200px auto; } }
+@media (max-width: 992px){  .cat-row{ grid-template-columns: 1fr 1fr auto; } }
+@media (max-width: 576px){ .cat-row{ grid-template-columns: 1fr; } }
+
+/* title/meta/nums */
+.cat-title{ font-weight: 700; letter-spacing: .2px; }
+.cat-meta{ color: var(--muted); font-size: .92rem; margin-top: .2rem; }
+.num .mono{ font-variant-numeric: tabular-nums; }
+.muted{ color: var(--muted); }
+.mono{ font-variant-numeric: tabular-nums; }
+
+/* ===== segmented control (sort) ===== */
+.segmented{
+  display: inline-flex; align-items: center; gap: 2px; padding: 2px;
+  background: var(--surface); border: var(--border); border-radius: 999px; box-shadow: var(--shadow-soft);
+}
+.seg-btn{
+  appearance:none; border: 0; background: transparent;
+  padding: .38rem .75rem; border-radius: 999px; color: var(--text); opacity: .9;
+}
+.seg-btn:hover{ background: rgba(0,0,0,.05); }
+[data-bs-theme="dark"] .seg-btn:hover{ background: rgba(255,255,255,.06); }
+.seg-divider{ width: 1px; height: 22px; background: rgba(0,0,0,.07); }
+[data-bs-theme="dark"] .seg-divider{ background: rgba(255,255,255,.1); }
+
+/* ===== Final Fantasy style hero ===== */
+.hero{
+  background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
+  color: #fff; border-radius: 20px; padding: 20px; position: relative; overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0,0,0,.3);
+}
+.hero:before{
+  content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px;
+  background: radial-gradient(closest-side, rgba(255,255,255,.2), rgba(255,255,255,0));
+  border-radius: 50%;
+}
+.hero h1{ font-size: 2rem; font-weight: 800; margin: 0 0 .25rem; }
+.hero .meta{ opacity: .95; }
+
+/* Final Fantasy style buttons */
+.btn-hero{
+  display: inline-flex; align-items: center; gap: .7rem;
+  color: #fff; background: rgba(255,255,255,.15);
+  padding: .6rem 1rem; border-radius: 16px; font-weight: 600;
+  border: 1px solid rgba(255,255,255,.3);
+  backdrop-filter: blur(12px);
+  position: relative; overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(255,255,255,.1), 0 0 15px rgba(255,255,255,.2);
+  transition: transform .2s ease, box-shadow .3s ease;
+  text-decoration: none;
+}
+.btn-hero:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 0 20px rgba(255,255,255,.4), 0 0 30px rgba(99,102,241,.5);
+  color: #fff;
+  text-decoration: none;
+}
+.btn-hero::after{
+  content: ""; position: absolute; top: 0; left: -150%; width: 50%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent);
+  transform: skewX(-20deg); animation: shimmer 3s infinite;
+}
+@keyframes shimmer{ 100%{ left: 150%; } }
+
+/* crystal icon badges */
+.icon-badge{
+  width: 34px; height: 34px; border-radius: 12px;
+  display: grid; place-items: center; position: relative; isolation: isolate;
+  background: linear-gradient(135deg, rgba(255,255,255,.3), rgba(255,255,255,.1));
+  border: 1px solid rgba(255,255,255,.5);
+  box-shadow: inset 0 0 8px rgba(255,255,255,.4), 0 0 12px rgba(255,255,255,.25);
+}
+.icon-badge i{ font-size: 1.2rem; z-index: 1; }
+.icon-expense::before,
+.icon-income::before{
+  content: ""; position: absolute; inset: -6px; border-radius: 14px; z-index: 0;
+  filter: blur(12px); opacity: .75;
+}
+.icon-expense::before{ background: rgba(239,68,68,.8); }
+.icon-income::before{ background: rgba(34,197,94,.8); }
+
+/* ===== iOS-like pill progress ===== */
+.cat-middle{ display:flex; align-items:center; }
+
+/* трек */
+.pill{
+  position:relative;
+  width:100%;
+  height:10px;
+  border-radius:999px;
+  overflow:hidden;
+  background:rgba(0,0,0,.14);
+}
+[data-bs-theme="dark"] .pill{
+  background: rgba(255,255,255,.12);
+}
+
+/* ===== progress pill (фикс цвета и размеров) ===== */
+.pill-bar{
+  position:absolute;
+  left:0; top:0; bottom:0;
+  width:0%;                           /* будет перезаписано inline style="width:…%" */
+  border-radius:inherit;
+  transition:width .25s ease;
+  display:block;
+  background-image:none !important;   /* чтобы ничто не перекрывало цвет */
+}
+
+.pill-bar.pill-ok     { background-color: var(--ok,   #22c55e) !important; }
+.pill-bar.pill-warn   { background-color: var(--warn, #f59e0b) !important; }
+.pill-bar.pill-danger { background-color: var(--bad,  #ef4444) !important; }
+
+/* ===== actions ===== */
+.ghost-icon{
+  border: var(--border); background: transparent; color: var(--muted);
+  border-radius: var(--radius-lg); padding: .35rem .5rem;
+}
+.ghost-icon:hover{ background: rgba(0,0,0,.04); color: var(--text); }
+[data-bs-theme="dark"] .ghost-icon:hover{ background: rgba(255,255,255,.06); }
+
+/* hero stats tiny */
+.kv{ display: flex; gap: 8px; flex-wrap: wrap; }
+.kv .k{ opacity: .85; }
+.kv .v{ font-weight: 700; }
+
+/* toast container */
+.toast-container{ position: fixed; top: 16px; right: 16px; z-index: 1060; }
+
+/* ghost badge */
+.badge-ghost{
+  background: rgba(0,0,0,.06);
+  color: var(--text);
+  border-radius: 999px;
+}
+[data-bs-theme="dark"] .badge-ghost{
+  background: rgba(255,255,255,.12);
+  color: var(--text);
+}
+
+/* cat actions */
+.cat-actions{
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* ===== Progress list (FF-style) ===== */
+.cat-item{ border-radius:16px; border:var(--border); background:var(--surface); box-shadow:var(--shadow-soft) }
+.cat-row2{
+  display:grid; grid-template-columns: 1fr minmax(280px, 480px) auto;
+  gap:1rem; align-items:center; padding:14px 16px;
+}
+@media (max-width: 992px){ .cat-row2{ grid-template-columns: 1fr 1fr auto } }
+@media (max-width: 576px){ .cat-row2{ grid-template-columns: 1fr; } }
+
+.cat-title{ font-weight:700; letter-spacing:.2px }
+.cat-meta{ color:var(--muted); font-size:.92rem; margin-top:.25rem }
+.cat-stats{ display:flex; align-items:center; gap:.35rem; margin-top:.5rem }
+.cat-rest{ font-size:.92rem; margin-top:.1rem }
+
+.ff-progress{
+  position:relative; height:10px; border-radius:999px; overflow:hidden;
+  background: rgba(255,255,255,.12);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.2);
+}
+[data-bs-theme="light"] .ff-progress{ background: rgba(0,0,0,.08); }
+.ff-progress > i{
+  display:block; height:100%; width:0%;
+  transition: width .35s ease;
+  background: linear-gradient(90deg, rgba(255,255,255,.35), rgba(255,255,255,0));
+}
+.ff-progress.ok    > i{ background-color: var(--ok); }
+.ff-progress.warn  > i{ background-color: var(--warn); }
+.ff-progress.danger> i{ background-color: var(--bad); }
+
+.btn-ghost.icon{
+  --_bg: transparent; --_bd: var(--border); --_fg: var(--text);
+  display:inline-flex; align-items:center; justify-content:center;
+  width:36px; height:36px; border-radius:12px; border: var(--_bd);
+  background: var(--_bg); color: var(--_fg); padding:0;
+}
+.btn-ghost.icon:hover{
+  background: rgba(255,255,255,.08);
+}
+.btn-ghost.icon.danger:hover{
+  background: color-mix(in srgb, var(--bad) 16%, transparent);
+  color:#fff; border-color: color-mix(in srgb, var(--bad) 30%, transparent);
+}
+
+/* ===== сортировка (segmented / sortbar) ===== */
+.segmented.sortbar{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:4px; border-radius:999px;
+  background:rgba(255,255,255,.06); border:1px solid var(--border);
+  height:38px;
+}
+.seg-btn{
+  display:inline-flex; align-items:center; gap:.45rem;
+  appearance:none; border:0; background:transparent; color:var(--text);
+  padding:.35rem .65rem; border-radius:999px; cursor:pointer; line-height:1;
+}
+.seg-btn:hover{ background:rgba(255,255,255,.08) }
+.seg-btn .ico{ opacity:.85; font-size:.95rem; line-height:1 }
+.seg-divider{ width:1px; height:22px; background:rgba(255,255,255,.12) }
+
+.seg-dropdown{ position:relative }
+.seg-btn.select{ padding-right:.55rem }
+.caret{
+  width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent;
+  border-top:6px solid currentColor; opacity:.85; transition:transform .18s ease;
+}
+.seg-dropdown[data-open="1"] .caret{ transform:rotate(180deg) }
+
+.seg-menu{
+  position:absolute; right:0; top:calc(100% + 8px); min-width:220px; display:none;
+  background:var(--surface); border:1px solid var(--border); border-radius:12px;
+  box-shadow:var(--shadow-soft); padding:6px; z-index:20;
+}
+.seg-dropdown[data-open="1"] .seg-menu{ display:block }
+.seg-item{
+  display:block; width:100%; text-align:left; padding:.55rem .65rem;
+  border-radius:10px; color:var(--text); background:transparent; border:0; cursor:pointer;
+}
+.seg-item:hover{ background:rgba(255,255,255,.06) }
+
+@media (max-width:520px){
+  .seg-btn .label{ display:none }
+  .seg-menu{ min-width:180px }
+}

@@ -1,51 +1,43 @@
-const CACHE_NAME = 'cb-shell-v1';
+const CACHE = 'cb-app-v1';
 const SHELL = [
-  '/', '/dashboard', '/expenses', '/categories', '/income',
-  '/static/css/clean-theme.css',
+  '/',
   '/static/vendor/bootstrap/bootstrap.min.css',
-  '/static/vendor/bootstrap-icons/bootstrap-icons.css',
-  '/static/vendor/bootstrap-icons/bootstrap-icons.woff2'
+  '/static/vendor/bootstrap-icons/bootstrap-icons.css', 
+  '/static/css/clean-theme.css',
+  '/static/css/dashboard.css',
+  '/static/js/bootstrap.bundle.min.js',
+  '/static/vendor/bootstrap/bootstrap.bundle.min.js'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(SHELL)));
+self.addEventListener('install', e => {
+  e.waitUntil(
+    caches.open(CACHE).then(c => c.addAll(SHELL))
+  );
   self.skipWaiting();
 });
 
-self.addEventListener('activate', (e) => {
+self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
-self.addEventListener('fetch', (e) => {
+
+self.addEventListener('fetch', e => {
   const req = e.request;
-  if (req.method !== 'GET') return;
+  if (req.method !== 'GET') return; // POST/PUT/PATCH не трогаем здесь — они идут в «аутбокс» на клиенте
 
-  // HTML (navigation): network first
-  if (req.mode === 'navigate') {
-    e.respondWith(
-      fetch(req).then(res => {
-        caches.open(CACHE_NAME).then(c => c.put(req, res.clone()));
+  e.respondWith(
+    caches.match(req).then(hit => {
+      const fetchPromise = fetch(req).then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(req, copy));
         return res;
-      }).catch(() => caches.match(req))
-    );
-    return;
-  }
-
-  // static assets: stale-while-revalidate
-  if (/\.(css|js|png|jpg|jpeg|svg|ico|woff2?)$/i.test(new URL(req.url).pathname)) {
-    e.respondWith(
-      caches.match(req).then(cached => {
-        const net = fetch(req).then(res => {
-          caches.open(CACHE_NAME).then(c => c.put(req, res.clone()));
-          return res;
-        }).catch(() => cached);
-        return cached || net;
-      })
-    );
-  }
+      }).catch(() => hit || caches.match('/')); // офлайн фоллбек
+      return hit || fetchPromise;
+    })
+  );
 });

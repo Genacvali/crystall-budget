@@ -1821,7 +1821,8 @@ def dashboard():
         
         data.append(
             dict(
-                category_name=row["name"], 
+                category_name=row["name"],
+                name=row["name"],  # Добавляем name для шаблона
                 limit=limit_val, 
                 spent=spent, 
                 id=cat_id, 
@@ -1916,9 +1917,40 @@ def dashboard():
     # Генерируем список месяцев для селектора
     months_list = generate_months_list(month)
     
+    # Подготавливаем плашки источников доходов
+    def make_tile(source_id, source_name):
+        income_val = float(income_by_source.get(source_id, 0))
+        spent_val = 0.0
+        limits_val = 0.0
+        
+        # Вычисляем расходы и лимиты для этого источника
+        for cat in data:
+            if cat.get('source_name') == source_name:
+                spent_val += float(cat.get('spent', 0))
+                limits_val += float(cat.get('limit', 0))
+        
+        after_limits = max(0.0, income_val - limits_val)
+        balance = income_val - spent_val
+        
+        return {
+            "key": f"source_{source_id}",
+            "title": source_name, 
+            "in": income_val,
+            "out": spent_val,
+            "after_limits": after_limits,
+            "balance": balance
+        }
+    
+    # Создаем плашки для всех источников
+    tiles = []
+    for source in sources:
+        source_id = source['id']
+        source_name = source['name']
+        tiles.append(make_tile(source_id, source_name))
+    
     today = datetime.now().strftime("%Y-%m-%d")
     return render_template(
-        "dashboard.html",
+        "pages/dashboard.html",
         categories=categories,
         expenses=expenses_rows,
         budget_data=data,
@@ -1936,6 +1968,8 @@ def dashboard():
         today=today,
         source_balances=source_balances,
         sources=sources,
+        income_by_source=income_by_source,
+        tiles=tiles,
     )
 
 
@@ -4334,6 +4368,22 @@ def ensure_new_tables():
             """)
             app.logger.info("Created budget_rollover table")
             
+        # Таблица для отслеживания операций (идемпотентность)
+        cursor = conn.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='operation_log'")
+        if not cursor.fetchone():
+            conn.execute("""
+            CREATE TABLE operation_log (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+              operation_id TEXT NOT NULL,
+              resource_id INTEGER,
+              kind TEXT NOT NULL,
+              created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+              UNIQUE(user_id, operation_id)
+            )
+            """)
+            app.logger.info("Created operation_log table")
+            
         conn.commit()
         conn.close()
         app.logger.info("New tables migration completed successfully")
@@ -4344,8 +4394,162 @@ def ensure_new_tables():
             conn.close()
 
 # -----------------------------------------------------------------------------
+# API endpoints with idempotency for offline support
+# -----------------------------------------------------------------------------
+
+def check_operation_exists(user_id, operation_id):
+    """Проверяет, существует ли уже операция с данным ID"""
+    conn = get_db()
+    cursor = conn.execute(
+        "SELECT resource_id, kind FROM operation_log WHERE user_id = ? AND operation_id = ?",
+        (user_id, operation_id)
+    )
+    result = cursor.fetchone()
+    conn.close()
+    return result
+
+def log_operation(user_id, operation_id, resource_id, kind):
+    """Записывает операцию в лог"""
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO operation_log (user_id, operation_id, resource_id, kind) VALUES (?, ?, ?, ?)",
+        (user_id, operation_id, resource_id, kind)
+    )
+    conn.commit()
+    conn.close()
+
+@app.route('/api/expenses', methods=['POST'])
+@login_required
+def api_create_expense():
+    """API endpoint для создания расходов с идемпотентностью"""
+    try:
+        data = request.get_json()
+        if not data:
+            return {'error': 'JSON data required'}, 400
+            
+        operation_id = data.get('operationId')
+        if not operation_id:
+            return {'error': 'operationId required'}, 400
+            
+        user_id = session['user_id']
+        
+        # Проверяем, не обрабатывали ли уже эту операцию
+        existing = check_operation_exists(user_id, operation_id)
+        if existing:
+            return {'ok': True, 'id': existing['resource_id'], 'message': 'Already processed'}, 200
+            
+        # Валидация данных
+        amount = data.get('amount')
+        category_id = data.get('category_id')
+        date_str = data.get('date')
+        note = data.get('note', '')
+        
+        if not amount or not category_id or not date_str:
+            return {'error': 'amount, category_id, and date are required'}, 400
+            
+        try:
+            amount = float(amount)
+            category_id = int(category_id)
+            datetime.strptime(date_str, "%Y-%m-%d")
+        except (ValueError, TypeError):
+            return {'error': 'Invalid data format'}, 400
+            
+        if amount <= 0:
+            return {'error': 'Amount must be positive'}, 400
+            
+        # Создаем расход
+        conn = get_db()
+        current_currency = session.get('currency', 'RUB')
+        cursor = conn.execute(
+            """INSERT INTO expenses (user_id, date, month, category_id, amount, note, currency)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (user_id, date_str, date_str[:7], category_id, amount, note, current_currency)
+        )
+        expense_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        # Записываем операцию в лог
+        log_operation(user_id, operation_id, expense_id, 'expense.create')
+        
+        return {'ok': True, 'id': expense_id}, 201
+        
+    except Exception as e:
+        app.logger.error(f"Error in api_create_expense: {e}")
+        return {'error': 'Internal server error'}, 500
+
+@app.route('/api/income', methods=['POST'])
+@login_required  
+def api_create_income():
+    """API endpoint для создания доходов с идемпотентностью"""
+    try:
+        data = request.get_json()
+        if not data:
+            return {'error': 'JSON data required'}, 400
+            
+        operation_id = data.get('operationId')
+        if not operation_id:
+            return {'error': 'operationId required'}, 400
+            
+        user_id = session['user_id']
+        
+        # Проверяем, не обрабатывали ли уже эту операцию
+        existing = check_operation_exists(user_id, operation_id)
+        if existing:
+            return {'ok': True, 'id': existing['resource_id'], 'message': 'Already processed'}, 200
+            
+        # Валидация данных
+        amount = data.get('amount')
+        source_id = data.get('source_id')
+        date_str = data.get('date')
+        
+        if not amount or not source_id or not date_str:
+            return {'error': 'amount, source_id, and date are required'}, 400
+            
+        try:
+            amount = float(amount)
+            source_id = int(source_id)
+            datetime.strptime(date_str, "%Y-%m-%d")
+        except (ValueError, TypeError):
+            return {'error': 'Invalid data format'}, 400
+            
+        if amount <= 0:
+            return {'error': 'Amount must be positive'}, 400
+            
+        # Создаем доход
+        conn = get_db()
+        current_currency = session.get('currency', 'RUB')
+        cursor = conn.execute(
+            """INSERT INTO income_daily (user_id, date, amount, source_id, currency)
+               VALUES (?, ?, ?, ?, ?)""",
+            (user_id, date_str, amount, source_id, current_currency)
+        )
+        income_id = cursor.lastrowid
+        conn.commit()
+        conn.close()
+        
+        # Записываем операцию в лог
+        log_operation(user_id, operation_id, income_id, 'income.create')
+        
+        return {'ok': True, 'id': income_id}, 201
+        
+    except Exception as e:
+        app.logger.error(f"Error in api_create_income: {e}")
+        return {'error': 'Internal server error'}, 500
+
+# -----------------------------------------------------------------------------
 # Main
 # -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# PWA Manifest route
+# -----------------------------------------------------------------------------
+@app.route('/static/manifest.webmanifest')
+def manifest():
+    """Отдаем манифест с правильным MIME-типом для PWA"""
+    return app.send_static_file('manifest.webmanifest'), 200, {
+        'Content-Type': 'application/manifest+json'
+    }
+
 if __name__ == "__main__":
     init_db()
     ensure_income_sources_tables()

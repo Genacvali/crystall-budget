@@ -1,0 +1,37 @@
+{# Mobile sidebar partial - expects: session.user_id, request.endpoint #}
+{% if session.user_id %}
+<!-- Мобильный сайдбар -->
+<div class="sidebar-overlay d-lg-none" id="sidebarOverlay" data-action="close-sidebar"></div>
+<div class="sidebar d-lg-none" id="sidebar">
+  <div class="sidebar-header">
+    <a class="sidebar-brand" href="{{ url_for('dashboard') }}">CrystalBudget</a>
+    <button class="sidebar-close" data-action="close-sidebar"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}" data-action="close-sidebar"><i class="bi bi-house-door"></i> Дашборд</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}" data-action="close-sidebar"><i class="bi bi-wallet2"></i> Расходы</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}" data-action="close-sidebar"><i class="bi bi-tags"></i> Категории</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('income_page') }}" data-action="close-sidebar"><i class="bi bi-cash-coin"></i> Доходы</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}" data-action="close-sidebar"><i class="bi bi-gear"></i> Личный кабинет</a></div>
+  </nav>
+  <div class="sidebar-footer">
+    <a class="user-profile" href="#"><i class="bi bi-person-circle" style="font-size:1.5rem;"></i>
+      <div class="user-info">
+        <div class="user-name">{{ session.name or 'Пользователь' }}</div>
+        <div class="user-email">{{ session.email }}</div>
+      </div>
+    </a>
+    <div class="sidebar-controls">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Тема</div>
+        <div class="theme-toggle" data-action="toggle-theme">
+          <i class="bi bi-sun-fill" id="light-icon-sidebar"></i>
+          <div class="theme-switch" id="theme-switch-sidebar"></div>
+          <i class="bi bi-moon-fill" id="dark-icon-sidebar"></i>
+        </div>
+      </div>
+    </div>
+    <a class="logout-btn" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a>
+  </div>
+</div>
+{% endif %}

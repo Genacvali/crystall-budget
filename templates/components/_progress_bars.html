@@ -1,0 +1,96 @@
+{# templates/components/_progress_bars.html #}
+<section class="card-soft mb-4">
+  <div class="p-3 pb-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <h5 class="m-0"><i class="bi bi-graph-up-arrow me-2"></i>Прогресс по категориям</h5>
+
+    {# компактная «пилюля» сортировки #}
+    <div class="segmented sortbar" id="sortCtl">
+      <button class="seg-btn dir" id="dirBtn" title="Сменить направление">
+        <span class="ico">↕</span><span class="label">Направление</span>
+      </button>
+
+      <span class="seg-divider" aria-hidden="true"></span>
+
+      <div class="seg-dropdown" id="sortDrop">
+        <button class="seg-btn select" id="sortKeyBtn" aria-expanded="false">
+          <span class="ico">⥮</span>
+          <span class="label" id="sortLabel">Ручной порядок</span>
+          <i class="caret" aria-hidden="true"></i>
+        </button>
+        <div class="seg-menu" role="menu">
+          <button class="seg-item" data-key="manual">Ручной порядок</button>
+          <hr class="seg-divider" style="height:1px;width:100%;background:rgba(255,255,255,.12);border:0;margin:6px 0">
+          <button class="seg-item" data-key="name">По названию</button>
+          <button class="seg-item" data-key="progress">По прогрессу (%)</button>
+          <button class="seg-item" data-key="remaining">По остатку</button>
+          <button class="seg-item" data-key="spent">По тратам</button>
+          <button class="seg-item" data-key="limit">По лимиту</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="catList" class="d-flex flex-column gap-2 p-3 pt-0">
+    {% for cat in budget_data %}
+      {% set base_limit = (cat.limit or 0)|float %}
+      {% set spent       = (cat.spent or 0)|float %}
+      {% set avail_limit = base_limit %}
+      {% set rest        = (avail_limit - spent)|round(2, 'floor') %}
+
+      {# % прогресса (границы: <50 зелёный, <85 жёлтый, ≥85 красный) #}
+      {% if avail_limit > 0 %}
+        {% set progress_raw = (spent / avail_limit) * 100 %}
+      {% else %}
+        {% set progress_raw = (spent > 0) and 100 or 0 %}
+      {% endif %}
+      {% set progress  = progress_raw|round(1) %}
+      {% set width     = [progress_raw, 100]|min|round(1) %}
+      {% set tone      = 'ok' if progress_raw < 50 else ('warn' if progress_raw < 85 else 'danger') %}
+
+      <article class="cat card-soft cat-item"
+               data-id="{{ cat.id if cat.id is defined else loop.index }}"
+               data-name="{{ (cat.name or '')|lower }}"
+               data-progress="{{ progress }}"
+               data-remaining="{{ rest }}"
+               data-spent="{{ spent }}"
+               data-limit="{{ avail_limit }}"
+               data-order="{{ cat.sort_order if cat.sort_order is defined else loop.index0 }}">
+        <div class="cat-row2">
+          <div class="cat-col cat-col--left">
+            <div class="cat-title">{{ cat.name }}</div>
+            <div class="cat-meta">Фикс {{ base_limit|format_amount }} ₽</div>
+          </div>
+
+          <div class="cat-col cat-col--mid">
+            <div class="ff-progress {{ tone }}" role="progressbar"
+                 aria-valuenow="{{ progress|int }}" aria-valuemin="0" aria-valuemax="100">
+              <i style="width: {{ width }}%"></i>
+            </div>
+            <div class="cat-stats">
+              <b class="mono">{{ spent|format_amount }} ₽</b>
+              <span class="muted">/</span>
+              <span class="muted mono">{{ avail_limit|format_amount }} ₽</span>
+            </div>
+            <div class="cat-rest muted">
+              Остаток:
+              <span class="mono {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">
+                {{ rest|format_amount }} ₽
+              </span>
+            </div>
+          </div>
+
+          <div class="cat-col cat-col--actions">
+            <button class="btn-ghost icon" data-action="edit" data-id="{{ cat.id }}" title="Редактировать">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn-ghost icon danger" data-action="delete" data-id="{{ cat.id }}" title="Удалить">
+              <i class="bi bi-trash"></i>
+            </button>
+          </div>
+        </div>
+      </article>
+    {% else %}
+      <div class="text-muted">Нет категорий бюджета на выбранный месяц.</div>
+    {% endfor %}
+  </div>
+</section>

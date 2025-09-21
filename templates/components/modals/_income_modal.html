@@ -1,0 +1,36 @@
+{# expects: today: string #}
+<div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="incomeModalLabel">Добавить доход</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="incomeForm" data-form="income">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="incomeAmount" class="form-label">Сумма</label>
+            <input type="number" class="form-control" id="incomeAmount" name="amount" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label for="incomeSource" class="form-label">Источник</label>
+            <select class="form-select" id="incomeSource" name="source_id" required>
+              <option value="">Выберите источник</option>
+              <option value="1">Зарплата</option>
+              <option value="2">Фриланс</option>
+              <option value="3">Другое</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="incomeDate" class="form-label">Дата</label>
+            <input type="date" class="form-control" id="incomeDate" name="date" value="{{ today }}" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

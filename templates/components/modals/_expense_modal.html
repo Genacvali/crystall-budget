@@ -1,0 +1,39 @@
+{# expects: budget_data: list[{id, name}], today: string #}
+<div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="expenseModalLabel">Добавить расход</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="expenseForm" data-form="expense">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="expenseAmount" class="form-label">Сумма</label>
+            <input type="number" class="form-control" id="expenseAmount" name="amount" step="0.01" required>
+          </div>
+          <div class="mb-3">
+            <label for="expenseCategory" class="form-label">Категория</label>
+            <select class="form-select" id="expenseCategory" name="category_id" required>
+              {% for cat in budget_data %}
+                <option value="{{ cat.id }}">{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="expenseDate" class="form-label">Дата</label>
+            <input type="date" class="form-control" id="expenseDate" name="date" value="{{ today }}" required>
+          </div>
+          <div class="mb-3">
+            <label for="expenseNote" class="form-label">Примечание</label>
+            <input type="text" class="form-control" id="expenseNote" name="note" maxlength="500">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

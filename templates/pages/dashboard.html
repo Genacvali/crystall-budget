@@ -1,0 +1,19 @@
+{% extends "base_new.html" %}
+
+{% block title %}Панель управления{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=1">
+{% endblock %}
+
+{% block content %}
+  {% include "components/_balance_panel.html" %}
+  {% include "components/_income_tiles.html" %}
+  {% include "components/_progress_bars.html" %}
+  {% include "components/modals/_expense_modal.html" %}
+  {% include "components/modals/_income_modal.html" %}
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/entries/dashboard.entry.js') }}?v=1"></script>
+{% endblock %}

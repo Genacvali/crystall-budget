@@ -16,8 +16,7 @@ pip install -r requirements.txt
 # Initialize database (optional - app.py auto-creates DB)
 python init_db.py
 
-# Migrate existing database to new schema
-python migrate_db.py
+# Database auto-migrates on app startup - no separate migration needed
 ```
 
 ### Running the Application
@@ -35,14 +34,8 @@ gunicorn -w 2 -b 0.0.0.0:5000 app:app
 # Test database initialization
 python init_db.py
 
-# Test database migration
-python migrate_db.py
-
 # Emergency database fixes (production)
 python emergency_fix.py
-
-# Migrate database for Telegram authentication support
-python migrate_telegram_auth.py
 
 # Set up Telegram authentication (see TELEGRAM_AUTH_SETUP.md)
 export TELEGRAM_BOT_TOKEN="your-bot-token"
@@ -82,7 +75,7 @@ sudo journalctl -u admin-panel -f
 ## Architecture Overview
 
 ### Single-File Flask Application
-The entire backend is in `app.py` (~3400 lines) with:
+The entire backend is in `app.py` (~4357 lines) with:
 - Telegram-only authentication system (email auth disabled)
 - 30-day sessions with secure cookie configuration
 - SQLite database with automatic schema initialization and migration system
@@ -103,10 +96,11 @@ SQLite with strict user isolation and automatic schema migration:
 - **exchange_rates**: Currency exchange rate cache with expiration
 
 ### Frontend Structure
-- **Templates**: 16 HTML templates using Bootstrap 5 and Russian localization
+- **Templates**: 18 HTML templates using Bootstrap 5 and Russian localization
+- **Components**: Reusable template components in `/templates/components/`
 - **PWA**: Complete Progressive Web App with manifest, service worker, offline support
 - **Mobile-first**: Optimized for iOS Safari and Android with swipe gestures
-- **Static assets**: PWA files, favicon, service workers in `/static/`
+- **Static assets**: PWA files (manifest.json, manifest.webmanifest), favicon, service workers in `/static/`
 
 ### Key Features
 - Fixed and percentage-based budget categories with automatic rollover
@@ -139,6 +133,7 @@ Separate Flask application in `/admin_panel/` for system administration:
 # Required for production
 SECRET_KEY="your-secure-secret-key"
 HTTPS_MODE="true"  # Enables secure cookies and HSTS headers
+TELEGRAM_BOT_TOKEN="your-telegram-bot-token"  # Required for Telegram authentication
 
 # Optional configuration  
 BUDGET_DB="/path/to/budget.db"  # Database location (default: ./budget.db)
@@ -148,18 +143,14 @@ LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 
 ### Production Files
 Essential files for CentOS/RHEL deployment:
-- `app.py` - Main Flask application (~3400 lines)
-- `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn)
-- `templates/` - 16 Jinja2 templates with Russian UI
-- `static/` - PWA assets and service workers
-- `deploy.sh` - Automated CentOS/RHEL deployment script with systemd setup
+- `app.py` - Main Flask application (~4357 lines) with embedded Telegram authentication
+- `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn, python-dotenv)
+- `templates/` - 18 Jinja2 templates with Russian UI including components
+- `static/` - PWA assets (manifest files, service worker, favicon)
 - `setup-https.sh` - HTTPS/SSL certificate setup with Let's Encrypt
 - `crystalbudget.service` - Systemd service configuration
 - `nginx-crystalbudget.conf` - Nginx reverse proxy configuration
 - `init_db.py` - Database initialization script
-- `migrate_db.py` - Database schema migration utility
-- `migrate_telegram_auth.py` - Migration script for Telegram authentication support
 - `emergency_fix.py` - Emergency database repair script for production issues
-- `migrate_multi_source_categories.py` - Special migration for multi-source category support
 - `TELEGRAM_AUTH_SETUP.md` - Complete setup guide for Telegram authentication
-- `admin_panel/` - Administrative interface and management tools
+- `admin_panel/` - Administrative interface and management tools with deployment scripts

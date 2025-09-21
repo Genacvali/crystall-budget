@@ -18,6 +18,7 @@
   <meta name="color-scheme" content="light dark">
   <title>{% block title %}💎 CrystalBudget - Modern Finance{% endblock %}</title>
 
+  
   <!-- Favicon -->
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <link rel="icon" type="image/png" sizes="192x192" href="{{ url_for('static', filename='icons/icon-192.png') }}">
@@ -38,6 +39,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
   <!-- ВАШи стили -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/clean-theme.css') }}">
+  <!-- Стили дашборда (FF-hero, прогрессы и т.п.) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+
 
   <!-- Мгновенное применение темы -->
   <script>
@@ -206,6 +210,9 @@
     /* --- Tooltip обёртка --- */
     [data-bs-toggle="tooltip"]{display:inline-flex;align-items:center}
     .tooltip-wrapper{display:contents}
+    
+    /* --- Offline Indicator --- */
+    .offline-indicator{display:flex;align-items:center;gap:.5rem;padding:.25rem .5rem;border-radius:.375rem;background:rgba(255,193,7,.1)}
     
     .navbar-modern{position:relative}
     .navbar-modern .container-fluid{display:flex;align-items:center;gap:.5rem;flex-wrap:nowrap;position:relative}
@@ -392,6 +399,12 @@
         </ul>
 
         <ul class="navbar-nav">
+          <li class="nav-item me-3">
+            <div class="offline-indicator" id="offlineIndicator" style="display: none;">
+              <i class="bi bi-wifi-off text-warning"></i>
+              <span class="badge bg-warning text-dark">Офлайн</span>
+            </div>
+          </li>
           <li class="nav-item me-3">
             <div class="theme-toggle" onclick="toggleTheme()">
               <i class="bi bi-sun-fill" id="light-icon"></i>
@@ -612,6 +625,18 @@
     else { el.style.display='block'; setTimeout(()=>el.remove(),5000); }
   }
 
+  // === Offline Indicator ===
+  function updateOfflineIndicator() {
+    const indicator = document.getElementById('offlineIndicator');
+    if (indicator) {
+      if (navigator.onLine) {
+        indicator.style.display = 'none';
+      } else {
+        indicator.style.display = 'flex';
+      }
+    }
+  }
+
   // === Init ===
   document.addEventListener('DOMContentLoaded', ()=>{
     // тема
@@ -627,8 +652,15 @@
         return new bootstrap.Tooltip(tooltipTriggerEl);
       });
     }
+    // офлайн индикатор
+    updateOfflineIndicator();
+    window.addEventListener('online', updateOfflineIndicator);
+    window.addEventListener('offline', updateOfflineIndicator);
   });
   </script>
+
+  <!-- Offline functionality -->
+  <script src="{{ url_for('static', filename='js/offline.js') }}"></script>
 
   {% block scripts %}{% endblock %}
 </body>
