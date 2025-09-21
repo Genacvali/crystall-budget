@@ -44,20 +44,9 @@
   --shadow-soft:0 10px 30px rgba(0,0,0,.5);
 }
 
-/* авто по системной теме — безопасный дефолт */
-@media (prefers-color-scheme: dark){
-  :root{
-    --surface:#0f141a;
-    --bg:#0a0e13;
-    --text:#f5f7fb;
-    --muted:#a7b0ba;
-    --border:1px solid rgba(255,255,255,.08);
-    --shadow-soft:0 10px 30px rgba(0,0,0,.5);
-  }
-}
 
 /* ===== База ===== */
-.page-wrap{ background: var(--bg); }
+.page-wrap{ background: var(--bg); min-height: 100vh; }
 .page-title{ font-weight:800; letter-spacing:.2px; }
 .shadow-soft{ box-shadow: var(--shadow-soft); }
 .dropdown-menu{ border-radius:14px; border: var(--border); }
@@ -70,52 +59,6 @@
   box-shadow: var(--shadow-soft);
 }
 
-/* ===== Тумблер темы ===== */
-/* === Theme toggle (плавный и без артефактов) === */
-[data-bs-theme="light"] #light-icon{ opacity:1; }
-[data-bs-theme="dark"]  #dark-icon{  opacity:1; }
-
-.theme-switch{
-  --pad: 2px;
-  --thumb: 24px;
-
-  position:relative;
-  width:56px; height:28px; flex:0 0 56px;
-  border-radius:9999px;
-  padding:var(--pad);                /* внутренний зазор */
-  box-sizing:border-box;
-  overflow:hidden;                   /* ничего не торчит */
-  cursor:pointer;
-
-  border:1px solid rgba(0,0,0,.18);
-  background:#60a5fa1a;             /* fallback */
-  background: color-mix(in srgb, #60a5fa 30%, transparent);
-  transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
-}
-
-.theme-switch::after{
-  content:"";
-  position:absolute; top:var(--pad); left:var(--pad);
-  width:var(--thumb); height:var(--thumb);
-  border-radius:50%;
-  background:#fff;
-  /* мини-тень без «ореола», чтобы не цеплялась за край */
-  box-shadow:0 1px 2px rgba(0,0,0,.28);
-  transition: left .2s ease, right .2s ease;
-}
-
-/* Dark: трек темнее, шарик «прибит» к правому краю */
-[data-bs-theme="dark"] .theme-switch{
-  background:#1f2937; border-color:rgba(255,255,255,.12);
-}
-[data-bs-theme="dark"] .theme-switch::after{
-  left:auto; right:var(--pad);      /* ← ключевой приём */
-}
-
-/* (опционально) лёгкий обвод в светлой теме для глянца */
-[data-bs-theme="light"] .theme-switch{
-  box-shadow: inset 0 0 0 1px rgba(59,130,246,.28);
-}
 
 /* ===== Segmented control ===== */
 .segmented{
@@ -133,39 +76,77 @@
 [data-bs-theme="dark"] .seg-divider{ background: rgba(255,255,255,.1); }
 .seg-btn.rot180 i{ transform: rotate(180deg); transition: transform .2s ease; }
 
-/* ===== Row для категорий (4 колонки под HTML) ===== */
-.cat-row,
-.cat-item{
+/* ===== FF Progress Card (новый дизайн) ===== */
+.ff-progress-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border: 1px solid var(--bs-border-color);
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+[data-bs-theme="dark"] .ff-progress-card{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.ff-header{
+  padding: 14px 16px;
+  display:flex; align-items:center; gap:.6rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  background: var(--bs-secondary-bg);
+  font-weight: 800;
+}
+
+/* ===== список категорий ===== */
+.ff-list{ display:flex; flex-direction:column; gap:10px; padding: 12px }
+.ff-item{
   display:grid;
-  grid-template-columns:
-    max-content               /* .cat-left  */
-    minmax(0, 1fr)            /* .cat-middle */
-    max-content               /* .cat-right  */
-    max-content;              /* .cat-actions */
-  gap:16px; align-items:center; padding:14px 16px;
-  background: var(--bs-body-bg);
-  border:1px solid var(--bs-border-color);
-  border-radius: var(--radius-xl);
+  grid-template-columns: 1.1fr minmax(320px, 620px) auto;
+  gap: 14px; align-items:center;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--radius-lg);
 }
-@media (max-width:992px){
-  .cat-row, .cat-item{ grid-template-columns: 1fr 1fr auto; }
+@media (max-width: 900px){ .ff-item{ grid-template-columns: 1fr; } }
+
+.ff-title{ font-weight:800; letter-spacing:.2px }
+.ff-meta{ color:var(--muted); font-size:.92rem }
+.ff-row{ font-weight:800; margin-bottom: 6px; display:flex; align-items:baseline; gap:.35rem }
+.slash{ opacity:.6 }
+
+/* ===== прогресс ===== */
+.ff-track{
+  position:relative; height: 10px; width: 100%;
+  border-radius: 999px; overflow:hidden;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.12);
 }
-@media (max-width:576px){
-  .cat-row, .cat-item{ grid-template-columns: 1fr; }
-  .cat-actions{ flex-direction:row; gap:.5rem; }
+[data-bs-theme="light"] .ff-track{
+  background: rgba(0,0,0,.08);
+  border: 1px solid rgba(0,0,0,.12);
+}
+.ff-bar{
+  position:absolute; inset:0 auto 0 0;
+  width: 0%;
+  background: var(--bar-color, var(--ok));
+  border-radius: inherit;
+  transition: width .25s ease;
 }
 
-.cat-title{ font-weight:700; letter-spacing:.2px; }
-.cat-meta{ color: var(--muted); font-size:.92rem; margin-top:.2rem; }
-.mono, .num .mono{ font-variant-numeric: tabular-nums; }
-.muted{ color: var(--muted); }
+/* ===== действия (иконки) ===== */
+.ff-actions{ display:flex; gap:.4rem; justify-self:end }
+.ff-ico{
+  width: 32px; height: 32px; border:none; cursor:pointer;
+  border-radius: 10px; color: var(--text);
+  background: var(--bs-secondary-bg);
+  display:inline-grid; place-items:center;
+  outline: none;
+  transition: background .2s ease;
+}
+.ff-ico:hover{ background: var(--bs-border-color); }
+.ff-ico i{ font-size: 14px; }
 
-/* центр-колонка (прогресс) */
-.cat-middle{ display:flex; align-items:center; min-width:0; }
-.cat-middle .ff-bar{ width:100%; }
-
-/* правая колонка — без переноса и вправо */
-.cat-right{ text-align:right; white-space:nowrap; }
 
 /* ===== Прогрессы ===== */
 .pill,
@@ -288,6 +269,68 @@
   transform: skewX(-20deg); animation: shimmer 3s infinite;
 }
 @keyframes shimmer{ 100%{ left:150%; } }
+
+/* ===== Mini Calendar ===== */
+.mini-cal{ 
+  display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; margin-top:1rem;
+}
+.mini-cal .day{ 
+  text-align:center; padding:.5rem 0; border-radius:12px; 
+  font-size:.9rem; cursor:pointer; transition: all .2s ease;
+  color: var(--text); background: transparent;
+}
+.mini-cal .day:hover{ 
+  background: rgba(0,0,0,.05); 
+}
+[data-bs-theme="dark"] .mini-cal .day:hover{ 
+  background: rgba(255,255,255,.08); 
+}
+.mini-cal .day.other-month{ 
+  opacity:.3; 
+}
+.mini-cal .day.today{ 
+  background: var(--hero-a); color:#fff; font-weight:600;
+}
+.mini-cal .day.has-data{ 
+  position:relative; 
+}
+.mini-cal .day.has-data::after{ 
+  content:""; position:absolute; bottom:4px; left:50%; transform:translateX(-50%);
+  width:4px; height:4px; border-radius:50%; background: var(--ok);
+}
+.mini-cal .header{ 
+  font-weight:600; color: var(--muted); font-size:.8rem; 
+  text-align:center; padding:.25rem 0;
+}
+
+/* Компактный календарь */
+.compact-cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
+.compact-cal-grid .header{
+  font-size:.75rem; font-weight:600; color: var(--muted);
+  text-align:center; padding:.25rem 0;
+}
+.compact-cal-grid .day{
+  text-align:center; padding:.4rem .2rem; border-radius:4px; font-size:.8rem;
+  background: transparent; cursor:pointer; transition: all .15s ease;
+  min-height:24px; display:flex; align-items:center; justify-content:center;
+}
+.compact-cal-grid .day:hover{
+  background: var(--bs-secondary-bg);
+}
+.compact-cal-grid .day.other-month{
+  opacity:.4;
+}
+.compact-cal-grid .day.today{
+  background: var(--info); color:#fff; font-weight:600;
+}
+.compact-cal-grid .day.selected{
+  background: color-mix(in srgb, #4f46e5 85%, transparent);
+  color:#fff; font-weight:500;
+}
+.compact-cal-grid .day.has-data::after{
+  content:""; position:absolute; bottom:2px; left:50%; transform:translateX(-50%);
+  width:3px; height:3px; border-radius:50%; background: var(--ok);
+}
 
 /* мелкие утилиты */
 .kv{ display:flex; gap:8px; flex-wrap:wrap; }

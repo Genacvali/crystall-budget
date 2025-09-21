@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const keyBtns = document.querySelectorAll('.sort-opt');
   const keyLabel= document.getElementById('sortKeyLabel');
 
-  let sortKey = 'manual';
+  let sortKey = 'name';
   let dir     = dirBtn?.dataset.dir || 'asc';
 
   function val(el, key){
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function applySort(){
     if (!list) return;
-    const items = Array.from(list.children);
+    const items = Array.from(list.querySelectorAll('.ff-item'));
     if (sortKey === 'manual'){
       items.sort((a,b)=> (Number(a.dataset.order||0) - Number(b.dataset.order||0)));
     } else {
@@ -42,4 +42,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   applySort();
+
 });

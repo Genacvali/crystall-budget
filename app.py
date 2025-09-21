@@ -880,6 +880,30 @@ def set_currency():
         flash("Неизвестная валюта", "error")
     return redirect(request.referrer or url_for("dashboard"))
 
+@app.route("/set-theme", methods=["POST"])
+@login_required
+def set_theme():
+    data = request.get_json(silent=True) or {}
+    theme = (data.get("theme") or "").lower()
+    if theme not in ("light", "dark"):
+        return {"ok": False, "error": "bad theme"}, 400
+    session["theme"] = theme
+    # необязательно: попытка сохранить в БД, если есть колонка
+    try:
+        conn = get_db()
+        conn.execute("ALTER TABLE users ADD COLUMN theme TEXT")
+        conn.commit()
+    except Exception:
+        pass
+    try:
+        conn = get_db()
+        conn.execute("UPDATE users SET theme=? WHERE id=?", (theme, session["user_id"]))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+    return {"ok": True}
+
 
 # -----------------------------------------------------------------------------
 # Routes: auth
@@ -1830,7 +1854,9 @@ def dashboard():
                 multi_source=row["multi_source"],
                 sources_info=sources_info,
                 accumulated_rollover=accumulated_rollover,
-                total_available_limit=total_available_limit
+                total_available_limit=total_available_limit,
+                limit_type=row["limit_type"],
+                value=row["value"]
             )
         )
 
@@ -4536,6 +4562,40 @@ def api_create_income():
     except Exception as e:
         app.logger.error(f"Error in api_create_income: {e}")
         return {'error': 'Internal server error'}, 500
+
+@app.route('/api/categories/<int:cat_id>', methods=['PATCH'])
+@login_required
+def api_update_category(cat_id):
+    """Обновляет название/тип/значение категории пользователя."""
+    try:
+        uid = session['user_id']
+        data = request.get_json(force=True, silent=True) or {}
+
+        name = (data.get('name') or '').strip()
+        limit_type = (data.get('limit_type') or 'fixed').strip()
+        value = float(data.get('value') or 0)
+
+        if limit_type not in ('fixed','percent'):
+            return {'error':'invalid limit_type'}, 400
+        if not name:
+            return {'error':'name_required'}, 400
+
+        conn = get_db()
+        ok = conn.execute("SELECT id FROM categories WHERE id=? AND user_id=?", (cat_id, uid)).fetchone()
+        if not ok:
+            conn.close()
+            return {'error':'not_found'}, 404
+
+        conn.execute(
+            "UPDATE categories SET name=?, limit_type=?, value=? WHERE id=? AND user_id=?",
+            (name, limit_type, value, cat_id, uid)
+        )
+        conn.commit()
+        conn.close()
+        return {'ok': True}, 200
+    except Exception as e:
+        app.logger.error(f"api_update_category error: {e}")
+        return {'error':'server_error'}, 500
 
 # -----------------------------------------------------------------------------
 # Main

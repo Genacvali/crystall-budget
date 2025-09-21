@@ -1,31 +1,32 @@
 {# templates/components/_progress_bars.html #}
-<section class="card-soft mb-4">
-  <div class="p-3 pb-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
-    <h5 class="m-0"><i class="bi bi-graph-up-arrow me-2"></i>Прогресс по категориям</h5>
-
-    <div class="segmented">
-      <button class="seg-btn" id="sortDirBtn" data-dir="asc" title="Направление">
-        <i class="bi bi-arrow-down-up"></i>
-      </button>
-      <div class="seg-divider"></div>
-      <div class="dropdown">
-        <button class="seg-btn dropdown-toggle" id="sortKeyBtn" data-bs-toggle="dropdown" aria-expanded="false">
-          <span id="sortKeyLabel">Ручной порядок</span>
+<section class="ff-progress-card mb-4" aria-label="Прогресс по категориям">
+  <div class="ff-header">
+    <i class="bi bi-graph-up-arrow"></i>
+    Прогресс по категориям
+    
+    <div class="ms-auto">
+      <div class="segmented">
+        <button class="seg-btn" id="sortDirBtn" data-dir="asc" title="Направление">
+          <i class="bi bi-arrow-down-up"></i>
         </button>
-        <ul class="dropdown-menu dropdown-menu-end shadow-soft" aria-labelledby="sortKeyBtn">
-          <li><button class="dropdown-item sort-opt" data-key="manual">Ручной порядок</button></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><button class="dropdown-item sort-opt" data-key="name">По названию</button></li>
-          <li><button class="dropdown-item sort-opt" data-key="progress">По прогрессу (%)</button></li>
-          <li><button class="dropdown-item sort-opt" data-key="remaining">По остатку</button></li>
-          <li><button class="dropdown-item sort-opt" data-key="spent">По тратам</button></li>
-          <li><button class="dropdown-item sort-opt" data-key="limit">По лимиту</button></li>
-        </ul>
+        <div class="seg-divider"></div>
+        <div class="dropdown">
+          <button class="seg-btn dropdown-toggle" id="sortKeyBtn" data-bs-toggle="dropdown" aria-expanded="false">
+            <span id="sortKeyLabel">По названию</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-soft" aria-labelledby="sortKeyBtn">
+            <li><button class="dropdown-item sort-opt" data-key="name">По названию</button></li>
+            <li><button class="dropdown-item sort-opt" data-key="progress">По прогрессу (%)</button></li>
+            <li><button class="dropdown-item sort-opt" data-key="remaining">По остатку</button></li>
+            <li><button class="dropdown-item sort-opt" data-key="spent">По тратам</button></li>
+            <li><button class="dropdown-item sort-opt" data-key="limit">По лимиту</button></li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 
-  <div id="catList" class="d-flex flex-column gap-2 p-3 pt-0">
+  <div class="ff-list" id="catList">
     {% for cat in budget_data %}
       {% set base_limit = (cat.limit or 0)|float %}
       {% set spent       = (cat.spent or 0)|float %}
@@ -40,53 +41,52 @@
 
       {% set progress  = progress_raw|round(1) %}
       {% set bar_width = [progress_raw, 100]|min|round(1) %}
-      {% set bar_class = 'pill-ok' if progress_raw < 70 else ('pill-warn' if progress_raw < 100 else 'pill-danger') %}
 
-      <article class="cat card-soft"
+      <article class="ff-item"
                data-id="{{ cat.id if cat.id is defined else loop.index }}"
                data-name="{{ (cat.name or '')|trim }}"
                data-progress="{{ progress }}"
                data-remaining="{{ rest }}"
                data-spent="{{ spent }}"
                data-limit="{{ avail_limit }}"
-               data-order="{{ cat.sort_order if cat.sort_order is defined else loop.index0 }}">
-        <div class="cat-row">
-          <div class="cat-left">
-            <div class="cat-title">{{ cat.name }}</div>
-            <div class="cat-meta">Фикс {{ base_limit|format_amount }} ₽</div>
-          </div>
+               data-order="{{ cat.sort_order if cat.sort_order is defined else loop.index0 }}"
+               data-limit-type="{{ cat.limit_type or 'fixed' }}"
+               data-value="{{ cat.value or avail_limit }}">
+        
+        <div class="ff-left">
+          <div class="ff-title">{{ cat.name }}</div>
+          <div class="ff-meta">Фикс <span class="limit">{{ base_limit|format_amount }}</span> ₽</div>
+        </div>
 
-          <div class="cat-middle">
-            <div class="ff-bar">
-              {# вычисляем класс по проценту #}
-              {% set pct = (bar_width|float) %}
-              {% set fill_class = 'ok' if pct < 70 else ('warn' if pct < 100 else 'danger') %}
-              <span class="ff-fill {{ fill_class }}" style="width: {{ [pct, 100]|min }}%"></span>
-            </div>
+        <div class="ff-middle">
+          <div class="ff-row">
+            <strong class="spent">{{ spent|format_amount }}</strong> ₽
+            <span class="slash">/</span>
+            <span class="limit">{{ avail_limit|format_amount }}</span> ₽
           </div>
+          <div class="ff-track" role="meter" aria-valuemin="0" aria-valuenow="{{ progress|round }}" aria-valuemax="100">
+            <div class="ff-bar" style="width: {{ [bar_width, 100]|min }}%; --bar-color: {% if progress_raw < 50 %}var(--ok){% elif progress_raw < 85 %}var(--warn){% else %}var(--bad){% endif %}"></div>
+          </div>
+          <div class="ff-meta">Остаток: <span class="rest {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">{{ rest|format_amount }}</span> ₽</div>
+        </div>
 
-          <div class="cat-right">
-            <div class="num">
-              <b class="mono">{{ spent|format_amount }} ₽</b>
-              /
-              <span class="muted mono">{{ avail_limit|format_amount }} ₽</span>
-            </div>
-            <div class="small muted">
-              Остаток:
-              <span class="mono {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">
-                {{ rest|format_amount }} ₽
-              </span>
-            </div>
-          </div>
-
-          <div class="cat-actions">
-            <button class="ghost-icon" title="Редактировать" data-action="edit" data-id="{{ cat.id }}"><i class="bi bi-pencil"></i></button>
-            <button class="ghost-icon" title="Удалить" data-action="delete" data-id="{{ cat.id }}"><i class="bi bi-trash"></i></button>
-          </div>
+        <div class="ff-actions">
+          <button class="ff-ico" title="Редактировать" aria-label="Редактировать"
+                  data-bs-toggle="modal"
+                  data-bs-target="#editCategoryModal"
+                  data-cat-id="{{ cat.id }}"
+                  data-cat-name="{{ cat.name }}"
+                  data-cat-type="{{ cat.limit_type or 'fixed' }}"
+                  data-cat-value="{{ cat.value or cat.limit }}">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="ff-ico" title="Удалить" aria-label="Удалить" data-action="delete" data-id="{{ cat.id }}">
+            <i class="bi bi-trash"></i>
+          </button>
         </div>
       </article>
     {% else %}
-      <div class="text-muted">Нет категорий бюджета на выбранный месяц.</div>
+      <div class="text-muted p-3">Нет категорий бюджета на выбранный месяц.</div>
     {% endfor %}
   </div>
 </section>

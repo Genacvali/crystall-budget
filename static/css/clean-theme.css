@@ -1,57 +1,73 @@
-/* === Theme tokens (light/dark) === */
+/* ——— Bridge: наши токены <-> bootstrap ——— */
 :root{
+  --radius-xl:16px; --radius-lg:12px;
+  --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --info:#0ea5e9;
+}
+
+/* Светлая */
+[data-bs-theme="light"]{
   --surface:#ffffff;
-  --bg:#f6f7fb;
+  --bg:#f5f7fb;
   --text:#0b1220;
   --muted:#6b7280;
 
-  --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444;
-  --hero-a:#4f46e5; --hero-b:#0ea5e9;
-
-  --border:1px solid rgba(0,0,0,.08);
-  --shadow-soft:0 6px 24px rgba(0,0,0,.08);
-
-  /* прокидываем в Bootstrap */
+  /* мост для bootstrap */
   --bs-body-bg: var(--bg);
   --bs-body-color: var(--text);
+  --bs-secondary-bg: rgba(0,0,0,.04);
   --bs-border-color: rgba(0,0,0,.12);
-  --bs-secondary-bg: #eef0f6;
 }
 
-:root[data-bs-theme="dark"]{
-  --surface:#0f141a;
-  --bg:#0a0e13;
-  --text:#f5f7fb;
-  --muted:#a7b0ba;
-
-  --border:1px solid rgba(255,255,255,.08);
-  --shadow-soft:0 12px 32px rgba(0,0,0,.45);
+/* Тёмная */
+[data-bs-theme="dark"]{
+  --surface:#11161c;
+  --bg:#0b0f14;
+  --text:#e7ecf3;
+  --muted:#9aa4ae;
 
   --bs-body-bg: var(--bg);
   --bs-body-color: var(--text);
-  --bs-border-color: rgba(255,255,255,.12);
   --bs-secondary-bg: rgba(255,255,255,.06);
+  --bs-border-color: rgba(255,255,255,.14);
 }
+
+/* применяем фон и текст гарантированно */
+html, body{ background: var(--bs-body-bg); color: var(--bs-body-color); }
 
 /* базовые контейнеры/карточки обязаны использовать токены */
 body{ background:var(--bg); color:var(--text); }
 .card-soft{ background:var(--surface); border:var(--border); box-shadow:var(--shadow-soft); border-radius:16px; }
 
+/* === Theme toggle (fixed) === */
 .theme-toggle{
-  position:relative; width:64px; height:32px; padding:2px;
-  border-radius:999px; border:1px solid color-mix(in srgb, var(--text) 12%, transparent);
+  position:relative;
+  width:88px;                       /* было 64px → стало 88px */
+  height:32px;
+  padding:2px 8px;                  /* справа/слева запас под иконки */
+  border-radius:999px;
+  border:1px solid color-mix(in srgb, var(--text) 12%, transparent);
   background:color-mix(in srgb, var(--text) 8%, transparent);
   display:inline-flex; align-items:center; justify-content:space-between;
   box-sizing:border-box; gap:6px; user-select:none;
-  overflow:hidden;
+  overflow:hidden;                   /* критично: тень/кружок не выглядывают */
 }
-.theme-toggle .sun,.theme-toggle .moon{ font-size:13px; opacity:.7; padding:0 8px; line-height:1; }
+
+.theme-toggle .sun,
+.theme-toggle .moon{
+  font-size:13px; opacity:.7; padding:0; line-height:1;
+  pointer-events:none; position:relative; z-index:1; /* иконки всегда поверх */
+}
+
 .theme-toggle .thumb{
-  position:absolute; top:2px; left:2px; width:28px; height:28px;
-  border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.25);
-  transition: transform .2s ease;
+  position:absolute; top:2px; left:8px;            /* базовая точка слева */
+  width:28px; height:28px; border-radius:50%;
+  background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.25);
+  transition: transform .2s ease; will-change: transform;
+  z-index:0;                                       /* кружок под иконками */
 }
-:root[data-bs-theme="dark"] .theme-toggle .thumb{ transform:translateX(32px); }
+
+/* Тёмная тема: ход ровно по треку между иконками */
+:root[data-bs-theme="dark"] .theme-toggle .thumb{ transform: translateX(44px); }
 
 /* Dark theme - Bootstrap compatible */
 [data-bs-theme="dark"],
@@ -180,56 +196,6 @@ body {
   border-radius: 2px;
 }
 
-/* Theme Toggle Switch */
-.theme-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 20px;
-  background: var(--bg-card);
-  border: 1px solid var(--border-color);
-  transition: var(--transition);
-}
-
-.theme-toggle:hover {
-  background: var(--bg-secondary);
-  box-shadow: var(--shadow-sm);
-}
-
-.theme-switch {
-  position: relative;
-  width: 48px;
-  height: 24px;
-  background: var(--text-muted);
-  border-radius: 12px;
-  transition: var(--transition);
-  cursor: pointer;
-}
-
-.theme-switch::after {
-  content: '';
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 20px;
-  height: 20px;
-  background: white;
-  border-radius: 50%;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
-}
-
-[data-bs-theme="dark"] .theme-switch,
-[data-theme="dark"] .theme-switch {
-  background: var(--primary-color);
-}
-
-[data-bs-theme="dark"] .theme-switch::after,
-[data-theme="dark"] .theme-switch::after {
-  transform: translateX(24px);
-}
 
 /* Currency Selection */
 .currency-selector {
@@ -372,6 +338,34 @@ body {
   font-size: 1rem;
   min-height: 44px;
   width: 100%;
+}
+
+/* Date input styling */
+input[type="date"] {
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+  color: var(--bs-body-color);
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  min-height: 38px;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 1v2M11 1v2M2 5h12M2 3h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+[data-bs-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23f8f9fa' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 1v2M11 1v2M2 5h12M2 3h12a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z'/%3e%3c/svg%3e");
 }
 
 .form-modern::placeholder {

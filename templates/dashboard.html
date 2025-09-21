@@ -5,7 +5,7 @@
 
 {% block head %}
   {# единый css страницы (в нём есть .pill и всё остальное) #}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=9">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=20250921-3">
 {% endblock %}
 
 {% block content %}
@@ -15,6 +15,21 @@
 
   {# === Прогресс по категориям === #}
   {% include "components/_progress_bars.html" %}
+
+  {# === Календарь === #}
+  <section class="card-soft mb-4">
+    <div class="p-3">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <h5 class="m-0"><i class="bi bi-calendar3 me-2"></i>Календарь</h5>
+        <div class="d-flex gap-2">
+          <button class="btn btn-sm btn-outline-secondary" id="calPrev" aria-label="Предыдущий месяц"><i class="bi bi-chevron-left"></i></button>
+          <strong id="calTitle" class="mx-2"></strong>
+          <button class="btn btn-sm btn-outline-secondary" id="calNext" aria-label="Следующий месяц"><i class="bi bi-chevron-right"></i></button>
+        </div>
+      </div>
+      <div id="miniCalendar"></div>
+    </div>
+  </section>
 
   {# === Остальное содержимое дашборда — ваши карточки/таблицы/виджеты ниже === #}
   {# {% include "components/_recent_transactions.html" %} #}
@@ -98,10 +113,57 @@
     </div>
   </div>
 
+  <!-- Модал редактирования категории -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="categoryModalLabel">Редактировать категорию</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+        </div>
+        <form id="categoryForm">
+          <input type="hidden" name="id" id="catId">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="catName" class="form-label">Название</label>
+              <input type="text" class="form-control" id="catName" name="name" required maxlength="100">
+            </div>
+            <div class="mb-3">
+              <label for="catLimitType" class="form-label">Тип лимита</label>
+              <select class="form-select" id="catLimitType" name="limit_type">
+                <option value="fixed">Фиксированная сумма</option>
+                <option value="percent">Процент от дохода</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="catValue" class="form-label">Значение</label>
+              <input type="number" step="0.01" class="form-control" id="catValue" name="value" required>
+              <div class="form-text">Для «Процент» укажи 0–100, для «Фикс» — сумму в ₽.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Отмена</button>
+            <button class="btn btn-primary" type="submit">Сохранить</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
 {% endblock %}
 
 {% block scripts %}
 <script>
+// Функция для показа уведомлений
+function showToast(message, type = 'info') {
+  const toast = document.createElement('div');
+  toast.className = `alert alert-${type} position-fixed`;
+  toast.style.cssText = 'top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
 // Интеграция форм с офлайн API
 document.getElementById('expenseForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -114,24 +176,29 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
   };
   
   try {
-    const res = await CBOffline.apiSend('POST', '/api/expenses', payload);
-    if (res.queued) {
-      showToast('Расход сохранен (офлайн, будет отправлен при восстановлении сети)', 'warning');
-    } else {
+    const response = await fetch('/api/expenses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (response.ok) {
       showToast('Расход успешно добавлен', 'success');
-    }
-    
-    // Закрыть модал
-    const modal = bootstrap.Modal.getInstance(document.getElementById('expenseModal'));
-    if (modal) modal.hide();
-    
-    // Очистить форму
-    form.reset();
-    form.date.value = '{{ today }}';
-    
-    // Обновить страницу при онлайне
-    if (!res.queued) {
+      
+      // Закрыть модал
+      const modal = bootstrap.Modal.getInstance(document.getElementById('expenseModal'));
+      if (modal) modal.hide();
+      
+      // Очистить форму
+      form.reset();
+      form.date.value = '{{ today }}';
+      
+      // Обновить страницу
       setTimeout(() => location.reload(), 1000);
+    } else {
+      throw new Error('Ошибка сервера');
     }
   } catch (error) {
     console.error('Error adding expense:', error);
@@ -149,30 +216,150 @@ document.getElementById('incomeForm').addEventListener('submit', async (e) => {
   };
   
   try {
-    const res = await CBOffline.apiSend('POST', '/api/income', payload);
-    if (res.queued) {
-      showToast('Доход сохранен (офлайн, будет отправлен при восстановлении сети)', 'warning');
-    } else {
+    const response = await fetch('/api/income', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (response.ok) {
       showToast('Доход успешно добавлен', 'success');
-    }
-    
-    // Закрыть модал
-    const modal = bootstrap.Modal.getInstance(document.getElementById('incomeModal'));
-    if (modal) modal.hide();
-    
-    // Очистить форму
-    form.reset();
-    form.date.value = '{{ today }}';
-    
-    // Обновить страницу при онлайне
-    if (!res.queued) {
+      
+      // Закрыть модал
+      const modal = bootstrap.Modal.getInstance(document.getElementById('incomeModal'));
+      if (modal) modal.hide();
+      
+      // Очистить форму
+      form.reset();
+      form.date.value = '{{ today }}';
+      
+      // Обновить страницу
       setTimeout(() => location.reload(), 1000);
+    } else {
+      throw new Error('Ошибка сервера');
     }
   } catch (error) {
     console.error('Error adding income:', error);
     showToast('Ошибка при добавлении дохода', 'danger');
   }
 });
+
+// Редактирование категорий в модальном окне
+(function(){
+  const list = document.getElementById('catList');
+  if (!list) return;
+
+  const modalEl = document.getElementById('categoryModal');
+  const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+  const form = document.getElementById('categoryForm');
+
+  // Открыть модал по клику «карандаш»
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-action="edit"][data-id]');
+    if (!btn) return;
+
+    const id = btn.dataset.id;
+    const card = list.querySelector(`article.cat [data-id="${id}"]`)?.closest('article.cat')
+              || btn.closest('article.cat');
+    if (!card) return;
+
+    // Берём данные из data-атрибутов
+    document.getElementById('catId').value = id;
+    document.getElementById('catName').value = card.dataset.name || '';
+    // если нет явного типа — считаем «fixed»
+    document.getElementById('catLimitType').value = card.dataset.limitType || 'fixed';
+    document.getElementById('catValue').value = Number(card.dataset.limit || 0);
+
+    modal?.show();
+  });
+
+  // Сохранение
+  form?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const fd = new FormData(form);
+    const payload = {
+      name: (fd.get('name')+'').trim(),
+      limit_type: fd.get('limit_type') || 'fixed',
+      value: Number(fd.get('value')||0)
+    };
+    const id = Number(fd.get('id'));
+
+    try{
+      const res = await CBOffline.apiSend('PATCH', `/api/categories/${id}`, payload);
+      if (res?.queued) {
+        showToast('Категория сохранена (офлайн, синхронизируется при сети)', 'warning');
+      } else {
+        showToast('Категория обновлена', 'success');
+      }
+
+      // Обновляем DOM «на лету»
+      const card = list.querySelector(`article.cat [data-id="${id}"]`)?.closest('article.cat');
+      if (card) {
+        card.dataset.name = payload.name;
+        card.dataset.limit = String(payload.value);
+        card.dataset.limitType = payload.limit_type;
+
+        card.querySelector('.cat-title')?.replaceChildren(document.createTextNode(payload.name));
+
+        // подпись под названием
+        const meta = card.querySelector('.cat-meta');
+        if (meta) {
+          meta.textContent = (payload.limit_type === 'percent'
+            ? `Процент ${payload.value.toFixed(2)}%`
+            : `Фикс ${payload.value.toFixed(2)} ₽`);
+        }
+
+        // правая колонка «/ лимит»
+        const limitSpan = card.querySelector('.cat-right .muted.mono');
+        if (limitSpan) limitSpan.textContent = `${payload.value.toFixed(2)} ₽`;
+      }
+
+      modal?.hide();
+    } catch(err){
+      console.error(err);
+      showToast('Ошибка при сохранении категории', 'danger');
+    }
+  });
+
+})();
+
+// Обработка удаления категорий
+document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('click', async function(e) {
+    if (e.target.matches('[data-action="delete"]') || e.target.closest('[data-action="delete"]')) {
+      const btn = e.target.matches('[data-action="delete"]') ? e.target : e.target.closest('[data-action="delete"]');
+      const catId = btn.dataset.id;
+      
+      console.log('Delete button clicked, category ID:', catId); // Для отладки
+      
+      if (!confirm('Удалить эту категорию? Все связанные расходы также будут удалены.')) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/categories/delete/${catId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (response.ok) {
+          showToast('Категория успешно удалена', 'success');
+          // Перезагружаем страницу
+          setTimeout(() => location.reload(), 1000);
+        } else {
+          throw new Error('Ошибка сервера');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Ошибка при удалении категории', 'danger');
+      }
+    }
+  });
+});
 </script>
-<script defer src="{{ url_for('static', filename='js/progress_bars.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/dashboard-cats.js') }}"></script>
 {% endblock %}
