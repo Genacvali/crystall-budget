@@ -128,7 +128,6 @@
 }
 .ff-bar{
   position:absolute; inset:0 auto 0 0;
-  width: 0%;
   background: var(--bar-color, var(--ok));
   border-radius: inherit;
   transition: width .25s ease;

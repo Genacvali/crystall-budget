@@ -1,135 +1,175 @@
 {% extends "base.html" %}
-{% block title %}Панель управления — CrystalBudget{% endblock %}
+{% block title %}Дашборд — CrystalBudget{% endblock %}
 
 {% block content %}
 
-{# === Панель баланса (hero) === #}
-{% include "components/_balance_panel.html" %}
+  {# === Панель баланса (hero) === #}
+  {% include "components/_balance_panel.html" %}
 
-{# === Прогресс по категориям === #}
-{% include "components/_progress_bars.html" %}
-
-
-<!-- Модал добавления расхода -->
-<div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="expenseModalLabel">Добавить расход</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  {# === Карточки доходов по источникам === #}
+  {% if tiles %}
+  <section class="income-cards" aria-label="Доходы по источникам">
+    {% for tile in tiles %}
+      {% set balance = tile.balance %}
+      
+      <div class="income-card">
+        <h3>{{ tile.source_name }}</h3>
+        <div class="income-rows">
+          <div class="income-row">
+            <div class="income-k">Пришло</div>
+            <div class="income-v">{{ tile.total_income | format_amount }}<span class="income-rub">₽</span></div>
+          </div>
+          <div class="income-row">
+            <div class="income-k">Ушло</div>
+            <div class="income-v">{{ tile.total_spent | format_amount }}<span class="income-rub">₽</span></div>
+          </div>
+          <div class="income-row">
+            <div class="income-k">Остается после лимитов</div>
+            {% set remaining_budget = tile.total_income - tile.total_spent %}
+            <div class="income-v {{ 'pos' if remaining_budget > 0 else ('neg' if remaining_budget < 0 else '') }}">
+              {{ remaining_budget | format_amount }}<span class="income-rub">₽</span>
+            </div>
+          </div>
+          <div class="income-row total">
+            <div class="income-k">Остаток</div>
+            <div class="income-v {{ 'pos' if balance > 0 else ('neg' if balance < 0 else '') }}">
+              {{ balance | format_amount }}<span class="income-rub">₽</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <form id="expenseForm">
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="expenseAmount" class="form-label">Сумма</label>
-            <input type="number" class="form-control" id="expenseAmount" name="amount" step="0.01" required>
-          </div>
-          <div class="mb-3">
-            <label for="expenseCategory" class="form-label">Категория</label>
-            <select class="form-select" id="expenseCategory" name="category_id" required>
-              {% for cat in budget_data %}
-                <option value="{{ cat.id }}">{{ cat.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="expenseDate" class="form-label">Дата</label>
-            <input type="date" class="form-control" id="expenseDate" name="date" value="{{ today }}" required>
-          </div>
-          <div class="mb-3">
-            <label for="expenseNote" class="form-label">Примечание</label>
-            <input type="text" class="form-control" id="expenseNote" name="note" maxlength="500">
-          </div>
+    {% endfor %}
+  </section>
+  {% endif %}
+
+  {# === Прогресс по категориям === #}
+  {% include "components/_progress_bars.html" %}
+
+
+  <!-- Модал добавления расхода -->
+  <div class="modal fade" id="expenseModal" tabindex="-1" aria-labelledby="expenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="expenseModalLabel">Добавить расход</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary">Сохранить</button>
-        </div>
-      </form>
+        <form id="expenseForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="expenseAmount" class="form-label">Сумма</label>
+              <input type="number" class="form-control" id="expenseAmount" name="amount" step="0.01" required>
+            </div>
+            <div class="mb-3">
+              <label for="expenseCategory" class="form-label">Категория</label>
+              <select class="form-select" id="expenseCategory" name="category_id" required>
+                {% for cat in budget_data %}
+                  <option value="{{ cat.id }}">{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="expenseDate" class="form-label">Дата</label>
+              <input type="date" class="form-control" id="expenseDate" name="date" value="{{ today }}" required>
+            </div>
+            <div class="mb-3">
+              <label for="expenseNote" class="form-label">Примечание</label>
+              <input type="text" class="form-control" id="expenseNote" name="note" maxlength="500">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Модал добавления дохода -->
-<div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="incomeModalLabel">Добавить доход</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  <!-- Модал добавления дохода -->
+  <div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="incomeModalLabel">Добавить доход</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form id="incomeForm">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="incomeAmount" class="form-label">Сумма</label>
+              <input type="number" class="form-control" id="incomeAmount" name="amount" step="0.01" required>
+            </div>
+            <div class="mb-3">
+              <label for="incomeSource" class="form-label">Источник</label>
+              <select class="form-select" id="incomeSource" name="source_id" required>
+                <option value="">Выберите источник</option>
+                <option value="1">Зарплата</option>
+                <option value="2">Фриланс</option>
+                <option value="3">Другое</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="incomeDate" class="form-label">Дата</label>
+              <input type="date" class="form-control" id="incomeDate" name="date" value="{{ today }}" required>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+          </div>
+        </form>
       </div>
-      <form id="incomeForm">
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="incomeAmount" class="form-label">Сумма</label>
-            <input type="number" class="form-control" id="incomeAmount" name="amount" step="0.01" required>
-          </div>
-          <div class="mb-3">
-            <label for="incomeSource" class="form-label">Источник</label>
-            <select class="form-select" id="incomeSource" name="source_id" required>
-              <option value="">Выберите источник</option>
-              <option value="1">Зарплата</option>
-              <option value="2">Фриланс</option>
-              <option value="3">Другое</option>
-            </select>
-          </div>
-          <div class="mb-3">
-            <label for="incomeDate" class="form-label">Дата</label>
-            <input type="date" class="form-control" id="incomeDate" name="date" value="{{ today }}" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary">Сохранить</button>
-        </div>
-      </form>
     </div>
   </div>
-</div>
 
-<!-- Модал редактирования категории -->
-<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <form class="modal-content" method="POST">
-      <div class="modal-header">
-        <h5 class="modal-title">Изменить категорию</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" name="__cat_id" id="ec-id">
-        <div class="mb-3">
-          <label class="form-label">Название</label>
-          <input class="form-control" name="name" id="ec-name" required>
+  <!-- Модал редактирования категории -->
+  <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="categoryModalLabel">Редактировать категорию</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
         </div>
-        <div class="mb-3">
-          <label class="form-label">Тип лимита</label>
-          <select class="form-select" name="limit_type" id="ec-type" required>
-            <option value="fixed">Фикс</option>
-            <option value="percent">Процент</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Значение</label>
-          <input type="number" step="0.01" min="0.01" class="form-control" name="value" id="ec-value" required>
-        </div>
+        <form id="categoryForm">
+          <input type="hidden" name="id" id="catId">
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="catName" class="form-label">Название</label>
+              <input type="text" class="form-control" id="catName" name="name" required maxlength="100">
+            </div>
+            <div class="mb-3">
+              <label for="catLimitType" class="form-label">Тип лимита</label>
+              <select class="form-select" id="catLimitType" name="limit_type">
+                <option value="fixed">Фиксированная сумма</option>
+                <option value="percent">Процент от дохода</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="catValue" class="form-label">Значение</label>
+              <input type="number" step="0.01" class="form-control" id="catValue" name="value" required>
+              <div class="form-text">Для «Процент» укажи 0–100, для «Фикс» — сумму в ₽.</div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Отмена</button>
+            <button class="btn btn-primary" type="submit">Сохранить</button>
+          </div>
+        </form>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-        <button class="btn btn-primary" type="submit" id="ec-save">Сохранить</button>
-      </div>
-    </form>
+    </div>
   </div>
-</div>
 
 {% endblock %}
 
-{% block scripts %}
+{% block page_js %}
 <script>
-// Интеграция форм с офлайн API
+// Интеграция форм с API
 document.getElementById('expenseForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
   const payload = {
+    operationId: Date.now() + '-' + Math.random().toString(36),
     amount: Number(form.amount.value),
     category_id: form.category_id.value,
     date: form.date.value,
@@ -137,24 +177,29 @@ document.getElementById('expenseForm').addEventListener('submit', async (e) => {
   };
   
   try {
-    const res = await CBOffline.apiSend('POST', '/api/expenses', payload);
-    if (res.queued) {
-      showToast('Расход сохранен (офлайн, будет отправлен при восстановлении сети)', 'warning');
-    } else {
+    const response = await fetch('/api/expenses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (response.ok) {
       showToast('Расход успешно добавлен', 'success');
-    }
-    
-    // Закрыть модал
-    const modal = bootstrap.Modal.getInstance(document.getElementById('expenseModal'));
-    if (modal) modal.hide();
-    
-    // Очистить форму
-    form.reset();
-    form.date.value = '{{ today }}';
-    
-    // Обновить страницу при онлайне
-    if (!res.queued) {
+      
+      // Закрыть модал
+      const modal = bootstrap.Modal.getInstance(document.getElementById('expenseModal'));
+      if (modal) modal.hide();
+      
+      // Очистить форму
+      form.reset();
+      form.date.value = '{{ today }}';
+      
+      // Обновить страницу
       setTimeout(() => location.reload(), 1000);
+    } else {
+      throw new Error('Ошибка сервера');
     }
   } catch (error) {
     console.error('Error adding expense:', error);
@@ -166,30 +211,36 @@ document.getElementById('incomeForm').addEventListener('submit', async (e) => {
   e.preventDefault();
   const form = e.target;
   const payload = {
+    operationId: Date.now() + '-' + Math.random().toString(36),
     amount: Number(form.amount.value),
     source_id: form.source_id.value,
     date: form.date.value
   };
   
   try {
-    const res = await CBOffline.apiSend('POST', '/api/income', payload);
-    if (res.queued) {
-      showToast('Доход сохранен (офлайн, будет отправлен при восстановлении сети)', 'warning');
-    } else {
+    const response = await fetch('/api/income', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload)
+    });
+    
+    if (response.ok) {
       showToast('Доход успешно добавлен', 'success');
-    }
-    
-    // Закрыть модал
-    const modal = bootstrap.Modal.getInstance(document.getElementById('incomeModal'));
-    if (modal) modal.hide();
-    
-    // Очистить форму
-    form.reset();
-    form.date.value = '{{ today }}';
-    
-    // Обновить страницу при онлайне
-    if (!res.queued) {
+      
+      // Закрыть модал
+      const modal = bootstrap.Modal.getInstance(document.getElementById('incomeModal'));
+      if (modal) modal.hide();
+      
+      // Очистить форму
+      form.reset();
+      form.date.value = '{{ today }}';
+      
+      // Обновить страницу
       setTimeout(() => location.reload(), 1000);
+    } else {
+      throw new Error('Ошибка сервера');
     }
   } catch (error) {
     console.error('Error adding income:', error);
@@ -197,66 +248,128 @@ document.getElementById('incomeForm').addEventListener('submit', async (e) => {
   }
 });
 
-// Редактирование категорий
-document.addEventListener('show.bs.modal', function(e){
-  const trg = e.relatedTarget;
-  if (!trg) return;
-  if (trg.matches('[data-bs-target="#editCategoryModal"]')){
-    const id = trg.dataset.catId;
-    document.getElementById('ec-id').value    = id;
-    document.getElementById('ec-name').value  = trg.dataset.catName || '';
-    document.getElementById('ec-type').value  = trg.dataset.catType || 'fixed';
-    document.getElementById('ec-value').value = trg.dataset.catValue || '';
-  }
-});
+// Редактирование категорий в модальном окне
+(function(){
+  const list = document.getElementById('catList');
+  if (!list) return;
 
-// Обработка формы редактирования категории
-document.getElementById('editCategoryModal').querySelector('form').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const form = e.target;
-  const formData = new FormData(form);
-  const id = formData.get('__cat_id');
-  
-  const payload = {
-    name: formData.get('name'),
-    limit_type: formData.get('limit_type'),
-    value: parseFloat(formData.get('value'))
-  };
+  const modalEl = document.getElementById('categoryModal');
+  const modal = modalEl ? new bootstrap.Modal(modalEl) : null;
+  const form = document.getElementById('categoryForm');
 
-  try {
-    const response = await fetch(`/api/categories/${id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload)
-    });
+  // Открыть модал по клику «карандаш»
+  document.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-action="edit"][data-id]');
+    if (!btn) return;
 
-    if (response.ok) {
-      const modal = bootstrap.Modal.getInstance(document.getElementById('editCategoryModal'));
-      modal.hide();
+    const id = btn.dataset.id;
+    const card = list.querySelector(`article.cat [data-id="${id}"]`)?.closest('article.cat')
+              || btn.closest('article.cat');
+    if (!card) return;
+
+    // Берём данные из data-атрибутов
+    document.getElementById('catId').value = id;
+    document.getElementById('catName').value = card.dataset.name || '';
+    // если нет явного типа — считаем «fixed»
+    document.getElementById('catLimitType').value = card.dataset.limitType || 'fixed';
+    document.getElementById('catValue').value = Number(card.dataset.limit || 0);
+
+    modal?.show();
+  });
+
+  // Сохранение
+  form?.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const fd = new FormData(form);
+    const payload = {
+      name: (fd.get('name')+'').trim(),
+      limit_type: fd.get('limit_type') || 'fixed',
+      value: Number(fd.get('value')||0)
+    };
+    const id = Number(fd.get('id'));
+
+    try{
+      const response = await fetch(`/api/categories/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
+      });
       
-      // Показываем уведомление
-      const toast = document.createElement('div');
-      toast.className = 'alert alert-success';
-      toast.textContent = 'Категория успешно обновлена';
-      document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-      
-      // Перезагружаем страницу через секунду
-      setTimeout(() => location.reload(), 1000);
-    } else {
-      throw new Error('Ошибка сервера');
+      if (response.ok) {
+        showToast('Категория обновлена', 'success');
+
+        // Обновляем DOM «на лету»
+        const card = list.querySelector(`article.cat [data-id="${id}"]`)?.closest('article.cat');
+        if (card) {
+          card.dataset.name = payload.name;
+          card.dataset.limit = String(payload.value);
+          card.dataset.limitType = payload.limit_type;
+
+          card.querySelector('.cat-title')?.replaceChildren(document.createTextNode(payload.name));
+
+          // подпись под названием
+          const meta = card.querySelector('.cat-meta');
+          if (meta) {
+            meta.textContent = (payload.limit_type === 'percent'
+              ? `Процент ${payload.value.toFixed(2)}%`
+              : `Фикс ${payload.value.toFixed(2)} ₽`);
+          }
+
+          // правая колонка «/ лимит»
+          const limitSpan = card.querySelector('.cat-right .muted.mono');
+          if (limitSpan) limitSpan.textContent = `${payload.value.toFixed(2)} ₽`;
+        }
+
+        modal?.hide();
+      } else {
+        throw new Error('Ошибка сервера');
+      }
+    } catch(err){
+      console.error(err);
+      showToast('Ошибка при сохранении категории', 'danger');
     }
-  } catch (error) {
-    console.error('Error:', error);
-    const toast = document.createElement('div');
-    toast.className = 'alert alert-danger';
-    toast.textContent = 'Ошибка при обновлении категории';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
-  }
+  });
+
+})();
+
+// Обработка удаления категорий
+document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('click', async function(e) {
+    if (e.target.matches('[data-action="delete"]') || e.target.closest('[data-action="delete"]')) {
+      const btn = e.target.matches('[data-action="delete"]') ? e.target : e.target.closest('[data-action="delete"]');
+      const catId = btn.dataset.id;
+      
+      console.log('Delete button clicked, category ID:', catId);
+      
+      // Используем модальное окно вместо confirm
+      window.confirmDelete(
+        'Удалить эту категорию? Все связанные расходы также будут удалены.',
+        async () => {
+          try {
+            const response = await fetch(`/categories/delete/${catId}`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              }
+            });
+            
+            if (response.ok) {
+              showToast('Категория успешно удалена', 'success');
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              throw new Error('Ошибка сервера');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            showToast('Ошибка при удалении категории', 'danger');
+          }
+        }
+      );
+    }
+  });
 });
 </script>
-<script defer src="{{ url_for('static', filename='js/dashboard-cats.js') }}"></script>
+<script defer src="{{ url_for('static', filename='js/dashboard-cats.js') }}?v=20250921-1"></script>
 {% endblock %}

@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Профиль — CrystalBudget{% endblock %}
+{% block title %}Личный кабинет — CrystalBudget{% endblock %}
 
 {% block content %}
-<div class="ynab-card mb-4">
-  <div class="ynab-card-header">
+<div class="card-soft mb-4">
+  <div class="card-soft-header">
     <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Профиль пользователя</h5>
   </div>
-  <div class="ynab-card-body">
+  <div class="p-4">
     <form method="POST" action="{{ url_for('update_profile') }}">
       <div class="row g-3">
         <div class="col-md-6">
@@ -35,11 +35,11 @@
   </div>
 </div>
 
-<div class="ynab-card mb-4">
-  <div class="ynab-card-header">
+<div class="card-soft mb-4">
+  <div class="card-soft-header">
     <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Настройки</h5>
   </div>
-  <div class="ynab-card-body">
+  <div class="p-4">
     <form method="POST" action="{{ url_for('set_currency') }}" class="row g-3">
       <div class="col-md-8">
         <label class="form-label">Валюта интерфейса</label>
@@ -64,11 +64,11 @@
   </div>
 </div>
 
-<div class="ynab-card mb-4">
-  <div class="ynab-card-header">
+<div class="card-soft mb-4">
+  <div class="card-soft-header">
     <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Смена пароля</h5>
   </div>
-  <div class="ynab-card-body">
+  <div class="p-4">
     <form method="POST" action="{{ url_for('account_password') }}">
       <div class="row g-3">
         <div class="col-12">
@@ -94,11 +94,11 @@
   </div>
 </div>
 
-<div class="ynab-card">
-  <div class="ynab-card-header">
+<div class="card-soft">
+  <div class="card-soft-header">
     <h5 class="mb-0"><i class="bi bi-download me-2"></i>Экспорт данных</h5>
   </div>
-  <div class="ynab-card-body">
+  <div class="p-4">
     <p class="text-muted mb-3">Скачайте копию всех ваших данных для резервного копирования или переноса.</p>
     <div class="d-flex gap-2">
       <button class="btn btn-outline-primary" onclick="alert('Экспорт в разработке')">
@@ -113,7 +113,7 @@
 
 {% endblock %}
 
-{% block scripts %}
+{% block page_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Валидация совпадения паролей

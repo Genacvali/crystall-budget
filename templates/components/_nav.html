@@ -1,0 +1,105 @@
+{# templates/components/_nav.html #}
+{% set ep = request.endpoint %}
+
+<header class="cb-nav">
+  <div class="container-xl">
+    <div class="cb-nav-row">
+      
+      {# Левая часть - логотип #}
+      <div class="cb-brand">
+        <a href="{{ url_for('dashboard') }}" class="cb-brand-link">
+          <span class="cb-brand-icon">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+              <path d="M6 3h12l4 6-10 12L2 9l4-6z" fill="currentColor"/>
+            </svg>
+          </span>
+          <span class="cb-brand-text">CrystalBudget</span>
+        </a>
+      </div>
+      
+      {# Центральная навигация #}
+      <nav class="cb-tabs" aria-label="Основная навигация">
+        <a class="cb-tab {{ 'is-active' if ep == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+          <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+          Дашборд
+        </a>
+        <a class="cb-tab {{ 'is-active' if ep == 'categories' else '' }}" href="{{ url_for('categories') }}">
+          <svg viewBox="0 0 24 24"><path d="M12 2l4 4-8 8-4-4 8-8zm-3 14l-1 4 4-1 8-8-3-3-8 8z"/></svg>
+          Категории
+        </a>
+        <a class="cb-tab {{ 'is-active' if ep == 'income_page' else '' }}" href="{{ url_for('income_page') }}">
+          <svg viewBox="0 0 24 24"><path d="M12 3l4 7H8l4-7zm-7 9h14l-7 9-7-9z"/></svg>
+          Доходы
+        </a>
+        <a class="cb-tab {{ 'is-active' if ep == 'expenses' else '' }}" href="{{ url_for('expenses') }}">
+          <svg viewBox="0 0 24 24"><path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
+          Расходы
+        </a>
+      </nav>
+
+      {# Правая часть - календарь, тема, пользователь #}
+      <div class="cb-right">
+        
+        {# Дроп-календарь #}
+        <div class="date-picker" id="datePicker">
+          <button class="dp-btn" type="button" id="dpBtn" title="Выбрать дату">
+            <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3V2zm14 8H3v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V10zM4 9h16V6a1 1 0 0 0-1-1h-3v2h-2V5H9v2H7V5H4a1 1 0 0 0-1 1v3z"/></svg>
+            <span id="dpLabel"></span>
+          </button>
+          
+          <div class="dp-dropdown">
+            <div class="dp-header">
+              <div class="dp-title" id="dpTitle"></div>
+              <div class="dp-nav">
+                <button class="dp-nav-btn" id="dpPrev" type="button" title="Предыдущий месяц">‹</button>
+                <button class="dp-nav-btn" id="dpNext" type="button" title="Следующий месяц">›</button>
+              </div>
+            </div>
+            <div class="dp-grid" id="dpGrid"></div>
+            <div class="dp-footer">
+              <button class="dp-today-btn" id="dpToday" type="button">Сегодня</button>
+            </div>
+          </div>
+        </div>
+
+        {# Переключатель темы #}
+        <label class="theme-toggle" title="Переключить тему">
+          <input type="checkbox" id="theme" {{ 'checked' if session.get('theme') == 'dark' else '' }}>
+          <span class="theme-slider"></span>
+        </label>
+
+        {# Пользовательское меню #}
+        {% if session.user_id %}
+        <div class="cb-user">
+          <a href="#" class="cb-user-btn" title="Меню пользователя">
+            <div class="cb-user-avatar">
+              {% if session.name %}
+                {{ session.name[0].upper() }}
+              {% else %}
+                ?
+              {% endif %}
+            </div>
+            <span class="cb-user-name">
+              {{ session.name or 'Пользователь' }}
+            </span>
+          </a>
+          
+          <div class="cb-user-dropdown">
+            <div class="cb-user-menu">
+              <a href="{{ url_for('account') }}" class="cb-user-item">
+                <i class="bi bi-person"></i>
+                Личный кабинет
+              </a>
+              <a href="{{ url_for('logout') }}" class="cb-user-item">
+                <i class="bi bi-box-arrow-right"></i>
+                Выйти
+              </a>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</header>

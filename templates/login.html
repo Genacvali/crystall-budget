@@ -2,29 +2,6 @@
 {% block title %}Вход - CrystalBudget{% endblock %}
 
 {% block content %}
-<style>
-  /* Компактная карточка авторизации */
-  .auth-wrap { margin-top: 24px; }
-  .auth-card { max-width: 380px; border-radius: 12px; }
-  .auth-card .card-body { padding: 18px 18px 16px; }
-
-  .auth-title { font-size: 20px; margin: 0 0 4px; }
-  .auth-subtitle { font-size: .95rem; margin: 0 0 12px; color: var(--bs-secondary-color, #6c757d); }
-
-  /* Аккуратный разделитель "или" */
-  .auth-divider { display: flex; align-items: center; gap: 10px; margin: 10px 0 14px; color: #6c757d; }
-  .auth-divider span { flex: 1; height: 1px; background: currentColor; opacity: .2; }
-  .auth-divider small { white-space: nowrap; }
-
-  /* Компактные поля/кнопки только в форме авторизации */
-  .auth-form .form-label { margin-bottom: 4px; font-size: .9rem; }
-  .auth-form .form-control { height: 38px; padding: 8px 10px; }
-  .auth-form .mb-3, .auth-form .mb-2 { margin-bottom: 10px !important; }
-  .auth-btn { height: 40px; }
-
-  /* Телеграм-виджет и фолбэк ближе друг к другу */
-  #telegram-fallback ul { margin-bottom: 0; padding-left: 16px; }
-</style>
 
 <div class="row justify-content-center auth-wrap">
   <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">

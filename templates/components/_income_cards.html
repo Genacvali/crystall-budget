@@ -1,0 +1,35 @@
+{# templates/components/_income_cards.html #}
+{% if income_sources and income_by_sources %}
+<section class="income-cards" aria-label="Доходы по источникам">
+  {% for source in income_sources %}
+    {% set source_data = income_by_sources.get(source.id, {'income': 0, 'spent': 0, 'remaining_limits': 0}) %}
+    {% set balance = source_data.income - source_data.spent %}
+    
+    <div class="income-card">
+      <h3>{{ source.name }}</h3>
+      <div class="income-rows">
+        <div class="income-row">
+          <div class="income-k">Пришло</div>
+          <div class="income-v">{{ source_data.income | format_amount }}<span class="income-rub">₽</span></div>
+        </div>
+        <div class="income-row">
+          <div class="income-k">Ушло</div>
+          <div class="income-v">{{ source_data.spent | format_amount }}<span class="income-rub">₽</span></div>
+        </div>
+        <div class="income-row">
+          <div class="income-k">Остается после лимитов</div>
+          <div class="income-v {{ 'pos' if source_data.remaining_limits > 0 else ('neg' if source_data.remaining_limits < 0 else '') }}">
+            {{ source_data.remaining_limits | format_amount }}<span class="income-rub">₽</span>
+          </div>
+        </div>
+        <div class="income-row total">
+          <div class="income-k">Остаток</div>
+          <div class="income-v {{ 'pos' if balance > 0 else ('neg' if balance < 0 else '') }}">
+            {{ balance | format_amount }}<span class="income-rub">₽</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</section>
+{% endif %}

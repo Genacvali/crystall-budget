@@ -42,7 +42,7 @@
       {% set progress  = progress_raw|round(1) %}
       {% set bar_width = [progress_raw, 100]|min|round(1) %}
 
-      <article class="ff-item"
+      <article class="cat ff-item"
                data-id="{{ cat.id if cat.id is defined else loop.index }}"
                data-name="{{ (cat.name or '')|trim }}"
                data-progress="{{ progress }}"
@@ -54,15 +54,21 @@
                data-value="{{ cat.value or avail_limit }}">
         
         <div class="ff-left">
-          <div class="ff-title">{{ cat.name }}</div>
-          <div class="ff-meta">Фикс <span class="limit">{{ base_limit|format_amount }}</span> ₽</div>
+          <div class="cat-title ff-title">{{ cat.name }}</div>
+          <div class="cat-meta ff-meta">
+            {% if cat.limit_type == 'percent' %}
+              Процент {{ cat.value }}%
+            {% else %}
+              Фикс <span class="limit">{{ base_limit|format_amount }}</span> ₽
+            {% endif %}
+          </div>
         </div>
 
         <div class="ff-middle">
           <div class="ff-row">
             <strong class="spent">{{ spent|format_amount }}</strong> ₽
             <span class="slash">/</span>
-            <span class="limit">{{ avail_limit|format_amount }}</span> ₽
+            <span class="cat-right"><span class="limit muted mono">{{ avail_limit|format_amount }}</span> ₽</span>
           </div>
           <div class="ff-track" role="meter" aria-valuemin="0" aria-valuenow="{{ progress|round }}" aria-valuemax="100">
             <div class="ff-bar" style="width: {{ [bar_width, 100]|min }}%; --bar-color: {% if progress_raw < 50 %}var(--ok){% elif progress_raw < 85 %}var(--warn){% else %}var(--bad){% endif %}"></div>
@@ -71,16 +77,12 @@
         </div>
 
         <div class="ff-actions">
-          <button class="ff-ico" title="Редактировать" aria-label="Редактировать"
-                  data-bs-toggle="modal"
-                  data-bs-target="#editCategoryModal"
-                  data-cat-id="{{ cat.id }}"
-                  data-cat-name="{{ cat.name }}"
-                  data-cat-type="{{ cat.limit_type or 'fixed' }}"
-                  data-cat-value="{{ cat.value or cat.limit }}">
+          <button class="icon-btn icon-primary icon-faded" title="Редактировать" aria-label="Редактировать"
+                  data-action="edit"
+                  data-id="{{ cat.id }}">
             <i class="bi bi-pencil"></i>
           </button>
-          <button class="ff-ico" title="Удалить" aria-label="Удалить" data-action="delete" data-id="{{ cat.id }}">
+          <button class="icon-btn icon-danger icon-faded" title="Удалить" aria-label="Удалить" data-action="delete" data-id="{{ cat.id }}">
             <i class="bi bi-trash"></i>
           </button>
         </div>
