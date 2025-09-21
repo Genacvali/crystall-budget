@@ -19,31 +19,32 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Category actions (edit/delete)
   document.addEventListener('click', (e) => {
-    const edit = e.target.closest('.edit-cat');
-    const del = e.target.closest('.delete-cat');
+    const button = e.target.closest('[data-action]');
     
-    if (edit) {
-      const id = edit.dataset.id;
-      const name = edit.dataset.name;
-      // Переход на страницу редактирования категории
-      window.location.href = `/categories`;
-    }
-    
-    if (del) {
-      const id = del.dataset.id;
-      if (confirm('Удалить категорию? Это действие необратимо.')) {
-        fetch(`/categories/delete/${id}`, {method:'POST'})
-          .then(response => {
-            if (response.ok) {
-              location.reload();
-            } else {
+    if (button) {
+      const action = button.dataset.action;
+      const id = button.dataset.id;
+      
+      if (action === 'edit') {
+        // Переход на страницу редактирования категории
+        window.location.href = `/categories`;
+      }
+      
+      if (action === 'delete') {
+        if (confirm('Удалить категорию? Это действие необратимо.')) {
+          fetch(`/categories/delete/${id}`, {method:'POST'})
+            .then(response => {
+              if (response.ok) {
+                location.reload();
+              } else {
+                alert('Ошибка при удалении категории');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
               alert('Ошибка при удалении категории');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('Ошибка при удалении категории');
-          });
+            });
+        }
       }
     }
   });

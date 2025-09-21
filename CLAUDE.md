@@ -43,18 +43,23 @@ export TELEGRAM_BOT_TOKEN="your-bot-token"
 # Verify application startup
 python app.py
 # Then visit http://localhost:5000 to test functionality
+
+# Check for syntax errors and basic linting
+python -m py_compile app.py
+python -m py_compile admin_panel/admin_panel.py
 ```
 
 ### Production Deployment
 ```bash
-# Deploy to server (CentOS/RHEL)
-./deploy.sh
-
-# Setup HTTPS with Let's Encrypt
-./setup-https.sh
-
 # Admin panel deployment (separate service)
 cd admin_panel && ./deploy_admin.sh
+
+# Note: Main app deployment scripts not present in current codebase
+# Manual deployment requires:
+# 1. Set up systemd service (crystalbudget.service)
+# 2. Configure nginx reverse proxy
+# 3. Set production environment variables
+# 4. Use gunicorn for WSGI serving
 ```
 
 ### Service Management
@@ -75,7 +80,7 @@ sudo journalctl -u admin-panel -f
 ## Architecture Overview
 
 ### Single-File Flask Application
-The entire backend is in `app.py` (~4357 lines) with:
+The entire backend is in `app.py` (~4561 lines) with:
 - Telegram-only authentication system (email auth disabled)
 - 30-day sessions with secure cookie configuration
 - SQLite database with automatic schema initialization and migration system
@@ -96,11 +101,17 @@ SQLite with strict user isolation and automatic schema migration:
 - **exchange_rates**: Currency exchange rate cache with expiration
 
 ### Frontend Structure
-- **Templates**: 18 HTML templates using Bootstrap 5 and Russian localization
+- **Templates**: 18+ HTML templates using Bootstrap 5 and Russian localization
 - **Components**: Reusable template components in `/templates/components/`
 - **PWA**: Complete Progressive Web App with manifest, service worker, offline support
 - **Mobile-first**: Optimized for iOS Safari and Android with swipe gestures
-- **Static assets**: PWA files (manifest.json, manifest.webmanifest), favicon, service workers in `/static/`
+- **Static assets**: 
+  - PWA files (manifest.json, manifest.webmanifest)
+  - Service worker (sw.js) for offline functionality
+  - JavaScript modules in `/static/js/` (dashboard-cats.js, progress_bars.js, entries/)
+  - CSS files in `/static/css/` (clean-theme.css, dashboard.css)
+  - Favicon and icons in `/static/icons/`
+  - User avatars stored in `/static/avatars/`
 
 ### Key Features
 - Fixed and percentage-based budget categories with automatic rollover
@@ -141,16 +152,29 @@ LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 
 ```
 
-### Production Files
-Essential files for CentOS/RHEL deployment:
-- `app.py` - Main Flask application (~4357 lines) with embedded Telegram authentication
+### Important File Locations
+Current codebase structure:
+- `app.py` - Main Flask application (~4561 lines) with embedded Telegram authentication
 - `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn, python-dotenv)
-- `templates/` - 18 Jinja2 templates with Russian UI including components
-- `static/` - PWA assets (manifest files, service worker, favicon)
-- `setup-https.sh` - HTTPS/SSL certificate setup with Let's Encrypt
-- `crystalbudget.service` - Systemd service configuration
-- `nginx-crystalbudget.conf` - Nginx reverse proxy configuration
+- `templates/` - Jinja2 templates with Russian UI, including reusable components
+- `static/` - Frontend assets:
+  - PWA manifests and service worker
+  - CSS themes and dashboard styles 
+  - JavaScript modules for dashboard and progress bars
+  - User avatars and app icons
 - `init_db.py` - Database initialization script
-- `emergency_fix.py` - Emergency database repair script for production issues
-- `TELEGRAM_AUTH_SETUP.md` - Complete setup guide for Telegram authentication
-- `admin_panel/` - Administrative interface and management tools with deployment scripts
+- `admin_panel/` - Administrative interface with deployment scripts:
+  - `admin_panel.py` - Admin Flask app
+  - `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`
+  - `admin-panel.service` - Admin systemd service
+  - `nginx-admin-panel.conf` - Admin nginx config
+- `README.md` - Russian documentation with v1.1 features and setup instructions
+
+### Missing Deployment Files
+These files are referenced but not present in current codebase:
+- `deploy.sh` - Main app deployment script
+- `setup-https.sh` - HTTPS/SSL setup script  
+- `crystalbudget.service` - Main app systemd service
+- `nginx-crystalbudget.conf` - Main app nginx config
+- `emergency_fix.py` - Database repair script
+- `TELEGRAM_AUTH_SETUP.md` - Telegram setup guide
