@@ -13,6 +13,10 @@ from functools import wraps
 from logging.handlers import RotatingFileHandler
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from werkzeug.routing import BuildError
+from flask import url_for
+
+
 # Load environment variables from .env file (optional)
 try:
     from dotenv import load_dotenv
@@ -170,11 +174,13 @@ DEFAULT_CURRENCY = "RUB"
 EXR_CACHE_TTL_SECONDS = int(os.environ.get("EXR_CACHE_TTL_SECONDS", str(12 * 3600)))  # 12 часов
 EXR_BRIDGE = os.environ.get("EXR_BRIDGE", "USD").upper()  # промежуточная валюта для кросс-курса
 @app.context_processor
-def inject_currency():
-    code = session.get("currency", DEFAULT_CURRENCY)
-    info = CURRENCIES.get(code, CURRENCIES[DEFAULT_CURRENCY])
-    return dict(currency_code=code, currency_symbol=info["symbol"], currencies=CURRENCIES)
-
+def utility_processor():
+    def safe_url(endpoint, **values):
+        try:
+            return url_for(endpoint, **values)
+        except BuildError:
+            return '#'
+    return dict(safe_url=safe_url)
 # -----------------------------------------------------------------------------
 # Currency conversion helper
 # -----------------------------------------------------------------------------

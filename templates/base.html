@@ -5,155 +5,111 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}CrystalBudget{% endblock %}</title>
 
-  <!-- Bootstrap локально -->
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
-
-  <!-- Bootstrap Icons локально -->
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
-
-  <!-- Твои базовые темы/токены и тумблер -->
   <link rel="stylesheet" href="{{ url_for('static', filename='css/clean-theme.css') }}?v=20250921-10">
 
-  <!-- Стили конкретной страницы -->
   {% block head %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=20250921-10">
   {% endblock %}
-  
+
   <style>
-  /* ======= Новая навигация ======= */
   :root{
     --radius-xl:16px; --radius-lg:12px;
     --shadow:0 10px 30px rgba(0,0,0,.12);
     --blur:saturate(130%) blur(10px);
     --primary:#6366f1; --accent:#0ea5e9; --line:rgba(0,0,0,.12);
   }
+  [data-bs-theme="dark"]{ --line:rgba(255,255,255,.14); }
 
-  /* тёмная тема */
-  [data-bs-theme="dark"]{
-    --line:rgba(255,255,255,.14);
-  }
-
-  .cb-nav{
-    position:sticky; top:0; z-index:20;
-    padding:10px 20px;
+  .cb-nav{ position:sticky; top:0; z-index:20; padding:10px 20px;
     backdrop-filter:var(--blur);
     background: color-mix(in srgb, var(--surface) 86%, transparent);
-    border-bottom:1px solid var(--line);
-  }
-  .cb-nav .cb-nav-row{
-    max-width:1200px; margin:0 auto;
-    display:flex; align-items:center; gap:18px;
-  }
-  .brand{
-    display:flex; align-items:center; gap:10px;
-    font-weight:800; letter-spacing:.2px; color:var(--ink); text-decoration:none;
-  }
-  .brand .logo{
-    inline-size:24px; block-size:24px; display:grid; place-items:center; border-radius:8px;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    box-shadow:0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent);
-  }
+    border-bottom:1px solid var(--line); }
+  .cb-nav .cb-nav-row{ max-width:1200px; margin:0 auto; display:flex; align-items:center; gap:18px; }
+
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.2px; color:var(--ink); text-decoration:none; }
+  .brand .logo{ inline-size:24px; block-size:24px; display:grid; place-items:center; border-radius:8px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent); }
   .brand .logo svg{ width:14px; height:14px; fill:#fff; }
 
-  .cb-tabs{
-    display:flex; align-items:center; gap:6px;
+  .cb-tabs{ display:flex; align-items:center; gap:6px;
     background: color-mix(in srgb, var(--surface) 70%, transparent);
-    border:1px solid var(--line); border-radius:999px;
-    padding:4px; box-shadow:var(--shadow);
-  }
-  .cb-tab{
-    --pad:.55rem .9rem;
-    position:relative; display:inline-flex; align-items:center; gap:.45rem;
-    color:var(--ink); opacity:.88; padding:var(--pad); border-radius:999px;
-    text-decoration:none; transition:.15s ease;
-  }
+    border:1px solid var(--line); border-radius:999px; padding:4px; box-shadow:var(--shadow); }
+  .cb-tab{ --pad:.55rem .9rem; position:relative; display:inline-flex; align-items:center; gap:.45rem;
+    color:var(--ink); opacity:.88; padding:var(--pad); border-radius:999px; text-decoration:none; transition:.15s ease; }
   .cb-tab:hover{ opacity:1; }
-  .cb-tab svg{ width:16px; height:16px; fill:currentColor; opacity:.9 }
+  .cb-tab svg{ width:16px; height:16px; fill:currentColor; opacity:.9; }
   .cb-tab.is-active{ color:#fff; }
-  .cb-tab.is-active::before{
-    content:""; position:absolute; inset:0; border-radius:inherit;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent);
-    z-index:-1;
-  }
+  .cb-tab.is-active::before{ content:""; position:absolute; inset:0; border-radius:inherit;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent); z-index:-1; }
 
   .cb-right{ margin-left:auto; display:flex; align-items:center; gap:10px; }
 
   /* Дроп-календарь */
   .date-picker{ position:relative; display:inline-block; }
-  .dp-btn{
-    display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:999px;
-    background: color-mix(in srgb, var(--surface) 80%, transparent); border:1px solid var(--line);
-    color:var(--ink); cursor:pointer; user-select:none;
-  }
+  .dp-btn{ display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .75rem; border-radius:999px;
+    background: color-mix(in srgb, var(--surface) 80%, transparent); border:1px solid var(--line); color:var(--ink); cursor:pointer; }
   .dp-btn svg{ width:16px; height:16px; fill:currentColor; opacity:.9 }
-
-  .dp-pop{
-    position:absolute; inset:calc(100% + 8px) auto auto 0;
-    width:292px; background:var(--surface); border:1px solid var(--line); border-radius:16px;
-    box-shadow:var(--shadow); padding:10px; z-index:40;
-    transform-origin:top left; opacity:0; visibility:hidden; transform:translateY(-6px) scale(.98); transition:.18s ease;
-  }
+  .dp-pop{ position:absolute; inset:calc(100% + 8px) auto auto 0; width:292px; background:var(--surface);
+    border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:10px; z-index:40;
+    transform-origin:top left; opacity:0; visibility:hidden; transform:translateY(-6px) scale(.98); transition:.18s ease; }
   .date-picker.open .dp-pop{ opacity:1; visibility:visible; transform:translateY(0) scale(1); }
-
   .dp-head{ display:flex; align-items:center; gap:6px; margin-bottom:8px; }
   .dp-title{ font-weight:800; letter-spacing:.2px }
   .dp-spacer{ margin-left:auto }
   .dp-icon{ display:grid; place-items:center; width:28px; height:28px; border-radius:10px; border:1px solid var(--line);
     background: color-mix(in srgb, var(--surface) 85%, transparent); cursor:pointer; }
   .dp-icon:hover{ background: color-mix(in srgb, var(--surface) 95%, transparent) }
-
   .dp-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
   .dp-dow{ text-align:center; color:var(--muted); font-size:.78rem; padding:.25rem 0 }
-  .dp-day{
-    height:32px; display:grid; place-items:center; border-radius:10px; cursor:pointer;
+  .dp-day{ height:32px; display:grid; place-items:center; border-radius:10px; cursor:pointer;
     background: color-mix(in srgb, var(--surface) 90%, transparent);
     border:1px solid var(--line); color:var(--ink);
-    transition: transform .1s ease, background .15s ease, border-color .15s ease;
-  }
+    transition: transform .1s ease, background .15s ease, border-color .15s ease; }
   .dp-day:hover{ transform:translateY(-1px) }
   .dp-out{ opacity:.45 }
   .dp-today{ border-color: color-mix(in srgb, var(--accent) 50%, transparent) }
-  .dp-sel{
-    background: color-mix(in srgb, var(--accent) 18%, var(--surface));
+  .dp-sel{ background: color-mix(in srgb, var(--accent) 18%, var(--surface));
     border-color: color-mix(in srgb, var(--accent) 40%, var(--line));
-    box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 26%, transparent);
-  }
+    box-shadow:0 6px 16px color-mix(in srgb, var(--accent) 26%, transparent); }
 
   /* Тумблер темы */
-  .theme{
-    display:inline-grid; grid-template-columns:auto 48px auto; align-items:center; gap:8px;
-    padding:6px 10px; border-radius:999px; background: color-mix(in srgb, var(--surface) 70%, transparent);
-    border:1px solid var(--line);
-  }
+  .theme{ display:inline-grid; grid-template-columns:auto 48px auto; align-items:center; gap:8px;
+    padding:6px 10px; border-radius:999px; background: color-mix(in srgb, var(--surface) 70%, transparent); border:1px solid var(--line); }
   .theme .sun,.theme .moon{ opacity:.65 }
   #theme:checked ~ .cb-nav .theme .sun{ opacity:.45 }
   #theme:not(:checked) ~ .cb-nav .theme .moon{ opacity:.45 }
-  .switch{
-    position:relative; width:48px; height:24px; border-radius:999px; overflow:hidden;
+  .switch{ position:relative; width:48px; height:24px; border-radius:999px; overflow:hidden;
     background: color-mix(in srgb, var(--accent) 22%, transparent);
-    border:1px solid color-mix(in srgb, var(--ink) 14%, transparent);
-  }
-  .switch::after{
-    content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
-    background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.25); transition: transform .22s ease;
-  }
+    border:1px solid color-mix(in srgb, var(--ink) 14%, transparent); }
+  .switch::after{ content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
+    background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.25); transition: transform .22s ease; }
   #theme:checked ~ .cb-nav .switch::after{ transform: translateX(24px); }
 
-  /* Респонсив */
-  @media (max-width:980px){
-    .cb-tabs{ display:none; }
-  }
+  /* Профиль / Личный кабинет */
+  .cb-user-btn{ display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+    background: color-mix(in srgb, var(--surface) 70%, transparent); border:1px solid var(--line); color:var(--ink); }
+  .cb-user-btn::after{ margin-left:6px; } /* стрелочка bootstrap */
+  .cb-user-btn .avatar{ width:28px; height:28px; border-radius:50%; display:grid; place-items:center; color:#fff; font-weight:700; font-size:12px;
+    background:linear-gradient(135deg,var(--primary),var(--accent));
+    box-shadow:0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent); }
+  .cb-user-btn .name{ font-weight:600; color:var(--ink); opacity:.98; }
+  .cb-user-menu{ min-width:220px; padding:.5rem; border-radius:14px; border:1px solid var(--line); background:var(--surface); box-shadow:var(--shadow); }
+  .cb-user-menu .dropdown-header{ font-weight:700; color:var(--ink); }
+
+  @media (max-width:980px){ .cb-tabs{ display:none; } }
   </style>
 </head>
 <body>
 
-<!-- чекбокс управления темой -->
 <input id="theme" type="checkbox" hidden {{ 'checked' if session.get('theme') == 'dark' else '' }} />
 
-<!-- ======= Навигация ======= -->
 <header class="cb-nav" role="navigation" aria-label="Основная навигация">
   <div class="cb-nav-row">
+
     <a class="brand" href="{{ url_for('dashboard') }}">
       <span class="logo" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 2l6 6-6 14-6-14 6-6zm0 4l-3.5 3.5L12 18l3.5-8.5L12 6z"/></svg>
@@ -166,11 +122,16 @@
         <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm10 8h8v-6h-8v6zM3 21h8v-6H3v6zm10-8h8V3h-8v10z"/></svg>
         Дашборд
       </a>
-      <a class="cb-tab {{ 'is-active' if request.endpoint == 'expenses' else '' }}" href="#">
+
+      <!-- Навигация -->
+      <a class="cb-tab {{ 'is-active' if request.endpoint == 'expenses' else '' }}"
+         href="{{ safe_url('expenses') }}">
+
         <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
         Расходы
       </a>
-      <a class="cb-tab {{ 'is-active' if request.endpoint == 'categories' else '' }}" href="#">
+      <a class="cb-tab {{ 'is-active' if request.endpoint == 'categories' else '' }}"
+        href="{{ safe_url('categories') }}">
         <svg viewBox="0 0 24 24"><path d="M12 2l4 4-8 8-4-4 8-8zm-3 14l-1 4 4-1 8-8-3-3-8 8z"/></svg>
         Категории
       </a>
@@ -205,7 +166,26 @@
         <span class="switch" aria-hidden="true"></span>
         <span class="moon" aria-hidden="true">🌙</span>
       </label>
+
+      <!-- Личный кабинет -->
+      {% set user_name = session.get('user_name', 'Пользователь') %}
+      {% set user_initial = (user_name[:1] if user_name else 'U') | upper %}
+      <div class="dropdown cb-user">
+        <button class="cb-user-btn dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                aria-expanded="false" aria-label="Личный кабинет">
+          <span class="avatar" aria-hidden="true">{{ user_initial }}</span>
+          <span class="name d-none d-md-inline">{{ user_name }}</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end cb-user-menu">
+        <!-- Меню пользователя -->
+<li><a class="dropdown-item" href="{{ safe_url('account')  }}">Личный кабинет</a></li>
+<li><a class="dropdown-item" href="{{ safe_url('settings') }}">Настройки</a></li>
+<li><hr class="dropdown-divider"></li>
+<li><a class="dropdown-item text-danger" href="{{ safe_url('logout') }}">Выйти</a></li>
+        </ul>
+      </div>
     </div>
+
   </div>
 </header>
 
@@ -220,132 +200,83 @@
         </div>
       {% endif %}
     {% endwith %}
-
     {% block content %}{% endblock %}
   </div>
 </main>
 
-<!-- Scripts -->
 <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 {% block scripts %}{% endblock %}
 
 <script>
-/* === Логика компактного дроп-календаря === */
+/* === Дроп-календарь === */
 (() => {
   const root  = document.getElementById('datePicker');
   const btn   = document.getElementById('dpBtn');
   const grid  = document.getElementById('dpGrid');
   const title = document.getElementById('dpTitle');
   const label = document.getElementById('dpLabel');
-
   if (!root || !btn || !grid || !title || !label) return;
 
   const months = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   const dows   = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-
-  const targets = ['#expenseDate','#incomeDate']; // если есть инпуты — заполним
+  const targets = ['#expenseDate','#incomeDate'];
   let current = new Date(); current.setDate(1);
   let selected = new Date();
-
   const ymd = d => d.toISOString().slice(0,10);
   const fmt = d => d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
 
   function render(){
     const y=current.getFullYear(), m=current.getMonth();
     title.textContent = `${months[m]} ${y}`;
-
     const first = new Date(y,m,1);
-    const firstDow = (first.getDay()+6)%7; // Пн=0
+    const firstDow = (first.getDay()+6)%7;
     const dim = new Date(y,m+1,0).getDate();
     const total = 42;
     const today = ymd(new Date());
     const frag = document.createDocumentFragment();
 
-    // заголовки дней
-    dows.forEach(d => {
-      const el = document.createElement('div');
-      el.className = 'dp-dow'; el.textContent = d;
-      frag.appendChild(el);
-    });
+    dows.forEach(d => { const el = document.createElement('div'); el.className='dp-dow'; el.textContent=d; frag.appendChild(el); });
 
-    // ячейки
     for (let i=0;i<total;i++){
       const dayNum = i - firstDow + 1;
       const date = new Date(y,m,dayNum);
       const out = dayNum < 1 || dayNum > dim;
-
       const cell = document.createElement('div');
       cell.className = 'dp-day';
       if (out) cell.classList.add('dp-out');
-
       const ds = ymd(date);
       if (ds === today) cell.classList.add('dp-today');
       if (ymd(selected) === ds) cell.classList.add('dp-sel');
-
       cell.textContent = String(date.getDate());
       cell.addEventListener('click', () => {
         selected = date; label.textContent = fmt(date);
         targets.forEach(sel => { const i = document.querySelector(sel); if (i) i.value = ds; });
         close();
       });
-
       frag.appendChild(cell);
     }
     grid.replaceChildren(frag);
   }
-
   function open(){ root.classList.add('open'); render(); trap=true; }
   function close(){ root.classList.remove('open'); trap=false; }
-
   btn.addEventListener('click', (e)=>{ e.stopPropagation(); root.classList.contains('open') ? close() : open(); });
   document.getElementById('dpPrev').onclick = ()=>{ current.setMonth(current.getMonth()-1); render(); };
   document.getElementById('dpNext').onclick = ()=>{ current.setMonth(current.getMonth()+1); render(); };
   document.getElementById('dpToday').onclick= ()=>{ current=new Date(); current.setDate(1); selected=new Date(); render(); };
-
-  // закрытие по клику вне и по Esc
   let trap=false;
   document.addEventListener('click', (e)=>{ if (!root.contains(e.target) && trap) close(); });
   document.addEventListener('keydown', (e)=>{ if (e.key==='Escape' && trap) close(); });
-
   label.textContent = fmt(selected);
 })();
 
-/* === Логика темы === */
+/* === Тема === */
 (() => {
   const root = document.documentElement;
   const themeCheckbox = document.getElementById('theme');
-
-  function applyTheme(theme){
-    root.setAttribute('data-bs-theme', theme);
-    if (themeCheckbox) {
-      themeCheckbox.checked = theme === 'dark';
-    }
-  }
-
-  function currentTheme(){
-    return root.getAttribute('data-bs-theme') || 'light';
-  }
-
-  async function saveTheme(theme){
-    try {
-      await fetch('/set-theme', {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({theme})
-      });
-    } catch(e){}
-  }
-
-  if (themeCheckbox){
-    themeCheckbox.addEventListener('change', () => {
-      const next = themeCheckbox.checked ? 'dark' : 'light';
-      applyTheme(next);
-      saveTheme(next);
-    });
-  }
-
-  // первичная индикация
-  applyTheme(currentTheme());
+  function applyTheme(theme){ root.setAttribute('data-bs-theme', theme); if (themeCheckbox) themeCheckbox.checked = theme === 'dark'; }
+  async function saveTheme(theme){ try{ await fetch('/set-theme',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({theme})}); }catch(e){} }
+  if (themeCheckbox){ themeCheckbox.addEventListener('change', () => { const next = themeCheckbox.checked ? 'dark' : 'light'; applyTheme(next); saveTheme(next); }); }
+  applyTheme(root.getAttribute('data-bs-theme') || 'light');
 })();
 </script>
 </body>
