@@ -13,27 +13,26 @@
       {% set balance = tile.balance %}
       
       <div class="income-card">
-        <h3>{{ tile.source_name }}</h3>
+        <h3>{{ tile.title }}</h3>
         <div class="income-rows">
           <div class="income-row">
             <div class="income-k">Пришло</div>
-            <div class="income-v">{{ tile.total_income | format_amount }}<span class="income-rub">₽</span></div>
+            <div class="income-v">{{ tile.in | format_amount }}<span class="income-rub">₽</span></div>
           </div>
           <div class="income-row">
             <div class="income-k">Ушло</div>
-            <div class="income-v">{{ tile.total_spent | format_amount }}<span class="income-rub">₽</span></div>
+            <div class="income-v">{{ tile.out | format_amount }}<span class="income-rub">₽</span></div>
           </div>
           <div class="income-row">
             <div class="income-k">Остается после лимитов</div>
-            {% set remaining_budget = tile.total_income - tile.total_spent %}
-            <div class="income-v {{ 'pos' if remaining_budget > 0 else ('neg' if remaining_budget < 0 else '') }}">
-              {{ remaining_budget | format_amount }}<span class="income-rub">₽</span>
+            <div class="income-v {{ 'pos' if tile.after_limits > 0 else ('neg' if tile.after_limits < 0 else '') }}">
+              {{ tile.after_limits | format_amount }}<span class="income-rub">₽</span>
             </div>
           </div>
           <div class="income-row total">
             <div class="income-k">Остаток</div>
-            <div class="income-v {{ 'pos' if balance > 0 else ('neg' if balance < 0 else '') }}">
-              {{ balance | format_amount }}<span class="income-rub">₽</span>
+            <div class="income-v {{ 'pos' if tile.balance > 0 else ('neg' if tile.balance < 0 else '') }}">
+              {{ tile.balance | format_amount }}<span class="income-rub">₽</span>
             </div>
           </div>
         </div>
