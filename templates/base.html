@@ -12,11 +12,11 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
 
   <!-- Твои базовые темы/токены и тумблер -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/clean-theme.css') }}?v=20250921-9">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/clean-theme.css') }}?v=20250921-10">
 
   <!-- Стили конкретной страницы -->
   {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=20250921-9">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=20250921-10">
   {% endblock %}
   
   <style>
@@ -33,14 +33,14 @@
     --line:rgba(255,255,255,.14);
   }
 
-  .nav{
+  .cb-nav{
     position:sticky; top:0; z-index:20;
     padding:10px 20px;
     backdrop-filter:var(--blur);
     background: color-mix(in srgb, var(--surface) 86%, transparent);
     border-bottom:1px solid var(--line);
   }
-  .nav .row{
+  .cb-nav .cb-nav-row{
     max-width:1200px; margin:0 auto;
     display:flex; align-items:center; gap:18px;
   }
@@ -55,29 +55,29 @@
   }
   .brand .logo svg{ width:14px; height:14px; fill:#fff; }
 
-  .tabs{
+  .cb-tabs{
     display:flex; align-items:center; gap:6px;
     background: color-mix(in srgb, var(--surface) 70%, transparent);
     border:1px solid var(--line); border-radius:999px;
     padding:4px; box-shadow:var(--shadow);
   }
-  .tab{
+  .cb-tab{
     --pad:.55rem .9rem;
     position:relative; display:inline-flex; align-items:center; gap:.45rem;
     color:var(--ink); opacity:.88; padding:var(--pad); border-radius:999px;
     text-decoration:none; transition:.15s ease;
   }
-  .tab:hover{ opacity:1; }
-  .tab svg{ width:16px; height:16px; fill:currentColor; opacity:.9 }
-  .tab.active{ color:#fff; }
-  .tab.active::before{
+  .cb-tab:hover{ opacity:1; }
+  .cb-tab svg{ width:16px; height:16px; fill:currentColor; opacity:.9 }
+  .cb-tab.is-active{ color:#fff; }
+  .cb-tab.is-active::before{
     content:""; position:absolute; inset:0; border-radius:inherit;
     background: linear-gradient(135deg, var(--primary), var(--accent));
     box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 40%, transparent);
     z-index:-1;
   }
 
-  .right{ margin-left:auto; display:flex; align-items:center; gap:10px; }
+  .cb-right{ margin-left:auto; display:flex; align-items:center; gap:10px; }
 
   /* Дроп-календарь */
   .date-picker{ position:relative; display:inline-block; }
@@ -127,8 +127,8 @@
     border:1px solid var(--line);
   }
   .theme .sun,.theme .moon{ opacity:.65 }
-  #theme:checked ~ .nav .theme .sun{ opacity:.45 }
-  #theme:not(:checked) ~ .nav .theme .moon{ opacity:.45 }
+  #theme:checked ~ .cb-nav .theme .sun{ opacity:.45 }
+  #theme:not(:checked) ~ .cb-nav .theme .moon{ opacity:.45 }
   .switch{
     position:relative; width:48px; height:24px; border-radius:999px; overflow:hidden;
     background: color-mix(in srgb, var(--accent) 22%, transparent);
@@ -138,11 +138,11 @@
     content:""; position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%;
     background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.25); transition: transform .22s ease;
   }
-  #theme:checked ~ .nav .switch::after{ transform: translateX(24px); }
+  #theme:checked ~ .cb-nav .switch::after{ transform: translateX(24px); }
 
   /* Респонсив */
   @media (max-width:980px){
-    .tabs{ display:none; }
+    .cb-tabs{ display:none; }
   }
   </style>
 </head>
@@ -152,8 +152,8 @@
 <input id="theme" type="checkbox" hidden {{ 'checked' if session.get('theme') == 'dark' else '' }} />
 
 <!-- ======= Навигация ======= -->
-<header class="nav" role="navigation" aria-label="Основная навигация">
-  <div class="row">
+<header class="cb-nav" role="navigation" aria-label="Основная навигация">
+  <div class="cb-nav-row">
     <a class="brand" href="{{ url_for('dashboard') }}">
       <span class="logo" aria-hidden="true">
         <svg viewBox="0 0 24 24"><path d="M12 2l6 6-6 14-6-14 6-6zm0 4l-3.5 3.5L12 18l3.5-8.5L12 6z"/></svg>
@@ -161,26 +161,26 @@
       CrystalBudget
     </a>
 
-    <nav class="tabs" aria-label="Разделы">
-      <a class="tab {{ 'active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+    <nav class="cb-tabs" aria-label="Разделы">
+      <a class="cb-tab {{ 'is-active' if request.endpoint == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
         <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm10 8h8v-6h-8v6zM3 21h8v-6H3v6zm10-8h8V3h-8v10z"/></svg>
         Дашборд
       </a>
-      <a class="tab {{ 'active' if request.endpoint == 'expenses' else '' }}" href="{{ url_for('expenses') if url_for else '#' }}">
+      <a class="cb-tab {{ 'is-active' if request.endpoint == 'expenses' else '' }}" href="#">
         <svg viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h10v2H4z"/></svg>
         Расходы
       </a>
-      <a class="tab {{ 'active' if request.endpoint == 'categories' else '' }}" href="{{ url_for('categories') if url_for else '#' }}">
+      <a class="cb-tab {{ 'is-active' if request.endpoint == 'categories' else '' }}" href="#">
         <svg viewBox="0 0 24 24"><path d="M12 2l4 4-8 8-4-4 8-8zm-3 14l-1 4 4-1 8-8-3-3-8 8z"/></svg>
         Категории
       </a>
-      <a class="tab" href="#">
+      <a class="cb-tab" href="#">
         <svg viewBox="0 0 24 24"><path d="M12 3l4 7H8l4-7zm-7 9h14l-7 9-7-9z"/></svg>
         Доходы
       </a>
     </nav>
 
-    <div class="right">
+    <div class="cb-right">
       <!-- Дроп-календарь -->
       <div class="date-picker" id="datePicker">
         <button class="dp-btn" type="button" id="dpBtn" title="Выбрать дату">
