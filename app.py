@@ -427,6 +427,257 @@ def generate_months_list(current_month=None):
     
     return months
 
+def get_selected_month():
+    """Извлекает выбранный месяц из URL параметра или сессии, возвращает данные для фильтрации"""
+    month = request.args.get("month") or session.get("selected_month") or datetime.now().strftime("%Y-%m")
+    
+    # Сохраняем в сессию для сохранения состояния между страницами
+    session["selected_month"] = month
+    
+    try:
+        current_date = datetime.strptime(month, "%Y-%m")
+        prev_month = (current_date.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+        next_month = (current_date.replace(day=28) + timedelta(days=4)).replace(day=1).strftime("%Y-%m")
+        
+        # Переводим название месяца на русский
+        month_names_ru = {
+            "January": "Январь", "February": "Февраль", "March": "Март", "April": "Апрель",
+            "May": "Май", "June": "Июнь", "July": "Июль", "August": "Август",
+            "September": "Сентябрь", "October": "Октябрь", "November": "Ноябрь", "December": "Декабрь"
+        }
+        
+        eng_month_name = current_date.strftime("%B")
+        current_month_name = f"{month_names_ru.get(eng_month_name, eng_month_name)} {current_date.year}"
+        
+        # Границы периода для SQL запросов
+        period_start = current_date.replace(day=1).strftime("%Y-%m-%d")
+        period_end = (current_date.replace(day=28) + timedelta(days=4)).replace(day=1).strftime("%Y-%m-%d")
+        
+        is_current_month = month == datetime.now().strftime("%Y-%m")
+        
+        return {
+            "month": month,
+            "current_date": current_date,
+            "prev_month": prev_month,
+            "next_month": next_month,
+            "current_month_name": current_month_name,
+            "period_start": period_start,
+            "period_end": period_end,
+            "is_current_month": is_current_month
+        }
+    except ValueError:
+        # Если формат месяца некорректный, используем текущий
+        return get_selected_month()  # рекурсивный вызов с исправленным месяцем
+
+# -----------------------------------------------------------------------------
+# Month Calculation Service - единый источник правды для периода
+# -----------------------------------------------------------------------------
+def calc_month_snapshot(user_id, ym=None):
+    """
+    Единый сервис расчёта данных месяца для всех страниц.
+    Возвращает полный снапшот: доходы, расходы, лимиты, остатки по категориям.
+    
+    Args:
+        user_id: ID пользователя
+        ym: период в формате "YYYY-MM" (если None - текущий месяц)
+    
+    Returns:
+        dict со всеми данными месяца
+    """
+    # Парсинг периода
+    if not ym:
+        ym = datetime.now().strftime("%Y-%m")
+    
+    try:
+        current_date = datetime.strptime(ym, "%Y-%m")
+        prev_month = (current_date.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
+        next_month = (current_date.replace(day=28) + timedelta(days=4)).replace(day=1).strftime("%Y-%m")
+        
+        # Переводим название месяца на русский
+        month_names_ru = {
+            "January": "Январь", "February": "Февраль", "March": "Март", "April": "Апрель",
+            "May": "Май", "June": "Июнь", "July": "Июль", "August": "Август",
+            "September": "Сентябрь", "October": "Октябрь", "November": "Ноябрь", "December": "Декабрь"
+        }
+        
+        eng_month_name = current_date.strftime("%B")
+        current_month_name = f"{month_names_ru.get(eng_month_name, eng_month_name)} {current_date.year}"
+        
+        # Границы периода (с 00:00:00 первого до 23:59:59 последнего)
+        period_start = current_date.replace(day=1)
+        last_day = (current_date.replace(day=28) + timedelta(days=4)).replace(day=1) - timedelta(days=1)
+        period_end = last_day.replace(hour=23, minute=59, second=59)
+        
+        is_current_month = ym == datetime.now().strftime("%Y-%m")
+        
+    except ValueError:
+        # Если формат ym некорректный, используем текущий месяц
+        return calc_month_snapshot(user_id, datetime.now().strftime("%Y-%m"))
+    
+    conn = get_db()
+    
+    # 1. Суммарные доходы за месяц
+    total_income = conn.execute(
+        """SELECT COALESCE(SUM(amount), 0) as total 
+           FROM income_daily 
+           WHERE user_id = ? AND date >= ? AND date <= ?""",
+        (user_id, period_start.strftime("%Y-%m-%d"), period_end.strftime("%Y-%m-%d"))
+    ).fetchone()['total']
+    
+    # 2. Доходы по источникам
+    income_sources = conn.execute(
+        """SELECT * FROM income_sources WHERE user_id = ? ORDER BY name""",
+        (user_id,)
+    ).fetchall()
+    
+    income_by_sources = {}
+    for source in income_sources:
+        source_income = conn.execute(
+            """SELECT COALESCE(SUM(amount), 0) as total 
+               FROM income_daily 
+               WHERE user_id = ? AND source_id = ? AND date >= ? AND date <= ?""",
+            (user_id, source['id'], period_start.strftime("%Y-%m-%d"), period_end.strftime("%Y-%m-%d"))
+        ).fetchone()['total']
+        
+        income_by_sources[source['id']] = {
+            'income': source_income,
+            'spent': 0,  # будет заполнено ниже
+            'remaining_limits': 0  # будет заполнено ниже
+        }
+    
+    # 3. Категории и лимиты
+    categories = conn.execute(
+        """SELECT * FROM categories WHERE user_id = ? ORDER BY name""",
+        (user_id,)
+    ).fetchall()
+    
+    # 4. Расходы по категориям за месяц
+    spent_by_category = {}
+    total_spent = 0
+    
+    for category in categories:
+        spent = conn.execute(
+            """SELECT COALESCE(SUM(amount), 0) as total 
+               FROM expenses 
+               WHERE user_id = ? AND category_id = ? AND date >= ? AND date <= ?""",
+            (user_id, category['id'], period_start.strftime("%Y-%m-%d"), period_end.strftime("%Y-%m-%d"))
+        ).fetchone()['total']
+        
+        spent_by_category[category['id']] = spent
+        total_spent += spent
+    
+    # 5. Расчёт лимитов и остатков
+    categories_data = []
+    total_limits = 0
+    
+    for category in categories:
+        spent = spent_by_category.get(category['id'], 0)
+        
+        # Лимит: фиксированный или % от дохода МЕСЯЦА
+        if category['limit_type'] == 'fixed':
+            limit = category['value']
+        else:  # percentage
+            limit = (total_income * category['value']) / 100
+        
+        remaining = limit - spent
+        total_limits += limit
+        
+        # Определяем статус (ok/warn/danger)
+        if spent == 0:
+            status = 'ok'
+        elif spent <= limit * 0.8:
+            status = 'ok'
+        elif spent <= limit:
+            status = 'warn'
+        else:
+            status = 'danger'
+        
+        categories_data.append({
+            'id': category['id'],
+            'name': category['name'],
+            'limit_type': category['limit_type'],
+            'limit_amount': category['value'],
+            'limit': limit,
+            'spent': spent,
+            'remaining': remaining,
+            'status': status,
+            'progress_percent': min(100, (spent / limit * 100) if limit > 0 else 0)
+        })
+    
+    # 6. Списки записей для таблиц
+    incomes = conn.execute(
+        """SELECT i.*, s.name as source_name
+           FROM income_daily i 
+           LEFT JOIN income_sources s ON i.source_id = s.id
+           WHERE i.user_id = ? AND i.date >= ? AND i.date <= ?
+           ORDER BY i.date DESC, i.id DESC""",
+        (user_id, period_start.strftime("%Y-%m-%d"), period_end.strftime("%Y-%m-%d"))
+    ).fetchall()
+    
+    expenses = conn.execute(
+        """SELECT e.*, c.name as category_name
+           FROM expenses e 
+           LEFT JOIN categories c ON e.category_id = c.id
+           WHERE e.user_id = ? AND e.date >= ? AND e.date <= ?
+           ORDER BY e.date DESC, e.id DESC""",
+        (user_id, period_start.strftime("%Y-%m-%d"), period_end.strftime("%Y-%m-%d"))
+    ).fetchall()
+    
+    # 7. Обновляем spent и remaining_limits для источников
+    for source_id in income_by_sources:
+        # Подсчитываем потраченное из этого источника (здесь можно добавить логику распределения)
+        source_spent = total_spent  # упрощенно - весь расход
+        source_remaining_limits = total_limits  # упрощенно - все лимиты
+        
+        income_by_sources[source_id]['spent'] = source_spent
+        income_by_sources[source_id]['remaining_limits'] = income_by_sources[source_id]['income'] - source_remaining_limits
+    
+    # Баланс
+    balance = total_income - total_spent
+    
+    conn.close()
+    
+    return {
+        # Период
+        'ym': ym,
+        'current_date': current_date,
+        'prev_month': prev_month,
+        'next_month': next_month,
+        'current_month_name': current_month_name,
+        'period_start': period_start,
+        'period_end': period_end,
+        'is_current_month': is_current_month,
+        
+        # Суммы
+        'total_income': total_income,
+        'total_spent': total_spent,
+        'total_limits': total_limits,
+        'balance': balance,
+        
+        # Данные по категориям
+        'categories': categories_data,
+        'spent_by_category': spent_by_category,
+        
+        # Данные по источникам
+        'income_sources': income_sources,
+        'income_by_sources': income_by_sources,
+        
+        # Списки записей
+        'incomes': incomes,
+        'expenses': expenses,
+        
+        # Для совместимости (старые шаблоны)
+        'month': ym,
+        'month_data': {
+            'month': ym,
+            'current_month_name': current_month_name,
+            'prev_month': prev_month,
+            'next_month': next_month,
+            'is_current_month': is_current_month,
+            'current_date': current_date
+        }
+    }
+
 # -----------------------------------------------------------------------------
 # DB helpers
 # -----------------------------------------------------------------------------
@@ -651,6 +902,97 @@ def add_currency_columns_if_missing():
     
     conn.commit()
     conn.close()
+
+
+def add_planned_income_table_if_missing():
+    """Создает таблицу плановых доходов для корректного расчета лимитов в будущих месяцах."""
+    conn = get_db()
+    cur = conn.cursor()
+    
+    # Проверяем, существует ли таблица
+    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='planned_income'")
+    if not cur.fetchone():
+        try:
+            cur.execute("""
+                CREATE TABLE planned_income (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                    year INTEGER NOT NULL,
+                    month INTEGER NOT NULL,
+                    source_id INTEGER REFERENCES income_sources(id) ON DELETE CASCADE,
+                    amount REAL NOT NULL,
+                    UNIQUE(user_id, year, month, source_id)
+                )
+            """)
+            
+            # Индекс для быстрого поиска
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_planned_income_user_period ON planned_income(user_id, year, month)")
+            
+            conn.commit()
+            print("Created planned_income table")
+        except sqlite3.OperationalError as e:
+            print(f"Failed to create planned_income table: {e}")
+    
+    conn.close()
+
+
+def get_planned_income_for_month(user_id, year, month):
+    """Возвращает сумму плановых доходов для указанного месяца."""
+    conn = get_db()
+    
+    result = conn.execute("""
+        SELECT COALESCE(SUM(amount), 0) as total
+        FROM planned_income 
+        WHERE user_id = ? AND year = ? AND month = ?
+    """, (user_id, year, month)).fetchone()
+    
+    conn.close()
+    return float(result['total']) if result else 0.0
+
+
+def get_fallback_income_for_percentage_limit(user_id, target_month):
+    """
+    Возвращает базу для расчета процентных лимитов:
+    1. Плановые доходы для месяца (если есть)
+    2. Фактические доходы месяца (если есть)
+    3. Среднее за последние 3 месяца
+    """
+    year, month = map(int, target_month.split('-'))
+    
+    # 1. Проверяем плановые доходы
+    planned = get_planned_income_for_month(user_id, year, month)
+    if planned > 0:
+        return planned
+    
+    # 2. Проверяем фактические доходы месяца
+    conn = get_db()
+    actual = conn.execute("""
+        SELECT COALESCE(SUM(amount), 0) as total
+        FROM income_daily 
+        WHERE user_id = ? AND strftime('%Y-%m', date) = ?
+    """, (user_id, target_month)).fetchone()
+    
+    actual_amount = float(actual['total']) if actual else 0.0
+    if actual_amount > 0:
+        conn.close()
+        return actual_amount
+    
+    # 3. Среднее за последние 3 месяца
+    avg_result = conn.execute("""
+        SELECT AVG(monthly_total) as avg_income FROM (
+            SELECT strftime('%Y-%m', date) as month, SUM(amount) as monthly_total
+            FROM income_daily 
+            WHERE user_id = ? 
+              AND date < ?
+            GROUP BY strftime('%Y-%m', date)
+            ORDER BY month DESC
+            LIMIT 3
+        )
+    """, (user_id, f"{target_month}-01")).fetchone()
+    
+    conn.close()
+    avg_income = float(avg_result['avg_income']) if avg_result and avg_result['avg_income'] else 0.0
+    return max(avg_income, 0.0)
 
 
 # -----------------------------------------------------------------------------
@@ -1681,394 +2023,85 @@ def get_category_total_limit(user_id, category_id, month):
 @app.route("/dashboard")
 @login_required
 def dashboard():
-    month = request.args.get("month") or datetime.now().strftime("%Y-%m")
-    conn = get_db()
+    """Главная страница дашборда - теперь использует единый сервис месяца"""
     uid = session["user_id"]
     
-    # Подготовка данных для навигации по месяцам
-    try:
-        current_date = datetime.strptime(month, "%Y-%m")
-        prev_month = (current_date.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
-        next_month = (current_date.replace(day=28) + timedelta(days=4)).replace(day=1).strftime("%Y-%m")
-        current_month_name = current_date.strftime("%B %Y")
-        
-        # Переводим название месяца на русский
-        month_names_ru = {
-            "January": "Январь", "February": "Февраль", "March": "Март", "April": "Апрель",
-            "May": "Май", "June": "Июнь", "July": "Июль", "August": "Август",
-            "September": "Сентябрь", "October": "Октябрь", "November": "Ноябрь", "December": "Декабрь"
-        }
-        
-        eng_month_name = current_date.strftime("%B")
-        current_month_name = f"{month_names_ru.get(eng_month_name, eng_month_name)} {current_date.year}"
-        
-        month_names = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", 
-                       "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
-    except ValueError:
-        # Если формат месяца некорректный, используем текущий
-        month = datetime.now().strftime("%Y-%m")
-        current_date = datetime.now()
-        prev_month = (current_date.replace(day=1) - timedelta(days=1)).strftime("%Y-%m")
-        next_month = (current_date.replace(day=28) + timedelta(days=4)).replace(day=1).strftime("%Y-%m")
-        current_month_name = "Текущий месяц"
-        month_names = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", 
-                       "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
-
-    # категории пользователя
-    categories = conn.execute(
-        "SELECT * FROM categories WHERE user_id=? ORDER BY name", (uid,)
-    ).fetchall()
-
-    # доход месяца из income_daily
-    income_sum = conn.execute(
-        """
-        SELECT COALESCE(SUM(amount), 0)
-        FROM income_daily
-        WHERE user_id = ? AND strftime('%Y-%m', date) = ?
-        """,
-        (uid, month),
-    ).fetchone()[0]
-
-    # траты месяца (для списка)
-    expenses_rows = conn.execute(
-        """
-        SELECT e.id, e.date, e.amount, e.note, c.name as category_name
-        FROM expenses e
-        JOIN categories c ON c.id = e.category_id
-        WHERE e.user_id = ? AND e.month = ?
-        ORDER BY e.date DESC, e.id DESC
-        """,
-        (uid, month),
-    ).fetchall()
-
-    # сумма трат по категориям
-    spent_by_cat = conn.execute(
-        """
-        SELECT c.id, c.name, COALESCE(SUM(e.amount), 0) as spent
-        FROM categories c
-        LEFT JOIN expenses e ON e.category_id = c.id AND e.user_id = c.user_id AND e.month = ?
-        WHERE c.user_id = ?
-        GROUP BY c.id, c.name
-        """,
-        (month, uid),
-    ).fetchall()
-
-    # правило категория->источник (нужно раньше для расчета лимитов)
-    rule_rows = conn.execute(
-        "SELECT category_id, source_id FROM source_category_rules WHERE user_id=?",
-        (uid,),
-    ).fetchall()
-    rule_map = {r["category_id"]: r["source_id"] for r in rule_rows}
+    # Получаем ym параметр (новый формат) или month (для совместимости)
+    ym = request.args.get("ym") or request.args.get("month")
     
-    # приход по источникам (нужно раньше для расчета процентных лимитов)
-    sources = conn.execute(
-        "SELECT id, name FROM income_sources WHERE user_id=? ORDER BY name", (uid,)
-    ).fetchall()
+    # Используем единый сервис расчёта месяца
+    snapshot = calc_month_snapshot(uid, ym)
     
-    income_by_source = {
-        s["id"]: conn.execute(
-            """
-            SELECT COALESCE(SUM(amount),0) FROM income_daily
-            WHERE user_id=? AND source_id=? AND strftime('%Y-%m', date)=?
-            """,
-            (uid, s["id"], month),
-        ).fetchone()[0]
-        for s in sources
-    }
-
-    # расчёт лимитов категорий с учётом процента от дохода и многоисточниковости
-    limits = conn.execute(
-        "SELECT id, name, limit_type, value, multi_source FROM categories WHERE user_id=?",
-        (uid,),
-    ).fetchall()
-
-    # Получаем связи категорий с источниками для многоисточниковых категорий
-    multi_source_links = {}
-    multi_source_rows = conn.execute("""
-        SELECT category_id, source_id, percentage, 
-               (SELECT name FROM income_sources WHERE id = cis.source_id) as source_name
-        FROM category_income_sources cis
-        WHERE user_id = ?
-        ORDER BY category_id, source_id
-    """, (uid,)).fetchall()
+    # Генерируем список всех месяцев для выпадающего списка
+    months_list = []
+    start_date = datetime(2020, 1, 1)
+    current_month_date = datetime.now()
     
-    for link in multi_source_rows:
-        cat_id = link['category_id']
-        if cat_id not in multi_source_links:
-            multi_source_links[cat_id] = []
-        multi_source_links[cat_id].append({
-            'source_id': link['source_id'],
-            'source_name': link['source_name'],
-            'percentage': float(link['percentage'])
-        })
-
-    data = []
-    for row in limits:
-        cat_id = row["id"]
-        limit_val = 0.0
-        sources_info = []
-        
-        if row["limit_type"] == "fixed":
-            limit_val = float(row["value"])
-        else:  # percent
-            if row["multi_source"] == 1 and cat_id in multi_source_links:
-                # Многоисточниковая категория - считаем лимит как сумму процентов от каждого источника
-                for link in multi_source_links[cat_id]:
-                    source_id = link['source_id']
-                    source_income = float(income_by_source.get(source_id, 0))
-                    source_limit = source_income * link['percentage'] / 100.0
-                    limit_val += source_limit
-                    sources_info.append({
-                        'source_name': link['source_name'],
-                        'percentage': link['percentage'],
-                        'income': source_income,
-                        'limit': source_limit
-                    })
-            else:
-                # Обычная категория - старая логика
-                source_id = rule_map.get(cat_id)
-                if source_id and source_id in income_by_source:
-                    source_income = float(income_by_source[source_id])
-                    limit_val = source_income * float(row["value"]) / 100.0
-                    # Находим название источника
-                    source_name = None
-                    for s in sources:
-                        if s["id"] == source_id:
-                            source_name = s["name"]
-                            break
-                    sources_info.append({
-                        'source_name': source_name,
-                        'percentage': float(row["value"]),
-                        'income': source_income,
-                        'limit': limit_val
-                    })
-                else:
-                    # Если не привязана - используем общий доход
-                    limit_val = float(income_sum) * float(row["value"]) / 100.0
-                    sources_info.append({
-                        'source_name': 'Общий доход',
-                        'percentage': float(row["value"]),
-                        'income': float(income_sum),
-                        'limit': limit_val
-                    })
-
-        spent = 0.0
-        for s in spent_by_cat:
-            if s["id"] == cat_id:
-                spent = float(s["spent"])
-                break
-
-        # Получаем информацию об источнике дохода для обычных категорий (обратная совместимость)
-        source_id = rule_map.get(cat_id)
-        source_name = None
-        if source_id and row["multi_source"] != 1:
-            for s in sources:
-                if s["id"] == source_id:
-                    source_name = s["name"]
-                    break
-        
-        # Обновляем данные rollover для этой категории и месяца
-        update_rollover_for_month(uid, cat_id, month, limit_val, spent)
-        
-        # Получаем накопленный остаток с предыдущих месяцев
-        accumulated_rollover = calculate_accumulated_rollover(uid, cat_id, month)
-        
-        # Общий доступный лимит = лимит месяца + накопленный остаток
-        total_available_limit = limit_val + accumulated_rollover
-        
-        data.append(
-            dict(
-                category_name=row["name"],
-                name=row["name"],  # Добавляем name для шаблона
-                limit=limit_val, 
-                spent=spent, 
-                id=cat_id, 
-                source_name=source_name,
-                multi_source=row["multi_source"],
-                sources_info=sources_info,
-                accumulated_rollover=accumulated_rollover,
-                total_available_limit=total_available_limit,
-                limit_type=row["limit_type"],
-                value=row["value"]
-            )
-        )
-
-    # ---- Балансы по источникам в выбранном месяце ----
-    # (источники и доходы уже получены выше)
-
-    # расход по источнику (по правилам) - обновленная логика для многоисточниковых категорий
-    expense_by_source = {s["id"]: 0.0 for s in sources}
-    # лимиты по источнику (сумма всех лимитов категорий, привязанных к источнику)
-    limits_by_source = {s["id"]: 0.0 for s in sources}
-    
-    for cat in limits:
-        cat_id = cat["id"]
-        
-        # Считаем потраченное для этой категории
-        spent_val = conn.execute(
-            """
-            SELECT COALESCE(SUM(amount),0) FROM expenses
-            WHERE user_id=? AND month=? AND category_id=?
-            """,
-            (uid, month, cat_id),
-        ).fetchone()[0]
-        spent_val = float(spent_val)
-        
-        if cat["multi_source"] == 1 and cat_id in multi_source_links:
-            # Многоисточниковая категория - распределяем траты пропорционально лимитам
-            total_limit = 0.0
-            source_limits = {}
-            
-            # Сначала считаем общий лимит и лимит по каждому источнику
-            for link in multi_source_links[cat_id]:
-                source_id = link['source_id']
-                if cat["limit_type"] == "fixed":
-                    # Для фиксированных лимитов в многоисточниковых категориях 
-                    # распределяем пропорционально процентам
-                    source_limit = float(cat["value"]) * link['percentage'] / 100.0
-                else:  # percent
-                    source_income = float(income_by_source.get(source_id, 0))
-                    source_limit = source_income * link['percentage'] / 100.0
-                
-                source_limits[source_id] = source_limit
-                total_limit += source_limit
-            
-            # Распределяем траты пропорционально лимитам
-            for source_id, source_limit in source_limits.items():
-                if total_limit > 0:
-                    proportional_spent = spent_val * (source_limit / total_limit)
-                    expense_by_source[source_id] += proportional_spent
-                limits_by_source[source_id] += source_limit
+    while start_date <= current_month_date:
+        months_list.append(start_date.strftime("%Y-%m"))
+        if start_date.month == 12:
+            start_date = start_date.replace(year=start_date.year + 1, month=1)
         else:
-            # Обычная категория - старая логика
-            src_id = rule_map.get(cat_id)
-            if src_id:
-                expense_by_source[src_id] += spent_val
-                
-                # Считаем лимит этой категории
-                if cat["limit_type"] == "fixed":
-                    limit_val = float(cat["value"])
-                else:  # percent
-                    source_income = float(income_by_source.get(src_id, 0))
-                    limit_val = source_income * float(cat["value"]) / 100.0
-                limits_by_source[src_id] += limit_val
-
-    source_balances = []
-    for s in sources:
-        sid = s["id"]
-        inc = float(income_by_source.get(sid, 0.0))
-        sp = float(expense_by_source.get(sid, 0.0))
-        limits_total = float(limits_by_source.get(sid, 0.0))
-        remaining_after_limits = inc - limits_total  # остается после всех запланированных лимитов
-        source_balances.append(
-            dict(source_id=sid, source_name=s["name"], income=inc, spent=sp, 
-                 rest=inc - sp, limits_total=limits_total, remaining_after_limits=remaining_after_limits)
-        )
-
-    conn.close()
-
-    # Сортируем категории по проценту использования (от наиболее критичных к менее критичным)
-    data.sort(key=lambda x: (
-        x['spent'] / x['total_available_limit'] if x['total_available_limit'] > 0 else 0,
-        x['category_name'].lower()  # алфавит как вторичная сортировка
-    ), reverse=True)
-
-    # Генерируем список месяцев для селектора
-    months_list = generate_months_list(month)
+            start_date = start_date.replace(month=start_date.month + 1)
     
-    # Подготавливаем плашки источников доходов
-    def make_tile(source_id, source_name):
-        income_val = float(income_by_source.get(source_id, 0))
-        spent_val = 0.0
-        limits_val = 0.0
-        
-        # Вычисляем расходы и лимиты для этого источника
-        for cat in data:
-            if cat.get('source_name') == source_name:
-                spent_val += float(cat.get('spent', 0))
-                limits_val += float(cat.get('limit', 0))
-        
-        after_limits = max(0.0, income_val - limits_val)
-        balance = income_val - spent_val
-        
-        return {
-            "key": f"source_{source_id}",
-            "title": source_name, 
-            "in": income_val,
-            "out": spent_val,
-            "after_limits": after_limits,
-            "balance": balance
-        }
+    months_list.reverse()
     
-    # Создаем плашки для всех источников
+    # Создаём плитки для рендера (совместимость с шаблоном)
     tiles = []
-    for source in sources:
-        source_id = source['id']
-        source_name = source['name']
-        tiles.append(make_tile(source_id, source_name))
+    for source_id, source_data in snapshot['income_by_sources'].items():
+        source_name = next((s['name'] for s in snapshot['income_sources'] if s['id'] == source_id), 'Источник')
+        tiles.append({
+            'title': source_name,
+            'in': source_data['income'],
+            'out': source_data['spent'],
+            'balance': source_data['income'] - source_data['spent'],
+            'after_limits': source_data['remaining_limits']
+        })
+    
+    # Если нет источников, создаём общую плитку
+    if not tiles:
+        tiles.append({
+            'title': 'Общий баланс',
+            'in': snapshot['total_income'],
+            'out': snapshot['total_spent'],
+            'balance': snapshot['balance'],
+            'after_limits': snapshot['total_limits'] - snapshot['total_spent']
+        })
     
     today = datetime.now().strftime("%Y-%m-%d")
+    month_names = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", 
+                   "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"]
+
     return render_template(
         "pages/dashboard.html",
-        categories=categories,
-        expenses=expenses_rows,
-        budget_data=data,
-        income=income_sum,
-        current_month=month,
-        current_month_name=current_month_name,
-        current_month_human=current_month_name,  # Человекочитаемое название для кнопки
-        current_ym=month,  # Текущий месяц в формате YYYY-MM
-        prev_month=prev_month,
-        prev_month_url=f"?month={prev_month}",
-        next_month=next_month,
-        next_month_url=f"?month={next_month}",
+        categories=snapshot['categories'],
+        expenses=snapshot['expenses'],
+        budget_data=snapshot['categories'],  # categories содержат spent/limit/remaining
+        income=snapshot['total_income'],
+        current_month=snapshot['ym'],
+        current_month_name=snapshot['current_month_name'],
+        current_month_human=snapshot['current_month_name'],
+        current_ym=snapshot['ym'],
+        prev_month=snapshot['prev_month'],
+        prev_month_url=f"?ym={snapshot['prev_month']}",
+        next_month=snapshot['next_month'],
+        next_month_url=f"?ym={snapshot['next_month']}",
         months=months_list,
         month_names=month_names,
         today=today,
-        source_balances=source_balances,
-        sources=sources,
-        income_by_source=income_by_source,
+        source_balances=tiles,  # используем tiles как source_balances
+        sources=snapshot['income_sources'],
+        income_by_source=snapshot['income_by_sources'],
         tiles=tiles,
+        # Новые данные из снапшота
+        snapshot=snapshot
     )
 
 
-@app.route("/quick-expense", methods=["POST"])
-@login_required
-def quick_expense():
-    uid = session["user_id"]
-    date_str = request.form.get("date", "").strip()
-    category_id = request.form.get("category_id", "").strip()
-    amount_str = request.form.get("amount", "").strip()
-    note = (request.form.get("note") or "").strip()
-    return_month = request.form.get("return_month") or datetime.now().strftime("%Y-%m")
-
-    if not date_str or not category_id or not amount_str:
-        flash("Пожалуйста, заполните все поля", "error")
-        return redirect(url_for("dashboard", month=return_month))
-
-    try:
-        datetime.strptime(date_str, "%Y-%m-%d")
-        amount = float(amount_str)
-        if amount <= 0:
-            raise ValueError
-    except Exception:
-        flash("Неверные значения даты или суммы", "error")
-        return redirect(url_for("dashboard", month=return_month))
-
-    conn = get_db()
-    conn.execute(
-        """
-        INSERT INTO expenses (user_id, date, month, category_id, amount, note)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """,
-        (uid, date_str, date_str[:7], int(category_id), amount, note),
-    )
-    conn.commit()
-    conn.close()
-    flash("Расход добавлен", "success")
-    return redirect(url_for("dashboard", month=return_month))
-
-
+# -----------------------------------------------------------------------------
+# Categories route
+# -----------------------------------------------------------------------------
+# Оригинальные функции categories ниже...
 # -----------------------------------------------------------------------------
 # Routes: sources (управление источниками дохода)
 # -----------------------------------------------------------------------------
@@ -2279,6 +2312,10 @@ def rules_bulk_update():
 @login_required
 def categories():
     uid = session["user_id"]
+    
+    # Получаем данные выбранного месяца
+    month_data = get_selected_month()
+    
     conn = get_db()
     
     # Получаем все категории с типами и флагом multi_source
@@ -2314,6 +2351,21 @@ def categories():
             'percentage': float(link['percentage'])
         })
     
+    # Получаем траты по категориям за выбранный месяц
+    spent_by_category = {}
+    spent_rows = conn.execute(
+        """
+        SELECT category_id, COALESCE(SUM(amount), 0) as spent
+        FROM expenses
+        WHERE user_id = ? AND date >= ? AND date < ?
+        GROUP BY category_id
+        """,
+        (uid, month_data["period_start"], month_data["period_end"])
+    ).fetchall()
+    
+    for row in spent_rows:
+        spent_by_category[row["category_id"]] = float(row["spent"])
+    
     # Разделяем категории по типам
     expense_categories = [cat for cat in rows if cat["category_type"] == "expense"]
     income_categories = [cat for cat in rows if cat["category_type"] == "income"]
@@ -2325,7 +2377,9 @@ def categories():
                          income_categories=income_categories,
                          income_sources=sources, 
                          rules_map=rules_map,
-                         multi_source_links=multi_source_links)
+                         multi_source_links=multi_source_links,
+                         spent_by_category=spent_by_category,
+                         month_data=month_data)
 
 
 @app.route("/categories/add", methods=["POST"])
@@ -2692,6 +2746,9 @@ def update_source_percentage(cat_id):
 @login_required
 def expenses():
     uid = session["user_id"]
+    
+    # Получаем данные выбранного месяца
+    month_data = get_selected_month()
 
     if request.method == "POST":
         date_str = validate_date(request.form.get("date"))
@@ -2701,13 +2758,13 @@ def expenses():
 
         if not date_str or not category_id or amount is None:
             flash("Пожалуйста, заполните все обязательные поля корректно", "error")
-            return redirect(url_for("expenses"))
+            return redirect(url_for("expenses", month=month_data["month"]))
 
         try:
             category_id = int(category_id)
         except (ValueError, TypeError):
             flash("Некорректная категория", "error")
-            return redirect(url_for("expenses"))
+            return redirect(url_for("expenses", month=month_data["month"]))
 
         conn = get_db()
         try:
@@ -2728,7 +2785,7 @@ def expenses():
             flash("Произошла ошибка при добавлении расхода", "error")
         finally:
             conn.close()
-        return redirect(url_for("expenses"))
+        return redirect(url_for("expenses", month=month_data["month"]))
 
     # GET
     conn = get_db()
@@ -2736,16 +2793,17 @@ def expenses():
         "SELECT id, name FROM categories WHERE user_id=? ORDER BY name", (uid,)
     ).fetchall()
     
+    # Фильтрация расходов по выбранному месяцу
     try:
         rows = conn.execute(
             """
             SELECT e.id, e.date, e.amount, e.note, e.currency, c.name AS category_name
             FROM expenses e
             JOIN categories c ON c.id = e.category_id
-            WHERE e.user_id = ?
+            WHERE e.user_id = ? AND e.date >= ? AND e.date < ?
             ORDER BY e.date DESC, e.id DESC
             """,
-            (uid,),
+            (uid, month_data["period_start"], month_data["period_end"]),
         ).fetchall()
     except sqlite3.OperationalError as e:
         if "no such column: e.currency" in str(e):
@@ -2755,16 +2813,23 @@ def expenses():
                 SELECT e.id, e.date, e.amount, e.note, NULL AS currency, c.name AS category_name
                 FROM expenses e
                 JOIN categories c ON c.id = e.category_id
-                WHERE e.user_id = ?
+                WHERE e.user_id = ? AND e.date >= ? AND e.date < ?
                 ORDER BY e.date DESC, e.id DESC
                 """,
-                (uid,),
+                (uid, month_data["period_start"], month_data["period_end"]),
             ).fetchall()
         else:
             raise
     conn.close()
-    today = datetime.now().strftime("%Y-%m-%d")
-    return render_template("expenses.html", categories=cats, expenses=rows, today=today)
+    
+    # Устанавливаем дату по умолчанию для формы в текущий выбранный месяц
+    default_date = month_data["current_date"].strftime("%Y-%m-%d") if not month_data["is_current_month"] else datetime.now().strftime("%Y-%m-%d")
+    
+    return render_template("expenses.html", 
+                         categories=cats, 
+                         expenses=rows, 
+                         today=default_date,
+                         month_data=month_data)
 
 
 @app.route("/expenses/edit/<int:expense_id>", methods=["GET", "POST"])
@@ -2836,16 +2901,22 @@ def delete_expense(expense_id):
 @login_required
 def income_page():
     uid = session["user_id"]
+    
+    # Получаем данные выбранного месяца
+    month_data = get_selected_month()
+    
     conn = get_db()
+    
+    # Фильтрация доходов по выбранному месяцу
     try:
         rows = conn.execute(
             """
             SELECT id, date, amount, source_id, currency
             FROM income_daily
-            WHERE user_id = ?
+            WHERE user_id = ? AND date >= ? AND date < ?
             ORDER BY date DESC, id DESC
             """,
-            (uid,),
+            (uid, month_data["period_start"], month_data["period_end"]),
         ).fetchall()
     except sqlite3.OperationalError as e:
         if "no such column: currency" in str(e):
@@ -2854,10 +2925,10 @@ def income_page():
                 """
                 SELECT id, date, amount, source_id, NULL AS currency
                 FROM income_daily
-                WHERE user_id = ?
+                WHERE user_id = ? AND date >= ? AND date < ?
                 ORDER BY date DESC, id DESC
                 """,
-                (uid,),
+                (uid, month_data["period_start"], month_data["period_end"]),
             ).fetchall()
         else:
             raise
@@ -2866,21 +2937,32 @@ def income_page():
         (uid,)
     ).fetchall()
     conn.close()
-    today = datetime.now().strftime("%Y-%m-%d")
-    return render_template("income.html", incomes=rows, income_sources=income_sources, today=today)
+    
+    # Устанавливаем дату по умолчанию для формы в текущий выбранный месяц
+    default_date = month_data["current_date"].strftime("%Y-%m-%d") if not month_data["is_current_month"] else datetime.now().strftime("%Y-%m-%d")
+    
+    return render_template("income.html", 
+                         incomes=rows, 
+                         income_sources=income_sources, 
+                         today=default_date,
+                         month_data=month_data)
 
 
 @app.route("/income/add", methods=["POST"])
 @login_required
 def income_add():
     uid = session["user_id"]
+    
+    # Получаем выбранный месяц для сохранения в редиректах
+    selected_month = request.args.get("month") or session.get("selected_month")
+    
     date_str = (request.form.get("date") or "").strip()
     amount_str = (request.form.get("amount") or "").strip()
     source_id = request.form.get("source_id")
 
     if not date_str or not amount_str:
         flash("Пожалуйста, заполните все поля", "error")
-        return redirect(url_for("income_page"))
+        return redirect(url_for("income_page", month=selected_month))
 
     try:
         datetime.strptime(date_str, "%Y-%m-%d")
@@ -2889,7 +2971,7 @@ def income_add():
             raise ValueError
     except Exception:
         flash("Неверные значения даты или суммы", "error")
-        return redirect(url_for("income_page"))
+        return redirect(url_for("income_page", month=selected_month))
 
     conn = get_db()
     if not source_id:
@@ -2904,7 +2986,7 @@ def income_add():
     conn.commit()
     conn.close()
     flash("Доход добавлен", "success")
-    return redirect(url_for("income_page"))
+    return redirect(url_for("income_page", month=selected_month))
 
 
 @app.route("/income/edit/<int:income_id>", methods=["GET", "POST"])
@@ -4650,6 +4732,7 @@ if __name__ == "__main__":
     add_source_id_column_if_missing()
     add_category_type_column_if_missing()
     add_currency_columns_if_missing()
+    add_planned_income_table_if_missing()  # Таблица плановых доходов
     add_profile_columns_if_missing()  # Миграция полей профиля
     ensure_new_tables()  # Миграция новых таблиц
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=os.environ.get("FLASK_ENV") == "development")

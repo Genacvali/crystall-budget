@@ -1,10 +1,10 @@
-<section class="ff-progress-card" aria-label="Расходы">
-    <div class="ff-header">
-        <i class="bi bi-wallet2"></i>
+<section class="ff-progress-card expenses-container" aria-label="Расходы">
+    <div class="section-header">
+        <i class="bi bi-wallet2 icon"></i>
         Список расходов
     </div>
-    <table class="table table-striped align-middle">
-    <thead class="table-light">
+    <table class="expenses-table">
+    <thead>
         <tr>
             <th>Сумма</th>
             <th>Дата</th>
@@ -17,17 +17,17 @@
         {% for expense in expenses %}
         <tr>
             <td class="amount negative tabular-nums fw-bold">{{ expense.amount|format_amount }} {{ currency_symbol|default('₽') }}</td>
-            <td class="text-muted">{{ expense.date|format_date_with_day }}</td>
+            <td>{{ expense.date|format_date_with_day }}</td>
             <td><span class="badge-ghost">{{ expense.category_name }}</span></td>
-            <td class="text-muted">{{ expense.note or '—' }}</td>
+            <td>{{ expense.note or '—' }}</td>
             <td class="text-end">
                 <div class="d-inline-flex gap-2 justify-content-end">
                     <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
-                       class="btn-icon" aria-label="Редактировать расход">
+                       class="action-btn" aria-label="Редактировать расход">
                         <i class="bi bi-pencil"></i>
                     </a>
                     <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-                        <button type="submit" class="btn-icon btn-icon-danger"
+                        <button type="submit" class="action-btn action-btn-danger"
                                 data-confirm-delete="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}"
                                 aria-label="Удалить расход">
                             <i class="bi bi-trash"></i>

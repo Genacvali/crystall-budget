@@ -15,6 +15,13 @@
   --hero-a:#4f46e5;
   --hero-b:#0ea5e9;
 
+  /* === Единые токены для читабельности === */
+  --surface-1: #ffffff;        /* основные панели/карточки */
+  --surface-2: #f8fafc;        /* подложки хедеров, зебра чётных строк */
+  --ink: #0f172a;              /* основной текст (почти чёрный) */
+  --ink-muted: #64748b;        /* вторичный текст, плейсхолдеры */
+  --line: #e2e8f0;             /* границы, разделители */
+
   /* единые размеры прогрессов */
   --ff-bar-h:14px;
   --ff-bar-radius:999px;
@@ -42,6 +49,13 @@
   --muted:#a7b0ba;
   --border:1px solid rgba(255,255,255,.08);
   --shadow-soft:0 10px 30px rgba(0,0,0,.5);
+
+  /* === Токены для тёмной темы (контраст 4.5:1+) === */
+  --surface-1: #1e293b;        /* основные панели (светлее фона на 3 шага) */
+  --surface-2: #334155;        /* подложки хедеров (светлее на 4 шага) */
+  --ink: #f1f5f9;              /* основной текст (почти белый) */
+  --ink-muted: #94a3b8;        /* вторичный текст (достаточный контраст) */
+  --line: #475569;             /* границы (видимые, но неяркие) */
 }
 
 
@@ -357,3 +371,693 @@
 }
 .icon-expense::before{ background: rgba(239,68,68,.8); }
 .icon-income::before{ background: rgba(34,197,94,.8); }
+
+/* === Компактный режим карточек дашборда === */
+.ui-compact .income-cards { 
+  gap: 14px !important;             /* сетка карточек */
+}
+
+.ui-compact .card-soft {
+  padding: 12px 14px !important;          /* было ~20–24 */
+  border-radius: 14px !important;
+  min-height: auto !important;            /* снимаем принудительную высоту */
+}
+
+/* Карточки доходов - главное изменение */
+.ui-compact .income-card {
+  padding: 12px 14px !important;          /* вместо 16px */
+  min-height: auto !important;            /* убираем фиксированную высоту */
+  border-radius: 14px !important;
+}
+
+/* Строки "ключ-значение" (Пришло/Ушло/Остаток) */
+.ui-compact .kv { 
+  row-gap: 6px !important; 
+}
+
+.ui-compact .kv .row,
+.ui-compact .kv > * {          /* если строки не завернуты в .row */
+  display: flex !important; 
+  align-items: center !important;
+  min-height: 28px !important;            /* плотно, но читабельно */
+  padding: 4px 0 !important;
+}
+
+.ui-compact .kv .k { 
+  opacity: .85 !important; 
+  font-size: 12px !important;
+}
+
+.ui-compact .kv .v { 
+  margin-left: auto !important; 
+  font-weight: 700 !important;
+  font-size: 14px !important;
+}
+
+/* Строки доходов - более компактные */
+.ui-compact .income-rows {
+  gap: 6px !important;
+}
+
+.ui-compact .income-row {
+  min-height: 28px !important;
+  padding: 4px 0 !important;
+  line-height: 1.2 !important;
+  gap: 14px !important;
+}
+
+.ui-compact .income-k {
+  font-size: 12px !important;
+  opacity: .85 !important;
+  line-height: 1.2 !important;
+}
+
+.ui-compact .income-v {
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+
+/* Разделители внутри карточки (тоньше и ближе) */
+.ui-compact .card-soft .divider,
+.ui-compact .card-soft hr,
+.ui-compact .income-row.total::before {
+  margin: 8px 0 !important;
+  opacity: .25 !important;
+}
+
+/* Шапка-герой тоже компактней */
+.ui-compact .hero { 
+  padding: 14px 16px !important; 
+  border-radius: 16px !important; 
+}
+.ui-compact .hero h1 { 
+  margin-bottom: 6px !important;       /* меньше нижний отступ */
+  font-size: 24px !important;
+}
+.ui-compact .btn-hero { 
+  height: 36px !important; 
+  padding: 0 12px !important; 
+  font-size: 14px !important;
+}
+
+/* Заголовки карточек - самое важное */
+.ui-compact .income-card h3 {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px !important;
+  line-height: 1.2 !important;
+}
+
+/* Карточки прогресса по категориям */
+.ui-compact .ff-progress-card {
+  padding: 12px 14px;
+  border-radius: 14px;
+  margin-bottom: 12px;
+}
+
+.ui-compact .ff-header {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Календарь компактней */
+.ui-compact .calendar-grid {
+  gap: 1px;
+}
+
+.ui-compact .calendar-day {
+  min-height: 28px;
+  padding: 6px;
+  font-size: 13px;
+}
+
+/* === Унификация кнопок и контролов === */
+
+/* Фиксированная высота для всех кнопок */
+.btn-hero {
+  height: 44px !important;  /* Контрольная высота */
+  padding: 0 14px !important;  /* Горизонтальный padding только */
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  line-height: 1 !important;  /* Убираем влияние базовой линии */
+  white-space: nowrap !important;  /* Запрещаем перенос */
+  font-size: 15px !important;
+}
+
+/* Иконки внутри кнопок - фиксированный квадрат */
+.btn-hero .icon-badge {
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  border-radius: 6px !important;
+  display: flex !important;  /* Из grid в flex для лучшего контроля */
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;  /* Не давать сжиматься */
+}
+
+.btn-hero .icon-badge i {
+  font-size: 14px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+}
+
+/* Псевдоэлементы подсветки не должны влиять на геометрию */
+.icon-expense::before,
+.icon-income::before {
+  pointer-events: none !important;
+  inset: -3px !important;  /* Уменьшаем с -6px */
+  filter: blur(6px) !important;  /* Уменьшаем blur с 12px */
+}
+
+/* Контейнер кнопок */
+.hero .d-flex {
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* Компактный режим */
+.ui-compact .btn-hero {
+  height: 36px !important;
+  padding: 0 12px !important;
+  font-size: 14px !important;
+  gap: 8px !important;
+}
+
+.ui-compact .btn-hero .icon-badge {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+
+.ui-compact .btn-hero .icon-badge i {
+  font-size: 12px !important;
+}
+
+/* Mobile */
+@media (max-width: 575.98px) {
+  .btn-hero {
+    height: 40px !important;
+    padding: 0 12px !important;
+    font-size: 14px !important;
+    gap: 8px !important;
+  }
+  
+  .btn-hero .icon-badge {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  
+  .btn-hero .icon-badge i {
+    font-size: 12px !important;
+  }
+}
+
+/* === Унификация тумблера темы === */
+
+.theme-toggle {
+  height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+  width: 44px !important;  /* Квадратная область */
+}
+
+.theme-toggle input {
+  position: absolute !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  height: 44px !important;
+  width: 44px !important;
+  margin: 0 !important;
+  z-index: 10 !important;
+}
+
+.theme-slider {
+  width: 44px !important;
+  height: 24px !important;
+  background-color: var(--bs-gray-300) !important;
+  border-radius: 12px !important;
+  position: relative !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  display: block !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+[data-bs-theme="dark"] .theme-slider {
+  background-color: var(--bs-gray-600) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+}
+
+.theme-slider:before {
+  content: "" !important;
+  height: 20px !important;
+  width: 20px !important;
+  border-radius: 50% !important;
+  background-color: white !important;
+  position: absolute !important;
+  top: 1px !important;
+  left: 1px !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
+}
+
+.theme-toggle input:checked + .theme-slider {
+  background-color: var(--bs-primary) !important;
+}
+
+.theme-toggle input:checked + .theme-slider:before {
+  transform: translateX(20px) !important;
+}
+
+/* Компактный режим для тумблера */
+.ui-compact .theme-toggle {
+  height: 36px !important;
+  width: 36px !important;
+}
+
+.ui-compact .theme-toggle input {
+  height: 36px !important;
+  width: 36px !important;
+}
+
+.ui-compact .theme-slider {
+  width: 36px !important;
+  height: 20px !important;
+  border-radius: 10px !important;
+}
+
+.ui-compact .theme-slider:before {
+  height: 16px !important;
+  width: 16px !important;
+  top: 1px !important;
+  left: 1px !important;
+}
+
+.ui-compact .theme-toggle input:checked + .theme-slider:before {
+  transform: translateX(16px) !important;
+}
+
+/* Mobile режим для тумблера */
+@media (max-width: 575.98px) {
+  .theme-toggle {
+    height: 40px !important;
+    width: 40px !important;
+  }
+  
+  .theme-toggle input {
+    height: 40px !important;
+    width: 40px !important;
+  }
+  
+  .theme-slider {
+    width: 40px !important;
+    height: 22px !important;
+  }
+  
+  .theme-slider:before {
+    height: 18px !important;
+    width: 18px !important;
+  }
+  
+  .theme-toggle input:checked + .theme-slider:before {
+    transform: translateX(18px) !important;
+  }
+}
+
+/* === Унификация страниц для тёмной темы === */
+
+/* === 1. Фильтр "Период" по паттерну навбара === */
+.period-filter {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+  padding: 12px 16px !important;
+  background: var(--surface-1) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  margin-bottom: 20px !important;
+}
+
+.period-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.period-info .icon {
+  color: var(--ink-muted) !important;
+  font-size: 16px !important;
+}
+
+.period-info .label {
+  color: var(--ink-muted) !important;
+  font-size: 14px !important;
+  margin: 0 !important;
+}
+
+.period-info .value {
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  margin: 0 !important;
+}
+
+.period-badge {
+  background: var(--info) !important;
+  color: white !important;
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  margin-left: 8px !important;
+}
+
+.period-nav {
+  display: flex !important;
+  gap: 4px !important;
+}
+
+.period-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  color: var(--ink-muted) !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.period-btn:hover {
+  background: var(--surface-2) !important;
+  color: var(--ink) !important;
+  text-decoration: none !important;
+}
+
+.period-btn.current {
+  background: var(--info) !important;
+  color: white !important;
+  border-color: var(--info) !important;
+}
+
+/* === 2. Заголовок секции с иконкой === */
+.section-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 16px 16px 14px !important;
+  background: var(--surface-2) !important;
+  border-bottom: 1px solid var(--line) !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--ink) !important;
+}
+
+.section-header .icon {
+  width: 20px !important;
+  height: 20px !important;
+  color: var(--ink-muted) !important;
+  flex-shrink: 0 !important;
+}
+
+/* === 3. Таблица: контраст и зебра === */
+.income-table,
+.expenses-table,
+.categories-table {
+  margin: 0 !important;
+  background: var(--surface-1) !important;
+}
+
+.income-table thead th,
+.expenses-table thead th,
+.categories-table thead th {
+  background: var(--surface-2) !important;
+  color: var(--ink) !important;
+  border-bottom: 1px solid var(--line) !important;
+  border-top: none !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  padding: 12px 16px !important;
+}
+
+.income-table tbody tr,
+.expenses-table tbody tr,
+.categories-table tbody tr {
+  background: var(--surface-1) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+.income-table tbody tr:nth-child(even),
+.expenses-table tbody tr:nth-child(even),
+.categories-table tbody tr:nth-child(even) {
+  background: var(--surface-2) !important;
+}
+
+.income-table tbody tr:hover,
+.expenses-table tbody tr:hover,
+.categories-table tbody tr:hover {
+  background: color-mix(in srgb, var(--surface-2) 70%, var(--info) 30%) !important;
+}
+
+.income-table tbody td,
+.expenses-table tbody td,
+.categories-table tbody td {
+  color: var(--ink) !important;
+  border-bottom: 1px solid var(--line) !important;
+  padding: 12px 16px !important;
+}
+
+/* === 4. Action buttons === */
+.action-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 8px !important;
+  color: var(--ink-muted) !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.action-btn:hover {
+  background: var(--surface-2) !important;
+  color: var(--ink) !important;
+  text-decoration: none !important;
+}
+
+.action-btn-danger:hover {
+  background: color-mix(in srgb, var(--bad) 20%, transparent) !important;
+  color: var(--bad) !important;
+  border-color: var(--bad) !important;
+}
+
+/* === 5. Бейджи === */
+.badge-ghost {
+  background: var(--surface-2) !important;
+  color: var(--ink) !important;
+  border: 1px solid var(--line) !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* === 6. Цвета сумм === */
+.amount.positive {
+  color: #16a34a !important; /* Более насыщенный зелёный для тёмной темы */
+}
+
+.amount.negative {
+  color: #dc2626 !important; /* Более насыщенный красный для тёмной темы */
+}
+
+.text-muted {
+  color: var(--ink-muted) !important;
+}
+
+/* === 7. Плавающая кнопка === */
+.btn-hero.icon-only {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  width: 44px !important;
+  height: 44px !important;
+  background: var(--surface-1) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 12px !important;
+  color: var(--ink) !important;
+  box-shadow: var(--shadow-soft) !important;
+  z-index: 100 !important;
+}
+
+.btn-hero.icon-only:hover {
+  background: var(--surface-2) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* === Дополнительная унификация === */
+
+/* Формы и инпуты */
+.form-control,
+.form-select {
+  background: var(--surface-1) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background: var(--surface-1) !important;
+  border-color: var(--info) !important;
+  color: var(--ink) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--info) 20%, transparent) !important;
+}
+
+.form-control::placeholder {
+  color: var(--ink-muted) !important;
+}
+
+/* Кнопки */
+.btn-primary {
+  background: var(--info) !important;
+  border-color: var(--info) !important;
+  color: white !important;
+}
+
+.btn-secondary {
+  background: var(--surface-2) !important;
+  border-color: var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.btn-outline-secondary {
+  background: transparent !important;
+  border-color: var(--line) !important;
+  color: var(--ink-muted) !important;
+}
+
+.btn-outline-secondary:hover {
+  background: var(--surface-2) !important;
+  color: var(--ink) !important;
+}
+
+/* Модальные окна */
+.modal-content {
+  background: var(--surface-1) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--line) !important;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--line) !important;
+}
+
+/* Алерты */
+.alert {
+  border: 1px solid var(--line) !important;
+}
+
+.alert-warning {
+  background: color-mix(in srgb, var(--warn) 10%, var(--surface-1)) !important;
+  border-color: var(--warn) !important;
+  color: var(--ink) !important;
+}
+
+.alert-info {
+  background: color-mix(in srgb, var(--info) 10%, var(--surface-1)) !important;
+  border-color: var(--info) !important;
+  color: var(--ink) !important;
+}
+
+/* Мобильные карточки */
+.income-card-mobile,
+.expense-card-mobile {
+  background: var(--surface-1) !important;
+  border: 1px solid var(--line) !important;
+  color: var(--ink) !important;
+}
+
+.income-amount .amount-text,
+.expense-amount .amount-text {
+  color: var(--ink) !important;
+}
+
+.amount-date,
+.expense-date {
+  color: var(--ink-muted) !important;
+}
+
+/* Дропдауны */
+.dropdown-menu {
+  background: var(--surface-1) !important;
+  border: 1px solid var(--line) !important;
+}
+
+.dropdown-item {
+  color: var(--ink) !important;
+}
+
+.dropdown-item:hover {
+  background: var(--surface-2) !important;
+  color: var(--ink) !important;
+}
+
+/* Навигация */
+.cb-nav {
+  background: var(--surface-1) !important;
+  border-bottom: 1px solid var(--line) !important;
+}
+
+/* Правильная обработка ховера для period-btn current */
+.period-btn.current:hover {
+  background: var(--info) !important;
+  color: white !important;
+}
+
+/* Более насыщенные цвета для бейджей в тёмной теме */
+[data-bs-theme="dark"] .badge-ghost {
+  background: var(--surface-2) !important;
+  color: var(--ink) !important;
+  border-color: var(--line) !important;
+}
+
+/* Компактный режим для новых элементов */
+.ui-compact .period-filter {
+  padding: 10px 14px !important;
+  margin-bottom: 16px !important;
+}
+
+.ui-compact .section-header {
+  padding: 12px 14px 10px !important;
+  font-size: 15px !important;
+}
+
+.ui-compact .period-btn {
+  width: 32px !important;
+  height: 32px !important;
+}
+
+.ui-compact .action-btn {
+  width: 32px !important;
+  height: 32px !important;
+}

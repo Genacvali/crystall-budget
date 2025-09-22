@@ -1,29 +1,29 @@
-<div class="ff-progress-card mb-3">
-    <div class="d-flex align-items-center justify-content-between">
-        <!-- Левая зона: сумма и дата -->
-        <div class="flex-shrink-0">
-            <div class="amount negative tabular-nums fw-bold">{{ expense.amount|format_amount }} {{ currency_symbol|default('₽') }}</div>
-            <div class="text-muted small">{{ expense.date|format_date_with_day }}</div>
-            {% if expense.note %}
-            <div class="text-muted small mt-1">
-                <i class="bi bi-chat-dots me-1"></i>{{ expense.note }}
+<div class="expense-card">
+    <div class="expense-row">
+        <!-- Левая колонка: сумма и дата (72-88px) -->
+        <div class="expense-amount">
+            <div class="amount-text">{{ expense.amount|format_amount }} {{ currency_symbol|default('₽') }}</div>
+            <div class="amount-date">{{ expense.date|format_date_with_day }}</div>
+        </div>
+        
+        <!-- Центральная колонка: бейдж категории и заметка -->
+        <div class="expense-details">
+            <div class="expense-category">
+                <span class="badge-ghost">{{ expense.category_name }}</span>
             </div>
+            {% if expense.note %}
+            <div class="expense-note">{{ expense.note }}</div>
             {% endif %}
         </div>
         
-        <!-- Средняя зона: бейдж категории -->
-        <div class="flex-grow-1 text-center">
-            <span class="badge-ghost">{{ expense.category_name }}</span>
-        </div>
-        
-        <!-- Правая зона: действия -->
-        <div class="flex-shrink-0 d-flex gap-2">
+        <!-- Правая колонка: действия -->
+        <div class="expense-actions">
             <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
-               class="btn-icon" aria-label="Редактировать расход">
+               class="action-btn" aria-label="Редактировать расход">
                 <i class="bi bi-pencil"></i>
             </a>
             <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-                <button type="submit" class="btn-icon btn-icon-danger"
+                <button type="submit" class="action-btn action-btn-danger"
                         data-confirm-delete="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}"
                         aria-label="Удалить расход">
                     <i class="bi bi-trash"></i>

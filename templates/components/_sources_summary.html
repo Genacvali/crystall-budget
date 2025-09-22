@@ -30,21 +30,21 @@
             
             <div class="row g-2 small">
               <div class="col-6">
-                <div class="text-muted">Пришло:</div>
+                <div class="text-muted" data-compact-text="Приход">Пришло:</div>
                 <div class="fw-bold text-success">{{ source_income_float|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
               </div>
               <div class="col-6">
-                <div class="text-muted">Ушло:</div>
+                <div class="text-muted" data-compact-text="Трата">Ушло:</div>
                 <div class="fw-bold text-danger">{{ source_spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
               </div>
               <div class="col-6">
-                <div class="text-muted">После лимитов:</div>
+                <div class="text-muted" data-compact-text="Ост. лимита">После лимитов:</div>
                 <div class="fw-bold {% if after_limits > 0 %}text-success{% else %}text-danger{% endif %}">
                   {{ after_limits|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
                 </div>
               </div>
               <div class="col-6">
-                <div class="text-muted">Остаток:</div>
+                <div class="text-muted" data-compact-text="Остаток">Остаток:</div>
                 <div class="fw-bold {% if balance > 0 %}text-success{% else %}text-danger{% endif %}">
                   {{ balance|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
                 </div>

@@ -154,6 +154,126 @@
 
 {% block scripts %}
 <script>
+// === Календарь месяцев для фильтрации данных ===
+document.addEventListener('DOMContentLoaded', function() {
+  const calTitle = document.getElementById('calTitle');
+  const calPrev = document.getElementById('calPrev');
+  const calNext = document.getElementById('calNext');
+  const miniCalendar = document.getElementById('miniCalendar');
+  
+  if (!calTitle || !calPrev || !calNext || !miniCalendar) return;
+  
+  // Получаем текущий месяц из URL или используем текущий
+  const urlParams = new URLSearchParams(window.location.search);
+  let currentMonth = urlParams.get('month') || '{{ month }}' || new Date().toISOString().slice(0, 7);
+  
+  const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                     'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+  
+  function updateCalendar() {
+    const [year, month] = currentMonth.split('-').map(n => parseInt(n));
+    const monthName = monthNames[month - 1];
+    calTitle.textContent = `${monthName} ${year}`;
+    
+    // Очищаем календарь
+    miniCalendar.innerHTML = '';
+    
+    // Создаем простую сетку дней месяца
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const firstDayOfWeek = (new Date(year, month - 1, 1).getDay() + 6) % 7; // Понедельник = 0
+    
+    // Заголовки дней недели
+    const dayHeaders = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+    const headerRow = document.createElement('div');
+    headerRow.className = 'calendar-header d-flex';
+    dayHeaders.forEach(day => {
+      const cell = document.createElement('div');
+      cell.className = 'calendar-day-header text-center p-1 flex-fill text-muted small';
+      cell.textContent = day;
+      headerRow.appendChild(cell);
+    });
+    miniCalendar.appendChild(headerRow);
+    
+    // Дни месяца
+    const calendarGrid = document.createElement('div');
+    calendarGrid.className = 'calendar-grid';
+    calendarGrid.style.cssText = 'display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;';
+    
+    // Пустые ячейки для выравнивания первого дня
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      const emptyCell = document.createElement('div');
+      emptyCell.className = 'calendar-day-empty p-2';
+      calendarGrid.appendChild(emptyCell);
+    }
+    
+    // Дни месяца
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() + 1 === month;
+    const todayDate = today.getDate();
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayCell = document.createElement('div');
+      dayCell.className = 'calendar-day text-center p-2 cursor-pointer rounded';
+      dayCell.textContent = day;
+      dayCell.style.cssText = 'min-height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background-color 0.2s;';
+      
+      if (isCurrentMonth && day === todayDate) {
+        dayCell.classList.add('bg-primary', 'text-white');
+      } else {
+        dayCell.classList.add('hover-bg-light');
+        dayCell.addEventListener('mouseenter', () => dayCell.style.backgroundColor = 'var(--bs-light)');
+        dayCell.addEventListener('mouseleave', () => dayCell.style.backgroundColor = '');
+      }
+      
+      dayCell.addEventListener('click', () => {
+        // При клике на день просто перезагружаем страницу с выбранным месяцем
+        updateMonthFilter(currentMonth);
+      });
+      
+      calendarGrid.appendChild(dayCell);
+    }
+    
+    miniCalendar.appendChild(calendarGrid);
+  }
+  
+  function updateMonthFilter(month) {
+    const url = new URL(window.location);
+    url.searchParams.set('month', month);
+    window.location.href = url.toString();
+  }
+  
+  function changeMonth(direction) {
+    const [year, month] = currentMonth.split('-').map(n => parseInt(n));
+    let newYear = year;
+    let newMonth = month + direction;
+    
+    if (newMonth > 12) {
+      newMonth = 1;
+      newYear++;
+    } else if (newMonth < 1) {
+      newMonth = 12;
+      newYear--;
+    }
+    
+    currentMonth = `${newYear}-${newMonth.toString().padStart(2, '0')}`;
+    updateCalendar();
+  }
+  
+  // События для кнопок навигации
+  calPrev.addEventListener('click', () => {
+    changeMonth(-1);
+    updateMonthFilter(currentMonth);
+  });
+  
+  calNext.addEventListener('click', () => {
+    changeMonth(1);
+    updateMonthFilter(currentMonth);
+  });
+  
+  // Инициализация
+  updateCalendar();
+});
+
 // Функция для показа уведомлений
 function showToast(message, type = 'info') {
   const toast = document.createElement('div');

@@ -8,11 +8,40 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h2 class="h4 m-0"><i class="bi bi-wallet2 text-danger me-2"></i>Мои расходы</h2>
-    <button class="btn-hero" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
-        <i class="bi bi-plus-lg me-1"></i>
-        <span class="d-none d-sm-inline">Добавить </span>Расход
+    <button class="btn-hero icon-only" data-bs-toggle="collapse" data-bs-target="#addExpenseForm"
+            title="Добавить расход" aria-label="Добавить расход">
+        <i class="bi bi-plus-lg"></i>
+        <span class="visually-hidden">Добавить расход</span>
     </button>
 </div>
+
+<!-- Навигация по месяцам -->
+{% if month_data %}
+<div class="period-filter">
+    <div class="period-info">
+        <i class="bi bi-calendar3 icon"></i>
+        <span class="label">Период:</span>
+        <strong class="value">{{ month_data.current_month_name }}</strong>
+        {% if not month_data.is_current_month %}
+            <span class="period-badge">Архив</span>
+        {% endif %}
+    </div>
+    <div class="period-nav">
+        <a href="{{ url_for('expenses', month=month_data.prev_month) }}" 
+           class="period-btn" title="Предыдущий месяц">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+        <a href="{{ url_for('expenses') }}" 
+           class="period-btn current" title="Текущий месяц">
+            <i class="bi bi-house"></i>
+        </a>
+        <a href="{{ url_for('expenses', month=month_data.next_month) }}" 
+           class="period-btn" title="Следующий месяц">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+</div>
+{% endif %}
 
 {% include 'components/forms/_add_expense_form.html' %}
 

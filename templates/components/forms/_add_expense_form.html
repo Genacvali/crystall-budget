@@ -1,6 +1,6 @@
 <div class="collapse mb-3" id="addExpenseForm">
     <div class="ff-progress-card">
-        <form method="POST" action="/expenses" data-form="expense">
+        <form method="POST" action="{{ url_for('expenses', month=month_data.month if month_data else None) }}" data-form="expense">
             <div class="row g-2 g-md-3 align-items-end">
                 <div class="col-6 col-md-3">
                     <label for="date" class="form-label">Дата</label>

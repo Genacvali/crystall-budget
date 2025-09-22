@@ -25,7 +25,11 @@
       "Bash(systemctl:*)",
       "Read(//var/**)",
       "Read(//opt/**)",
-      "Bash(timeout:*)"
+      "Bash(timeout:*)",
+      "Bash(FLASK_RUN_PORT=5001 python app.py)",
+      "Bash(FLASK_RUN_PORT=5002 python app.py)",
+      "Bash(FLASK_RUN_PORT=5003 python app.py)",
+      "Bash(FLASK_RUN_PORT=5010 python app.py)"
     ],
     "deny": [],
     "ask": []
