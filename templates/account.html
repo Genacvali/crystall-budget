@@ -2,11 +2,12 @@
 {% block title %}Личный кабинет — CrystalBudget{% endblock %}
 
 {% block content %}
-<div class="card-soft mb-4">
-  <div class="card-soft-header">
-    <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Профиль пользователя</h5>
+<div class="ff-progress-card mb-4">
+  <div class="ff-header">
+    <i class="bi bi-person-circle"></i>
+    Профиль пользователя
   </div>
-  <div class="p-4">
+  <div class="p-3">
     <form method="POST" action="{{ url_for('update_profile') }}">
       <div class="row g-3">
         <div class="col-md-6">
@@ -16,14 +17,6 @@
         <div class="col-md-6">
           <label class="form-label">Имя</label>
           <input type="text" class="form-control" name="name" value="{{ user.name }}" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label text-muted">Дата регистрации</label>
-          <div class="form-control-plaintext">{{ user.created_at|format_date_with_day if user.created_at else 'Неизвестно' }}</div>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label text-muted">Последний вход</label>
-          <div class="form-control-plaintext">{{ user.last_login|format_date_with_day if user.last_login else 'Неизвестно' }}</div>
         </div>
         <div class="col-12">
           <button type="submit" class="btn btn-primary">
@@ -35,12 +28,13 @@
   </div>
 </div>
 
-<div class="card-soft mb-4">
-  <div class="card-soft-header">
-    <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Настройки</h5>
+<div class="ff-progress-card mb-4">
+  <div class="ff-header">
+    <i class="bi bi-gear"></i>
+    Настройки
   </div>
-  <div class="p-4">
-    <form method="POST" action="{{ url_for('set_currency') }}" class="row g-3">
+  <div class="p-3">
+    <form method="POST" action="/set-currency" class="row g-3">
       <div class="col-md-8">
         <label class="form-label">Валюта интерфейса</label>
         <select class="form-select" name="currency">
@@ -64,11 +58,12 @@
   </div>
 </div>
 
-<div class="card-soft mb-4">
-  <div class="card-soft-header">
-    <h5 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Смена пароля</h5>
+<div class="ff-progress-card mb-4">
+  <div class="ff-header">
+    <i class="bi bi-shield-lock"></i>
+    Смена пароля
   </div>
-  <div class="p-4">
+  <div class="p-3">
     <form method="POST" action="{{ url_for('account_password') }}">
       <div class="row g-3">
         <div class="col-12">
@@ -94,11 +89,12 @@
   </div>
 </div>
 
-<div class="card-soft">
-  <div class="card-soft-header">
-    <h5 class="mb-0"><i class="bi bi-download me-2"></i>Экспорт данных</h5>
+<div class="ff-progress-card">
+  <div class="ff-header">
+    <i class="bi bi-download"></i>
+    Экспорт данных
   </div>
-  <div class="p-4">
+  <div class="p-3">
     <p class="text-muted mb-3">Скачайте копию всех ваших данных для резервного копирования или переноса.</p>
     <div class="d-flex gap-2">
       <button class="btn btn-outline-primary" onclick="alert('Экспорт в разработке')">

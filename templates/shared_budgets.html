@@ -3,21 +3,19 @@
 {% block title %}Семейные бюджеты{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3 mb-0">👨‍👩‍👧‍👦 Семейные бюджеты</h1>
-                {% if shared_budgets and shared_budgets|length %}
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#joinBudgetModal">
-                        <i class="bi bi-plus-lg"></i> Присоединиться
-                    </button>
-                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBudgetModal">
-                        <i class="bi bi-plus-lg"></i> Создать
-                    </button>
-                </div>
-                {% endif %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <h2 class="h4 m-0">👨‍👩‍👧‍👦 Семейные бюджеты</h2>
+    {% if shared_budgets and shared_budgets|length %}
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#joinBudgetModal">
+            <i class="bi bi-plus-lg"></i> Присоединиться
+        </button>
+        <button class="btn-hero" data-bs-toggle="modal" data-bs-target="#createBudgetModal">
+            <i class="bi bi-plus-lg"></i> Создать
+        </button>
+    </div>
+    {% endif %}
             </div>
             
             <!-- Flash Messages -->
@@ -32,7 +30,7 @@
                 {% endif %}
             {% endwith %}
 
-            <!-- Shared Budgets List -->
+<!-- Shared Budgets List -->
             {% if shared_budgets %}
                 <div class="row">
                     {% for budget in shared_budgets %}
@@ -96,9 +94,6 @@
                     </div>
                 </div>
             {% endif %}
-        </div>
-    </div>
-</div>
 
 <!-- Create Budget Modal -->
 <div class="modal fade" id="createBudgetModal" tabindex="-1">

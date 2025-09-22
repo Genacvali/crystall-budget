@@ -24,7 +24,8 @@
       "Bash(export FLASK_RUN_PORT=5050)",
       "Bash(systemctl:*)",
       "Read(//var/**)",
-      "Read(//opt/**)"
+      "Read(//opt/**)",
+      "Bash(timeout:*)"
     ],
     "deny": [],
     "ask": []

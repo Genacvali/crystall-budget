@@ -205,3 +205,104 @@ window.confirmDelete = function(message, onConfirm) {
   
   modal.show();
 };
+
+// === Современный Drawer ===
+(() => {
+  const body = document.body;
+  const drawer = document.getElementById('drawer');
+  const dim = document.getElementById('dim');
+  const openBtn = document.getElementById('openDrawer');
+  const closeBtn = document.getElementById('closeDrawer');
+
+  if (!drawer || !dim || !openBtn || !closeBtn) return;
+
+  function openDrawer() {
+    body.classList.add('drawer-open');
+    drawer.hidden = false; 
+    dim.hidden = false;
+    // перенос фокуса внутрь
+    setTimeout(() => closeBtn.focus(), 0);
+  }
+  
+  function closeDrawer() {
+    body.classList.remove('drawer-open');
+    // по окончании анимации прячем в DOM (для скринридеров)
+    setTimeout(() => { 
+      drawer.hidden = true; 
+      dim.hidden = true; 
+    }, 260);
+  }
+  
+  openBtn.addEventListener('click', openDrawer);
+  closeBtn.addEventListener('click', closeDrawer);
+  dim.addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', (e) => { 
+    if (e.key === 'Escape') closeDrawer(); 
+  });
+
+  // Закрытие при клике на ссылки навигации
+  drawer.addEventListener('click', (e) => {
+    const link = e.target.closest('a.cb-drawer-item');
+    if (link) closeDrawer();
+  });
+
+  // Скрываем drawer изначально
+  drawer.hidden = true;
+  dim.hidden = true;
+})();
+
+/* === Переключатель темы внутри drawer === */
+(() => {
+  const sw = document.getElementById('themeToggleDrawer');
+  if (!sw) return;
+
+  const root = document.documentElement;
+  const isDark = () => (root.getAttribute('data-bs-theme') || 'light') === 'dark';
+  const apply = (dark) => {
+    const theme = dark ? 'dark' : 'light';
+    root.setAttribute('data-bs-theme', theme);
+    sw.setAttribute('aria-checked', String(dark));
+    // если у тебя есть серверный эндпоинт:
+    fetch('/set-theme', { method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({theme})
+    }).catch(()=>{});
+  };
+
+  sw.setAttribute('aria-checked', String(isDark()));
+  sw.addEventListener('click', () => apply(!isDark()));
+  sw.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); apply(!isDark()); }
+  });
+})();
+
+/* === Валюта из select внутри drawer === */
+async function updateCurrency(code){
+  try { await fetch(`/set-currency/${encodeURIComponent(code)}`, {method:'GET'}); }
+  catch(e){}
+  location.reload();
+}
+
+// === Функция для обновления валюты ===
+function updateCurrency(currency) {
+  fetch('/set-currency', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ currency: currency })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      // Обновляем основной селектор валюты, если он есть
+      const mainCurrencySelect = document.querySelector('#currency-selector');
+      if (mainCurrencySelect) {
+        mainCurrencySelect.value = currency;
+      }
+      // Можно добавить уведомление об успешном изменении
+      console.log('Currency updated to:', currency);
+    }
+  })
+  .catch(error => {
+    console.error('Failed to update currency:', error);
+  });
+}

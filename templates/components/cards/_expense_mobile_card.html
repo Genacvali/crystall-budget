@@ -1,52 +1,34 @@
-<div class="card-fintech mobile-card swipe-card">
-    <div class="swipe-actions swipe-left">
-        <button class="swipe-action edit" 
-                data-url="{{ url_for('edit_expense', expense_id=expense.id) }}"
-                data-action="edit">
-            <i class="bi bi-pencil"></i>
-        </button>
-    </div>
-    
-    <div class="swipe-content">
-        <div class="mobile-card-header">
-            <div>
-                <div class="mobile-card-amount text-danger">-{{ expense.amount|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
-                <div class="mobile-card-meta">
-                    <i class="bi bi-calendar3 me-1"></i>{{ expense.date|format_date_with_day }}
-                    {% if expense.note %}
-                    <br><i class="bi bi-chat-dots me-1"></i>{{ expense.note }}
-                    {% endif %}
-                </div>
+<div class="ff-progress-card mb-3">
+    <div class="d-flex align-items-center justify-content-between">
+        <!-- Левая зона: сумма и дата -->
+        <div class="flex-shrink-0">
+            <div class="amount negative tabular-nums fw-bold">{{ expense.amount|format_amount }} {{ currency_symbol|default('₽') }}</div>
+            <div class="text-muted small">{{ expense.date|format_date_with_day }}</div>
+            {% if expense.note %}
+            <div class="text-muted small mt-1">
+                <i class="bi bi-chat-dots me-1"></i>{{ expense.note }}
             </div>
-            <span class="tag-fintech tag-fintech-secondary">{{ expense.category_name }}</span>
+            {% endif %}
         </div>
-        <div class="d-inline-flex gap-2">
-            <!-- Изменить (primary soft) -->
-            <div data-bs-toggle="tooltip" data-bs-title="Изменить">
-                <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" class="icon-btn icon-sm icon-primary icon-faded" aria-label="Изменить">
-                    <i class="bi bi-pencil"></i>
-                </a>
-            </div>
-
-            <!-- Удалить (solid danger) -->
+        
+        <!-- Средняя зона: бейдж категории -->
+        <div class="flex-grow-1 text-center">
+            <span class="badge-ghost">{{ expense.category_name }}</span>
+        </div>
+        
+        <!-- Правая зона: действия -->
+        <div class="flex-shrink-0 d-flex gap-2">
+            <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
+               class="btn-icon" aria-label="Редактировать расход">
+                <i class="bi bi-pencil"></i>
+            </a>
             <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
-                <div data-bs-toggle="tooltip" data-bs-title="Удалить">
-                    <button type="submit" class="icon-btn icon-sm icon-danger"
-                            data-confirm-delete="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}"
-                            aria-label="Удалить">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                </div>
+                <button type="submit" class="btn-icon btn-icon-danger"
+                        data-confirm-delete="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}"
+                        aria-label="Удалить расход">
+                    <i class="bi bi-trash"></i>
+                </button>
             </form>
         </div>
-    </div>
-    
-    <div class="swipe-actions swipe-right">
-        <button class="swipe-action delete" 
-                data-expense-id="{{ expense.id }}"
-                data-confirm-text="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}"
-                data-action="delete">
-            <i class="bi bi-trash"></i>
-        </button>
     </div>
 </div>

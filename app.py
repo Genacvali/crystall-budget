@@ -180,7 +180,17 @@ def utility_processor():
             return url_for(endpoint, **values)
         except BuildError:
             return '#'
-    return dict(safe_url=safe_url)
+    
+    # Добавляем валюты и текущую валюту в глобальный контекст
+    current_currency = session.get('currency', DEFAULT_CURRENCY)
+    currency_symbol = CURRENCIES.get(current_currency, {}).get('symbol', '₽')
+    
+    return dict(
+        safe_url=safe_url,
+        currencies=CURRENCIES,
+        currency_code=current_currency,
+        currency_symbol=currency_symbol
+    )
 # -----------------------------------------------------------------------------
 # Currency conversion helper
 # -----------------------------------------------------------------------------
@@ -877,6 +887,20 @@ def set_currency():
     code = (request.form.get("currency") or payload.get("currency") or "").upper()
     if code in CURRENCIES:
         session["currency"] = code
+        
+        # Update user's default currency in database
+        try:
+            conn = get_db()
+            conn.execute(
+                "UPDATE users SET default_currency = ? WHERE id = ?",
+                (code, session["user_id"])
+            )
+            conn.commit()
+            conn.close()
+        except sqlite3.OperationalError:
+            # Column might not exist yet, ignore
+            pass
+        
         if request.is_json:
             return {"success": True, "currency": code, "symbol": CURRENCIES[code]["symbol"]}
         flash("Валюта обновлена", "success")
@@ -1439,7 +1463,7 @@ def account():
         return redirect(url_for("account"))
 
     conn.close()
-    return render_template("account.html", user=user, currencies=CURRENCIES)
+    return render_template("account.html", user=user)
 
 @app.route("/account/password", methods=["POST"])
 @login_required
@@ -1566,7 +1590,7 @@ def update_profile():
 def calculate_accumulated_rollover(user_id, category_id, current_month):
     """
     Вычисляет накопленный остаток для категории на начало текущего месяца.
-    Рассматривает все предыдущие месяцы где был остаток (лимит > трат).
+    Правильно обрабатывает как положительные остатки, так и перерасходы.
     """
     conn = get_db()
     
@@ -1578,17 +1602,20 @@ def calculate_accumulated_rollover(user_id, category_id, current_month):
         ORDER BY month
     """, (user_id, category_id, current_month)).fetchall()
     
+    # Накопленный остаток от самого первого месяца до текущего
     total_rollover = 0.0
     
     for row in rollover_data:
         month_limit = float(row['limit_amount'])
         month_spent = float(row['spent_amount'])
-        month_rollover = float(row['rollover_amount'])
+        prev_rollover = float(row['rollover_amount'])
         
-        # Остаток = лимит - потраченное + накопленный остаток с предыдущих месяцев
-        month_surplus = month_limit - month_spent + month_rollover
-        if month_surplus > 0:
-            total_rollover += month_surplus
+        # Остаток этого месяца = лимит месяца - потраченное + накопленный остаток с предыдущих месяцев
+        month_balance = month_limit - month_spent + prev_rollover
+        
+        # Обновляем общий накопленный остаток
+        # Учитываем и положительные остатки, и отрицательные (перерасходы)
+        total_rollover = month_balance
     
     conn.close()
     return total_rollover

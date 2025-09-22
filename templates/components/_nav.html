@@ -40,6 +40,13 @@
       {# Правая часть - календарь, тема, пользователь #}
       <div class="cb-right">
         
+        {# Современный бургер для мобильных #}
+        <button class="cb-burger-modern" id="openDrawer" type="button" aria-label="Открыть меню">
+          <svg viewBox="0 0 24 24">
+            <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
+          </svg>
+        </button>
+        
         {# Дроп-календарь #}
         <div class="date-picker" id="datePicker">
           <button class="dp-btn" type="button" id="dpBtn" title="Выбрать дату">
@@ -68,38 +75,97 @@
           <span class="theme-slider"></span>
         </label>
 
-        {# Пользовательское меню #}
-        {% if session.user_id %}
-        <div class="cb-user">
-          <a href="#" class="cb-user-btn" title="Меню пользователя">
-            <div class="cb-user-avatar">
-              {% if session.name %}
-                {{ session.name[0].upper() }}
-              {% else %}
-                ?
-              {% endif %}
-            </div>
-            <span class="cb-user-name">
-              {{ session.name or 'Пользователь' }}
-            </span>
-          </a>
-          
-          <div class="cb-user-dropdown">
-            <div class="cb-user-menu">
-              <a href="{{ url_for('account') }}" class="cb-user-item">
-                <i class="bi bi-person"></i>
-                Личный кабинет
-              </a>
-              <a href="{{ url_for('logout') }}" class="cb-user-item">
-                <i class="bi bi-box-arrow-right"></i>
-                Выйти
-              </a>
-            </div>
-          </div>
-        </div>
-        {% endif %}
 
       </div>
     </div>
   </div>
 </header>
+
+{# Современный Drawer для мобильных #}
+<div class="cb-drawer-dim" id="dim" hidden></div>
+
+<aside class="cb-drawer" id="drawer" aria-modal="true" role="dialog" aria-labelledby="dwTitle" hidden>
+  <div class="cb-dw-head">
+    <a class="cb-brand" href="{{ url_for('dashboard') }}">
+      <span class="cb-brand-icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <path d="M6 3h12l4 6-10 12L2 9l4-6z" fill="currentColor"/>
+        </svg>
+      </span>
+      <span id="dwTitle">CrystalBudget</span>
+    </a>
+    <button class="cb-dw-close" id="closeDrawer" aria-label="Закрыть">
+      <svg viewBox="0 0 24 24">
+        <path d="M6 6l12 12m0-12L6 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="cb-drawer-group" aria-label="Навигация">
+    <div class="cb-drawer-group-title">Навигация</div>
+
+    <a class="cb-drawer-item {{ 'is-active' if ep == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
+      <span class="cb-ico">
+        <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z"/></svg>
+      </span>
+      <span class="cb-label">Дашборд</span>
+      <span class="cb-hint"></span>
+    </a>
+
+    <a class="cb-drawer-item {{ 'is-active' if ep == 'categories' else '' }}" href="{{ url_for('categories') }}">
+      <span class="cb-ico">
+        <svg viewBox="0 0 24 24"><path d="M12 2l4 4-8 8-4-4 8-8zM6 14l-1 4 4-1" fill="currentColor"/></svg>
+      </span>
+      <span class="cb-label">Категории</span>
+      <span class="cb-hint"></span>
+    </a>
+
+    <a class="cb-drawer-item {{ 'is-active' if ep == 'income_page' else '' }}" href="{{ url_for('income_page') }}">
+      <span class="cb-ico">
+        <svg viewBox="0 0 24 24"><path d="M4 14h6v6H4zM14 4h6v6h-6zM9 11l6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+      </span>
+      <span class="cb-label">Доходы</span>
+      <span class="cb-hint"></span>
+    </a>
+
+    <a class="cb-drawer-item {{ 'is-active' if ep == 'expenses' else '' }}" href="{{ url_for('expenses') }}">
+      <span class="cb-ico">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="6" r="2" /><rect x="4" y="10" width="16" height="8" rx="2"/></svg>
+      </span>
+      <span class="cb-label">Расходы</span>
+      <span class="cb-hint"></span>
+    </a>
+
+
+  </div>
+
+  {% if session.user_id %}
+  <a class="cb-drawer-user" href="{{ url_for('account') }}">
+    <div class="cb-drawer-avatar">
+      {% if session.name %}
+        {{ session.name[0].upper() }}
+      {% else %}
+        ?
+      {% endif %}
+    </div>
+    <div>
+      <div class="cb-name">{{ session.name or 'Пользователь' }}</div>
+      <div class="cb-sub">Личный аккаунт</div>
+    </div>
+  </a>
+
+  <div class="cb-drawer-group">
+    <div class="cb-drawer-switch">
+      <span class="cb-label">Тема</span>
+      <div class="cb-sw" id="themeToggleDrawer" role="switch" tabindex="0" aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}" aria-label="Переключить тему"></div>
+    </div>
+    
+    <a class="cb-drawer-item" href="{{ url_for('logout') }}">
+      <span class="cb-ico">
+        <svg viewBox="0 0 24 24"><path d="M10 8l-6 4 6 4V8zM13 4h7v16h-7" fill="currentColor"/></svg>
+      </span>
+      <span class="cb-label">Выйти</span>
+    </a>
+  </div>
+  {% endif %}
+</aside>

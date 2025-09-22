@@ -80,7 +80,7 @@ sudo journalctl -u admin-panel -f
 ## Architecture Overview
 
 ### Single-File Flask Application
-The entire backend is in `app.py` (~4561 lines) with:
+The entire backend is in `app.py` (~4627 lines) with:
 - Telegram-only authentication system (email auth disabled)
 - 30-day sessions with secure cookie configuration
 - SQLite database with automatic schema initialization and migration system
@@ -108,8 +108,8 @@ SQLite with strict user isolation and automatic schema migration:
 - **Static assets**: 
   - PWA files (manifest.json, manifest.webmanifest)
   - Service worker (sw.js) for offline functionality
-  - JavaScript modules in `/static/js/` (dashboard-cats.js, progress_bars.js, entries/)
-  - CSS files in `/static/css/` (clean-theme.css, dashboard.css)
+  - JavaScript modules in `/static/js/` (app.js, dashboard-cats.js, progress_bars.js, offline.js, entries/, modules/)
+  - CSS files in `/static/css/` with responsive themes
   - Favicon and icons in `/static/icons/`
   - User avatars stored in `/static/avatars/`
 
@@ -136,7 +136,7 @@ Separate Flask application in `/admin_panel/` for system administration:
 - User management: view, delete, migrate between auth types, role management
 - Data migration tools for converting email users to Telegram authentication
 - System stats, database overview, and log viewing capabilities
-- Deployment scripts: `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`
+- Deployment scripts: `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`, `logs_admin.sh`
 
 
 ### Environment Variables
@@ -154,7 +154,7 @@ LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 
 ### Important File Locations
 Current codebase structure:
-- `app.py` - Main Flask application (~4561 lines) with embedded Telegram authentication
+- `app.py` - Main Flask application (~4627 lines) with embedded Telegram authentication
 - `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn, python-dotenv)
 - `templates/` - Jinja2 templates with Russian UI, including reusable components
 - `static/` - Frontend assets:
@@ -165,7 +165,7 @@ Current codebase structure:
 - `init_db.py` - Database initialization script
 - `admin_panel/` - Administrative interface with deployment scripts:
   - `admin_panel.py` - Admin Flask app
-  - `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`
+  - `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`, `logs_admin.sh`
   - `admin-panel.service` - Admin systemd service
   - `nginx-admin-panel.conf` - Admin nginx config
 - `README.md` - Russian documentation with v1.1 features and setup instructions

@@ -1,0 +1,196 @@
+/* ===== Modern Burger Drawer Styles ===== */
+
+/* ===== Tokens ===== */
+:root{
+  --radius:16px; --radius-sm:12px;
+  --shadow:0 12px 40px rgba(0,0,0,.35);
+  --primary:#6366f1; --accent:#0ea5e9;
+
+  /* dark */
+  --bg:#0b0f14; --surface:#121821; --ink:#e7edf6; --muted:#9aa4ae;
+  --line:rgba(255,255,255,.12);
+}
+[data-bs-theme="light"], [data-theme="light"]{
+  --bg:#f6f7fb; --surface:#ffffff; --ink:#0b1220; --muted:#6b7280;
+  --line:rgba(0,0,0,.12);
+}
+
+/* ===== Modern Burger Button ===== */
+.cb-burger-modern {
+  margin-left: auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  transition: all 0.2s ease;
+}
+
+.cb-burger-modern:hover {
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  border-color: color-mix(in srgb, var(--line) 150%, transparent);
+}
+
+.cb-burger-modern:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.cb-burger-modern svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+/* ===== Dim + Drawer ===== */
+.cb-drawer-dim{
+  position:fixed; inset:0; background:#0008; z-index:29;
+  opacity:0; visibility:hidden; transition:.2s ease;
+}
+.cb-drawer{
+  position:fixed; inset:0 auto 0 0; width:320px; max-width:calc(100% - 72px);
+  transform:translateX(-100%); transition: transform .26s ease;
+  z-index:30; background:var(--surface); border-right:1px solid var(--line);
+  box-shadow:var(--shadow); border-radius:0 var(--radius) var(--radius) 0;
+  display:flex; flex-direction:column; overflow:hidden auto;
+}
+body.drawer-open .cb-drawer-dim{ opacity:1; visibility:visible; }
+body.drawer-open .cb-drawer{ transform:translateX(0); }
+
+/* Header в шторке */
+.cb-dw-head{
+  display:flex; align-items:center; gap:10px; padding:14px 14px 8px;
+  flex-shrink: 0;
+}
+.cb-dw-head .cb-brand{ margin-right:auto; }
+.cb-brand{ 
+  display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--ink);
+  font-weight:800; letter-spacing:.2px;
+}
+.cb-brand-icon{
+  width:24px; height:24px; display:grid; place-items:center; border-radius:8px;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+.cb-brand-icon svg{ width:14px; height:14px; fill:#fff }
+
+.cb-dw-close{
+  width:40px; height:40px; border-radius:12px; border:1px solid var(--line);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  display:grid; place-items:center; cursor:pointer; color:var(--ink);
+  transition: all 0.2s ease;
+}
+.cb-dw-close:hover {
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+}
+.cb-dw-close svg{ width:18px; height:18px; stroke:currentColor; fill:none; }
+
+/* Секции */
+.cb-drawer-group{ padding:8px 10px }
+.cb-drawer-group-title{
+  font-size:.82rem; letter-spacing:.3px; text-transform:uppercase;
+  color:var(--muted); padding:6px 8px 8px; font-weight: 600;
+}
+
+/* Пункты — сетка: иконка + текст + хвост */
+.cb-drawer-item{
+  display:grid; grid-template-columns: 26px 1fr auto;
+  align-items:center; gap:12px;
+  padding:10px 10px; margin:4px 0; border-radius:12px;
+  color:var(--ink); text-decoration:none;
+  border:1px solid transparent; transition: all 0.2s ease;
+}
+.cb-drawer-item:hover{
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
+  border-color: var(--line); color: var(--ink); text-decoration: none;
+}
+.cb-drawer-item:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+  border-color: var(--primary);
+}
+.cb-ico{ display:grid; place-items:center; color:var(--ink); opacity:.9 }
+.cb-ico svg{ width:18px; height:18px; fill:currentColor }
+.cb-label{ font-weight:600 }
+.cb-hint{ color:var(--muted); font-size:.85rem }
+
+/* Активный пункт */
+.cb-drawer-item.is-active{
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--line));
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--accent) 25%, transparent) inset;
+}
+
+/* Аккаунт карточка */
+.cb-drawer-user{
+  display:flex; align-items:center; gap:10px;
+  padding:12px; margin:8px 10px 4px; border-radius:14px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border:1px solid var(--line);
+  text-decoration: none; color: inherit;
+  transition: all 0.2s ease;
+}
+.cb-drawer-user:hover{
+  background: color-mix(in srgb, var(--surface) 95%, transparent);
+  border-color: color-mix(in srgb, var(--line) 150%, transparent);
+  color: inherit; text-decoration: none;
+}
+.cb-drawer-user:focus{
+  outline: 2px solid var(--primary);
+  outline-offset: -1px;
+}
+.cb-drawer-avatar{
+  width:34px; height:34px; border-radius:50%; display:grid; place-items:center;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color:#fff; font-weight:700;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary) 35%, transparent);
+}
+.cb-name{ font-weight:700; color: var(--ink); }
+.cb-sub{ color:var(--muted); font-size:.88rem }
+
+/* Тумблер темы */
+.cb-drawer-switch{
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 12px; margin:6px 10px; border-radius:12px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border:1px solid var(--line);
+}
+.cb-sw{
+  position:relative; width:46px; height:24px; border-radius:999px;
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border:1px solid color-mix(in srgb, var(--ink) 14%, transparent);
+  cursor: pointer; transition: all 0.2s ease;
+}
+.cb-sw:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+.cb-sw::after{
+  content:""; position:absolute; top:2px; left:2px; width:20px; height:20px;
+  border-radius:50%; background:#fff; box-shadow:0 2px 6px rgba(0,0,0,.25);
+  transition: transform .2s ease;
+}
+[data-bs-theme="dark"] .cb-sw::after, 
+[data-theme="dark"] .cb-sw::after{ transform: translateX(22px); }
+
+/* Скрываем стандартный бургер на больших экранах */
+@media (min-width: 992px) {
+  .cb-burger-modern {
+    display: none;
+  }
+}
+
+/* Показываем новый бургер только на мобильных */
+@media (max-width: 991.98px) {
+  .cb-burger {
+    display: none !important;
+  }
+  
+  .cb-burger-modern {
+    display: grid;
+  }
+}
