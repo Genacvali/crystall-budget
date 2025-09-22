@@ -261,6 +261,8 @@
 }
 .hero h1{ font-size:2rem; font-weight:800; margin:0 0 .25rem; }
 .hero .meta{ opacity:.95; }
+/* СТАРЫЕ СТИЛИ КНОПОК - ОТКЛЮЧЕНЫ В ПОЛЬЗУ ЕДИНОГО КОМПОНЕНТА */
+/*
 .btn-hero{
   display:inline-flex; align-items:center; gap:.7rem; color:#fff;
   background: rgba(255,255,255,.15);
@@ -282,6 +284,7 @@
   transform: skewX(-20deg); animation: shimmer 3s infinite;
 }
 @keyframes shimmer{ 100%{ left:150%; } }
+*/
 
 /* ===== Mini Calendar ===== */
 .mini-cal{ 
@@ -356,6 +359,8 @@
 [data-bs-theme="dark"] .badge-ghost{
   background: rgba(255,255,255,.12); color: var(--text);
 }
+/* СТАРЫЕ СТИЛИ ИКОНОК - ОТКЛЮЧЕНЫ В ПОЛЬЗУ ЕДИНОГО КОМПОНЕНТА */
+/*
 .icon-badge{
   width:34px; height:34px; border-radius:12px; display:grid; place-items:center;
   position:relative; isolation:isolate;
@@ -371,6 +376,7 @@
 }
 .icon-expense::before{ background: rgba(239,68,68,.8); }
 .icon-income::before{ background: rgba(34,197,94,.8); }
+*/
 
 /* === Компактный режим карточек дашборда === */
 .ui-compact .income-cards { 
@@ -493,89 +499,205 @@
   font-size: 13px;
 }
 
-/* === Унификация кнопок и контролов === */
+/* === ЕДИНЫЙ КОМПОНЕНТ КНОПКИ (замена разрозненных стилей) === */
 
-/* Фиксированная высота для всех кнопок */
+/* 1. Единая кнопка-пилюля с читаемым фоном на градиенте */
 .btn-hero {
-  height: 44px !important;  /* Контрольная высота */
-  padding: 0 14px !important;  /* Горизонтальный padding только */
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 10px !important;
-  line-height: 1 !important;  /* Убираем влияние базовой линии */
-  white-space: nowrap !important;  /* Запрещаем перенос */
-  font-size: 15px !important;
+  /* Фиксированные размеры и отступы */
+  height: 40px;
+  padding: 0 16px;
+  min-width: 44px; /* минимальная хит-зона для touch */
+  
+  /* Флекс-контейнер */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  
+  /* Реальная подложка вместо стеклянной прозрачности */
+  background: rgba(255, 255, 255, 0.7) !important; /* 70% от surface */
+  color: #fff;
+  
+  /* Единый бордер и радиус */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px; /* пилюля */
+  
+  /* Один бокс-шадов без дублирования */
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  
+  /* Типографика */
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  
+  /* Переходы */
+  transition: all 0.2s ease;
+  
+  /* Убираем backdrop-filter с кнопок (оставляем только на плашке) */
+  backdrop-filter: none !important;
+  
+  /* Позиционирование для псевдоэлементов */
+  position: relative;
+  overflow: hidden;
 }
 
-/* Иконки внутри кнопок - фиксированный квадрат */
+/* 2. Иконка-бейдж с единообразным размером */
 .btn-hero .icon-badge {
-  width: 20px !important;
-  height: 20px !important;
-  min-width: 20px !important;
-  min-height: 20px !important;
-  border-radius: 6px !important;
-  display: flex !important;  /* Из grid в flex для лучшего контроля */
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;  /* Не давать сжиматься */
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  
+  /* лёгкая подложка и рамка */
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+
+   /* важно: прибиваем старые свечения */
+  box-shadow: none !important;
 }
 
 .btn-hero .icon-badge i {
-  font-size: 14px !important;
-  line-height: 1 !important;
-  margin: 0 !important;
+  font-size: 12px;
+  line-height: 1;
+  margin: 0;
+  color: inherit;
 }
 
-/* Псевдоэлементы подсветки не должны влиять на геометрию */
+/* Цвет иконки — селектор на ТОМ ЖЕ элементе */
+.icon-badge.icon-expense { color: #ef4444; }  /* расход – красный */
+.icon-badge.icon-income  { color: #22c55e; }  /* доход  – зелёный */
+
+/* 3. Убираем ореолы/блики - только цветовое различие иконок */
+.icon-expense .icon-badge {
+  color: #ef4444; /* красная иконка */
+}
+
+.icon-income .icon-badge {
+  color: #22c55e; /* зеленая иконка */
+}
+
+/* Удаляем псевдоэлементы-ореолы полностью */
 .icon-expense::before,
 .icon-income::before {
-  pointer-events: none !important;
-  inset: -3px !important;  /* Уменьшаем с -6px */
-  filter: blur(6px) !important;  /* Уменьшаем blur с 12px */
+  display: none !important;
 }
 
-/* Контейнер кнопок */
-.hero .d-flex {
-  align-items: center !important;
-  gap: 10px !important;
+/* 4. Полностью вырубаем старые ореолы/блики у того же элемента */
+.icon-badge.icon-expense::before,
+.icon-badge.icon-income::before {
+  content: none !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 
-/* Компактный режим */
+/* 4. Состояния кнопки */
+.btn-hero:hover {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* 5. (опционально) на всякий случай убьём тени на самой кнопке-иконке,
+      если где-то в старых стилях они ещё задавались */
+.icon-badge { box-shadow: none !important; }
+
+
+.btn-hero:active {
+  transform: translateY(0) scale(0.98);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.btn-hero:focus-visible {
+  outline: none;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 0 0 2px rgba(99, 102, 241, 0.5); /* фокус-кольцо */
+}
+
+.btn-hero:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none;
+}
+
+/* 5. Убираем shimmer анимацию */
+.btn-hero::after {
+  display: none !important;
+}
+
+/* 6. Контейнер кнопок с правильными отступами */
+.hero {
+  padding: 20px 24px 20px 20px; /* увеличиваем правый отступ, чтобы не резать тени */
+}
+
+.hero .d-flex.gap-2 {
+  gap: 12px !important; /* единый gap между кнопками */
+  align-items: center;
+}
+
+/* 7. Компактный режим */
 .ui-compact .btn-hero {
-  height: 36px !important;
-  padding: 0 12px !important;
-  font-size: 14px !important;
-  gap: 8px !important;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 13px;
+  gap: 6px;
 }
 
 .ui-compact .btn-hero .icon-badge {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
-  min-height: 18px !important;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
 }
 
 .ui-compact .btn-hero .icon-badge i {
-  font-size: 12px !important;
+  font-size: 11px;
 }
 
-/* Mobile */
+/* 8. Мобильная адаптация */
 @media (max-width: 575.98px) {
   .btn-hero {
-    height: 40px !important;
-    padding: 0 12px !important;
-    font-size: 14px !important;
-    gap: 8px !important;
+    height: 44px; /* увеличиваем на мобиле для touch */
+    padding: 0 14px;
+    font-size: 14px;
+    gap: 8px;
   }
   
   .btn-hero .icon-badge {
-    width: 18px !important;
-    height: 18px !important;
+    width: 18px;
+    height: 18px;
   }
   
   .btn-hero .icon-badge i {
-    font-size: 12px !important;
+    font-size: 12px;
+  }
+  
+  /* На очень узких экранах можно скрыть текст, оставив иконки */
+  @media (max-width: 480px) {
+    .btn-hero {
+      padding: 0 12px;
+      gap: 0;
+    }
+    
+    .btn-hero .icon-badge {
+      margin: 0;
+    }
   }
 }
 
