@@ -1,0 +1,302 @@
+"""Budget service layer."""
+from typing import List, Dict, Optional, Tuple
+from decimal import Decimal
+from datetime import datetime, date
+from sqlalchemy import func, extract
+from flask import current_app
+from app.core.extensions import db
+from app.core.money import Money, SUPPORTED_CURRENCIES
+from app.core.time import YearMonth
+from app.core.caching import cached_per_user_month, CacheManager
+from .models import Category, Expense, Income, CategoryRule, ExchangeRate
+
+
+class BudgetService:
+    """Budget business logic service."""
+    
+    @staticmethod
+    def get_user_categories(user_id: int) -> List[Category]:
+        """Get all categories for user."""
+        return Category.query.filter_by(user_id=user_id).order_by(Category.name).all()
+    
+    @staticmethod
+    def create_category(user_id: int, name: str, limit_type: str, value: Decimal) -> Category:
+        """Create new category."""
+        category = Category(
+            user_id=user_id,
+            name=name,
+            limit_type=limit_type,
+            value=value
+        )
+        db.session.add(category)
+        db.session.commit()
+        
+        # Invalidate cache
+        CacheManager.invalidate_budget_cache(user_id)
+        
+        current_app.logger.info(f'Created category {name} for user {user_id}')
+        return category
+    
+    @staticmethod
+    def update_category(category_id: int, user_id: int, **kwargs) -> Optional[Category]:
+        """Update category."""
+        category = Category.query.filter_by(id=category_id, user_id=user_id).first()
+        if not category:
+            return None
+        
+        for key, value in kwargs.items():
+            if hasattr(category, key):
+                setattr(category, key, value)
+        
+        db.session.commit()
+        
+        # Invalidate cache
+        CacheManager.invalidate_budget_cache(user_id)
+        
+        current_app.logger.info(f'Updated category {category_id} for user {user_id}')
+        return category
+    
+    @staticmethod
+    def delete_category(category_id: int, user_id: int) -> bool:
+        """Delete category and all related expenses."""
+        category = Category.query.filter_by(id=category_id, user_id=user_id).first()
+        if not category:
+            return False
+        
+        db.session.delete(category)
+        db.session.commit()
+        
+        # Invalidate cache
+        CacheManager.invalidate_budget_cache(user_id)
+        
+        current_app.logger.info(f'Deleted category {category_id} for user {user_id}')
+        return True
+    
+    @staticmethod
+    def add_expense(user_id: int, category_id: int, amount: Decimal, 
+                   description: str = None, date_val: date = None, currency: str = 'RUB') -> Expense:
+        """Add new expense."""
+        if date_val is None:
+            date_val = datetime.utcnow().date()
+        
+        expense = Expense(
+            user_id=user_id,
+            category_id=category_id,
+            amount=amount,
+            description=description,
+            date=date_val,
+            currency=currency
+        )
+        db.session.add(expense)
+        db.session.commit()
+        
+        # Invalidate cache for that month
+        year_month = YearMonth.from_date(date_val)
+        CacheManager.invalidate_budget_cache(user_id, year_month)
+        
+        current_app.logger.info(f'Added expense {amount} {currency} for user {user_id}')
+        return expense
+    
+    @staticmethod
+    def get_expenses_for_month(user_id: int, year_month: YearMonth) -> List[Expense]:
+        """Get all expenses for user in given month."""
+        start_date = year_month.to_date()
+        end_date = year_month.last_day()
+        
+        return Expense.query.filter(
+            Expense.user_id == user_id,
+            Expense.date >= start_date,
+            Expense.date <= end_date
+        ).order_by(Expense.date.desc()).all()
+    
+    @staticmethod
+    def update_expense(expense_id: int, user_id: int, **kwargs) -> Optional[Expense]:
+        """Update expense."""
+        expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
+        if not expense:
+            return None
+        
+        old_date = expense.date
+        
+        for key, value in kwargs.items():
+            if hasattr(expense, key):
+                setattr(expense, key, value)
+        
+        db.session.commit()
+        
+        # Invalidate cache for both old and new months
+        old_year_month = YearMonth.from_date(old_date)
+        CacheManager.invalidate_budget_cache(user_id, old_year_month)
+        
+        if expense.date != old_date:
+            new_year_month = YearMonth.from_date(expense.date)
+            CacheManager.invalidate_budget_cache(user_id, new_year_month)
+        
+        current_app.logger.info(f'Updated expense {expense_id} for user {user_id}')
+        return expense
+    
+    @staticmethod
+    def delete_expense(expense_id: int, user_id: int) -> bool:
+        """Delete expense."""
+        expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
+        if not expense:
+            return False
+        
+        year_month = YearMonth.from_date(expense.date)
+        
+        db.session.delete(expense)
+        db.session.commit()
+        
+        # Invalidate cache
+        CacheManager.invalidate_budget_cache(user_id, year_month)
+        
+        current_app.logger.info(f'Deleted expense {expense_id} for user {user_id}')
+        return True
+    
+    @staticmethod
+    def add_income(user_id: int, source_name: str, amount: Decimal, 
+                   year: int, month: int, currency: str = 'RUB') -> Income:
+        """Add or update income for month."""
+        # Try to find existing income
+        income = Income.query.filter_by(
+            user_id=user_id,
+            source_name=source_name,
+            year=year,
+            month=month
+        ).first()
+        
+        if income:
+            income.amount = amount
+            income.currency = currency
+        else:
+            income = Income(
+                user_id=user_id,
+                source_name=source_name,
+                amount=amount,
+                currency=currency,
+                year=year,
+                month=month
+            )
+            db.session.add(income)
+        
+        db.session.commit()
+        
+        # Invalidate cache
+        year_month = YearMonth(year, month)
+        CacheManager.invalidate_budget_cache(user_id, year_month)
+        
+        current_app.logger.info(f'Added income {amount} {currency} for user {user_id}')
+        return income
+    
+    @staticmethod
+    def get_income_for_month(user_id: int, year_month: YearMonth) -> List[Income]:
+        """Get all income for user in given month."""
+        return Income.query.filter_by(
+            user_id=user_id,
+            year=year_month.year,
+            month=year_month.month
+        ).all()
+    
+    @staticmethod
+    def get_total_income_for_month(user_id: int, year_month: YearMonth) -> Money:
+        """Get total income for month."""
+        incomes = BudgetService.get_income_for_month(user_id, year_month)
+        total = sum(income.money_amount.amount for income in incomes)
+        return Money(total, 'RUB')  # TODO: handle different currencies
+    
+    @staticmethod
+    @cached_per_user_month(timeout=300)
+    def calculate_month_snapshot(user_id: int, year_month: YearMonth) -> Dict:
+        """Calculate complete budget snapshot for month."""
+        categories = BudgetService.get_user_categories(user_id)
+        expenses = BudgetService.get_expenses_for_month(user_id, year_month)
+        total_income = BudgetService.get_total_income_for_month(user_id, year_month)
+        
+        # Group expenses by category
+        expenses_by_category = {}
+        for expense in expenses:
+            if expense.category_id not in expenses_by_category:
+                expenses_by_category[expense.category_id] = []
+            expenses_by_category[expense.category_id].append(expense)
+        
+        # Calculate category summaries
+        category_summaries = []
+        total_spent = Money.zero()
+        total_limits = Money.zero()
+        
+        for category in categories:
+            category_expenses = expenses_by_category.get(category.id, [])
+            spent = sum(exp.money_amount.amount for exp in category_expenses)
+            spent_money = Money(spent, 'RUB')
+            
+            # Calculate limit
+            if category.limit_type == 'fixed':
+                limit = category.limit_value
+            else:  # percentage
+                limit = Money(total_income.amount * (category.value / 100), total_income.currency)
+            
+            remaining = limit - spent_money
+            
+            category_summaries.append({
+                'category': category,
+                'spent': spent_money,
+                'limit': limit,
+                'remaining': remaining,
+                'percentage_used': (spent_money.amount / limit.amount * 100) if limit.amount > 0 else 0,
+                'expenses': category_expenses
+            })
+            
+            total_spent += spent_money
+            total_limits += limit
+        
+        total_remaining = total_income - total_spent
+        
+        return {
+            'year_month': year_month,
+            'total_income': total_income,
+            'total_spent': total_spent,
+            'total_limits': total_limits,
+            'total_remaining': total_remaining,
+            'categories': category_summaries,
+            'expenses': expenses
+        }
+
+
+class CurrencyService:
+    """Currency exchange service."""
+    
+    @staticmethod
+    def get_exchange_rate(from_currency: str, to_currency: str, date_val: date = None) -> Optional[Decimal]:
+        """Get exchange rate for currencies."""
+        if from_currency == to_currency:
+            return Decimal('1.0')
+        
+        if date_val is None:
+            date_val = datetime.utcnow().date()
+        
+        # Try to get from cache
+        rate = ExchangeRate.query.filter_by(
+            from_currency=from_currency,
+            to_currency=to_currency,
+            date=date_val
+        ).first()
+        
+        if rate:
+            return rate.rate
+        
+        # TODO: Fetch from external API and cache
+        current_app.logger.warning(f'No exchange rate found for {from_currency}/{to_currency}')
+        return None
+    
+    @staticmethod
+    def convert_money(money: Money, to_currency: str, date_val: date = None) -> Optional[Money]:
+        """Convert money to different currency."""
+        if money.currency == to_currency:
+            return money
+        
+        rate = CurrencyService.get_exchange_rate(money.currency, to_currency, date_val)
+        if rate is None:
+            return None
+        
+        converted_amount = money.amount * rate
+        return Money(converted_amount, to_currency)

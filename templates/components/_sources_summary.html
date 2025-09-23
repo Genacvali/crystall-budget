@@ -1,15 +1,13 @@
-<!-- Источники доходов -->
+{# templates/components/_sources_summary.html #}
 {% if sources and income_by_source %}
 <section class="mb-4">
   <h5 class="mb-3">Источники доходов</h5>
   <div class="row g-3">
-    <!-- Для каждого источника дохода создаем карточку -->
     {% for source in sources %}
       {% set source_income = income_by_source.get(source.id, 0) %}
       {% set source_spent = 0 %}
       {% set source_limits = 0 %}
       
-      <!-- Вычисляем потраченное и лимиты для этого источника -->
       {% if budget_data %}
         {% for cat in budget_data %}
           {% if cat.get('source_name') == source.name %}
@@ -20,31 +18,31 @@
       {% endif %}
       
       {% set source_income_float = source_income | float %}
-      {% set after_limits = [source_income_float - source_limits, 0] | max %}
+      {% set after_limits = source_income_float - source_limits %}
       {% set balance = source_income_float - source_spent %}
       
-      <div class="col-md-4">
-        <div class="card-soft">
-          <div class="card-body">
+      <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+        <div class="card-soft p-3">
+          <div class="card-body p-0">
             <h6 class="card-title mb-3">{{ source.name }}</h6>
             
             <div class="row g-2 small">
               <div class="col-6">
-                <div class="text-muted" data-compact-text="Приход">Пришло:</div>
+                <div class="text-muted" data-compact-text="Пришло">Пришло</div>
                 <div class="fw-bold text-success">{{ source_income_float|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
               </div>
               <div class="col-6">
-                <div class="text-muted" data-compact-text="Трата">Ушло:</div>
+                <div class="text-muted" data-compact-text="Ушло">Ушло</div>
                 <div class="fw-bold text-danger">{{ source_spent|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span></div>
               </div>
               <div class="col-6">
-                <div class="text-muted" data-compact-text="Ост. лимита">После лимитов:</div>
-                <div class="fw-bold {% if after_limits > 0 %}text-success{% else %}text-danger{% endif %}">
+                <div class="text-muted" data-compact-text="Ост. лимита">Остается после лимитов</div>
+                <div class="fw-bold {% if after_limits > 0 %}text-success{% elif after_limits == 0 %}text-muted{% else %}text-danger{% endif %}">
                   {{ after_limits|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
                 </div>
               </div>
               <div class="col-6">
-                <div class="text-muted" data-compact-text="Остаток">Остаток:</div>
+                <div class="text-muted" data-compact-text="Остаток">Остаток</div>
                 <div class="fw-bold {% if balance > 0 %}text-success{% else %}text-danger{% endif %}">
                   {{ balance|format_amount }} <span class="currency-display">{{ currency_symbol|default('₽') }}</span>
                 </div>

@@ -80,7 +80,7 @@ sudo journalctl -u admin-panel -f
 ## Architecture Overview
 
 ### Single-File Flask Application
-The entire backend is in `app.py` (~4627 lines) with:
+The entire backend is in `app.py` (~4737 lines) with:
 - Telegram-only authentication system (email auth disabled)
 - 30-day sessions with secure cookie configuration
 - SQLite database with automatic schema initialization and migration system
@@ -108,7 +108,13 @@ SQLite with strict user isolation and automatic schema migration:
 - **Static assets**: 
   - PWA files (manifest.json, manifest.webmanifest)
   - Service worker (sw.js) for offline functionality
-  - JavaScript modules in `/static/js/` (app.js, dashboard-cats.js, progress_bars.js, offline.js, entries/, modules/)
+  - JavaScript modules in `/static/js/` with modular entry points:
+    - `app.js` - Main application logic
+    - `dashboard-cats.js` - Dashboard category management
+    - `progress_bars.js` - Progress bar animations
+    - `offline.js` - Offline functionality
+    - `entries/` - Page-specific entry points (dashboard.entry.js, expenses.entry.js)
+    - `modules/` - Reusable modules (ui.js, forms.js, swipe.js)
   - CSS files in `/static/css/` with responsive themes
   - Favicon and icons in `/static/icons/`
   - User avatars stored in `/static/avatars/`
@@ -154,7 +160,7 @@ LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 
 ### Important File Locations
 Current codebase structure:
-- `app.py` - Main Flask application (~4627 lines) with embedded Telegram authentication
+- `app.py` - Main Flask application (~4737 lines) with embedded Telegram authentication
 - `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn, python-dotenv)
 - `templates/` - Jinja2 templates with Russian UI, including reusable components
 - `static/` - Frontend assets:

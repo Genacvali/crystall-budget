@@ -1,1185 +1,276 @@
-/* ===== iOS-ish tokens ===== */
 :root{
-  --radius-xl:16px;
-  --radius-lg:12px;
-  --shadow-soft:0 4px 20px rgba(0,0,0,.06);
-  --border:1px solid rgba(0,0,0,.06);
-  --surface:#fff;
-  --bg:#f5f7fb;
-  --text:#0b1220;
+  --bg:#0f1420;          /* общий фон */
+  --bg-soft:#121a28;     /* карточки */
+  --bg-softer:#0c1320;   /* панели */
   --muted:#6b7280;
-  --ok:#22c55e;
-  --warn:#f59e0b;
-  --bad:#ef4444;
-  --info:#0ea5e9;
-  --hero-a:#4f46e5;
-  --hero-b:#0ea5e9;
-
-  /* === Единые токены для читабельности === */
-  --surface-1: #ffffff;        /* основные панели/карточки */
-  --surface-2: #f8fafc;        /* подложки хедеров, зебра чётных строк */
-  --ink: #0f172a;              /* основной текст (почти чёрный) */
-  --ink-muted: #64748b;        /* вторичный текст, плейсхолдеры */
-  --line: #e2e8f0;             /* границы, разделители */
-
-  /* единые размеры прогрессов */
-  --ff-bar-h:14px;
-  --ff-bar-radius:999px;
-  --bar-h:14px;
-  --bar-radius:999px;
+  --text:#e7ecf3;
+  --text-dim:#b9c2d0;
+  --primary:#3b82f6;     /* синий */
+  --primary-2:#22d3ee;   /* акцент градиента */
+  --success:#22c55e;
+  --danger:#ef4444;
+  --warning:#f59e0b;
+  --surface:#0b1020;
+  --radius:16px;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+  --shadow-soft:0 6px 20px rgba(0,0,0,.25);
+  --card-border:1px solid rgba(255,255,255,.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  background: radial-gradient(1200px 700px at 80% -10%, rgba(34,211,238,.18), transparent 60%),
+              radial-gradient(800px 500px at -10% 0%, rgba(59,130,246,.18), transparent 60%),
+              var(--bg);
+  color:var(--text);
+}
+.page-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-/* ===== Темы (мост с Bootstrap) ===== */
-[data-bs-theme="light"]{
-  --surface:#ffffff;
-  --bg:#f5f7fb;
-  --text:#0b1220;
-  --muted:#6b7280;
-  --border:1px solid rgba(0,0,0,.08);
-  --shadow-soft:0 6px 20px rgba(0,0,0,.08);
+/* Шапка */
+.topbar{
+  display:flex;gap:14px;align-items:center;justify-content:space-between;
+  background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,0));
+  border:var(--card-border);border-radius:999px;padding:8px 10px;position:sticky;top:10px;backdrop-filter: blur(8px);
+}
+.brand{display:flex;align-items:center;gap:10px;padding:6px 12px;border-radius:999px}
+.brand-badge{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;background:linear-gradient(135deg,#8b5cf6,#06b6d4)}
+.brand-badge svg{width:18px;height:18px;fill:#fff}
+.brand span{font-weight:700;color:#eaf2ff}
 
-  --bs-body-bg: var(--bg);
-  --bs-body-color: var(--text);
-  --bs-border-color: rgba(0,0,0,.1);
+.nav{display:flex;gap:6px;align-items:center}
+.chip{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:8px 12px;border-radius:10px;border:var(--card-border);
+  background:var(--bg-soft);color:var(--text-dim);font-weight:600;
+  box-shadow:var(--shadow-soft)
 }
-[data-bs-theme="dark"]{
-  --surface:#0f141a;
-  --bg:#0a0e13;
-  --text:#f5f7fb;
-  --muted:#a7b0ba;
-  --border:1px solid rgba(255,255,255,.08);
-  --shadow-soft:0 10px 30px rgba(0,0,0,.5);
+.chip svg{width:16px;height:16px;opacity:.9}
+.chip.active{background:linear-gradient(90deg, rgba(59,130,246,.18), rgba(34,211,238,.18));color:var(--text)}
 
-  /* === Токены для тёмной темы (контраст 4.5:1+) === */
-  --surface-1: #1e293b;        /* основные панели (светлее фона на 3 шага) */
-  --surface-2: #334155;        /* подложки хедеров (светлее на 4 шага) */
-  --ink: #f1f5f9;              /* основной текст (почти белый) */
-  --ink-muted: #94a3b8;        /* вторичный текст (достаточный контраст) */
-  --line: #475569;             /* границы (видимые, но неяркие) */
+.right{display:flex;align-items:center;gap:10px}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:var(--card-border);
+  background:var(--bg-soft);color:var(--text);font-weight:700;cursor:pointer;box-shadow:var(--shadow-soft);text-decoration:none
 }
+.btn svg{width:18px;height:18px}
+.btn.primary{background:linear-gradient(90deg,var(--primary),var(--primary-2));border:none}
 
+.date{
+  background:var(--bg-soft);border:var(--card-border);border-radius:12px;padding:8px 12px;color:var(--text-dim);font-weight:600;display:flex;align-items:center;gap:8px
+}
+.status-dot{width:12px;height:12px;border-radius:50%;background:radial-gradient(circle at 40% 40%, #7dd3fc, #0ea5e9);box-shadow:0 0 0 2px rgba(14,165,233,.35)}
 
-/* ===== База ===== */
-.page-wrap{ background: var(--bg); min-height: 100vh; }
-.page-title{ font-weight:800; letter-spacing:.2px; }
-.shadow-soft{ box-shadow: var(--shadow-soft); }
-.dropdown-menu{ border-radius:14px; border: var(--border); }
-
-/* ===== Контейнеры ===== */
-.card-soft{
-  background: var(--surface);
-  border: var(--border);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-soft);
-}
-
-
-/* ===== Segmented control ===== */
-.segmented{
-  display:inline-flex; align-items:center; gap:2px; padding:2px;
-  background: var(--surface); border: var(--border);
-  border-radius:999px; box-shadow: var(--shadow-soft);
-}
-.seg-btn{
-  appearance:none; border:0; background:transparent;
-  padding:.38rem .75rem; border-radius:999px; color: var(--text); opacity:.9;
-}
-.seg-btn:hover{ background: rgba(0,0,0,.05); }
-[data-bs-theme="dark"] .seg-btn:hover{ background: rgba(255,255,255,.06); }
-.seg-divider{ width:1px; height:22px; background: rgba(0,0,0,.07); }
-[data-bs-theme="dark"] .seg-divider{ background: rgba(255,255,255,.1); }
-.seg-btn.rot180 i{ transform: rotate(180deg); transition: transform .2s ease; }
-
-/* ===== FF Progress Card (новый дизайн) ===== */
-.ff-progress-card{
-  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-  border: 1px solid var(--bs-border-color);
-  border-radius: 18px;
-  box-shadow: var(--shadow-soft);
-  overflow: hidden;
-}
-[data-bs-theme="dark"] .ff-progress-card{
-  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-  border: 1px solid rgba(255,255,255,.1);
-}
-
-.ff-header{
-  padding: 14px 16px;
-  display:flex; align-items:center; gap:.6rem;
-  border-bottom: 1px solid var(--bs-border-color);
-  background: var(--bs-secondary-bg);
-  font-weight: 800;
-}
-
-/* ===== список категорий ===== */
-.ff-list{ display:flex; flex-direction:column; gap:10px; padding: 12px }
-.ff-item{
-  display:grid;
-  grid-template-columns: 1.1fr minmax(320px, 620px) auto;
-  gap: 14px; align-items:center;
-  padding: 12px;
-  background: var(--surface);
-  border: 1px solid var(--bs-border-color);
-  border-radius: var(--radius-lg);
-}
-@media (max-width: 900px){ .ff-item{ grid-template-columns: 1fr; } }
-
-.ff-title{ font-weight:800; letter-spacing:.2px }
-.ff-meta{ color:var(--muted); font-size:.92rem }
-.ff-row{ font-weight:800; margin-bottom: 6px; display:flex; align-items:baseline; gap:.35rem }
-.slash{ opacity:.6 }
-
-/* ===== прогресс ===== */
-.ff-track{
-  position:relative; height: 10px; width: 100%;
-  border-radius: 999px; overflow:hidden;
-  background: rgba(255,255,255,.10);
-  border: 1px solid rgba(255,255,255,.12);
-}
-[data-bs-theme="light"] .ff-track{
-  background: rgba(0,0,0,.08);
-  border: 1px solid rgba(0,0,0,.12);
-}
-.ff-bar{
-  position:absolute; inset:0 auto 0 0;
-  background: var(--bar-color, var(--ok));
-  border-radius: inherit;
-  transition: width .25s ease;
-}
-
-/* ===== действия (иконки) ===== */
-.ff-actions{ display:flex; gap:.4rem; justify-self:end }
-.ff-ico{
-  width: 32px; height: 32px; border:none; cursor:pointer;
-  border-radius: 10px; color: var(--text);
-  background: var(--bs-secondary-bg);
-  display:inline-grid; place-items:center;
-  outline: none;
-  transition: background .2s ease;
-}
-.ff-ico:hover{ background: var(--bs-border-color); }
-.ff-ico i{ font-size: 14px; }
-
-
-/* ===== Прогрессы ===== */
-.pill,
-.cat-progress,
-.progress-line,
-.ff-bar{
-  position:relative; width:100%;
-  height:var(--bar-h); min-height:var(--bar-h);
-  border-radius:var(--bar-radius);
-  overflow:hidden;
-  background: rgba(255,255,255,.10);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.12);
-}
-[data-bs-theme="light"] .pill,
-[data-bs-theme="light"] .cat-progress,
-[data-bs-theme="light"] .progress-line,
-[data-bs-theme="light"] .ff-bar{
-  background: rgba(0,0,0,.08);
-  box-shadow: inset 0 1px 1px rgba(0,0,0,.12);
-}
-.pill-bar,
-.cat-progress > i,
-.progress-line .fill,
-.ff-fill{
-  display:block; height:100%; width:0%;
-  border-radius:inherit; transition: width .30s ease;
-}
-.pill-bar.pill-ok,
-.cat-progress.ok > i,
-.progress-line.ok .fill,
-.ff-fill.ok{ background:#22c55e !important; }
-.pill-bar.pill-warn,
-.cat-progress.warn > i,
-.progress-line.warn .fill,
-.ff-fill.warn{ background:#f59e0b !important; }
-.pill-bar.pill-danger,
-.cat-progress.danger > i,
-.progress-line.danger .fill,
-.ff-fill.danger{ background:#ef4444 !important; }
-.pill-bar::after,
-.progress-line .fill::after,
-.ff-fill::after{ content:none !important; }
-
-/* ===== FF-style прогресс лист ===== */
-.cat-row2{
-  display:grid; grid-template-columns:1fr minmax(280px,480px) auto;
-  gap:1rem; align-items:center; padding:14px 16px;
-}
-@media (max-width:992px){ .cat-row2{ grid-template-columns:1fr 1fr auto } }
-@media (max-width:576px){ .cat-row2{ grid-template-columns:1fr } }
-
-.ff-progress{
-  position:relative; height:10px; border-radius:999px; overflow:hidden;
-  background: rgba(255,255,255,.12);
-  box-shadow: inset 0 1px 2px rgba(0,0,0,.2);
-}
-[data-bs-theme="light"] .ff-progress{ background: rgba(0,0,0,.08); }
-.ff-progress > i{
-  display:block; height:100%; width:0%;
-  transition: width .35s ease;
-  background: linear-gradient(90deg, rgba(255,255,255,.35), rgba(255,255,255,0));
-}
-.ff-progress.ok > i{ background-color: var(--ok); }
-.ff-progress.warn > i{ background-color: var(--warn); }
-.ff-progress.danger > i{ background-color: var(--bad); }
-
-/* ===== Кнопки/иконки ===== */
-.btn-ghost.icon{
-  --_bg:transparent; --_bd:var(--border); --_fg:var(--text);
-  display:inline-flex; align-items:center; justify-content:center;
-  width:36px; height:36px; border-radius:12px; border: var(--_bd);
-  background: var(--_bg); color: var(--_fg); padding:0;
-}
-.btn-ghost.icon:hover{ background: rgba(255,255,255,.08); }
-.btn-ghost.icon.danger:hover{
-  background: color-mix(in srgb, var(--bad) 16%, transparent);
-  color:#fff; border-color: color-mix(in srgb, var(--bad) 30%, transparent);
-}
-
-.ghost-icon{
-  border: var(--border); background: transparent; color: var(--muted);
-  border-radius: var(--radius-lg); padding:.35rem .5rem;
-}
-.ghost-icon:hover{ background: rgba(0,0,0,.04); color: var(--text); }
-[data-bs-theme="dark"] .ghost-icon:hover{ background: rgba(255,255,255,.06); }
-
-.cat-actions{ display:flex; flex-direction:column; gap:.25rem; }
-
-/* ===== Hero ===== */
+/* Инфо-блок */
 .hero{
-  background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
-  color:#fff; border-radius:20px; padding:20px; position:relative; overflow:hidden;
-  box-shadow:0 10px 35px rgba(0,0,0,.3);
+  margin-top:18px;background:linear-gradient(90deg,var(--primary) 0%, #4f7cff 30%, #4ab6ff 65%, var(--primary-2) 100%);
+  border-radius:20px;color:#fff;padding:22px;position:relative;box-shadow:var(--shadow)
 }
-.hero:before{
-  content:""; position:absolute; right:-80px; top:-80px; width:300px; height:300px;
-  background: radial-gradient(closest-side, rgba(255,255,255,.2), rgba(255,255,255,0));
-  border-radius:50%;
-}
-.hero h1{ font-size:2rem; font-weight:800; margin:0 0 .25rem; }
-.hero .meta{ opacity:.95; }
-/* СТАРЫЕ СТИЛИ КНОПОК - ОТКЛЮЧЕНЫ В ПОЛЬЗУ ЕДИНОГО КОМПОНЕНТА */
-/*
-.btn-hero{
-  display:inline-flex; align-items:center; gap:.7rem; color:#fff;
-  background: rgba(255,255,255,.15);
-  padding:.6rem 1rem; border-radius:16px; font-weight:600;
-  border:1px solid rgba(255,255,255,.3);
-  backdrop-filter: blur(12px);
-  position:relative; overflow:hidden;
-  box-shadow: inset 0 0 20px rgba(255,255,255,.1), 0 0 15px rgba(255,255,255,.2);
-  transition: transform .2s ease, box-shadow .3s ease; text-decoration:none;
-}
-.btn-hero:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 0 20px rgba(255,255,255,.4), 0 0 30px rgba(99,102,241,.5);
-  color:#fff; text-decoration:none;
-}
-.btn-hero::after{
-  content:""; position:absolute; top:0; left:-150%; width:50%; height:100%;
-  background: linear-gradient(120deg, transparent, rgba(255,255,255,.6), transparent);
-  transform: skewX(-20deg); animation: shimmer 3s infinite;
-}
-@keyframes shimmer{ 100%{ left:150%; } }
-*/
+.hero .row{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.hero h2{margin:0;font-size:28px;font-weight:800}
+.hero small{opacity:.85}
+.hero .pill{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,.15);border-radius:999px}
 
-/* ===== Mini Calendar ===== */
-.mini-cal{ 
-  display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; margin-top:1rem;
-}
-.mini-cal .day{ 
-  text-align:center; padding:.5rem 0; border-radius:12px; 
-  font-size:.9rem; cursor:pointer; transition: all .2s ease;
-  color: var(--text); background: transparent;
-}
-.mini-cal .day:hover{ 
-  background: rgba(0,0,0,.05); 
-}
-[data-bs-theme="dark"] .mini-cal .day:hover{ 
-  background: rgba(255,255,255,.08); 
-}
-.mini-cal .day.other-month{ 
-  opacity:.3; 
-}
-.mini-cal .day.today{ 
-  background: var(--hero-a); color:#fff; font-weight:600;
-}
-.mini-cal .day.has-data{ 
-  position:relative; 
-}
-.mini-cal .day.has-data::after{ 
-  content:""; position:absolute; bottom:4px; left:50%; transform:translateX(-50%);
-  width:4px; height:4px; border-radius:50%; background: var(--ok);
-}
-.mini-cal .header{ 
-  font-weight:600; color: var(--muted); font-size:.8rem; 
-  text-align:center; padding:.25rem 0;
-}
+/* Секции */
+.grid{display:grid;gap:16px}
 
-/* Компактный календарь */
-.compact-cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:2px; }
-.compact-cal-grid .header{
-  font-size:.75rem; font-weight:600; color: var(--muted);
-  text-align:center; padding:.25rem 0;
-}
-.compact-cal-grid .day{
-  text-align:center; padding:.4rem .2rem; border-radius:4px; font-size:.8rem;
-  background: transparent; cursor:pointer; transition: all .15s ease;
-  min-height:24px; display:flex; align-items:center; justify-content:center;
-}
-.compact-cal-grid .day:hover{
-  background: var(--bs-secondary-bg);
-}
-.compact-cal-grid .day.other-month{
-  opacity:.4;
-}
-.compact-cal-grid .day.today{
-  background: var(--info); color:#fff; font-weight:600;
-}
-.compact-cal-grid .day.selected{
-  background: color-mix(in srgb, #4f46e5 85%, transparent);
-  color:#fff; font-weight:500;
-}
-.compact-cal-grid .day.has-data::after{
-  content:""; position:absolute; bottom:2px; left:50%; transform:translateX(-50%);
-  width:3px; height:3px; border-radius:50%; background: var(--ok);
-}
+.section-title{font-size:18px;margin:24px 4px 10px 4px;color:var(--text-dim);font-weight:800}
 
-/* мелкие утилиты */
-.kv{ display:flex; gap:8px; flex-wrap:wrap; }
-.kv .k{ opacity:.85; }
-.kv .v{ font-weight:700; }
-.toast-container{ position:fixed; top:16px; right:16px; z-index:1060; }
-.badge-ghost{
-  background: rgba(0,0,0,.06); color: var(--text); border-radius:999px;
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
 }
-[data-bs-theme="dark"] .badge-ghost{
-  background: rgba(255,255,255,.12); color: var(--text);
+.card {
+  background: var(--bg-soft);
+  border: var(--card-border);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow-soft);
+  min-width: 220px;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
-/* СТАРЫЕ СТИЛИ ИКОНОК - ОТКЛЮЧЕНЫ В ПОЛЬЗУ ЕДИНОГО КОМПОНЕНТА */
-/*
-.icon-badge{
-  width:34px; height:34px; border-radius:12px; display:grid; place-items:center;
-  position:relative; isolation:isolate;
-  background: linear-gradient(135deg, rgba(255,255,255,.3), rgba(255,255,255,.1));
-  border:1px solid rgba(255,255,255,.5);
-  box-shadow: inset 0 0 8px rgba(255,255,255,.4), 0 0 12px rgba(255,255,255,.25);
+.card h4 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  color: var(--text-dim);
 }
-.icon-badge i{ font-size:1.2rem; z-index:1; }
-.icon-expense::before,
-.icon-income::before{
-  content:""; position:absolute; inset:-6px; border-radius:14px; z-index:0;
-  filter: blur(12px); opacity:.75;
-}
-.icon-expense::before{ background: rgba(239,68,68,.8); }
-.icon-income::before{ background: rgba(34,197,94,.8); }
-*/
-
-/* === Компактный режим карточек дашборда === */
-.ui-compact .income-cards { 
-  gap: 14px !important;             /* сетка карточек */
-}
-
-.ui-compact .card-soft {
-  padding: 12px 14px !important;          /* было ~20–24 */
-  border-radius: 14px !important;
-  min-height: auto !important;            /* снимаем принудительную высоту */
-}
-
-/* Карточки доходов - главное изменение */
-.ui-compact .income-card {
-  padding: 12px 14px !important;          /* вместо 16px */
-  min-height: auto !important;            /* убираем фиксированную высоту */
-  border-radius: 14px !important;
-}
-
-/* Строки "ключ-значение" (Пришло/Ушло/Остаток) */
-.ui-compact .kv { 
-  row-gap: 6px !important; 
-}
-
-.ui-compact .kv .row,
-.ui-compact .kv > * {          /* если строки не завернуты в .row */
-  display: flex !important; 
-  align-items: center !important;
-  min-height: 28px !important;            /* плотно, но читабельно */
-  padding: 4px 0 !important;
-}
-
-.ui-compact .kv .k { 
-  opacity: .85 !important; 
-  font-size: 12px !important;
-}
-
-.ui-compact .kv .v { 
-  margin-left: auto !important; 
-  font-weight: 700 !important;
-  font-size: 14px !important;
-}
-
-/* Строки доходов - более компактные */
-.ui-compact .income-rows {
-  gap: 6px !important;
-}
-
-.ui-compact .income-row {
-  min-height: 28px !important;
-  padding: 4px 0 !important;
-  line-height: 1.2 !important;
-  gap: 14px !important;
-}
-
-.ui-compact .income-k {
-  font-size: 12px !important;
-  opacity: .85 !important;
-  line-height: 1.2 !important;
-}
-
-.ui-compact .income-v {
-  font-size: 14px !important;
-  font-weight: 700 !important;
-  line-height: 1.2 !important;
-}
-
-/* Разделители внутри карточки (тоньше и ближе) */
-.ui-compact .card-soft .divider,
-.ui-compact .card-soft hr,
-.ui-compact .income-row.total::before {
-  margin: 8px 0 !important;
-  opacity: .25 !important;
-}
-
-/* Шапка-герой тоже компактней */
-.ui-compact .hero { 
-  padding: 14px 16px !important; 
-  border-radius: 16px !important; 
-}
-.ui-compact .hero h1 { 
-  margin-bottom: 6px !important;       /* меньше нижний отступ */
-  font-size: 24px !important;
-}
-.ui-compact .btn-hero { 
-  height: 36px !important; 
-  padding: 0 12px !important; 
-  font-size: 14px !important;
-}
-
-/* Заголовки карточек - самое важное */
-.ui-compact .income-card h3 {
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  margin-bottom: 8px !important;
-  line-height: 1.2 !important;
-}
-
-/* Карточки прогресса по категориям */
-.ui-compact .ff-progress-card {
-  padding: 12px 14px;
-  border-radius: 14px;
-  margin-bottom: 12px;
-}
-
-.ui-compact .ff-header {
-  font-size: 14px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-/* Календарь компактней */
-.ui-compact .calendar-grid {
-  gap: 1px;
-}
-
-.ui-compact .calendar-day {
-  min-height: 28px;
-  padding: 6px;
-  font-size: 13px;
-}
-
-/* === ЕДИНЫЙ КОМПОНЕНТ КНОПКИ (замена разрозненных стилей) === */
-
-/* 1. Единая кнопка-пилюля с читаемым фоном на градиенте */
-.btn-hero {
-  /* Фиксированные размеры и отступы */
-  height: 40px;
-  padding: 0 16px;
-  min-width: 44px; /* минимальная хит-зона для touch */
-  
-  /* Флекс-контейнер */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  
-  /* Реальная подложка вместо стеклянной прозрачности */
-  background: rgba(255, 255, 255, 0.7) !important; /* 70% от surface */
-  color: #fff;
-  
-  /* Единый бордер и радиус */
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 999px; /* пилюля */
-  
-  /* Один бокс-шадов без дублирования */
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  
-  /* Типографика */
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  text-decoration: none;
-  
-  /* Переходы */
-  transition: all 0.2s ease;
-  
-  /* Убираем backdrop-filter с кнопок (оставляем только на плашке) */
-  backdrop-filter: none !important;
-  
-  /* Позиционирование для псевдоэлементов */
-  position: relative;
-  overflow: hidden;
-}
-
-/* 2. Иконка-бейдж с единообразным размером */
-.btn-hero .icon-badge {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  min-height: 18px;
-  border-radius: 6px;
+.kpi {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-
-  
-  /* лёгкая подложка и рамка */
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-
-   /* важно: прибиваем старые свечения */
-  box-shadow: none !important;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.kpi-col {
+  flex: 1 1 100px;
+  min-width: 100px;
+}
+.kpi-line {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-dim);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.kpi-line b {
+  color: var(--text);
+}
+.kpi .good {
+  color: var(--success);
+}
+.kpi .bad {
+  color: var(--danger);
 }
 
-.btn-hero .icon-badge i {
-  font-size: 12px;
-  line-height: 1;
-  margin: 0;
-  color: inherit;
+/* Прогресс по категориям */
+.panel{background:var(--bg-softer);border:var(--card-border);border-radius:18px;box-shadow:var(--shadow-soft);padding:16px;max-width:100%;}
+.panel-h{
+  padding:14px 16px;border-bottom:1px dashed rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:space-between
 }
+.panel-h .left{display:flex;align-items:center;gap:10px}
+.panel-h .left svg{width:18px;height:18px}
+.panel-b{padding:10px}
 
-/* Цвет иконки — селектор на ТОМ ЖЕ элементе */
-.icon-badge.icon-expense { color: #ef4444; }  /* расход – красный */
-.icon-badge.icon-income  { color: #22c55e; }  /* доход  – зелёный */
-
-/* 3. Убираем ореолы/блики - только цветовое различие иконок */
-.icon-expense .icon-badge {
-  color: #ef4444; /* красная иконка */
+/* Таблица прогресса */
+.progress-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--text);
+  font-size: 14px;
 }
-
-.icon-income .icon-badge {
-  color: #22c55e; /* зеленая иконка */
+.progress-table thead {
+  background: var(--bg-soft);
+  border-bottom: 1px solid rgba(255,255,255,.06);
 }
-
-/* Удаляем псевдоэлементы-ореолы полностью */
-.icon-expense::before,
-.icon-income::before {
-  display: none !important;
+.progress-table th, .progress-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  text-align: left;
 }
-
-/* 4. Полностью вырубаем старые ореолы/блики у того же элемента */
-.icon-badge.icon-expense::before,
-.icon-badge.icon-income::before {
-  content: none !important;
-  box-shadow: none !important;
-  filter: none !important;
+.progress-table th {
+  font-weight: 700;
+  color: var(--text-dim);
 }
-
-/* 4. Состояния кнопки */
-.btn-hero:hover {
-  background: rgba(255, 255, 255, 0.8);
-  border-color: rgba(255, 255, 255, 0.25);
-  transform: translateY(-1px);
-  box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  color: #fff;
-  text-decoration: none;
+.progress-table tbody tr:hover {
+  background: rgba(59,130,246,.18);
 }
-
-/* 5. (опционально) на всякий случай убьём тени на самой кнопке-иконке,
-      если где-то в старых стилях они ещё задавались */
-.icon-badge { box-shadow: none !important; }
-
-
-.btn-hero:active {
-  transform: translateY(0) scale(0.98);
-  background: rgba(255, 255, 255, 0.6);
+.progress-bar-container {
+  background: #0a1322;
+  border-radius: 999px;
+  overflow: hidden;
+  height: 12px;
+  width: 100%;
+  margin-top: 6px;
 }
-
-.btn-hero:focus-visible {
-  outline: none;
-  box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2),
-    0 0 0 2px rgba(99, 102, 241, 0.5); /* фокус-кольцо */
+.progress-bar {
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  transition: width 0.3s ease;
 }
-
-.btn-hero:disabled {
-  opacity: 0.5;
-  cursor: default;
-  transform: none;
-}
-
-/* 5. Убираем shimmer анимацию */
-.btn-hero::after {
-  display: none !important;
-}
-
-/* 6. Контейнер кнопок с правильными отступами */
-.hero {
-  padding: 20px 24px 20px 20px; /* увеличиваем правый отступ, чтобы не резать тени */
-}
-
-.hero .d-flex.gap-2 {
-  gap: 12px !important; /* единый gap между кнопками */
-  align-items: center;
-}
-
-/* 7. Компактный режим */
-.ui-compact .btn-hero {
-  height: 36px;
-  padding: 0 12px;
-  font-size: 13px;
-  gap: 6px;
-}
-
-.ui-compact .btn-hero .icon-badge {
-  width: 16px;
-  height: 16px;
-  min-width: 16px;
-  min-height: 16px;
-}
-
-.ui-compact .btn-hero .icon-badge i {
-  font-size: 11px;
-}
-
-/* 8. Мобильная адаптация */
-@media (max-width: 575.98px) {
-  .btn-hero {
-    height: 44px; /* увеличиваем на мобиле для touch */
-    padding: 0 14px;
-    font-size: 14px;
-    gap: 8px;
-  }
-  
-  .btn-hero .icon-badge {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .btn-hero .icon-badge i {
-    font-size: 12px;
-  }
-  
-  /* На очень узких экранах можно скрыть текст, оставив иконки */
-  @media (max-width: 480px) {
-    .btn-hero {
-      padding: 0 12px;
-      gap: 0;
-    }
-    
-    .btn-hero .icon-badge {
-      margin: 0;
-    }
-  }
-}
-
-/* === Унификация тумблера темы === */
-
-.theme-toggle {
-  height: 44px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  position: relative !important;
-  width: 44px !important;  /* Квадратная область */
-}
-
-.theme-toggle input {
-  position: absolute !important;
-  opacity: 0 !important;
-  cursor: pointer !important;
-  height: 44px !important;
-  width: 44px !important;
-  margin: 0 !important;
-  z-index: 10 !important;
-}
-
-.theme-slider {
-  width: 44px !important;
-  height: 24px !important;
-  background-color: var(--bs-gray-300) !important;
-  border-radius: 12px !important;
-  position: relative !important;
-  transition: all 0.2s ease !important;
-  cursor: pointer !important;
-  display: block !important;
-  border: 1px solid rgba(0,0,0,0.1) !important;
-}
-
-[data-bs-theme="dark"] .theme-slider {
-  background-color: var(--bs-gray-600) !important;
-  border-color: rgba(255,255,255,0.2) !important;
-}
-
-.theme-slider:before {
-  content: "" !important;
-  height: 20px !important;
-  width: 20px !important;
-  border-radius: 50% !important;
-  background-color: white !important;
-  position: absolute !important;
-  top: 1px !important;
-  left: 1px !important;
-  transition: all 0.2s ease !important;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.2) !important;
-}
-
-.theme-toggle input:checked + .theme-slider {
-  background-color: var(--bs-primary) !important;
-}
-
-.theme-toggle input:checked + .theme-slider:before {
-  transform: translateX(20px) !important;
-}
-
-/* Компактный режим для тумблера */
-.ui-compact .theme-toggle {
-  height: 36px !important;
-  width: 36px !important;
-}
-
-.ui-compact .theme-toggle input {
-  height: 36px !important;
-  width: 36px !important;
-}
-
-.ui-compact .theme-slider {
-  width: 36px !important;
-  height: 20px !important;
-  border-radius: 10px !important;
-}
-
-.ui-compact .theme-slider:before {
-  height: 16px !important;
-  width: 16px !important;
-  top: 1px !important;
-  left: 1px !important;
-}
-
-.ui-compact .theme-toggle input:checked + .theme-slider:before {
-  transform: translateX(16px) !important;
-}
-
-/* Mobile режим для тумблера */
-@media (max-width: 575.98px) {
-  .theme-toggle {
-    height: 40px !important;
-    width: 40px !important;
-  }
-  
-  .theme-toggle input {
-    height: 40px !important;
-    width: 40px !important;
-  }
-  
-  .theme-slider {
-    width: 40px !important;
-    height: 22px !important;
-  }
-  
-  .theme-slider:before {
-    height: 18px !important;
-    width: 18px !important;
-  }
-  
-  .theme-toggle input:checked + .theme-slider:before {
-    transform: translateX(18px) !important;
-  }
-}
-
-/* === Унификация страниц для тёмной темы === */
-
-/* === 1. Фильтр "Период" по паттерну навбара === */
-.period-filter {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: space-between !important;
-  gap: 16px !important;
-  padding: 12px 16px !important;
-  background: var(--surface-1) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 12px !important;
-  margin-bottom: 20px !important;
-}
-
-.period-info {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-}
-
-.period-info .icon {
-  color: var(--ink-muted) !important;
-  font-size: 16px !important;
-}
-
-.period-info .label {
-  color: var(--ink-muted) !important;
-  font-size: 14px !important;
-  margin: 0 !important;
-}
-
-.period-info .value {
-  color: var(--ink) !important;
-  font-weight: 600 !important;
-  font-size: 15px !important;
-  margin: 0 !important;
-}
-
-.period-badge {
-  background: var(--info) !important;
-  color: white !important;
-  font-size: 12px !important;
-  padding: 4px 8px !important;
-  border-radius: 6px !important;
-  margin-left: 8px !important;
-}
-
-.period-nav {
-  display: flex !important;
-  gap: 4px !important;
-}
-
-.period-btn {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 36px !important;
-  height: 36px !important;
-  background: transparent !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 8px !important;
-  color: var(--ink-muted) !important;
-  transition: all 0.2s ease !important;
-  text-decoration: none !important;
-}
-
-.period-btn:hover {
-  background: var(--surface-2) !important;
-  color: var(--ink) !important;
-  text-decoration: none !important;
-}
-
-.period-btn.current {
-  background: var(--info) !important;
-  color: white !important;
-  border-color: var(--info) !important;
-}
-
-/* === 2. Заголовок секции с иконкой === */
-.section-header {
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  padding: 16px 16px 14px !important;
-  background: var(--surface-2) !important;
-  border-bottom: 1px solid var(--line) !important;
-  margin: 0 !important;
-  font-size: 16px !important;
-  font-weight: 600 !important;
-  color: var(--ink) !important;
-}
-
-.section-header .icon {
-  width: 20px !important;
-  height: 20px !important;
-  color: var(--ink-muted) !important;
-  flex-shrink: 0 !important;
-}
-
-/* === 3. Таблица: контраст и зебра === */
-.income-table,
-.expenses-table,
-.categories-table {
-  margin: 0 !important;
-  background: var(--surface-1) !important;
-}
-
-.income-table thead th,
-.expenses-table thead th,
-.categories-table thead th {
-  background: var(--surface-2) !important;
-  color: var(--ink) !important;
-  border-bottom: 1px solid var(--line) !important;
-  border-top: none !important;
-  font-weight: 600 !important;
-  font-size: 14px !important;
-  padding: 12px 16px !important;
-}
-
-.income-table tbody tr,
-.expenses-table tbody tr,
-.categories-table tbody tr {
-  background: var(--surface-1) !important;
-  border-bottom: 1px solid var(--line) !important;
-}
-
-.income-table tbody tr:nth-child(even),
-.expenses-table tbody tr:nth-child(even),
-.categories-table tbody tr:nth-child(even) {
-  background: var(--surface-2) !important;
-}
-
-.income-table tbody tr:hover,
-.expenses-table tbody tr:hover,
-.categories-table tbody tr:hover {
-  background: color-mix(in srgb, var(--surface-2) 70%, var(--info) 30%) !important;
-}
-
-.income-table tbody td,
-.expenses-table tbody td,
-.categories-table tbody td {
-  color: var(--ink) !important;
-  border-bottom: 1px solid var(--line) !important;
-  padding: 12px 16px !important;
-}
-
-/* === 4. Action buttons === */
-.action-btn {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  width: 36px !important;
-  height: 36px !important;
-  background: transparent !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 8px !important;
-  color: var(--ink-muted) !important;
-  transition: all 0.2s ease !important;
-  text-decoration: none !important;
-}
-
-.action-btn:hover {
-  background: var(--surface-2) !important;
-  color: var(--ink) !important;
-  text-decoration: none !important;
-}
-
-.action-btn-danger:hover {
-  background: color-mix(in srgb, var(--bad) 20%, transparent) !important;
-  color: var(--bad) !important;
-  border-color: var(--bad) !important;
-}
-
-/* === 5. Бейджи === */
-.badge-ghost {
-  background: var(--surface-2) !important;
-  color: var(--ink) !important;
-  border: 1px solid var(--line) !important;
-  padding: 4px 8px !important;
-  border-radius: 6px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-}
-
-/* === 6. Цвета сумм === */
-.amount.positive {
-  color: #16a34a !important; /* Более насыщенный зелёный для тёмной темы */
-}
-
-.amount.negative {
-  color: #dc2626 !important; /* Более насыщенный красный для тёмной темы */
-}
-
-.text-muted {
-  color: var(--ink-muted) !important;
-}
-
-/* === 7. Плавающая кнопка === */
-.btn-hero.icon-only {
-  position: fixed !important;
-  bottom: 20px !important;
-  right: 20px !important;
-  width: 44px !important;
-  height: 44px !important;
-  background: var(--surface-1) !important;
-  border: 1px solid var(--line) !important;
-  border-radius: 12px !important;
-  color: var(--ink) !important;
-  box-shadow: var(--shadow-soft) !important;
-  z-index: 100 !important;
-}
-
-.btn-hero.icon-only:hover {
-  background: var(--surface-2) !important;
-  transform: translateY(-2px) !important;
-}
-
-/* === Дополнительная унификация === */
-
-/* Формы и инпуты */
-.form-control,
-.form-select {
-  background: var(--surface-1) !important;
-  border: 1px solid var(--line) !important;
-  color: var(--ink) !important;
-}
-
-.form-control:focus,
-.form-select:focus {
-  background: var(--surface-1) !important;
-  border-color: var(--info) !important;
-  color: var(--ink) !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--info) 20%, transparent) !important;
-}
-
-.form-control::placeholder {
-  color: var(--ink-muted) !important;
+.progress-bar.over {
+  background: linear-gradient(90deg, var(--danger), #f97316);
 }
 
 /* Кнопки */
-.btn-primary {
-  background: var(--info) !important;
-  border-color: var(--info) !important;
-  color: white !important;
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  background: var(--bg-softer);
+  border: 1px solid rgba(255,255,255,.06);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: var(--text-dim);
+}
+.icon-btn:hover {
+  background: rgba(59,130,246,.18);
+  color: var(--text);
+}
+.icon-btn svg {
+  width: 16px;
+  height: 16px;
 }
 
-.btn-secondary {
-  background: var(--surface-2) !important;
-  border-color: var(--line) !important;
-  color: var(--ink) !important;
+/* Адаптив */
+@media (max-width: 980px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+  .topbar {
+    border-radius: 14px;
+  }
+}
+@media (max-width: 640px) {
+  .hero h2 {
+    font-size: 22px;
+  }
+  .nav {
+    display: none;
+  }
+  .right {
+    gap: 6px;
+  }
+  .btn {
+    padding: 8px 10px;
+  }
+  .cat {
+    grid-template-columns: 1fr;
+  }
+  .meta {
+    justify-content: space-between;
+  }
 }
 
-.btn-outline-secondary {
-  background: transparent !important;
-  border-color: var(--line) !important;
-  color: var(--ink-muted) !important;
+/* Тумблер темы */
+.theme-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
 }
-
-.btn-outline-secondary:hover {
-  background: var(--surface-2) !important;
-  color: var(--ink) !important;
+.theme-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
-
-/* Модальные окна */
-.modal-content {
-  background: var(--surface-1) !important;
-  border: 1px solid var(--line) !important;
-  color: var(--ink) !important;
+.theme-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--bg-soft);
+  border: var(--card-border);
+  transition: 0.3s;
+  border-radius: 12px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-
-.modal-header {
-  border-bottom: 1px solid var(--line) !important;
+.theme-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 2px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  transition: 0.3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
-
-.modal-footer {
-  border-top: 1px solid var(--line) !important;
+input:checked + .theme-slider {
+  background: var(--primary);
 }
-
-/* Алерты */
-.alert {
-  border: 1px solid var(--line) !important;
-}
-
-.alert-warning {
-  background: color-mix(in srgb, var(--warn) 10%, var(--surface-1)) !important;
-  border-color: var(--warn) !important;
-  color: var(--ink) !important;
-}
-
-.alert-info {
-  background: color-mix(in srgb, var(--info) 10%, var(--surface-1)) !important;
-  border-color: var(--info) !important;
-  color: var(--ink) !important;
-}
-
-/* Мобильные карточки */
-.income-card-mobile,
-.expense-card-mobile {
-  background: var(--surface-1) !important;
-  border: 1px solid var(--line) !important;
-  color: var(--ink) !important;
-}
-
-.income-amount .amount-text,
-.expense-amount .amount-text {
-  color: var(--ink) !important;
-}
-
-.amount-date,
-.expense-date {
-  color: var(--ink-muted) !important;
-}
-
-/* Дропдауны */
-.dropdown-menu {
-  background: var(--surface-1) !important;
-  border: 1px solid var(--line) !important;
-}
-
-.dropdown-item {
-  color: var(--ink) !important;
-}
-
-.dropdown-item:hover {
-  background: var(--surface-2) !important;
-  color: var(--ink) !important;
-}
-
-/* Навигация */
-.cb-nav {
-  background: var(--surface-1) !important;
-  border-bottom: 1px solid var(--line) !important;
-}
-
-/* Правильная обработка ховера для period-btn current */
-.period-btn.current:hover {
-  background: var(--info) !important;
-  color: white !important;
-}
-
-/* Более насыщенные цвета для бейджей в тёмной теме */
-[data-bs-theme="dark"] .badge-ghost {
-  background: var(--surface-2) !important;
-  color: var(--ink) !important;
-  border-color: var(--line) !important;
-}
-
-/* Компактный режим для новых элементов */
-.ui-compact .period-filter {
-  padding: 10px 14px !important;
-  margin-bottom: 16px !important;
-}
-
-.ui-compact .section-header {
-  padding: 12px 14px 10px !important;
-  font-size: 15px !important;
-}
-
-.ui-compact .period-btn {
-  width: 32px !important;
-  height: 32px !important;
-}
-
-.ui-compact .action-btn {
-  width: 32px !important;
-  height: 32px !important;
+input:checked + .theme-slider:before {
+  transform: translateX(20px);
 }

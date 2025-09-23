@@ -4,15 +4,15 @@
 <div class="sidebar-overlay d-lg-none" id="sidebarOverlay" data-action="close-sidebar"></div>
 <div class="sidebar d-lg-none" id="sidebar">
   <div class="sidebar-header">
-    <a class="sidebar-brand" href="{{ url_for('dashboard') }}">CrystalBudget</a>
+    <a class="sidebar-brand" href="{{ url_for('budget.dashboard') }}">CrystalBudget</a>
     <button class="sidebar-close" data-action="close-sidebar"><i class="bi bi-x-lg"></i></button>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}" data-action="close-sidebar"><i class="bi bi-house-door"></i> Дашборд</a></div>
-    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}" data-action="close-sidebar"><i class="bi bi-wallet2"></i> Расходы</a></div>
-    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}" data-action="close-sidebar"><i class="bi bi-tags"></i> Категории</a></div>
-    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('income_page') }}" data-action="close-sidebar"><i class="bi bi-cash-coin"></i> Доходы</a></div>
-    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('account') }}" data-action="close-sidebar"><i class="bi bi-gear"></i> Личный кабинет</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('budget.dashboard') }}" data-action="close-sidebar"><i class="bi bi-house-door"></i> Дашборд</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('budget.expenses') }}" data-action="close-sidebar"><i class="bi bi-wallet2"></i> Расходы</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('budget.categories') }}" data-action="close-sidebar"><i class="bi bi-tags"></i> Категории</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('budget.income') }}" data-action="close-sidebar"><i class="bi bi-cash-coin"></i> Доходы</a></div>
+    <div class="nav-item"><a class="nav-link-modern {% if request.endpoint == 'account' %}active{% endif %}" href="{{ url_for('auth.profile') }}" data-action="close-sidebar"><i class="bi bi-gear"></i> Личный кабинет</a></div>
   </nav>
   <div class="sidebar-footer">
     <a class="user-profile" href="#"><i class="bi bi-person-circle" style="font-size:1.5rem;"></i>
@@ -31,7 +31,7 @@
         </div>
       </div>
     </div>
-    <a class="logout-btn" href="{{ url_for('logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a>
+    <a class="logout-btn" href="{{ url_for('auth.logout') }}"><i class="bi bi-box-arrow-right"></i> Выйти</a>
   </div>
 </div>
 {% endif %}
