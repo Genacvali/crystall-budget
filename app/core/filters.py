@@ -1,5 +1,6 @@
 """Jinja2 template filters."""
 from decimal import Decimal
+from datetime import datetime
 from flask import Flask
 
 
@@ -54,8 +55,27 @@ def percentage(value):
         return "0%"
 
 
+def format_date_with_day(value):
+    """Format date with day in DD.MM.YYYY format."""
+    if value is None:
+        return ""
+    
+    try:
+        if isinstance(value, str):
+            dt = datetime.strptime(value, "%Y-%m-%d")
+        elif hasattr(value, 'strftime'):  # datetime object
+            dt = value
+        else:
+            return str(value)
+        
+        return dt.strftime("%d.%m.%Y")
+    except Exception:
+        return str(value)
+
+
 def register_filters(app: Flask):
     """Register custom filters with Flask app."""
     app.jinja_env.filters['format_amount'] = format_amount
     app.jinja_env.filters['format_currency'] = format_currency
     app.jinja_env.filters['percentage'] = percentage
+    app.jinja_env.filters['format_date_with_day'] = format_date_with_day

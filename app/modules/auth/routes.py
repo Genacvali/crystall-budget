@@ -1,6 +1,7 @@
 """Auth module routes."""
-from flask import render_template, request, redirect, url_for, flash, session, current_app, abort
+from flask import render_template, request, redirect, url_for, flash, session, current_app, abort, jsonify
 from flask_login import login_required, current_user
+from app.core.extensions import db
 from .service import AuthService
 from .schemas import LoginForm, RegisterForm, ChangePasswordForm, ProfileForm, TelegramAuthData
 from .models import User
@@ -163,3 +164,34 @@ def change_password():
             return redirect(url_for('auth.profile'))
     
     return render_template('auth/change_password.html', form=form)
+
+
+@auth_bp.route('/set-theme', methods=['POST'])
+@login_required
+def set_theme():
+    """Set user theme preference."""
+    data = request.get_json(silent=True) or {}
+    theme = (data.get("theme") or "").lower()
+    if theme not in ("light", "dark"):
+        return jsonify({"ok": False, "error": "bad theme"}), 400
+    session["theme"] = theme
+    
+    # Save to database if user exists
+    try:
+        user = User.query.get(session['user_id'])
+        if user:
+            # Add theme column if it doesn't exist
+            try:
+                from sqlalchemy import text
+                db.session.execute(text("ALTER TABLE users ADD COLUMN theme VARCHAR(20)"))
+                db.session.commit()
+            except Exception:
+                pass  # Column likely already exists
+            
+            # Update user theme
+            user.theme = theme
+            db.session.commit()
+    except Exception:
+        pass  # Continue even if DB update fails
+    
+    return jsonify({"ok": True})

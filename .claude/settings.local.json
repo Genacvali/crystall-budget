@@ -32,7 +32,8 @@
       "Bash(FLASK_RUN_PORT=5010 python app.py)",
       "Bash(flask:*)",
       "Bash(export FLASK_APP=new_app.py)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(FLASK_RUN_PORT=5010 python new_app.py)"
     ],
     "deny": [],
     "ask": []

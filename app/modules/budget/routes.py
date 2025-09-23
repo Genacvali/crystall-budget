@@ -203,12 +203,38 @@ def delete_category(category_id):
     return redirect(url_for('budget.categories'))
 
 
-@budget_bp.route('/income')
+@budget_bp.route('/income', methods=['GET', 'POST'])
 @login_required
 def income():
     """Income management page."""
     user_id = session['user_id']
     
+    # Handle POST request (add income)
+    if request.method == 'POST':
+        source_name = request.form.get('source_name')
+        amount = request.form.get('amount')
+        month_input = request.form.get('month')  # Format: YYYY-MM
+        
+        if source_name and amount and month_input:
+            try:
+                year, month = month_input.split('-')
+                income = BudgetService.add_income(
+                    user_id=user_id,
+                    source_name=source_name,
+                    amount=float(amount),
+                    year=int(year),
+                    month=int(month),
+                    currency='RUB'
+                )
+                flash('Доход добавлен', 'success')
+            except Exception as e:
+                flash(f'Ошибка при добавлении дохода: {str(e)}', 'error')
+        else:
+            flash('Заполните все обязательные поля', 'error')
+        
+        return redirect(url_for('budget.income'))
+    
+    # Handle GET request (display page)
     # Get month filter
     ym_param = request.args.get('ym')
     try:

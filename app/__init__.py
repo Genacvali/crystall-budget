@@ -43,6 +43,15 @@ def create_app(config_name=None):
     app.register_blueprint(goals_bp)
     app.register_blueprint(api_v1_bp)
     
+    # Backward compatibility routes
+    from flask import redirect, url_for
+    
+    @app.route('/set-theme', methods=['POST'])
+    def set_theme_compat():
+        """Backward compatibility redirect for set-theme endpoint."""
+        from app.modules.auth.routes import set_theme
+        return set_theme()
+    
     # Import models for Alembic
     from app.modules.auth.models import User
     from app.modules.budget.models import Category, Expense, Income, CategoryRule, ExchangeRate  

@@ -27,7 +27,7 @@
         {% endif %}
     </div>
     <div class="period-nav">
-        <a href="{{ url_for('categories', month=month_data.prev_month) }}" 
+        <a href="{{ url_for('budget.categories', month=month_data.prev_month) }}" 
            class="period-btn" title="Предыдущий месяц">
             <i class="bi bi-chevron-left"></i>
         </a>
@@ -35,7 +35,7 @@
            class="period-btn current" title="Текущий месяц">
             <i class="bi bi-house"></i>
         </a>
-        <a href="{{ url_for('categories', month=month_data.next_month) }}" 
+        <a href="{{ url_for('budget.categories', month=month_data.next_month) }}" 
            class="period-btn" title="Следующий месяц">
             <i class="bi bi-chevron-right"></i>
         </a>
@@ -54,6 +54,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <form method="POST" action="{{ url_for('budget.add_category') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="modal-body">
           <input type="hidden" name="category_type" value="expense">
           
@@ -195,7 +196,8 @@
           <button class="action-btn" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}" aria-label="Редактировать категорию">
             <i class="bi bi-pencil"></i>
           </button>
-          <form method="POST" action="{{ url_for('categories_delete', cat_id=cat.id) }}" class="d-inline">
+          <form method="POST" action="{{ url_for('budget.delete_category', cat_id=cat.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button class="action-btn action-btn-danger" onclick="return confirm('Удалить категорию «{{ cat.name }}»?')" aria-label="Удалить категорию">
               <i class="bi bi-trash3"></i>
             </button>
@@ -225,6 +227,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" action="{{ url_for('categories_update', cat_id=cat.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Название</label>
@@ -342,6 +345,7 @@
                   <td>{{ source_info.source_name }}</td>
                   <td class="text-end">
                     <form method="POST" action="{{ url_for('update_source_percentage', cat_id=cat.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                       <input type="hidden" name="source_id" value="{{ source_info.source_id }}">
                       <div class="input-group input-group-sm" style="max-width: 120px;">
                         <input type="number" name="percentage" value="{{ source_info.percentage }}" 
@@ -353,6 +357,7 @@
                   </td>
                   <td class="text-end">
                     <form method="POST" action="{{ url_for('remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                       <button type="submit" class="icon-btn icon-sm icon-danger"
                               onclick="return confirm('Убрать источник {{ source_info.source_name }} из категории?')" 
                               data-bs-toggle="tooltip" data-bs-title="Удалить" aria-label="Удалить">
@@ -400,6 +405,7 @@
             <i class="bi bi-plus-circle me-2"></i>Добавить источник:
           </h6>
           <form method="POST" action="{{ url_for('add_source_to_category', cat_id=cat.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="row g-3 align-items-end">
               <div class="col-md-6">
                 <label class="form-label">Источник дохода</label>
@@ -450,6 +456,7 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
         <form method="POST" action="{{ url_for('toggle_multi_source', cat_id=cat.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="btn btn-outline-warning" 
                   onclick="return confirm('Отключить многоисточниковый режим? Все связи будут удалены.')">
             <i class="bi bi-toggle-off"></i> Отключить режим

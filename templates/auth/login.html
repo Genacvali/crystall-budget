@@ -50,6 +50,7 @@
 
         <!-- Email Login -->
         <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="mb-2">
             <label for="email" class="form-label">Email</label>
             <input type="email" class="form-control" id="email" name="email" required autocomplete="email">

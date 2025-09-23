@@ -42,6 +42,7 @@
 <!-- Форма добавления дохода (по дням) -->
 <div class="collapse mb-3" id="addIncomeForm">
   <form method="POST" action="{{ url_for('income_add', month=month_data.month if month_data else None) }}" novalidate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="ff-progress-card">
     <div class="row g-3 align-items-end">
       <div class="col-6 col-md-3">
@@ -118,6 +119,7 @@
           <i class="bi bi-pencil"></i>
         </a>
         <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="action-btn action-btn-danger"
                   onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')"
                   aria-label="Удалить доход">
@@ -169,6 +171,7 @@
               <i class="bi bi-pencil"></i>
             </a>
             <form method="POST" action="{{ url_for('delete_income', income_id=income.id) }}" class="d-inline">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" class="action-btn action-btn-danger"
                       onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')"
                       aria-label="Удалить доход">
@@ -198,6 +201,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="POST" action="{{ url_for('sources_add') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Название источника</label>

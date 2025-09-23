@@ -18,11 +18,12 @@
         
         <!-- Правая колонка: действия -->
         <div class="expense-actions">
-            <a href="{{ url_for('edit_expense', expense_id=expense.id) }}" 
+            <a href="{{ url_for('budget.edit_expense', expense_id=expense.id) }}" 
                class="action-btn" aria-label="Редактировать расход">
                 <i class="bi bi-pencil"></i>
             </a>
-            <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="d-inline">
+            <form method="POST" action="{{ url_for('budget.delete_expense', expense_id=expense.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <button type="submit" class="action-btn action-btn-danger"
                         data-confirm-delete="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}"
                         aria-label="Удалить расход">

@@ -68,7 +68,7 @@
                                     {% endif %}
                                     
                                     <div class="d-grid">
-                                        <a href="{{ url_for('shared_budget_detail', budget_id=budget.id) }}" class="btn btn-primary">
+                                        <a href="{{ url_for('goals.shared_budget_detail', budget_id=budget.id) }}" class="btn btn-primary">
                                             <i class="bi bi-eye"></i> Открыть
                                         </a>
                                     </div>
@@ -103,7 +103,8 @@
                 <h5 class="modal-title">Создать семейный бюджет</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ url_for('create_shared_budget') }}">
+            <form method="POST" action="{{ url_for('goals.create_shared_budget') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="budgetName" class="form-label">Название бюджета <span class="text-danger">*</span></label>
@@ -131,7 +132,8 @@
                 <h5 class="modal-title">Присоединиться к семейному бюджету</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form method="POST" action="{{ url_for('join_shared_budget') }}">
+            <form method="POST" action="{{ url_for('goals.join_shared_budget') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                 <div class="modal-body">
                     <div class="mb-3">
                         <label for="inviteCode" class="form-label">Код приглашения <span class="text-danger">*</span></label>

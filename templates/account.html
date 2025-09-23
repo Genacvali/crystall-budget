@@ -9,6 +9,7 @@
   </div>
   <div class="p-3">
     <form method="POST" action="{{ url_for('update_profile') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="row g-3">
         <div class="col-md-6">
           <label class="form-label">Email</label>
@@ -35,6 +36,7 @@
   </div>
   <div class="p-3">
     <form method="POST" action="/set-currency" class="row g-3">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="col-md-8">
         <label class="form-label">Валюта интерфейса</label>
         <select class="form-select" name="currency">
@@ -65,6 +67,7 @@
   </div>
   <div class="p-3">
     <form method="POST" action="{{ url_for('account_password') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
       <div class="row g-3">
         <div class="col-12">
           <label class="form-label">Текущий пароль</label>

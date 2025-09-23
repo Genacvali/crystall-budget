@@ -81,6 +81,7 @@
 
                 {% if not goal.completed_at %}
                   <form method="POST" action="{{ url_for('update_goal_progress', goal_id=goal.id) }}" class="d-flex">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <input type="number" name="amount" class="form-control form-control-sm me-2"
                            placeholder="Сумма" step="0.01" min="0.01" required>
                     <button type="submit" class="btn btn-outline-primary btn-sm">
@@ -123,6 +124,7 @@
       </div>
 
       <form method="POST" action="{{ url_for('add_goal') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="modal-body">
           <div class="mb-3">
             <label for="goalName" class="form-label">Название цели <span class="text-danger">*</span></label>
