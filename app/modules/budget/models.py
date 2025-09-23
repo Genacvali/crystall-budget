@@ -129,3 +129,19 @@ class ExchangeRate(db.Model):
     
     def __repr__(self):
         return f'<ExchangeRate {self.from_currency}/{self.to_currency} = {self.rate}>'
+
+
+class IncomeSource(db.Model):
+    """Income source model."""
+    __tablename__ = 'income_sources'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    is_default = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (db.UniqueConstraint('user_id', 'name'),)
+    
+    def __repr__(self):
+        return f'<IncomeSource {self.name}>'

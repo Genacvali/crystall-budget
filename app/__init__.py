@@ -52,9 +52,59 @@ def create_app(config_name=None):
         from app.modules.auth.routes import set_theme
         return set_theme()
     
+    # More backward compatibility routes
+    @app.route('/update_profile', methods=['POST'])
+    def update_profile_compat():
+        """Backward compatibility redirect for update profile."""
+        return redirect(url_for('auth.profile'))
+    
+    @app.route('/account_password', methods=['POST'])
+    def account_password_compat():
+        """Backward compatibility redirect for password change."""
+        return redirect(url_for('auth.change_password'))
+    
+    @app.route('/add_goal', methods=['POST'])
+    def add_goal_compat():
+        """Backward compatibility redirect for add goal."""
+        return redirect(url_for('goals.create_goal'))
+    
+    @app.route('/update_goal_progress/<int:goal_id>', methods=['POST'])
+    def update_goal_progress_compat(goal_id):
+        """Backward compatibility redirect for goal progress."""
+        return redirect(url_for('goals.add_progress'))
+    
+    @app.route('/categories/update/<int:cat_id>', methods=['POST'])
+    def categories_update_compat(cat_id):
+        """Backward compatibility redirect for category update."""
+        return redirect(url_for('budget.edit_category', category_id=cat_id))
+    
+    @app.route('/update_source_percentage/<int:cat_id>', methods=['POST'])
+    def update_source_percentage_compat(cat_id):
+        """Backward compatibility for source percentage update."""
+        flash('Функция в разработке', 'info')
+        return redirect(url_for('budget.categories'))
+    
+    @app.route('/remove_source_from_category/<int:cat_id>/<int:source_id>', methods=['POST'])
+    def remove_source_from_category_compat(cat_id, source_id):
+        """Backward compatibility for removing source from category."""
+        flash('Функция в разработке', 'info')
+        return redirect(url_for('budget.categories'))
+    
+    @app.route('/add_source_to_category/<int:cat_id>', methods=['POST'])
+    def add_source_to_category_compat(cat_id):
+        """Backward compatibility for adding source to category."""
+        flash('Функция в разработке', 'info')
+        return redirect(url_for('budget.categories'))
+    
+    @app.route('/toggle_multi_source/<int:cat_id>', methods=['POST'])
+    def toggle_multi_source_compat(cat_id):
+        """Backward compatibility for toggling multi-source mode."""
+        flash('Функция в разработке', 'info')
+        return redirect(url_for('budget.categories'))
+    
     # Import models for Alembic
     from app.modules.auth.models import User
-    from app.modules.budget.models import Category, Expense, Income, CategoryRule, ExchangeRate  
+    from app.modules.budget.models import Category, Expense, Income, CategoryRule, ExchangeRate, IncomeSource  
     from app.modules.goals.models import SavingsGoal, SharedBudget, SharedBudgetMember
     
     # Register error handlers

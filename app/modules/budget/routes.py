@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from app.core.time import YearMonth, parse_year_month
 from .service import BudgetService, CurrencyService
 from .schemas import CategoryForm, ExpenseForm, IncomeForm, QuickExpenseForm, BudgetFilterForm
-from .models import Category, Expense, Income
+from .models import Category, Expense, Income, IncomeSource
 from . import budget_bp
 
 
@@ -298,3 +298,37 @@ def quick_expense():
         flash('Ошибка в данных формы', 'error')
     
     return redirect(url_for('budget.dashboard'))
+
+
+@budget_bp.route('/sources/add', methods=['POST'])
+@login_required
+def sources_add():
+    """Add new income source."""
+    from app.core.extensions import db
+    user_id = session['user_id']
+    name = (request.form.get('name') or '').strip()
+    is_default = 1 if request.form.get('is_default') == '1' else 0
+    
+    if not name:
+        flash('Введите название источника', 'error')
+        return redirect(url_for('budget.income'))
+    
+    try:
+        # If setting as default, clear other defaults
+        if is_default:
+            IncomeSource.query.filter_by(user_id=user_id, is_default=True).update({'is_default': False})
+        
+        # Create new source
+        source = IncomeSource(
+            user_id=user_id,
+            name=name,
+            is_default=bool(is_default)
+        )
+        db.session.add(source)
+        db.session.commit()
+        flash('Источник добавлен', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash('Источник с таким названием уже существует', 'error')
+    
+    return redirect(url_for('budget.income'))
