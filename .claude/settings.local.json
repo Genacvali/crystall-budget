@@ -35,7 +35,10 @@
       "Bash(cat:*)",
       "Bash(FLASK_RUN_PORT=5010 python new_app.py)",
       "Bash(FLASK_APP=new_app.py flask db migrate -m \"Add IncomeSource model\")",
-      "Bash(FLASK_APP=new_app.py flask db upgrade)"
+      "Bash(FLASK_APP=new_app.py flask db upgrade)",
+      "Read(//etc/systemd/system/**)",
+      "Bash(sudo cp:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

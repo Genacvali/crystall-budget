@@ -17,6 +17,9 @@
   <!-- Страничные стили при необходимости -->
   {% block page_css %}{% endblock %}
 
+  <!-- CSRF Token для JavaScript -->
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  
   <!-- PWA мета-теги -->
   <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
   <meta name="theme-color" content="#4f46e5">

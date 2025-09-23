@@ -21,11 +21,14 @@ python init_db.py
 
 ### Running the Application
 ```bash
-# Development server
+# Development server (default port 5000)
 python app.py
 
 # Production with Gunicorn
 gunicorn -w 2 -b 0.0.0.0:5000 app:app
+
+# Admin panel (runs on port 5001)
+cd admin_panel && python admin_panel.py
 ```
 
 ### Testing and Code Quality
@@ -47,6 +50,14 @@ python app.py
 # Check for syntax errors and basic linting
 python -m py_compile app.py
 python -m py_compile admin_panel/admin_panel.py
+
+# Check specific Python files for syntax
+python -c "import py_compile; py_compile.compile('app.py', doraise=True)"
+
+# Quick database fixes if needed (already applied in production)
+# Add missing columns and tables:
+# sqlite3 budget.db "ALTER TABLE expenses ADD COLUMN note TEXT;"
+# sqlite3 budget.db "CREATE TABLE IF NOT EXISTS category_income_sources (...)"
 ```
 
 ### Production Deployment
@@ -128,6 +139,8 @@ SQLite with strict user isolation and automatic schema migration:
 - Mobile swipe actions for quick edit/delete operations
 - Automatic database schema migration system
 - Security features: CSP headers, HSTS, secure cookies, password hashing
+- CSRF protection with Flask-WTF integration
+- Template endpoint compatibility (non-blueprint structure)
 
 ### Development vs Production Configuration
 - **Development**: Insecure default secret key with warning, HTTP cookies
@@ -161,13 +174,21 @@ LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 ### Important File Locations
 Current codebase structure:
 - `app.py` - Main Flask application (~4737 lines) with embedded Telegram authentication
+- `new_app.py` - Alternative/backup version of the main application
 - `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn, python-dotenv)
-- `templates/` - Jinja2 templates with Russian UI, including reusable components
+- `templates/` - Jinja2 templates with Russian UI, including reusable components:
+  - `templates/components/` - Reusable UI components (modals, forms, cards)
+  - `templates/pages/` - Main page templates
+  - `templates/auth/` - Authentication-related templates
+  - `templates/budget/` - Budget management templates
 - `static/` - Frontend assets:
-  - PWA manifests and service worker
-  - CSS themes and dashboard styles 
-  - JavaScript modules for dashboard and progress bars
-  - User avatars and app icons
+  - `static/js/` - JavaScript modules with entry points and reusable modules
+    - `entries/` - Page-specific entry points (dashboard.entry.js, expenses.entry.js)
+    - `modules/` - Reusable modules (ui.js, forms.js, swipe.js)
+  - `static/css/` - CSS themes and responsive styles
+  - `static/icons/` - PWA icons and favicons
+  - `static/avatars/` - User avatar uploads
+  - PWA manifests (manifest.json, manifest.webmanifest) and service worker (sw.js)
 - `init_db.py` - Database initialization script
 - `admin_panel/` - Administrative interface with deployment scripts:
   - `admin_panel.py` - Admin Flask app
@@ -176,11 +197,29 @@ Current codebase structure:
   - `nginx-admin-panel.conf` - Admin nginx config
 - `README.md` - Russian documentation with v1.1 features and setup instructions
 
+### Service Files
+- `crystalbudget.service` - Main application systemd service (uses Gunicorn WSGI server)
+- `admin_panel/admin-panel.service` - Admin panel systemd service
+
 ### Missing Deployment Files
 These files are referenced but not present in current codebase:
 - `deploy.sh` - Main app deployment script
 - `setup-https.sh` - HTTPS/SSL setup script  
-- `crystalbudget.service` - Main app systemd service
 - `nginx-crystalbudget.conf` - Main app nginx config
 - `emergency_fix.py` - Database repair script
 - `TELEGRAM_AUTH_SETUP.md` - Telegram setup guide
+
+### Service Installation
+```bash
+# Install main application service
+sudo cp crystalbudget.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable crystalbudget
+sudo systemctl start crystalbudget
+
+# Install admin panel service  
+sudo cp admin_panel/admin-panel.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable admin-panel
+sudo systemctl start admin-panel
+```

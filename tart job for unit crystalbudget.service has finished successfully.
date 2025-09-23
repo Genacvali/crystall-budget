@@ -1,0 +1,1573 @@
+Sep 23 19:09:26 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4626.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:09:26 Jarvice systemd[1]: Stopped CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173837 and the job result is done.[0m
+Sep 23 19:09:26 Jarvice systemd[1]: Starting CrystalBudget Flask Application...
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has begun execution[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has begun execution.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173837.[0m
+Sep 23 19:09:26 Jarvice systemd[1]: Started CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173837.[0m
+Sep 23 19:09:26 Jarvice python[2303]: [2025-09-23 19:09:26 +0300] [2303] [INFO] Starting gunicorn 21.2.0
+Sep 23 19:09:26 Jarvice python[2303]: [2025-09-23 19:09:26 +0300] [2303] [INFO] Listening at: http://127.0.0.1:5000 (2303)
+Sep 23 19:09:26 Jarvice python[2303]: [2025-09-23 19:09:26 +0300] [2303] [INFO] Using worker: gthread
+Sep 23 19:09:26 Jarvice python[2304]: [2025-09-23 19:09:26 +0300] [2304] [INFO] Booting worker with pid: 2304
+Sep 23 19:09:26 Jarvice python[2305]: [2025-09-23 19:09:26 +0300] [2305] [INFO] Booting worker with pid: 2305
+Sep 23 19:09:26 Jarvice python[2306]: [2025-09-23 19:09:26 +0300] [2306] [INFO] Booting worker with pid: 2306
+Sep 23 19:09:26 Jarvice python[2305]: [2025-09-23 19:09:26 +0300] [2305] [ERROR] Exception in worker process
+Sep 23 19:09:26 Jarvice python[2305]: Traceback (most recent call last):
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:26 Jarvice python[2305]:     worker.init_process()
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:26 Jarvice python[2305]:     super().init_process()
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:26 Jarvice python[2305]:     self.load_wsgi()
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:26 Jarvice python[2305]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:26 Jarvice python[2305]:     self.callable = self.load()
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:26 Jarvice python[2305]:     return self.load_wsgiapp()
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:26 Jarvice python[2305]:     return util.import_app(self.app_uri)
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:26 Jarvice python[2305]:     mod = importlib.import_module(module)
+Sep 23 19:09:26 Jarvice python[2305]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:26 Jarvice python[2305]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:26 Jarvice python[2305]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:26 Jarvice python[2305]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:26 Jarvice python[2305]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:26 Jarvice python[2305]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:26 Jarvice python[2305]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:26 Jarvice python[2305]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2305]:     from app import create_app
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2305]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:26 Jarvice python[2305]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2305]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:26 Jarvice python[2305]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:26 Jarvice python[2305]: [2025-09-23 19:09:26 +0300] [2305] [INFO] Worker exiting (pid: 2305)
+Sep 23 19:09:26 Jarvice python[2304]: [2025-09-23 19:09:26 +0300] [2304] [ERROR] Exception in worker process
+Sep 23 19:09:26 Jarvice python[2304]: Traceback (most recent call last):
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:26 Jarvice python[2304]:     worker.init_process()
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:26 Jarvice python[2304]:     super().init_process()
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:26 Jarvice python[2304]:     self.load_wsgi()
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:26 Jarvice python[2304]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:26 Jarvice python[2304]:     self.callable = self.load()
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:26 Jarvice python[2304]:     return self.load_wsgiapp()
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:26 Jarvice python[2304]:     return util.import_app(self.app_uri)
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:26 Jarvice python[2304]:     mod = importlib.import_module(module)
+Sep 23 19:09:26 Jarvice python[2304]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:26 Jarvice python[2304]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:26 Jarvice python[2304]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:26 Jarvice python[2304]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:26 Jarvice python[2304]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:26 Jarvice python[2304]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:26 Jarvice python[2304]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:26 Jarvice python[2304]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2304]:     from app import create_app
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2304]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:26 Jarvice python[2304]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2304]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:26 Jarvice python[2304]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:26 Jarvice python[2304]: [2025-09-23 19:09:26 +0300] [2304] [INFO] Worker exiting (pid: 2304)
+Sep 23 19:09:26 Jarvice python[2303]: [2025-09-23 19:09:26 +0300] [2303] [ERROR] Worker (pid:2305) exited with code 3
+Sep 23 19:09:26 Jarvice python[2306]: [2025-09-23 19:09:26 +0300] [2306] [ERROR] Exception in worker process
+Sep 23 19:09:26 Jarvice python[2306]: Traceback (most recent call last):
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:26 Jarvice python[2306]:     worker.init_process()
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:26 Jarvice python[2306]:     super().init_process()
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:26 Jarvice python[2306]:     self.load_wsgi()
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:26 Jarvice python[2306]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:26 Jarvice python[2306]:     self.callable = self.load()
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:26 Jarvice python[2306]:     return self.load_wsgiapp()
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:26 Jarvice python[2306]:     return util.import_app(self.app_uri)
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:26 Jarvice python[2306]:     mod = importlib.import_module(module)
+Sep 23 19:09:26 Jarvice python[2306]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:26 Jarvice python[2306]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:26 Jarvice python[2306]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:26 Jarvice python[2306]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:26 Jarvice python[2306]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:26 Jarvice python[2306]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:26 Jarvice python[2306]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:26 Jarvice python[2306]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2306]:     from app import create_app
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2306]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:26 Jarvice python[2306]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:26 Jarvice python[2306]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:26 Jarvice python[2306]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:26 Jarvice python[2306]: [2025-09-23 19:09:26 +0300] [2306] [INFO] Worker exiting (pid: 2306)
+Sep 23 19:09:26 Jarvice python[2303]: [2025-09-23 19:09:26 +0300] [2303] [ERROR] Worker (pid:2304) was sent SIGTERM!
+Sep 23 19:09:26 Jarvice python[2303]: [2025-09-23 19:09:26 +0300] [2303] [ERROR] Worker (pid:2306) exited with code 3
+Sep 23 19:09:26 Jarvice python[2303]: Traceback (most recent call last):
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 209, in run
+Sep 23 19:09:26 Jarvice python[2303]:     self.sleep()
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 360, in sleep
+Sep 23 19:09:26 Jarvice python[2303]:     ready = select.select([self.PIPE[0]], [], [], 1.0)
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:26 Jarvice python[2303]:     self.reap_workers()
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:26 Jarvice python[2303]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:26 Jarvice python[2303]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:26 Jarvice python[2303]: During handling of the above exception, another exception occurred:
+Sep 23 19:09:26 Jarvice python[2303]: Traceback (most recent call last):
+Sep 23 19:09:26 Jarvice python[2303]:   File "/usr/lib64/python3.9/runpy.py", line 197, in _run_module_as_main
+Sep 23 19:09:26 Jarvice python[2303]:     return _run_code(code, main_globals, None,
+Sep 23 19:09:26 Jarvice python[2303]:   File "/usr/lib64/python3.9/runpy.py", line 87, in _run_code
+Sep 23 19:09:26 Jarvice python[2303]:     exec(code, run_globals)
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/__main__.py", line 7, in <module>
+Sep 23 19:09:26 Jarvice python[2303]:     run()
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+Sep 23 19:09:26 Jarvice python[2303]:     WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 236, in run
+Sep 23 19:09:26 Jarvice python[2303]:     super().run()
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 72, in run
+Sep 23 19:09:26 Jarvice python[2303]:     Arbiter(self).run()
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 229, in run
+Sep 23 19:09:26 Jarvice python[2303]:     self.halt(reason=inst.reason, exit_status=inst.exit_status)
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 342, in halt
+Sep 23 19:09:26 Jarvice python[2303]:     self.stop()
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 396, in stop
+Sep 23 19:09:26 Jarvice python[2303]:     time.sleep(0.1)
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:26 Jarvice python[2303]:     self.reap_workers()
+Sep 23 19:09:26 Jarvice python[2303]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:26 Jarvice python[2303]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:26 Jarvice python[2303]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:26 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=1/FAILURE[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 1.[0m
+Sep 23 19:09:26 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:09:31 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4627.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:09:31 Jarvice systemd[1]: Stopped CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173874 and the job result is done.[0m
+Sep 23 19:09:31 Jarvice systemd[1]: Starting CrystalBudget Flask Application...
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has begun execution[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has begun execution.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173874.[0m
+Sep 23 19:09:31 Jarvice systemd[1]: Started CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173874.[0m
+Sep 23 19:09:31 Jarvice python[2321]: [2025-09-23 19:09:31 +0300] [2321] [INFO] Starting gunicorn 21.2.0
+Sep 23 19:09:31 Jarvice python[2321]: [2025-09-23 19:09:31 +0300] [2321] [INFO] Listening at: http://127.0.0.1:5000 (2321)
+Sep 23 19:09:31 Jarvice python[2321]: [2025-09-23 19:09:31 +0300] [2321] [INFO] Using worker: gthread
+Sep 23 19:09:31 Jarvice python[2322]: [2025-09-23 19:09:31 +0300] [2322] [INFO] Booting worker with pid: 2322
+Sep 23 19:09:31 Jarvice python[2322]: [2025-09-23 19:09:31 +0300] [2322] [ERROR] Exception in worker process
+Sep 23 19:09:31 Jarvice python[2322]: Traceback (most recent call last):
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:31 Jarvice python[2322]:     worker.init_process()
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:31 Jarvice python[2322]:     super().init_process()
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:31 Jarvice python[2322]:     self.load_wsgi()
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:31 Jarvice python[2322]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:31 Jarvice python[2322]:     self.callable = self.load()
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:31 Jarvice python[2322]:     return self.load_wsgiapp()
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:31 Jarvice python[2322]:     return util.import_app(self.app_uri)
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:31 Jarvice python[2322]:     mod = importlib.import_module(module)
+Sep 23 19:09:31 Jarvice python[2322]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:31 Jarvice python[2322]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:31 Jarvice python[2322]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:31 Jarvice python[2322]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:31 Jarvice python[2322]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:31 Jarvice python[2322]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:31 Jarvice python[2322]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:31 Jarvice python[2322]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:31 Jarvice python[2322]:     from app import create_app
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:31 Jarvice python[2322]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:31 Jarvice python[2322]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:31 Jarvice python[2322]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:31 Jarvice python[2322]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:31 Jarvice python[2322]: [2025-09-23 19:09:31 +0300] [2322] [INFO] Worker exiting (pid: 2322)
+Sep 23 19:09:31 Jarvice python[2323]: [2025-09-23 19:09:31 +0300] [2323] [INFO] Booting worker with pid: 2323
+Sep 23 19:09:31 Jarvice python[2321]: [2025-09-23 19:09:31 +0300] [2321] [ERROR] Worker (pid:2322) exited with code 3
+Sep 23 19:09:31 Jarvice python[2323]: [2025-09-23 19:09:31 +0300] [2323] [ERROR] Exception in worker process
+Sep 23 19:09:31 Jarvice python[2323]: Traceback (most recent call last):
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:31 Jarvice python[2323]:     worker.init_process()
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:31 Jarvice python[2323]:     super().init_process()
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:31 Jarvice python[2323]:     self.load_wsgi()
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:31 Jarvice python[2323]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:31 Jarvice python[2323]:     self.callable = self.load()
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:31 Jarvice python[2323]:     return self.load_wsgiapp()
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:31 Jarvice python[2323]:     return util.import_app(self.app_uri)
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:31 Jarvice python[2323]:     mod = importlib.import_module(module)
+Sep 23 19:09:31 Jarvice python[2323]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:31 Jarvice python[2323]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:31 Jarvice python[2323]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:31 Jarvice python[2323]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:31 Jarvice python[2323]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:31 Jarvice python[2323]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:31 Jarvice python[2323]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:31 Jarvice python[2323]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:31 Jarvice python[2323]:     from app import create_app
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:31 Jarvice python[2323]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:31 Jarvice python[2323]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:31 Jarvice python[2323]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:31 Jarvice python[2323]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:31 Jarvice python[2323]: [2025-09-23 19:09:31 +0300] [2323] [INFO] Worker exiting (pid: 2323)
+Sep 23 19:09:31 Jarvice python[2321]: [2025-09-23 19:09:31 +0300] [2321] [ERROR] Worker (pid:2323) exited with code 3
+Sep 23 19:09:31 Jarvice python[2321]: Traceback (most recent call last):
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 202, in run
+Sep 23 19:09:31 Jarvice python[2321]:     self.manage_workers()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 571, in manage_workers
+Sep 23 19:09:31 Jarvice python[2321]:     self.spawn_workers()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 643, in spawn_workers
+Sep 23 19:09:31 Jarvice python[2321]:     time.sleep(0.1 * random.random())
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:31 Jarvice python[2321]:     self.reap_workers()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:31 Jarvice python[2321]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:31 Jarvice python[2321]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:31 Jarvice python[2321]: During handling of the above exception, another exception occurred:
+Sep 23 19:09:31 Jarvice python[2321]: Traceback (most recent call last):
+Sep 23 19:09:31 Jarvice python[2321]:   File "/usr/lib64/python3.9/runpy.py", line 197, in _run_module_as_main
+Sep 23 19:09:31 Jarvice python[2321]:     return _run_code(code, main_globals, None,
+Sep 23 19:09:31 Jarvice python[2321]:   File "/usr/lib64/python3.9/runpy.py", line 87, in _run_code
+Sep 23 19:09:31 Jarvice python[2321]:     exec(code, run_globals)
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/__main__.py", line 7, in <module>
+Sep 23 19:09:31 Jarvice python[2321]:     run()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+Sep 23 19:09:31 Jarvice python[2321]:     WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 236, in run
+Sep 23 19:09:31 Jarvice python[2321]:     super().run()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 72, in run
+Sep 23 19:09:31 Jarvice python[2321]:     Arbiter(self).run()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 229, in run
+Sep 23 19:09:31 Jarvice python[2321]:     self.halt(reason=inst.reason, exit_status=inst.exit_status)
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 342, in halt
+Sep 23 19:09:31 Jarvice python[2321]:     self.stop()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 396, in stop
+Sep 23 19:09:31 Jarvice python[2321]:     time.sleep(0.1)
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:31 Jarvice python[2321]:     self.reap_workers()
+Sep 23 19:09:31 Jarvice python[2321]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:31 Jarvice python[2321]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:31 Jarvice python[2321]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:31 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=1/FAILURE[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 1.[0m
+Sep 23 19:09:31 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:09:36 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4628.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:09:36 Jarvice systemd[1]: Stopped CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173911 and the job result is done.[0m
+Sep 23 19:09:36 Jarvice systemd[1]: Starting CrystalBudget Flask Application...
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has begun execution[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has begun execution.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173911.[0m
+Sep 23 19:09:36 Jarvice systemd[1]: Started CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173911.[0m
+Sep 23 19:09:37 Jarvice python[2343]: [2025-09-23 19:09:37 +0300] [2343] [INFO] Starting gunicorn 21.2.0
+Sep 23 19:09:37 Jarvice python[2343]: [2025-09-23 19:09:37 +0300] [2343] [INFO] Listening at: http://127.0.0.1:5000 (2343)
+Sep 23 19:09:37 Jarvice python[2343]: [2025-09-23 19:09:37 +0300] [2343] [INFO] Using worker: gthread
+Sep 23 19:09:37 Jarvice python[2344]: [2025-09-23 19:09:37 +0300] [2344] [INFO] Booting worker with pid: 2344
+Sep 23 19:09:37 Jarvice python[2344]: [2025-09-23 19:09:37 +0300] [2344] [ERROR] Exception in worker process
+Sep 23 19:09:37 Jarvice python[2344]: Traceback (most recent call last):
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:37 Jarvice python[2344]:     worker.init_process()
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:37 Jarvice python[2344]:     super().init_process()
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:37 Jarvice python[2344]:     self.load_wsgi()
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:37 Jarvice python[2344]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:37 Jarvice python[2344]:     self.callable = self.load()
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:37 Jarvice python[2344]:     return self.load_wsgiapp()
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:37 Jarvice python[2344]:     return util.import_app(self.app_uri)
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:37 Jarvice python[2344]:     mod = importlib.import_module(module)
+Sep 23 19:09:37 Jarvice python[2344]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:37 Jarvice python[2344]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:37 Jarvice python[2344]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:37 Jarvice python[2344]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:37 Jarvice python[2344]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:37 Jarvice python[2344]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:37 Jarvice python[2344]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:37 Jarvice python[2344]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:37 Jarvice python[2344]:     from app import create_app
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:37 Jarvice python[2344]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:37 Jarvice python[2344]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:37 Jarvice python[2344]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:37 Jarvice python[2344]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:37 Jarvice python[2344]: [2025-09-23 19:09:37 +0300] [2344] [INFO] Worker exiting (pid: 2344)
+Sep 23 19:09:37 Jarvice python[2343]: [2025-09-23 19:09:37 +0300] [2343] [ERROR] Worker (pid:2344) exited with code 3
+Sep 23 19:09:37 Jarvice python[2343]: [2025-09-23 19:09:37 +0300] [2343] [ERROR] Shutting down: Master
+Sep 23 19:09:37 Jarvice python[2343]: [2025-09-23 19:09:37 +0300] [2343] [ERROR] Reason: Worker failed to boot.
+Sep 23 19:09:37 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=3/NOTIMPLEMENTED[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 3.[0m
+Sep 23 19:09:37 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:09:42 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4629.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:09:42 Jarvice systemd[1]: Stopped CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173948 and the job result is done.[0m
+Sep 23 19:09:42 Jarvice systemd[1]: Starting CrystalBudget Flask Application...
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has begun execution[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has begun execution.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173948.[0m
+Sep 23 19:09:42 Jarvice systemd[1]: Started CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173948.[0m
+Sep 23 19:09:42 Jarvice python[2376]: [2025-09-23 19:09:42 +0300] [2376] [INFO] Starting gunicorn 21.2.0
+Sep 23 19:09:42 Jarvice python[2376]: [2025-09-23 19:09:42 +0300] [2376] [INFO] Listening at: http://127.0.0.1:5000 (2376)
+Sep 23 19:09:42 Jarvice python[2376]: [2025-09-23 19:09:42 +0300] [2376] [INFO] Using worker: gthread
+Sep 23 19:09:42 Jarvice python[2377]: [2025-09-23 19:09:42 +0300] [2377] [INFO] Booting worker with pid: 2377
+Sep 23 19:09:42 Jarvice python[2377]: [2025-09-23 19:09:42 +0300] [2377] [ERROR] Exception in worker process
+Sep 23 19:09:42 Jarvice python[2377]: Traceback (most recent call last):
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:42 Jarvice python[2377]:     worker.init_process()
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:42 Jarvice python[2377]:     super().init_process()
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:42 Jarvice python[2377]:     self.load_wsgi()
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:42 Jarvice python[2377]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:42 Jarvice python[2377]:     self.callable = self.load()
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:42 Jarvice python[2377]:     return self.load_wsgiapp()
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:42 Jarvice python[2377]:     return util.import_app(self.app_uri)
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:42 Jarvice python[2377]:     mod = importlib.import_module(module)
+Sep 23 19:09:42 Jarvice python[2377]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:42 Jarvice python[2377]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:42 Jarvice python[2377]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:42 Jarvice python[2377]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:42 Jarvice python[2377]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:42 Jarvice python[2377]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:42 Jarvice python[2377]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:42 Jarvice python[2377]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:42 Jarvice python[2377]:     from app import create_app
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:42 Jarvice python[2377]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:42 Jarvice python[2377]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:42 Jarvice python[2377]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:42 Jarvice python[2377]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:42 Jarvice python[2377]: [2025-09-23 19:09:42 +0300] [2377] [INFO] Worker exiting (pid: 2377)
+Sep 23 19:09:42 Jarvice python[2376]: [2025-09-23 19:09:42 +0300] [2376] [ERROR] Worker (pid:2377) exited with code 3
+Sep 23 19:09:42 Jarvice python[2376]: [2025-09-23 19:09:42 +0300] [2376] [ERROR] Shutting down: Master
+Sep 23 19:09:42 Jarvice python[2376]: [2025-09-23 19:09:42 +0300] [2376] [ERROR] Reason: Worker failed to boot.
+Sep 23 19:09:42 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=3/NOTIMPLEMENTED[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 3.[0m
+Sep 23 19:09:42 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:09:47 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4630.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:09:47 Jarvice systemd[1]: Stopped CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173985 and the job result is done.[0m
+Sep 23 19:09:47 Jarvice systemd[1]: Starting CrystalBudget Flask Application...
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has begun execution[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has begun execution.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173985.[0m
+Sep 23 19:09:47 Jarvice systemd[1]: Started CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 173985.[0m
+Sep 23 19:09:47 Jarvice python[2443]: [2025-09-23 19:09:47 +0300] [2443] [INFO] Starting gunicorn 21.2.0
+Sep 23 19:09:47 Jarvice python[2443]: [2025-09-23 19:09:47 +0300] [2443] [INFO] Listening at: http://127.0.0.1:5000 (2443)
+Sep 23 19:09:47 Jarvice python[2443]: [2025-09-23 19:09:47 +0300] [2443] [INFO] Using worker: gthread
+Sep 23 19:09:47 Jarvice python[2444]: [2025-09-23 19:09:47 +0300] [2444] [INFO] Booting worker with pid: 2444
+Sep 23 19:09:47 Jarvice python[2445]: [2025-09-23 19:09:47 +0300] [2445] [INFO] Booting worker with pid: 2445
+Sep 23 19:09:47 Jarvice python[2446]: [2025-09-23 19:09:47 +0300] [2446] [INFO] Booting worker with pid: 2446
+Sep 23 19:09:47 Jarvice python[2444]: [2025-09-23 19:09:47 +0300] [2444] [ERROR] Exception in worker process
+Sep 23 19:09:47 Jarvice python[2444]: Traceback (most recent call last):
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:47 Jarvice python[2444]:     worker.init_process()
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:47 Jarvice python[2444]:     super().init_process()
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:47 Jarvice python[2444]:     self.load_wsgi()
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:47 Jarvice python[2444]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:47 Jarvice python[2444]:     self.callable = self.load()
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:47 Jarvice python[2444]:     return self.load_wsgiapp()
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:47 Jarvice python[2444]:     return util.import_app(self.app_uri)
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:47 Jarvice python[2444]:     mod = importlib.import_module(module)
+Sep 23 19:09:47 Jarvice python[2444]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:47 Jarvice python[2444]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:47 Jarvice python[2444]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:47 Jarvice python[2444]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:47 Jarvice python[2444]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:47 Jarvice python[2444]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:47 Jarvice python[2444]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:47 Jarvice python[2444]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2444]:     from app import create_app
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2444]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:47 Jarvice python[2444]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2444]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:47 Jarvice python[2444]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:47 Jarvice python[2444]: [2025-09-23 19:09:47 +0300] [2444] [INFO] Worker exiting (pid: 2444)
+Sep 23 19:09:47 Jarvice python[2445]: [2025-09-23 19:09:47 +0300] [2445] [ERROR] Exception in worker process
+Sep 23 19:09:47 Jarvice python[2445]: Traceback (most recent call last):
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:47 Jarvice python[2445]:     worker.init_process()
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:47 Jarvice python[2445]:     super().init_process()
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:47 Jarvice python[2445]:     self.load_wsgi()
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:47 Jarvice python[2445]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:47 Jarvice python[2445]:     self.callable = self.load()
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:47 Jarvice python[2445]:     return self.load_wsgiapp()
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:47 Jarvice python[2445]:     return util.import_app(self.app_uri)
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:47 Jarvice python[2445]:     mod = importlib.import_module(module)
+Sep 23 19:09:47 Jarvice python[2445]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:47 Jarvice python[2445]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:47 Jarvice python[2445]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:47 Jarvice python[2445]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:47 Jarvice python[2445]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:47 Jarvice python[2445]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:47 Jarvice python[2445]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:47 Jarvice python[2445]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2445]:     from app import create_app
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2445]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:47 Jarvice python[2445]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2445]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:47 Jarvice python[2445]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:47 Jarvice python[2445]: [2025-09-23 19:09:47 +0300] [2445] [INFO] Worker exiting (pid: 2445)
+Sep 23 19:09:47 Jarvice python[2443]: [2025-09-23 19:09:47 +0300] [2443] [ERROR] Worker (pid:2444) exited with code 3
+Sep 23 19:09:47 Jarvice python[2446]: [2025-09-23 19:09:47 +0300] [2446] [ERROR] Exception in worker process
+Sep 23 19:09:47 Jarvice python[2446]: Traceback (most recent call last):
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:47 Jarvice python[2446]:     worker.init_process()
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:47 Jarvice python[2446]:     super().init_process()
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:47 Jarvice python[2446]:     self.load_wsgi()
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:47 Jarvice python[2446]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:47 Jarvice python[2446]:     self.callable = self.load()
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:47 Jarvice python[2446]:     return self.load_wsgiapp()
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:47 Jarvice python[2446]:     return util.import_app(self.app_uri)
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:47 Jarvice python[2446]:     mod = importlib.import_module(module)
+Sep 23 19:09:47 Jarvice python[2446]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:47 Jarvice python[2446]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:47 Jarvice python[2446]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:47 Jarvice python[2446]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:47 Jarvice python[2446]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:47 Jarvice python[2446]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:47 Jarvice python[2446]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:47 Jarvice python[2446]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2446]:     from app import create_app
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2446]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:47 Jarvice python[2446]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:47 Jarvice python[2446]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:47 Jarvice python[2446]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:47 Jarvice python[2446]: [2025-09-23 19:09:47 +0300] [2446] [INFO] Worker exiting (pid: 2446)
+Sep 23 19:09:47 Jarvice python[2443]: [2025-09-23 19:09:47 +0300] [2443] [ERROR] Worker (pid:2445) was sent SIGTERM!
+Sep 23 19:09:47 Jarvice python[2443]: [2025-09-23 19:09:47 +0300] [2443] [ERROR] Worker (pid:2446) exited with code 3
+Sep 23 19:09:47 Jarvice python[2443]: Traceback (most recent call last):
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 202, in run
+Sep 23 19:09:47 Jarvice python[2443]:     self.manage_workers()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 571, in manage_workers
+Sep 23 19:09:47 Jarvice python[2443]:     self.spawn_workers()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 643, in spawn_workers
+Sep 23 19:09:47 Jarvice python[2443]:     time.sleep(0.1 * random.random())
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:47 Jarvice python[2443]:     self.reap_workers()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:47 Jarvice python[2443]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:47 Jarvice python[2443]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:47 Jarvice python[2443]: During handling of the above exception, another exception occurred:
+Sep 23 19:09:47 Jarvice python[2443]: Traceback (most recent call last):
+Sep 23 19:09:47 Jarvice python[2443]:   File "/usr/lib64/python3.9/runpy.py", line 197, in _run_module_as_main
+Sep 23 19:09:47 Jarvice python[2443]:     return _run_code(code, main_globals, None,
+Sep 23 19:09:47 Jarvice python[2443]:   File "/usr/lib64/python3.9/runpy.py", line 87, in _run_code
+Sep 23 19:09:47 Jarvice python[2443]:     exec(code, run_globals)
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/__main__.py", line 7, in <module>
+Sep 23 19:09:47 Jarvice python[2443]:     run()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+Sep 23 19:09:47 Jarvice python[2443]:     WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 236, in run
+Sep 23 19:09:47 Jarvice python[2443]:     super().run()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 72, in run
+Sep 23 19:09:47 Jarvice python[2443]:     Arbiter(self).run()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 229, in run
+Sep 23 19:09:47 Jarvice python[2443]:     self.halt(reason=inst.reason, exit_status=inst.exit_status)
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 342, in halt
+Sep 23 19:09:47 Jarvice python[2443]:     self.stop()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 396, in stop
+Sep 23 19:09:47 Jarvice python[2443]:     time.sleep(0.1)
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:47 Jarvice python[2443]:     self.reap_workers()
+Sep 23 19:09:47 Jarvice python[2443]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:47 Jarvice python[2443]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:47 Jarvice python[2443]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:47 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=1/FAILURE[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 1.[0m
+Sep 23 19:09:47 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:09:52 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4631.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:09:52 Jarvice systemd[1]: Stopped CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174022 and the job result is done.[0m
+Sep 23 19:09:52 Jarvice systemd[1]: Starting CrystalBudget Flask Application...
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has begun execution[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has begun execution.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174022.[0m
+Sep 23 19:09:52 Jarvice systemd[1]: Started CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174022.[0m
+Sep 23 19:09:52 Jarvice python[2498]: [2025-09-23 19:09:52 +0300] [2498] [INFO] Starting gunicorn 21.2.0
+Sep 23 19:09:52 Jarvice python[2498]: [2025-09-23 19:09:52 +0300] [2498] [INFO] Listening at: http://127.0.0.1:5000 (2498)
+Sep 23 19:09:52 Jarvice python[2498]: [2025-09-23 19:09:52 +0300] [2498] [INFO] Using worker: gthread
+Sep 23 19:09:52 Jarvice python[2499]: [2025-09-23 19:09:52 +0300] [2499] [INFO] Booting worker with pid: 2499
+Sep 23 19:09:52 Jarvice python[2500]: [2025-09-23 19:09:52 +0300] [2500] [INFO] Booting worker with pid: 2500
+Sep 23 19:09:52 Jarvice python[2499]: [2025-09-23 19:09:52 +0300] [2499] [ERROR] Exception in worker process
+Sep 23 19:09:52 Jarvice python[2499]: Traceback (most recent call last):
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:52 Jarvice python[2499]:     worker.init_process()
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:52 Jarvice python[2499]:     super().init_process()
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:52 Jarvice python[2499]:     self.load_wsgi()
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:52 Jarvice python[2499]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:52 Jarvice python[2499]:     self.callable = self.load()
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:52 Jarvice python[2499]:     return self.load_wsgiapp()
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:52 Jarvice python[2499]:     return util.import_app(self.app_uri)
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:52 Jarvice python[2499]:     mod = importlib.import_module(module)
+Sep 23 19:09:52 Jarvice python[2499]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:52 Jarvice python[2499]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:52 Jarvice python[2499]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:52 Jarvice python[2499]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:52 Jarvice python[2499]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:52 Jarvice python[2499]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:52 Jarvice python[2499]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:52 Jarvice python[2499]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:52 Jarvice python[2499]:     from app import create_app
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:52 Jarvice python[2499]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:52 Jarvice python[2499]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:52 Jarvice python[2499]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:52 Jarvice python[2499]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:52 Jarvice python[2499]: [2025-09-23 19:09:52 +0300] [2499] [INFO] Worker exiting (pid: 2499)
+Sep 23 19:09:52 Jarvice python[2500]: [2025-09-23 19:09:52 +0300] [2500] [ERROR] Exception in worker process
+Sep 23 19:09:52 Jarvice python[2500]: Traceback (most recent call last):
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:52 Jarvice python[2500]:     worker.init_process()
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:52 Jarvice python[2500]:     super().init_process()
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:52 Jarvice python[2500]:     self.load_wsgi()
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:52 Jarvice python[2500]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:52 Jarvice python[2500]:     self.callable = self.load()
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:52 Jarvice python[2500]:     return self.load_wsgiapp()
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:52 Jarvice python[2500]:     return util.import_app(self.app_uri)
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:52 Jarvice python[2500]:     mod = importlib.import_module(module)
+Sep 23 19:09:52 Jarvice python[2500]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:52 Jarvice python[2500]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:52 Jarvice python[2500]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:52 Jarvice python[2500]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:52 Jarvice python[2500]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:52 Jarvice python[2500]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:52 Jarvice python[2500]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:52 Jarvice python[2500]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:52 Jarvice python[2500]:     from app import create_app
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:52 Jarvice python[2500]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:52 Jarvice python[2500]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:52 Jarvice python[2500]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:52 Jarvice python[2500]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:52 Jarvice python[2500]: [2025-09-23 19:09:52 +0300] [2500] [INFO] Worker exiting (pid: 2500)
+Sep 23 19:09:52 Jarvice python[2498]: [2025-09-23 19:09:52 +0300] [2498] [ERROR] Worker (pid:2499) exited with code 3
+Sep 23 19:09:52 Jarvice python[2498]: [2025-09-23 19:09:52 +0300] [2498] [ERROR] Worker (pid:2500) exited with code 3
+Sep 23 19:09:52 Jarvice python[2498]: Traceback (most recent call last):
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 202, in run
+Sep 23 19:09:52 Jarvice python[2498]:     self.manage_workers()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 571, in manage_workers
+Sep 23 19:09:52 Jarvice python[2498]:     self.spawn_workers()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 643, in spawn_workers
+Sep 23 19:09:52 Jarvice python[2498]:     time.sleep(0.1 * random.random())
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:52 Jarvice python[2498]:     self.reap_workers()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:52 Jarvice python[2498]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:52 Jarvice python[2498]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:52 Jarvice python[2498]: During handling of the above exception, another exception occurred:
+Sep 23 19:09:52 Jarvice python[2498]: Traceback (most recent call last):
+Sep 23 19:09:52 Jarvice python[2498]:   File "/usr/lib64/python3.9/runpy.py", line 197, in _run_module_as_main
+Sep 23 19:09:52 Jarvice python[2498]:     return _run_code(code, main_globals, None,
+Sep 23 19:09:52 Jarvice python[2498]:   File "/usr/lib64/python3.9/runpy.py", line 87, in _run_code
+Sep 23 19:09:52 Jarvice python[2498]:     exec(code, run_globals)
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/__main__.py", line 7, in <module>
+Sep 23 19:09:52 Jarvice python[2498]:     run()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+Sep 23 19:09:52 Jarvice python[2498]:     WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 236, in run
+Sep 23 19:09:52 Jarvice python[2498]:     super().run()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 72, in run
+Sep 23 19:09:52 Jarvice python[2498]:     Arbiter(self).run()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 229, in run
+Sep 23 19:09:52 Jarvice python[2498]:     self.halt(reason=inst.reason, exit_status=inst.exit_status)
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 342, in halt
+Sep 23 19:09:52 Jarvice python[2498]:     self.stop()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 396, in stop
+Sep 23 19:09:52 Jarvice python[2498]:     time.sleep(0.1)
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:52 Jarvice python[2498]:     self.reap_workers()
+Sep 23 19:09:52 Jarvice python[2498]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:52 Jarvice python[2498]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:52 Jarvice python[2498]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:52 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=1/FAILURE[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 1.[0m
+Sep 23 19:09:52 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:09:53 Jarvice systemd[1]: Stopped CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174059 and the job result is done.[0m
+Sep 23 19:09:53 Jarvice systemd[1]: Starting CrystalBudget Flask Application...
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has begun execution[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has begun execution.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174059.[0m
+Sep 23 19:09:53 Jarvice systemd[1]: Started CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174059.[0m
+Sep 23 19:09:54 Jarvice python[2509]: [2025-09-23 19:09:54 +0300] [2509] [INFO] Starting gunicorn 21.2.0
+Sep 23 19:09:54 Jarvice python[2509]: [2025-09-23 19:09:54 +0300] [2509] [INFO] Listening at: http://127.0.0.1:5000 (2509)
+Sep 23 19:09:54 Jarvice python[2509]: [2025-09-23 19:09:54 +0300] [2509] [INFO] Using worker: gthread
+Sep 23 19:09:54 Jarvice python[2510]: [2025-09-23 19:09:54 +0300] [2510] [INFO] Booting worker with pid: 2510
+Sep 23 19:09:54 Jarvice python[2511]: [2025-09-23 19:09:54 +0300] [2511] [INFO] Booting worker with pid: 2511
+Sep 23 19:09:54 Jarvice python[2510]: [2025-09-23 19:09:54 +0300] [2510] [ERROR] Exception in worker process
+Sep 23 19:09:54 Jarvice python[2510]: Traceback (most recent call last):
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:54 Jarvice python[2510]:     worker.init_process()
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:54 Jarvice python[2510]:     super().init_process()
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:54 Jarvice python[2510]:     self.load_wsgi()
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:54 Jarvice python[2510]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:54 Jarvice python[2510]:     self.callable = self.load()
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:54 Jarvice python[2510]:     return self.load_wsgiapp()
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:54 Jarvice python[2510]:     return util.import_app(self.app_uri)
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:54 Jarvice python[2510]:     mod = importlib.import_module(module)
+Sep 23 19:09:54 Jarvice python[2510]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:54 Jarvice python[2510]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:54 Jarvice python[2510]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:54 Jarvice python[2510]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:54 Jarvice python[2510]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:54 Jarvice python[2510]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:54 Jarvice python[2510]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:54 Jarvice python[2510]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2510]:     from app import create_app
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2510]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:54 Jarvice python[2510]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2510]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:54 Jarvice python[2510]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:54 Jarvice python[2510]: [2025-09-23 19:09:54 +0300] [2510] [INFO] Worker exiting (pid: 2510)
+Sep 23 19:09:54 Jarvice python[2512]: [2025-09-23 19:09:54 +0300] [2512] [INFO] Booting worker with pid: 2512
+Sep 23 19:09:54 Jarvice python[2511]: [2025-09-23 19:09:54 +0300] [2511] [ERROR] Exception in worker process
+Sep 23 19:09:54 Jarvice python[2511]: Traceback (most recent call last):
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:54 Jarvice python[2511]:     worker.init_process()
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:54 Jarvice python[2511]:     super().init_process()
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:54 Jarvice python[2511]:     self.load_wsgi()
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:54 Jarvice python[2511]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:54 Jarvice python[2511]:     self.callable = self.load()
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:54 Jarvice python[2511]:     return self.load_wsgiapp()
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:54 Jarvice python[2511]:     return util.import_app(self.app_uri)
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:54 Jarvice python[2511]:     mod = importlib.import_module(module)
+Sep 23 19:09:54 Jarvice python[2511]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:54 Jarvice python[2511]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:54 Jarvice python[2511]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:54 Jarvice python[2511]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:54 Jarvice python[2511]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:54 Jarvice python[2511]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:54 Jarvice python[2511]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:54 Jarvice python[2511]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2511]:     from app import create_app
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2511]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:54 Jarvice python[2511]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2511]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:54 Jarvice python[2511]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:54 Jarvice python[2511]: [2025-09-23 19:09:54 +0300] [2511] [INFO] Worker exiting (pid: 2511)
+Sep 23 19:09:54 Jarvice python[2509]: [2025-09-23 19:09:54 +0300] [2509] [ERROR] Worker (pid:2510) exited with code 3
+Sep 23 19:09:54 Jarvice python[2509]: [2025-09-23 19:09:54 +0300] [2509] [ERROR] Worker (pid:2511) exited with code 3
+Sep 23 19:09:54 Jarvice python[2509]: Traceback (most recent call last):
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 202, in run
+Sep 23 19:09:54 Jarvice python[2509]:     self.manage_workers()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 571, in manage_workers
+Sep 23 19:09:54 Jarvice python[2509]:     self.spawn_workers()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 643, in spawn_workers
+Sep 23 19:09:54 Jarvice python[2509]:     time.sleep(0.1 * random.random())
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:54 Jarvice python[2509]:     self.reap_workers()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:54 Jarvice python[2509]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:54 Jarvice python[2509]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:54 Jarvice python[2509]: During handling of the above exception, another exception occurred:
+Sep 23 19:09:54 Jarvice python[2509]: Traceback (most recent call last):
+Sep 23 19:09:54 Jarvice python[2509]:   File "/usr/lib64/python3.9/runpy.py", line 197, in _run_module_as_main
+Sep 23 19:09:54 Jarvice python[2509]:     return _run_code(code, main_globals, None,
+Sep 23 19:09:54 Jarvice python[2509]:   File "/usr/lib64/python3.9/runpy.py", line 87, in _run_code
+Sep 23 19:09:54 Jarvice python[2509]:     exec(code, run_globals)
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/__main__.py", line 7, in <module>
+Sep 23 19:09:54 Jarvice python[2509]:     run()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+Sep 23 19:09:54 Jarvice python[2509]:     WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 236, in run
+Sep 23 19:09:54 Jarvice python[2509]:     super().run()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 72, in run
+Sep 23 19:09:54 Jarvice python[2509]:     Arbiter(self).run()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 229, in run
+Sep 23 19:09:54 Jarvice python[2509]:     self.halt(reason=inst.reason, exit_status=inst.exit_status)
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 342, in halt
+Sep 23 19:09:54 Jarvice python[2509]:     self.stop()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 396, in stop
+Sep 23 19:09:54 Jarvice python[2509]:     time.sleep(0.1)
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:54 Jarvice python[2509]:     self.reap_workers()
+Sep 23 19:09:54 Jarvice python[2509]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:54 Jarvice python[2509]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:54 Jarvice python[2509]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:54 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=1/FAILURE[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 1.[0m
+Sep 23 19:09:54 Jarvice python[2512]: [2025-09-23 19:09:54 +0300] [2512] [ERROR] Exception in worker process
+Sep 23 19:09:54 Jarvice python[2512]: Traceback (most recent call last):
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:54 Jarvice python[2512]:     worker.init_process()
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:54 Jarvice python[2512]:     super().init_process()
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:54 Jarvice python[2512]:     self.load_wsgi()
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:54 Jarvice python[2512]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:54 Jarvice python[2512]:     self.callable = self.load()
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:54 Jarvice python[2512]:     return self.load_wsgiapp()
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:54 Jarvice python[2512]:     return util.import_app(self.app_uri)
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:54 Jarvice python[2512]:     mod = importlib.import_module(module)
+Sep 23 19:09:54 Jarvice python[2512]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:54 Jarvice python[2512]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:54 Jarvice python[2512]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:54 Jarvice python[2512]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:54 Jarvice python[2512]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:54 Jarvice python[2512]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:54 Jarvice python[2512]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:54 Jarvice python[2512]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2512]:     from app import create_app
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2512]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:54 Jarvice python[2512]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:54 Jarvice python[2512]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:54 Jarvice python[2512]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:54 Jarvice python[2512]: [2025-09-23 19:09:54 +0300] [2512] [INFO] Worker exiting (pid: 2512)
+Sep 23 19:09:54 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:09:59 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4632.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:09:59 Jarvice systemd[1]: Stopped CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174096 and the job result is done.[0m
+Sep 23 19:09:59 Jarvice systemd[1]: Starting CrystalBudget Flask Application...
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has begun execution[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has begun execution.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174096.[0m
+Sep 23 19:09:59 Jarvice systemd[1]: Started CrystalBudget Flask Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174096.[0m
+Sep 23 19:09:59 Jarvice python[2551]: [2025-09-23 19:09:59 +0300] [2551] [INFO] Starting gunicorn 21.2.0
+Sep 23 19:09:59 Jarvice python[2551]: [2025-09-23 19:09:59 +0300] [2551] [INFO] Listening at: http://127.0.0.1:5000 (2551)
+Sep 23 19:09:59 Jarvice python[2551]: [2025-09-23 19:09:59 +0300] [2551] [INFO] Using worker: gthread
+Sep 23 19:09:59 Jarvice python[2552]: [2025-09-23 19:09:59 +0300] [2552] [INFO] Booting worker with pid: 2552
+Sep 23 19:09:59 Jarvice python[2552]: [2025-09-23 19:09:59 +0300] [2552] [ERROR] Exception in worker process
+Sep 23 19:09:59 Jarvice python[2552]: Traceback (most recent call last):
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:59 Jarvice python[2552]:     worker.init_process()
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:59 Jarvice python[2552]:     super().init_process()
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:59 Jarvice python[2552]:     self.load_wsgi()
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:59 Jarvice python[2552]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:59 Jarvice python[2552]:     self.callable = self.load()
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:59 Jarvice python[2552]:     return self.load_wsgiapp()
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:59 Jarvice python[2552]:     return util.import_app(self.app_uri)
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:59 Jarvice python[2552]:     mod = importlib.import_module(module)
+Sep 23 19:09:59 Jarvice python[2552]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:59 Jarvice python[2552]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:59 Jarvice python[2552]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:59 Jarvice python[2552]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:59 Jarvice python[2552]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:59 Jarvice python[2552]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:59 Jarvice python[2552]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:59 Jarvice python[2552]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2552]:     from app import create_app
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2552]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:59 Jarvice python[2552]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2552]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:59 Jarvice python[2552]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:59 Jarvice python[2552]: [2025-09-23 19:09:59 +0300] [2552] [INFO] Worker exiting (pid: 2552)
+Sep 23 19:09:59 Jarvice python[2551]: [2025-09-23 19:09:59 +0300] [2551] [ERROR] Worker (pid:2552) exited with code 3
+Sep 23 19:09:59 Jarvice python[2551]: Exception ignored in: <function _releaseLock at 0x7715cb75e670>
+Sep 23 19:09:59 Jarvice python[2551]: Traceback (most recent call last):
+Sep 23 19:09:59 Jarvice python[2551]:   File "/usr/lib64/python3.9/logging/__init__.py", line 232, in _releaseLock
+Sep 23 19:09:59 Jarvice python[2551]:     _lock.release()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:59 Jarvice python[2551]:     self.reap_workers()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:59 Jarvice python[2565]: [2025-09-23 19:09:59 +0300] [2565] [INFO] Booting worker with pid: 2565
+Sep 23 19:09:59 Jarvice python[2551]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:59 Jarvice python[2551]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:59 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Current command vanished from the unit file, execution of the command list won't be resumed.[0m
+Sep 23 19:09:59 Jarvice python[2565]: [2025-09-23 19:09:59 +0300] [2565] [ERROR] Exception in worker process
+Sep 23 19:09:59 Jarvice python[2565]: Traceback (most recent call last):
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:59 Jarvice python[2565]:     worker.init_process()
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:59 Jarvice python[2565]:     super().init_process()
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:59 Jarvice python[2565]:     self.load_wsgi()
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:59 Jarvice python[2565]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:59 Jarvice python[2565]:     self.callable = self.load()
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:59 Jarvice python[2565]:     return self.load_wsgiapp()
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:59 Jarvice python[2565]:     return util.import_app(self.app_uri)
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:59 Jarvice python[2565]:     mod = importlib.import_module(module)
+Sep 23 19:09:59 Jarvice python[2565]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:59 Jarvice python[2565]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:59 Jarvice python[2565]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:59 Jarvice python[2565]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:59 Jarvice python[2565]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:59 Jarvice python[2565]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:59 Jarvice python[2565]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:59 Jarvice python[2565]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2565]:     from app import create_app
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2565]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:59 Jarvice python[2565]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2565]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:59 Jarvice python[2565]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:59 Jarvice python[2565]: [2025-09-23 19:09:59 +0300] [2565] [INFO] Worker exiting (pid: 2565)
+Sep 23 19:09:59 Jarvice python[2566]: [2025-09-23 19:09:59 +0300] [2566] [INFO] Booting worker with pid: 2566
+Sep 23 19:09:59 Jarvice python[2551]: [2025-09-23 19:09:59 +0300] [2551] [ERROR] Worker (pid:2565) exited with code 3
+Sep 23 19:09:59 Jarvice python[2566]: [2025-09-23 19:09:59 +0300] [2566] [ERROR] Exception in worker process
+Sep 23 19:09:59 Jarvice python[2566]: Traceback (most recent call last):
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 609, in spawn_worker
+Sep 23 19:09:59 Jarvice python[2566]:     worker.init_process()
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/gthread.py", line 95, in init_process
+Sep 23 19:09:59 Jarvice python[2566]:     super().init_process()
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 134, in init_process
+Sep 23 19:09:59 Jarvice python[2566]:     self.load_wsgi()
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/workers/base.py", line 146, in load_wsgi
+Sep 23 19:09:59 Jarvice python[2566]:     self.wsgi = self.app.wsgi()
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 67, in wsgi
+Sep 23 19:09:59 Jarvice python[2566]:     self.callable = self.load()
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+Sep 23 19:09:59 Jarvice python[2566]:     return self.load_wsgiapp()
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+Sep 23 19:09:59 Jarvice python[2566]:     return util.import_app(self.app_uri)
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/util.py", line 371, in import_app
+Sep 23 19:09:59 Jarvice python[2566]:     mod = importlib.import_module(module)
+Sep 23 19:09:59 Jarvice python[2566]:   File "/usr/lib64/python3.9/importlib/__init__.py", line 127, in import_module
+Sep 23 19:09:59 Jarvice python[2566]:     return _bootstrap._gcd_import(name[level:], package, level)
+Sep 23 19:09:59 Jarvice python[2566]:   File "<frozen importlib._bootstrap>", line 1030, in _gcd_import
+Sep 23 19:09:59 Jarvice python[2566]:   File "<frozen importlib._bootstrap>", line 1007, in _find_and_load
+Sep 23 19:09:59 Jarvice python[2566]:   File "<frozen importlib._bootstrap>", line 986, in _find_and_load_unlocked
+Sep 23 19:09:59 Jarvice python[2566]:   File "<frozen importlib._bootstrap>", line 680, in _load_unlocked
+Sep 23 19:09:59 Jarvice python[2566]:   File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+Sep 23 19:09:59 Jarvice python[2566]:   File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/new_app.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2566]:     from app import create_app
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/app/__init__.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2566]:     from app.core.extensions import db, migrate, login_manager, csrf, cache
+Sep 23 19:09:59 Jarvice python[2566]:   File "/opt/crystall-budget/app/core/extensions.py", line 2, in <module>
+Sep 23 19:09:59 Jarvice python[2566]:     from flask_sqlalchemy import SQLAlchemy
+Sep 23 19:09:59 Jarvice python[2566]: ModuleNotFoundError: No module named 'flask_sqlalchemy'
+Sep 23 19:09:59 Jarvice python[2566]: [2025-09-23 19:09:59 +0300] [2566] [INFO] Worker exiting (pid: 2566)
+Sep 23 19:09:59 Jarvice python[2551]: [2025-09-23 19:09:59 +0300] [2551] [ERROR] Worker (pid:2566) exited with code 3
+Sep 23 19:09:59 Jarvice python[2551]: Traceback (most recent call last):
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 202, in run
+Sep 23 19:09:59 Jarvice python[2551]:     self.manage_workers()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 571, in manage_workers
+Sep 23 19:09:59 Jarvice python[2551]:     self.spawn_workers()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 643, in spawn_workers
+Sep 23 19:09:59 Jarvice python[2551]:     time.sleep(0.1 * random.random())
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:59 Jarvice python[2551]:     self.reap_workers()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:59 Jarvice python[2551]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:59 Jarvice python[2551]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:59 Jarvice python[2551]: During handling of the above exception, another exception occurred:
+Sep 23 19:09:59 Jarvice python[2551]: Traceback (most recent call last):
+Sep 23 19:09:59 Jarvice python[2551]:   File "/usr/lib64/python3.9/runpy.py", line 197, in _run_module_as_main
+Sep 23 19:09:59 Jarvice python[2551]:     return _run_code(code, main_globals, None,
+Sep 23 19:09:59 Jarvice python[2551]:   File "/usr/lib64/python3.9/runpy.py", line 87, in _run_code
+Sep 23 19:09:59 Jarvice python[2551]:     exec(code, run_globals)
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/__main__.py", line 7, in <module>
+Sep 23 19:09:59 Jarvice python[2551]:     run()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+Sep 23 19:09:59 Jarvice python[2551]:     WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 236, in run
+Sep 23 19:09:59 Jarvice python[2551]:     super().run()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/app/base.py", line 72, in run
+Sep 23 19:09:59 Jarvice python[2551]:     Arbiter(self).run()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 229, in run
+Sep 23 19:09:59 Jarvice python[2551]:     self.halt(reason=inst.reason, exit_status=inst.exit_status)
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 342, in halt
+Sep 23 19:09:59 Jarvice python[2551]:     self.stop()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 396, in stop
+Sep 23 19:09:59 Jarvice python[2551]:     time.sleep(0.1)
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 242, in handle_chld
+Sep 23 19:09:59 Jarvice python[2551]:     self.reap_workers()
+Sep 23 19:09:59 Jarvice python[2551]:   File "/opt/crystall-budget/.venv/lib64/python3.9/site-packages/gunicorn/arbiter.py", line 530, in reap_workers
+Sep 23 19:09:59 Jarvice python[2551]:     raise HaltServer(reason, self.WORKER_BOOT_ERROR)
+Sep 23 19:09:59 Jarvice python[2551]: gunicorn.errors.HaltServer: <HaltServer 'Worker failed to boot.' 3>
+Sep 23 19:09:59 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=1/FAILURE[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 1.[0m
+Sep 23 19:09:59 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:10:00 Jarvice systemd[1]: Stopped CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174133 and the job result is done.[0m
+Sep 23 19:10:00 Jarvice systemd[1]: Started CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174133.[0m
+Sep 23 19:10:00 Jarvice systemd[2571]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed to execute /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+Sep 23 19:10:00 Jarvice systemd[2571]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed at step EXEC spawning /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Process /opt/crystall-budget/.venv/bin/gunicorn could not be executed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process /opt/crystall-budget/.venv/bin/gunicorn could not be executed and failed.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe error number returned by this process is ERRNO.[0m
+Sep 23 19:10:00 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=203/EXEC[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 203.[0m
+Sep 23 19:10:00 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:10:10 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4633.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:10:10 Jarvice systemd[1]: Stopped CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174171 and the job result is done.[0m
+Sep 23 19:10:10 Jarvice systemd[1]: Started CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174171.[0m
+Sep 23 19:10:10 Jarvice systemd[2655]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed to execute /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+Sep 23 19:10:10 Jarvice systemd[2655]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed at step EXEC spawning /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Process /opt/crystall-budget/.venv/bin/gunicorn could not be executed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process /opt/crystall-budget/.venv/bin/gunicorn could not be executed and failed.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe error number returned by this process is ERRNO.[0m
+Sep 23 19:10:10 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=203/EXEC[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 203.[0m
+Sep 23 19:10:10 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:10:20 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4634.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:10:20 Jarvice systemd[1]: Stopped CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174209 and the job result is done.[0m
+Sep 23 19:10:20 Jarvice systemd[1]: Started CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174209.[0m
+Sep 23 19:10:20 Jarvice systemd[2740]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed to execute /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+Sep 23 19:10:20 Jarvice systemd[2740]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed at step EXEC spawning /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Process /opt/crystall-budget/.venv/bin/gunicorn could not be executed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process /opt/crystall-budget/.venv/bin/gunicorn could not be executed and failed.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe error number returned by this process is ERRNO.[0m
+Sep 23 19:10:20 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=203/EXEC[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 203.[0m
+Sep 23 19:10:20 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:10:31 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4635.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:10:31 Jarvice systemd[1]: Stopped CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174247 and the job result is done.[0m
+Sep 23 19:10:31 Jarvice systemd[1]: Started CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174247.[0m
+Sep 23 19:10:31 Jarvice systemd[2831]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed to execute /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+Sep 23 19:10:31 Jarvice systemd[2831]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed at step EXEC spawning /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Process /opt/crystall-budget/.venv/bin/gunicorn could not be executed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process /opt/crystall-budget/.venv/bin/gunicorn could not be executed and failed.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe error number returned by this process is ERRNO.[0m
+Sep 23 19:10:31 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=203/EXEC[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 203.[0m
+Sep 23 19:10:31 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:10:41 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4636.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:10:41 Jarvice systemd[1]: Stopped CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174285 and the job result is done.[0m
+Sep 23 19:10:41 Jarvice systemd[1]: Started CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174285.[0m
+Sep 23 19:10:41 Jarvice systemd[2885]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed to execute /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+Sep 23 19:10:41 Jarvice systemd[2885]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed at step EXEC spawning /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Process /opt/crystall-budget/.venv/bin/gunicorn could not be executed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process /opt/crystall-budget/.venv/bin/gunicorn could not be executed and failed.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe error number returned by this process is ERRNO.[0m
+Sep 23 19:10:41 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=203/EXEC[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 203.[0m
+Sep 23 19:10:41 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:10:51 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4637.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:10:51 Jarvice systemd[1]: Stopped CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174323 and the job result is done.[0m
+Sep 23 19:10:51 Jarvice systemd[1]: Started CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174323.[0m
+Sep 23 19:10:51 Jarvice systemd[2968]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed to execute /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+Sep 23 19:10:51 Jarvice systemd[2968]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed at step EXEC spawning /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Process /opt/crystall-budget/.venv/bin/gunicorn could not be executed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process /opt/crystall-budget/.venv/bin/gunicorn could not be executed and failed.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe error number returned by this process is ERRNO.[0m
+Sep 23 19:10:51 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=203/EXEC[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 203.[0m
+Sep 23 19:10:51 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m
+Sep 23 19:11:01 Jarvice systemd[1]: crystalbudget.service: Scheduled restart job, restart counter is at 4638.
+[0;38;5;245m░░ [0m[0;32mSubject: Automatic restarting of a unit has been scheduled[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAutomatic restarting of the unit crystalbudget.service has been scheduled, as the result for[0m
+[0;38;5;245m░░[0m [0;32mthe configured Restart= setting for the unit.[0m
+Sep 23 19:11:01 Jarvice systemd[1]: Stopped CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A stop job for unit crystalbudget.service has finished[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA stop job for unit crystalbudget.service has finished.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174361 and the job result is done.[0m
+Sep 23 19:11:01 Jarvice systemd[1]: Started CrystalBudget Personal Finance Application.
+[0;38;5;245m░░ [0m[0;32mSubject: A start job for unit crystalbudget.service has finished successfully[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mA start job for unit crystalbudget.service has finished successfully.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe job identifier is 174361.[0m
+Sep 23 19:11:01 Jarvice systemd[3055]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed to execute /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+Sep 23 19:11:01 Jarvice systemd[3055]: [0;1;31m[0;1;39m[0;1;31mcrystalbudget.service: Failed at step EXEC spawning /opt/crystall-budget/.venv/bin/gunicorn: No such file or directory[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Process /opt/crystall-budget/.venv/bin/gunicorn could not be executed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process /opt/crystall-budget/.venv/bin/gunicorn could not be executed and failed.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe error number returned by this process is ERRNO.[0m
+Sep 23 19:11:01 Jarvice systemd[1]: [0;1;39m[0;1;31m[0;1;39mcrystalbudget.service: Main process exited, code=exited, status=203/EXEC[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit process exited[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mAn ExecStart= process belonging to unit crystalbudget.service has exited.[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe process' exit code is 'exited' and its exit status is 203.[0m
+Sep 23 19:11:01 Jarvice systemd[1]: [0;1;38;5;185m[0;1;39m[0;1;38;5;185mcrystalbudget.service: Failed with result 'exit-code'.[0m
+[0;38;5;245m░░ [0m[0;32mSubject: Unit failed[0m
+[0;38;5;245m░░[0m [0;32mDefined-By: systemd[0m
+[0;38;5;245m░░[0m [0;32mSupport: https://wiki.almalinux.org/Help-and-Support[0m
+[0;38;5;245m░░[0m [0;32m[0m
+[0;38;5;245m░░[0m [0;32mThe unit crystalbudget.service has entered the 'failed' state with result 'exit-code'.[0m

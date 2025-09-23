@@ -29,6 +29,7 @@ from flask import (
     Flask, render_template, render_template_string, request, redirect,
     url_for, flash, session, abort
 )
+from flask_wtf.csrf import CSRFProtect
 from jinja2 import DictLoader, ChoiceLoader
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -36,6 +37,29 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # App config
 # -----------------------------------------------------------------------------
 app = Flask(__name__)
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
+
+# CSRF error handler
+@app.errorhandler(400)
+def csrf_error(e):
+    app.logger.error(f"CSRF error: {e} from {request.remote_addr}")
+    app.logger.error(f"Request data: {request.form}")
+    app.logger.error(f"Request headers: {dict(request.headers)}")
+    return render_template_string("""
+    <div style="text-align: center; padding: 2rem; font-family: Arial, sans-serif;">
+        <h2>🔒 CSRF Error</h2>
+        <p>CSRF token validation failed. Please try again.</p>
+        <a href="{{ url_for('dashboard') }}" style="color: #0d6efd;">← Return to Dashboard</a>
+    </div>
+    """), 400
+
+# Add CSRF token to template context
+@app.context_processor
+def inject_csrf_token():
+    from flask_wtf.csrf import generate_csrf
+    return dict(csrf_token=generate_csrf)
 
 # Стабильный секретный ключ (вынесен в переменную окружения)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-only-insecure-key-change-in-production')
@@ -2558,6 +2582,8 @@ def categories_update(cat_id):
 @app.route("/categories/delete/<int:cat_id>", methods=["POST"])
 @login_required
 def categories_delete(cat_id):
+    app.logger.info(f"POST request to categories_delete from {request.remote_addr}")
+    app.logger.info(f"CSRF token in request: {request.form.get('csrf_token', 'NOT_PROVIDED')}")
     uid = session["user_id"]
     conn = get_db()
     conn.execute("DELETE FROM categories WHERE id=? AND user_id=?", (cat_id, uid))

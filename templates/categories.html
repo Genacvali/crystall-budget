@@ -27,15 +27,15 @@
         {% endif %}
     </div>
     <div class="period-nav">
-        <a href="{{ url_for('budget.categories', month=month_data.prev_month) }}" 
+        <a href="{{ url_for('categories', month=month_data.prev_month) }}" 
            class="period-btn" title="Предыдущий месяц">
             <i class="bi bi-chevron-left"></i>
         </a>
-        <a href="{{ url_for('budget.categories') }}" 
+        <a href="{{ url_for('categories') }}" 
            class="period-btn current" title="Текущий месяц">
             <i class="bi bi-house"></i>
         </a>
-        <a href="{{ url_for('budget.categories', month=month_data.next_month) }}" 
+        <a href="{{ url_for('categories', month=month_data.next_month) }}" 
            class="period-btn" title="Следующий месяц">
             <i class="bi bi-chevron-right"></i>
         </a>
@@ -53,7 +53,7 @@
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form method="POST" action="{{ url_for('budget.add_category') }}">
+      <form method="POST" action="{{ url_for('categories_add') }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="modal-body">
           <input type="hidden" name="category_type" value="expense">
@@ -196,7 +196,7 @@
           <button class="action-btn" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}" aria-label="Редактировать категорию">
             <i class="bi bi-pencil"></i>
           </button>
-          <form method="POST" action="{{ url_for('budget.delete_category', cat_id=cat.id) }}" class="d-inline">
+          <form method="POST" action="{{ url_for('categories_delete', cat_id=cat.id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button class="action-btn action-btn-danger" onclick="return confirm('Удалить категорию «{{ cat.name }}»?')" aria-label="Удалить категорию">
               <i class="bi bi-trash3"></i>

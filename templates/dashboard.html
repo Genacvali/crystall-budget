@@ -459,11 +459,15 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       try {
+        // Получаем CSRF токен из мета-тега
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
         const response = await fetch(`/categories/delete/${catId}`, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json',
-          }
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `csrf_token=${encodeURIComponent(csrfToken)}`
         });
         
         if (response.ok) {

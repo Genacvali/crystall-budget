@@ -7,7 +7,7 @@
       
       {# Левая часть - логотип #}
       <div class="cb-brand">
-        <a href="{{ url_for('budget.dashboard') }}" class="cb-brand-link">
+        <a href="{{ url_for('dashboard') }}" class="cb-brand-link">
           <span class="cb-brand-icon">
             <svg viewBox="0 0 24 24" width="24" height="24">
               <path d="M6 3h12l4 6-10 12L2 9l4-6z" fill="currentColor"/>
@@ -19,19 +19,19 @@
       
       {# Центральная навигация #}
       <nav class="cb-tabs" aria-label="Основная навигация">
-        <a class="cb-tab {{ 'is-active' if ep == 'dashboard' else '' }}" href="{{ url_for('budget.dashboard') }}">
+        <a class="cb-tab {{ 'is-active' if ep == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
           <svg viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
           Дашборд
         </a>
-        <a class="cb-tab {{ 'is-active' if ep == 'categories' else '' }}" href="{{ url_for('budget.categories') }}">
+        <a class="cb-tab {{ 'is-active' if ep == 'categories' else '' }}" href="{{ url_for('categories') }}">
           <svg viewBox="0 0 24 24"><path d="M12 2l4 4-8 8-4-4 8-8zm-3 14l-1 4 4-1 8-8-3-3-8 8z"/></svg>
           Категории
         </a>
-        <a class="cb-tab {{ 'is-active' if ep == 'income_page' else '' }}" href="{{ url_for('budget.income') }}">
+        <a class="cb-tab {{ 'is-active' if ep == 'income_page' else '' }}" href="{{ url_for('income_page') }}">
           <svg viewBox="0 0 24 24"><path d="M12 3l4 7H8l4-7zm-7 9h14l-7 9-7-9z"/></svg>
           Доходы
         </a>
-        <a class="cb-tab {{ 'is-active' if ep == 'expenses' else '' }}" href="{{ url_for('budget.expenses') }}">
+        <a class="cb-tab {{ 'is-active' if ep == 'expenses' else '' }}" href="{{ url_for('expenses') }}">
           <svg viewBox="0 0 24 24"><path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
           Расходы
         </a>
@@ -86,7 +86,7 @@
 
 <aside class="cb-drawer" id="drawer" aria-modal="true" role="dialog" aria-labelledby="dwTitle" hidden>
   <div class="cb-dw-head">
-    <a class="cb-brand" href="{{ url_for('budget.dashboard') }}">
+    <a class="cb-brand" href="{{ url_for('dashboard') }}">
       <span class="cb-brand-icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
           <path d="M6 3h12l4 6-10 12L2 9l4-6z" fill="currentColor"/>
@@ -104,7 +104,7 @@
   <div class="cb-drawer-group" aria-label="Навигация">
     <div class="cb-drawer-group-title">Навигация</div>
 
-    <a class="cb-drawer-item {{ 'is-active' if ep == 'dashboard' else '' }}" href="{{ url_for('budget.dashboard') }}">
+    <a class="cb-drawer-item {{ 'is-active' if ep == 'dashboard' else '' }}" href="{{ url_for('dashboard') }}">
       <span class="cb-ico">
         <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z"/></svg>
       </span>
@@ -112,7 +112,7 @@
       <span class="cb-hint"></span>
     </a>
 
-    <a class="cb-drawer-item {{ 'is-active' if ep == 'categories' else '' }}" href="{{ url_for('budget.categories') }}">
+    <a class="cb-drawer-item {{ 'is-active' if ep == 'categories' else '' }}" href="{{ url_for('categories') }}">
       <span class="cb-ico">
         <svg viewBox="0 0 24 24"><path d="M12 2l4 4-8 8-4-4 8-8zM6 14l-1 4 4-1" fill="currentColor"/></svg>
       </span>
@@ -120,7 +120,7 @@
       <span class="cb-hint"></span>
     </a>
 
-    <a class="cb-drawer-item {{ 'is-active' if ep == 'income_page' else '' }}" href="{{ url_for('budget.income') }}">
+    <a class="cb-drawer-item {{ 'is-active' if ep == 'income_page' else '' }}" href="{{ url_for('income_page') }}">
       <span class="cb-ico">
         <svg viewBox="0 0 24 24"><path d="M4 14h6v6H4zM14 4h6v6h-6zM9 11l6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
       </span>
@@ -128,7 +128,7 @@
       <span class="cb-hint"></span>
     </a>
 
-    <a class="cb-drawer-item {{ 'is-active' if ep == 'expenses' else '' }}" href="{{ url_for('budget.expenses') }}">
+    <a class="cb-drawer-item {{ 'is-active' if ep == 'expenses' else '' }}" href="{{ url_for('expenses') }}">
       <span class="cb-ico">
         <svg viewBox="0 0 24 24"><circle cx="18" cy="6" r="2" /><rect x="4" y="10" width="16" height="8" rx="2"/></svg>
       </span>
@@ -140,7 +140,7 @@
   </div>
 
   {% if session.user_id %}
-  <a class="cb-drawer-user" href="{{ url_for('auth.profile') }}">
+  <a class="cb-drawer-user" href="{{ url_for('account') }}">
     <div class="cb-drawer-avatar">
       {% if session.name %}
         {{ session.name[0].upper() }}
@@ -160,7 +160,7 @@
       <div class="cb-sw" id="themeToggleDrawer" role="switch" tabindex="0" aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}" aria-label="Переключить тему"></div>
     </div>
     
-    <a class="cb-drawer-item" href="{{ url_for('auth.logout') }}">
+    <a class="cb-drawer-item" href="{{ url_for('logout') }}">
       <span class="cb-ico">
         <svg viewBox="0 0 24 24"><path d="M10 8l-6 4 6 4V8zM13 4h7v16h-7" fill="currentColor"/></svg>
       </span>

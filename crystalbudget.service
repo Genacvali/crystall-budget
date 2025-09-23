@@ -1,0 +1,36 @@
+[Unit]
+Description=CrystalBudget Personal Finance Application
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=admin
+Group=admin
+WorkingDirectory=/opt/crystall-budget
+Environment=SECRET_KEY=production-secret-key-change-me-12345
+Environment=HTTPS_MODE=false
+Environment=TELEGRAM_BOT_TOKEN=test-token
+Environment=BUDGET_DB=/opt/crystall-budget/budget.db
+Environment=LOG_LEVEL=INFO
+ExecStart=/opt/crystall-budget/.venv/bin/python app.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=crystalbudget
+
+# Безопасность
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/opt/crystall-budget
+ReadWritePaths=/opt/crystall-budget/static/avatars
+
+# Ограничения ресурсов
+LimitNOFILE=1024
+LimitNPROC=512
+
+[Install]
+WantedBy=multi-user.target
