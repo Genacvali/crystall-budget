@@ -462,6 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Получаем CSRF токен из мета-тега
         const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
         
+        console.log(`Deleting category ${catId}`);
         const response = await fetch(`/categories/delete/${catId}`, {
           method: 'POST',
           headers: {
@@ -470,12 +471,16 @@ document.addEventListener('DOMContentLoaded', function() {
           body: `csrf_token=${encodeURIComponent(csrfToken)}`
         });
         
+        console.log(`Response status: ${response.status}, ok: ${response.ok}`);
+        
         if (response.ok) {
+          console.log('Category deleted successfully, reloading page...');
           showToast('Категория успешно удалена', 'success');
           // Перезагружаем страницу
           setTimeout(() => location.reload(), 1000);
         } else {
-          throw new Error('Ошибка сервера');
+          console.error(`Delete failed with status: ${response.status}`);
+          throw new Error(`Ошибка сервера: ${response.status}`);
         }
       } catch (error) {
         console.error('Error:', error);

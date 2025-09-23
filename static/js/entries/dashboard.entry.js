@@ -236,9 +236,11 @@
           'Удалить эту категорию? Все связанные расходы также будут удалены.',
           async () => {
             try {
+              const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
               const response = await fetch(`/categories/delete/${catId}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `csrf_token=${encodeURIComponent(csrfToken)}`
               });
               if (response.ok) {
                 notify('Категория успешно удалена', 'success');
@@ -256,9 +258,11 @@
         // Fallback confirm
         if (confirm('Удалить категорию?')) {
           try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/categories/delete/${catId}`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' }
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `csrf_token=${encodeURIComponent(csrfToken)}`
             });
             if (response.ok) {
               notify('Категория успешно удалена', 'success');

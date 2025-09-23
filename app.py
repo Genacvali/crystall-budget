@@ -29,7 +29,7 @@ from flask import (
     Flask, render_template, render_template_string, request, redirect,
     url_for, flash, session, abort
 )
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 from jinja2 import DictLoader, ChoiceLoader
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -38,14 +38,21 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # -----------------------------------------------------------------------------
 app = Flask(__name__)
 
-# Initialize CSRF protection
+# Стабильный секретный ключ (вынесен в переменную окружения)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-only-insecure-key-change-in-production')
+if app.config['SECRET_KEY'] == 'dev-only-insecure-key-change-in-production':
+    print("WARNING: Using insecure default secret key. Set SECRET_KEY environment variable for production!")
+
+# Initialize CSRF protection (after SECRET_KEY is set)
 csrf = CSRFProtect(app)
 
 # CSRF error handler
 @app.errorhandler(400)
 def csrf_error(e):
-    app.logger.error(f"CSRF error: {e} from {request.remote_addr}")
-    app.logger.error(f"Request data: {request.form}")
+    app.logger.error(f"400 ERROR HANDLER CALLED: {e} from {request.remote_addr}")
+    app.logger.error(f"Request URL: {request.url}")
+    app.logger.error(f"Request method: {request.method}")
+    app.logger.error(f"Request form data: {request.form}")
     app.logger.error(f"Request headers: {dict(request.headers)}")
     return render_template_string("""
     <div style="text-align: center; padding: 2rem; font-family: Arial, sans-serif;">
@@ -58,13 +65,7 @@ def csrf_error(e):
 # Add CSRF token to template context
 @app.context_processor
 def inject_csrf_token():
-    from flask_wtf.csrf import generate_csrf
     return dict(csrf_token=generate_csrf)
-
-# Стабильный секретный ключ (вынесен в переменную окружения)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-only-insecure-key-change-in-production')
-if app.config['SECRET_KEY'] == 'dev-only-insecure-key-change-in-production':
-    print("WARNING: Using insecure default secret key. Set SECRET_KEY environment variable for production!")
 
 # Долгая "постоянная" сессия (30 дней)
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=30)
@@ -2017,7 +2018,7 @@ def get_category_total_limit(user_id, category_id, month):
     
     # Получаем базовый лимит для месяца (из логики dashboard)
     category = conn.execute(
-        "SELECT limit_type, value, multi_source FROM categories WHERE user_id=? AND id=?",
+        "SELECT limit_type, value, is_multi_source FROM categories WHERE user_id=? AND id=?",
         (user_id, category_id)
     ).fetchone()
     
@@ -2444,7 +2445,7 @@ def categories_add():
     try:
         # Создаем категорию
         cursor = conn.execute(
-            "INSERT INTO categories (user_id, name, limit_type, value, category_type, multi_source) VALUES (?,?,?,?,?,?)",
+            "INSERT INTO categories (user_id, name, limit_type, value, category_type, is_multi_source) VALUES (?,?,?,?,?,?)",
             (uid, name, limit_type, amount, category_type, multi_source),
         )
         category_id = cursor.lastrowid
@@ -2586,10 +2587,21 @@ def categories_delete(cat_id):
     app.logger.info(f"CSRF token in request: {request.form.get('csrf_token', 'NOT_PROVIDED')}")
     uid = session["user_id"]
     conn = get_db()
-    conn.execute("DELETE FROM categories WHERE id=? AND user_id=?", (cat_id, uid))
-    conn.commit()
-    conn.close()
-    flash("Категория удалена", "success")
+    
+    try:
+        # First delete all related expenses
+        conn.execute("DELETE FROM expenses WHERE category_id=? AND user_id=?", (cat_id, uid))
+        # Then delete the category
+        conn.execute("DELETE FROM categories WHERE id=? AND user_id=?", (cat_id, uid))
+        conn.commit()
+        flash("Категория и связанные расходы удалены", "success")
+    except Exception as e:
+        conn.rollback()
+        app.logger.error(f"Error deleting category {cat_id}: {e}")
+        flash("Ошибка при удалении категории", "danger")
+    finally:
+        conn.close()
+    
     return redirect(url_for("categories"))
 
 
@@ -2607,7 +2619,7 @@ def toggle_multi_source(cat_id):
     try:
         # Получаем текущее состояние категории
         category = conn.execute(
-            "SELECT multi_source FROM categories WHERE id=? AND user_id=?",
+            "SELECT is_multi_source FROM categories WHERE id=? AND user_id=?",
             (cat_id, uid)
         ).fetchone()
         
@@ -2615,11 +2627,11 @@ def toggle_multi_source(cat_id):
             flash("Категория не найдена", "error")
             return redirect(url_for("categories"))
         
-        new_multi_source = 1 if category["multi_source"] == 0 else 0
+        new_multi_source = 1 if category["is_multi_source"] == 0 else 0
         
         # Переключаем режим
         conn.execute(
-            "UPDATE categories SET multi_source=? WHERE id=? AND user_id=?",
+            "UPDATE categories SET is_multi_source=? WHERE id=? AND user_id=?",
             (new_multi_source, cat_id, uid)
         )
         
@@ -2667,11 +2679,11 @@ def add_source_to_category(cat_id):
     try:
         # Проверяем, что категория многоисточниковая
         category = conn.execute(
-            "SELECT multi_source FROM categories WHERE id=? AND user_id=?",
+            "SELECT is_multi_source FROM categories WHERE id=? AND user_id=?",
             (cat_id, uid)
         ).fetchone()
         
-        if not category or category["multi_source"] != 1:
+        if not category or category["is_multi_source"] != 1:
             flash("Категория не является многоисточниковой", "error")
             return redirect(url_for("categories"))
         

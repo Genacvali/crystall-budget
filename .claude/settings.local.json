@@ -38,7 +38,9 @@
       "Bash(FLASK_APP=new_app.py flask db upgrade)",
       "Read(//etc/systemd/system/**)",
       "Bash(sudo cp:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(FLASK_RUN_PORT=5020 python app.py)",
+      "Bash(PORT=5020 python:*)"
     ],
     "deny": [],
     "ask": []
