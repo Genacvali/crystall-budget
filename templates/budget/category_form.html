@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ title }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.limit_type.label(class="form-label") }}
+                            {{ form.limit_type(class="form-select" + (" is-invalid" if form.limit_type.errors else "")) }}
+                            {% if form.limit_type.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.limit_type.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.value.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.value(class="form-control" + (" is-invalid" if form.value.errors else ""), step="0.01", min="0") }}
+                                <span class="input-group-text" id="value-suffix">₽</span>
+                            </div>
+                            {% if form.value.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.value.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">
+                                Для фиксированной суммы указывается сумма в рублях, для процента — процент от дохода (0-100).
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('budget.categories') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Сохранить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const limitTypeSelect = document.getElementById('limit_type');
+    const valueSuffix = document.getElementById('value-suffix');
+    
+    function updateValueSuffix() {
+        if (limitTypeSelect.value === 'percent') {
+            valueSuffix.textContent = '%';
+        } else {
+            valueSuffix.textContent = '₽';
+        }
+    }
+    
+    limitTypeSelect.addEventListener('change', updateValueSuffix);
+    updateValueSuffix(); // Initial call
+});
+</script>
+{% endblock %}

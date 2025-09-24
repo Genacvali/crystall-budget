@@ -28,7 +28,7 @@
   data-size="large"
   data-userpic="false"
   data-request-access="write"
-  data-auth-url="{{ url_for('auth_telegram', _external=True, next=request.args.get('next', url_for('dashboard'))) }}">
+  data-auth-url="{{ url_for('auth_telegram', _external=True, next=request.args.get('next', url_for('budget.dashboard'))) }}">
 </script>
 
           </div>
@@ -49,7 +49,7 @@
         </div>
 
         <!-- Email Login -->
-        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+        <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <div class="mb-2">
             <label for="email" class="form-label">Email</label>
@@ -65,7 +65,7 @@
         <div class="text-center mt-2">
           <small class="text-muted">
             Нет аккаунта?
-            <a href="{{ url_for('register') }}" class="text-decoration-none">Зарегистрироваться</a>
+            <a href="{{ url_for('auth.register') }}" class="text-decoration-none">Зарегистрироваться</a>
           </small>
         </div>
       </div>

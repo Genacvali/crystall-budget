@@ -3,7 +3,24 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, DecimalField, SelectField, TextAreaField, DateField, HiddenField
 from wtforms.validators import DataRequired, NumberRange, Length, Optional
 from datetime import datetime
+from decimal import Decimal, InvalidOperation
 from app.core.money import SUPPORTED_CURRENCIES
+
+
+class RUDecimalField(DecimalField):
+    """DecimalField с поддержкой русской локали (запятые → точки)."""
+    
+    def process_formdata(self, valuelist):
+        if valuelist:
+            try:
+                # Нормализуем запятые в точки
+                normalized_value = str(valuelist[0]).replace(',', '.')
+                self.data = Decimal(normalized_value)
+            except (ValueError, InvalidOperation):
+                self.data = None
+                raise ValueError(self.gettext('Not a valid decimal value.'))
+        else:
+            self.data = None
 
 
 class CategoryForm(FlaskForm):
@@ -16,7 +33,7 @@ class CategoryForm(FlaskForm):
         ('fixed', 'Фиксированная сумма'),
         ('percent', 'Процент от дохода')
     ], validators=[DataRequired(message='Выберите тип лимита')])
-    value = DecimalField('Значение', validators=[
+    value = RUDecimalField('Значение', validators=[
         DataRequired(message='Значение обязательно'),
         NumberRange(min=0, message='Значение должно быть положительным')
     ])
@@ -27,7 +44,7 @@ class ExpenseForm(FlaskForm):
     category_id = SelectField('Категория', coerce=int, validators=[
         DataRequired(message='Выберите категорию')
     ])
-    amount = DecimalField('Сумма', validators=[
+    amount = RUDecimalField('Сумма', validators=[
         DataRequired(message='Сумма обязательна'),
         NumberRange(min=0.01, message='Сумма должна быть больше 0')
     ])
@@ -49,7 +66,7 @@ class IncomeForm(FlaskForm):
         DataRequired(message='Название источника обязательно'),
         Length(min=2, max=100, message='Название должно быть от 2 до 100 символов')
     ])
-    amount = DecimalField('Сумма', validators=[
+    amount = RUDecimalField('Сумма', validators=[
         DataRequired(message='Сумма обязательна'),
         NumberRange(min=0.01, message='Сумма должна быть больше 0')
     ])
@@ -77,7 +94,7 @@ class IncomeForm(FlaskForm):
 class QuickExpenseForm(FlaskForm):
     """Quick expense form for dashboard."""
     category_id = HiddenField(validators=[DataRequired()])
-    amount = DecimalField('Сумма', validators=[
+    amount = RUDecimalField('Сумма', validators=[
         DataRequired(message='Сумма обязательна'),
         NumberRange(min=0.01, message='Сумма должна быть больше 0')
     ])

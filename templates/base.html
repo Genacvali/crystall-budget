@@ -4,15 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}CrystalBudget{% endblock %}</title>
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 
   <!-- Bootstrap -->
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
   
   <!-- Общие стили -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/clean-theme.css') }}?v=20250921-11">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}?v=20250921-13">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/drawer.css') }}?v=20250922-06">
+  <link rel="stylesheet" href="{{ versioned_static('css/clean-theme.css') }}">
+  <link rel="stylesheet" href="{{ versioned_static('css/app.css') }}">
+  <link rel="stylesheet" href="{{ versioned_static('css/drawer.css') }}">
+  <link rel="stylesheet" href="{{ versioned_static('css/accessibility.css') }}">
 
   <!-- Страничные стили при необходимости -->
   {% block page_css %}{% endblock %}
@@ -27,10 +31,13 @@
 </head>
 <body class="is-compact ui-compact">
 
+{# Ссылка для пропуска навигации #}
+<a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
+
 {# Единая навигация #}
 {% include "components/_nav.html" %}
 
-<main class="page-wrap py-4">
+<main id="main-content" class="page-wrap py-4" role="main" aria-label="Основное содержимое">
   <div class="container-xl">
     
     {# Flash сообщения #}
@@ -52,29 +59,34 @@
 </main>
 
 <!-- Модальное окно подтверждения удаления -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" 
+     aria-labelledby="confirmDeleteModalLabel" 
+     aria-describedby="confirmDeleteMessage"
+     aria-hidden="true" 
+     role="dialog"
+     aria-modal="true">
+  <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="confirmDeleteModalLabel">
-          <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+          <i class="bi bi-exclamation-triangle text-warning me-2" aria-hidden="true"></i>
           Подтверждение удаления
         </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть диалог"></button>
       </div>
       <div class="modal-body">
         <p id="confirmDeleteMessage">Вы уверены, что хотите удалить этот элемент?</p>
-        <div class="alert alert-warning d-flex align-items-center">
-          <i class="bi bi-info-circle me-2"></i>
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+          <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
           <small>Это действие нельзя отменить</small>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="bi bi-x-lg me-1"></i>Отмена
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Отменить удаление">
+          <i class="bi bi-x-lg me-1" aria-hidden="true"></i>Отмена
         </button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
-          <i class="bi bi-trash me-1"></i>Удалить
+        <button type="button" class="btn btn-danger" id="confirmDeleteBtn" aria-label="Подтвердить удаление">
+          <i class="bi bi-trash me-1" aria-hidden="true"></i>Удалить
         </button>
       </div>
     </div>
@@ -85,7 +97,8 @@
 <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 
 <!-- Общий JavaScript -->
-<script src="{{ url_for('static', filename='js/app.js') }}?v=20250922-02"></script>
+<script src="{{ versioned_static('js/app.js') }}"></script>
+<script src="{{ versioned_static('js/accessibility.js') }}"></script>
 
 <!-- Страничный JavaScript при необходимости -->
 {% block page_js %}{% endblock %}

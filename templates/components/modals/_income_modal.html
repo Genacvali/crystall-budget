@@ -1,19 +1,31 @@
-{# expects: today: string #}
+{# expects: today_ym: 'YYYY-MM' (например '2025-09'); min_ym/max_ym опционально #}
 <div class="modal fade" id="incomeModal" tabindex="-1" aria-labelledby="incomeModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="incomeModalLabel">Добавить доход</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
-      <form id="incomeForm" data-form="income">
+
+      <form id="incomeForm" data-form="income" autocomplete="off">
         <div class="modal-body">
           <div class="mb-3">
             <label for="incomeAmount" class="form-label">Сумма</label>
-            <input type="number" class="form-control" id="incomeAmount" name="amount" step="0.01" required>
+            <input
+              type="text"
+              class="form-control"
+              id="incomeAmount"
+              name="amount"
+              inputmode="decimal"
+              pattern="^\s*\d+([,\.]\d{1,2})?\s*$"
+              placeholder="Например, 120 000,50"
+              required
+            >
+            <div class="form-text">Можно вводить запятую или точку. Округляем до 2 знаков.</div>
           </div>
+
           <div class="mb-3">
-            <label for="incomeSource" class="form-label">Источник</label>
+            <label for="incomeSource" class="form-label">Источник дохода</label>
             <select class="form-select" id="incomeSource" name="source_id" required>
               <option value="">Выберите источник</option>
               <option value="1">Зарплата</option>
@@ -21,14 +33,26 @@
               <option value="3">Другое</option>
             </select>
           </div>
+
           <div class="mb-3">
-            <label for="incomeDate" class="form-label">Дата</label>
-            <input type="date" class="form-control" id="incomeDate" name="date" value="{{ today }}" required>
+            <label for="incomeMonth" class="form-label">Месяц</label>
+            <input
+              type="month"
+              class="form-control"
+              id="incomeMonth"
+              name="month"
+              value="{{ today_ym }}"
+              {% if min_ym %}min="{{ min_ym }}"{% endif %}
+              {% if max_ym %}max="{{ max_ym }}"{% endif %}
+              required
+            >
+            <div class="form-text">Выберите месяц, к которому относится доход.</div>
           </div>
         </div>
+
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-success">Сохранить</button>
+          <button type="submit" class="btn btn-success" data-loading-text="Сохраняем…">Сохранить</button>
         </div>
       </form>
     </div>

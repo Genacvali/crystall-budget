@@ -1,0 +1,251 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  api-tests:
+    name: API Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+    
+    - name: Create test database
+      run: |
+        export BUDGET_DB="sqlite:///test_budget.db"
+        python -c "
+        from app import create_app
+        from app.core.extensions import db
+        app = create_app()
+        with app.app_context():
+            db.create_all()
+        "
+    
+    - name: Run API tests
+      run: |
+        export BUDGET_DB="sqlite:///test_budget.db"
+        export SECRET_KEY="test-secret-key"
+        pytest tests/api/ -v --tb=short
+      env:
+        API_BASE_URL: http://localhost:5000
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install -r requirements-test.txt
+        npm install -g @playwright/test
+    
+    - name: Install Playwright browsers
+      run: npx playwright install --with-deps chromium
+    
+    - name: Create test database
+      run: |
+        export BUDGET_DB="sqlite:///test_e2e.db"
+        python -c "
+        from app import create_app
+        from app.core.extensions import db
+        app = create_app()
+        with app.app_context():
+            db.create_all()
+        "
+    
+    - name: Run E2E tests
+      run: |
+        export BUDGET_DB="sqlite:///test_e2e.db"
+        export SECRET_KEY="test-secret-key"
+        export BASE_URL="http://localhost:5000"
+        pytest tests/e2e/ -v --tb=short --browser chromium
+      env:
+        CI: true
+    
+    - name: Upload E2E test results
+      uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: e2e-test-results
+        path: |
+          test-results/
+          playwright-report/
+        retention-days: 7
+
+  smoke-tests:
+    name: Smoke Tests (Manual Checklist Validation)
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Test application startup
+      run: |
+        export BUDGET_DB="sqlite:///smoke_test.db"
+        export SECRET_KEY="test-secret-key"
+        python -c "
+        from app import create_app
+        from app.core.extensions import db
+        
+        app = create_app()
+        with app.app_context():
+            db.create_all()
+            print('✅ Database initialized')
+            
+        # Test basic endpoints
+        with app.test_client() as client:
+            response = client.get('/healthz')
+            assert response.status_code == 200
+            print('✅ Health check passed')
+            
+            response = client.get('/login')
+            assert response.status_code == 200
+            print('✅ Login page loads')
+        
+        print('✅ Smoke test basic checks passed')
+        "
+    
+    - name: Validate smoke test checklist
+      run: |
+        echo "📋 Manual Smoke Test Checklist Available:"
+        echo "   File: tests/smoke/manual_checklist.md"
+        echo "   Time: ~15 minutes"
+        echo "   Coverage: Login → Dashboard → Income/Expenses → Navigation → Theme → Logout"
+        echo ""
+        echo "🚀 Run manually after deployment:"
+        echo "   1. Follow checklist in tests/smoke/manual_checklist.md"
+        echo "   2. Report any issues to the issue tracker"
+        echo "   3. Mark as ✅ PASSED, ⚠️ PARTIAL, or ❌ FAILED"
+
+  security-check:
+    name: Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install security tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety bandit
+    
+    - name: Check for known vulnerabilities
+      run: |
+        safety check --file requirements.txt
+        safety check --file requirements-test.txt
+    
+    - name: Run bandit security linter
+      run: |
+        bandit -r app/ -f json -o bandit-report.json || true
+        bandit -r app/ -ll -i
+
+  deployment-readiness:
+    name: Deployment Readiness
+    runs-on: ubuntu-latest
+    needs: [api-tests, e2e-tests, smoke-tests, security-check]
+    if: success()
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Deployment checklist
+      run: |
+        echo "🚀 DEPLOYMENT READINESS REPORT"
+        echo "================================"
+        echo "✅ API Tests: PASSED"
+        echo "✅ E2E Tests: PASSED" 
+        echo "✅ Smoke Test Framework: READY"
+        echo "✅ Security Check: PASSED"
+        echo ""
+        echo "📋 Pre-Deployment Actions Required:"
+        echo "   1. Run manual smoke tests (15 min)"
+        echo "   2. Backup production database"
+        echo "   3. Update environment variables if needed"
+        echo "   4. Verify SSL certificates"
+        echo ""
+        echo "📊 Post-Deployment Actions Required:"
+        echo "   1. Run smoke tests on production"
+        echo "   2. Monitor error logs for 1 hour"
+        echo "   3. Check performance metrics"
+        echo "   4. Verify Telegram auth works"
+        echo ""
+        echo "🔗 Useful Commands:"
+        echo "   Manual smoke tests: Follow tests/smoke/manual_checklist.md"
+        echo "   Check logs: journalctl -u crystalbudget -f"
+        echo "   Health check: curl https://your-domain/healthz"
+
+  notify-deployment:
+    name: Notify Deployment Status
+    runs-on: ubuntu-latest
+    needs: [deployment-readiness]
+    if: always()
+    
+    steps:
+    - name: Deployment status
+      run: |
+        if [ "${{ needs.deployment-readiness.result }}" == "success" ]; then
+          echo "🎉 All tests passed! Ready for deployment."
+          exit 0
+        else
+          echo "❌ Tests failed. Do not deploy."
+          echo ""
+          echo "🔍 Check failed jobs:"
+          echo "   - API Tests: ${{ needs.api-tests.result }}"
+          echo "   - E2E Tests: ${{ needs.e2e-tests.result }}"
+          echo "   - Smoke Tests: ${{ needs.smoke-tests.result }}"
+          echo "   - Security: ${{ needs.security-check.result }}"
+          exit 1
+        fi

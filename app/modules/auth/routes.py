@@ -39,7 +39,10 @@ def login():
         if user:
             AuthService.login_user(user)
             next_page = request.args.get('next')
-            return redirect(next_page or url_for('budget.dashboard'))
+            # Validate next_page to prevent open redirect attacks
+            if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+                return redirect(next_page)
+            return redirect(url_for('budget.dashboard'))
         else:
             flash('Неверный email или пароль', 'error')
     
@@ -180,15 +183,7 @@ def set_theme():
     try:
         user = User.query.get(session['user_id'])
         if user:
-            # Add theme column if it doesn't exist
-            try:
-                from sqlalchemy import text
-                db.session.execute(text("ALTER TABLE users ADD COLUMN theme VARCHAR(20)"))
-                db.session.commit()
-            except Exception:
-                pass  # Column likely already exists
-            
-            # Update user theme
+            # Update user theme (assumes theme column exists via migration)
             user.theme = theme
             db.session.commit()
     except Exception:

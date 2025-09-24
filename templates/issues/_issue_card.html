@@ -1,0 +1,56 @@
+<div class="issue-card" 
+     data-issue-id="{{ issue.id }}"
+     data-status="{{ issue.status.value }}"
+     draggable="true">
+  
+  <div class="issue-card-header">
+    <span class="issue-number">#{{ issue.id }}</span>
+    <span class="badge priority-{{ issue.priority.value }} issue-priority">
+      {{ issue.priority.value.upper() }}
+    </span>
+  </div>
+  
+  <h6 class="issue-title">
+    {{ issue.title }}
+  </h6>
+  
+  {% if issue.description %}
+    <p class="issue-description">
+      {{ issue.description }}
+    </p>
+  {% endif %}
+  
+  <div class="issue-meta">
+    <div class="issue-assignee">
+      {% if issue.assignee %}
+        <i class="bi bi-person-fill"></i>
+        <span>{{ issue.assignee }}</span>
+      {% else %}
+        <i class="bi bi-person text-muted"></i>
+        <span class="text-muted">Unassigned</span>
+      {% endif %}
+    </div>
+    
+    <div class="issue-days {% if issue.days_open > 7 %}old{% endif %} {% if issue.days_open > 30 %}very-old{% endif %}">
+      {{ issue.days_open }}d
+    </div>
+  </div>
+  
+  {% if issue.endpoint %}
+    <div class="mt-2">
+      <small class="text-muted">
+        <i class="bi bi-link-45deg"></i>
+        {{ issue.endpoint }}
+      </small>
+    </div>
+  {% endif %}
+  
+  {% if issue.is_blocking %}
+    <div class="mt-1">
+      <span class="badge bg-danger small">
+        <i class="bi bi-exclamation-triangle"></i>
+        BLOCKING
+      </span>
+    </div>
+  {% endif %}
+</div>

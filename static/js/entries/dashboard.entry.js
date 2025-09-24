@@ -51,7 +51,7 @@
       };
 
       try {
-        const response = await fetch('/api/expenses', {
+        const response = await fetch('/api/v1/expenses', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -95,7 +95,7 @@
       };
 
       try {
-        const response = await fetch('/api/income', {
+        const response = await fetch('/api/v1/income', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -177,7 +177,7 @@
     }
 
     try {
-      const response = await fetch(`/api/categories/${id}`, {
+      const response = await fetch(`/api/v1/categories/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

@@ -36,11 +36,13 @@ def create_app(config_name=None):
     from app.modules.auth import auth_bp
     from app.modules.budget import budget_bp
     from app.modules.goals import goals_bp
+    from app.modules.issues import issues_bp
     from app.api.v1 import api_v1_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(budget_bp)
     app.register_blueprint(goals_bp)
+    app.register_blueprint(issues_bp)
     app.register_blueprint(api_v1_bp)
     
     # Backward compatibility routes
@@ -102,10 +104,39 @@ def create_app(config_name=None):
         flash('Функция в разработке', 'info')
         return redirect(url_for('budget.categories'))
     
+    @app.route('/favicon.ico')
+    def favicon():
+        """Serve favicon from static folder."""
+        return redirect(url_for('static', filename='favicon.ico'))
+    
+    @app.route('/healthz')
+    def health_check():
+        """Health check endpoint for monitoring."""
+        try:
+            # Проверяем подключение к БД
+            from app.core.extensions import db
+            from sqlalchemy import text
+            with db.engine.connect() as connection:
+                connection.execute(text('SELECT 1'))
+            
+            # Проверяем что миграции актуальны
+            from flask_migrate import current, heads
+            current_rev = current()
+            head_rev = heads()
+            
+            if current_rev != head_rev:
+                return {'status': 'error', 'message': 'Database migrations not up to date'}, 500
+                
+            return {'status': 'ok', 'message': 'Application healthy'}, 200
+            
+        except Exception as e:
+            return {'status': 'error', 'message': str(e)}, 500
+    
     # Import models for Alembic
     from app.modules.auth.models import User
     from app.modules.budget.models import Category, Expense, Income, CategoryRule, ExchangeRate, IncomeSource  
     from app.modules.goals.models import SavingsGoal, SharedBudget, SharedBudgetMember
+    from app.modules.issues.models import Issue, IssueComment
     
     # Register error handlers
     from app.core.errors import register_error_handlers
@@ -122,5 +153,13 @@ def create_app(config_name=None):
     # Register template filters
     from app.core.filters import register_filters
     register_filters(app)
+    
+    # Initialize asset helpers
+    from app.core.assets import init_asset_helpers
+    init_asset_helpers(app)
+    
+    # Initialize diagnostics
+    from app.core.diagnostics import init_diagnostics
+    init_diagnostics(app)
     
     return app

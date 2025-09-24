@@ -2,7 +2,7 @@
 {% if session.user_id %}
 <nav class="navbar navbar-expand-lg navbar-light navbar-modern">
   <div class="container-fluid">
-    <a class="navbar-brand-modern" href="{{ url_for('dashboard') }}">
+    <a class="navbar-brand-modern" href="{{ url_for('budget.dashboard') }}">
       <!-- логотип -->
       <svg class="ff-crystal" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -22,22 +22,22 @@
     <div class="d-none d-lg-flex collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link-modern {% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">
+          <a class="nav-link-modern {% if request.endpoint == 'budget.dashboard' %}active{% endif %}" href="{{ url_for('budget.dashboard') }}">
             <i class="bi bi-house-door"></i> Дашборд
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link-modern {% if request.endpoint == 'expenses' %}active{% endif %}" href="{{ url_for('expenses') }}">
+          <a class="nav-link-modern {% if request.endpoint == 'budget.expenses' %}active{% endif %}" href="{{ url_for('budget.expenses') }}">
             <i class="bi bi-wallet2"></i> Расходы
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link-modern {% if request.endpoint == 'categories' %}active{% endif %}" href="{{ url_for('categories') }}">
+          <a class="nav-link-modern {% if request.endpoint == 'budget.categories' %}active{% endif %}" href="{{ url_for('budget.categories') }}">
             <i class="bi bi-tags"></i> Категории
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link-modern {% if request.endpoint in ['income_page','edit_income'] %}active{% endif %}" href="{{ url_for('income_page') }}">
+          <a class="nav-link-modern {% if request.endpoint in ['budget.income','budget.edit_income'] %}active{% endif %}" href="{{ url_for('budget.income') }}">
             <i class="bi bi-cash-coin"></i> Доходы
           </a>
         </li>
@@ -58,13 +58,13 @@
           </a>
           <ul class="dropdown-menu dropdown-menu-end modern-card" style="border:none;">
             <li>
-              <a class="dropdown-item nav-link-modern" href="{{ url_for('account') }}">
+              <a class="dropdown-item nav-link-modern" href="{{ url_for('auth.profile') }}">
                 <i class="bi bi-gear"></i> Личный кабинет
               </a>
             </li>
             <li><hr class="dropdown-divider"></li>
             <li>
-              <a class="dropdown-item nav-link-modern" href="{{ url_for('logout') }}">
+              <a class="dropdown-item nav-link-modern" href="{{ url_for('auth.logout') }}">
                 <i class="bi bi-box-arrow-right"></i> Выйти
               </a>
             </li>

@@ -13,10 +13,11 @@ source .venv/bin/activate
 # Install dependencies
 pip install -r requirements.txt
 
-# Initialize database (optional - app.py auto-creates DB)
-python init_db.py
+# Initialize database with migrations
+flask db upgrade
 
-# Database auto-migrates on app startup - no separate migration needed
+# Generate new migration (when models change)
+flask db migrate -m "Description of changes"
 ```
 
 ### Running the Application
@@ -31,33 +32,37 @@ gunicorn -w 2 -b 0.0.0.0:5000 app:app
 cd admin_panel && python admin_panel.py
 ```
 
+### Database Management
+```bash
+# Create new migration
+flask db migrate -m "Description"
+
+# Apply migrations
+flask db upgrade
+
+# Downgrade migration
+flask db downgrade
+
+# View migration history
+flask db history
+
+# Check current migration
+flask db current
+```
+
 ### Testing and Code Quality
 ```bash
 # No formal test suite - manual testing via web interface
-# Test database initialization
-python init_db.py
-
-# Emergency database fixes (production)
-python emergency_fix.py
-
-# Set up Telegram authentication (see TELEGRAM_AUTH_SETUP.md)
-export TELEGRAM_BOT_TOKEN="your-bot-token"
-
 # Verify application startup
 python app.py
 # Then visit http://localhost:5000 to test functionality
 
 # Check for syntax errors and basic linting
 python -m py_compile app.py
-python -m py_compile admin_panel/admin_panel.py
-
-# Check specific Python files for syntax
 python -c "import py_compile; py_compile.compile('app.py', doraise=True)"
 
-# Quick database fixes if needed (already applied in production)
-# Add missing columns and tables:
-# sqlite3 budget.db "ALTER TABLE expenses ADD COLUMN note TEXT;"
-# sqlite3 budget.db "CREATE TABLE IF NOT EXISTS category_income_sources (...)"
+# Check all Python files in app module
+find app/ -name "*.py" -exec python -m py_compile {} \;
 ```
 
 ### Production Deployment
@@ -90,26 +95,64 @@ sudo journalctl -u admin-panel -f
 
 ## Architecture Overview
 
-### Single-File Flask Application
-The entire backend is in `app.py` (~4737 lines) with:
-- Telegram-only authentication system (email auth disabled)
-- 30-day sessions with secure cookie configuration
-- SQLite database with automatic schema initialization and migration system
-- Multi-currency support (RUB, USD, EUR, AMD, GEL) with live exchange rates
-- PWA support with service worker and offline functionality
-- Production-ready logging with rotation (10MB files, 5 backups)
-- Avatar upload system with file type validation
+### Modular Flask Application
+The application uses Flask application factory pattern with modular blueprints:
+- **Application Factory**: `app/__init__.py` - Creates and configures Flask app instance
+- **Modular Structure**: Organized into blueprints (`auth`, `budget`, `goals`, `api`)
+- **Database**: Flask-SQLAlchemy with Alembic migrations
+- **Authentication**: Flask-Login with Telegram-based auth system  
+- **Caching**: Flask-Caching with configurable backends
+- **Extensions**: Centralized extension management in `app/core/extensions.py`
+- **Configuration**: Environment-based config classes in `app/core/config.py`
+
+### Module Structure
+The application is organized into focused modules:
+
+#### Core (`app/core/`)
+- **config.py**: Environment-based configuration classes (Development/Production/Testing)
+- **extensions.py**: Flask extension initialization (SQLAlchemy, Login Manager, etc.)
+- **errors.py**: Centralized error handling and custom error pages
+- **events.py**: Application event handlers and lifecycle management
+- **filters.py**: Custom Jinja2 template filters
+- **cli.py**: Flask CLI commands for database management
+- **caching.py**: Cache management utilities
+- **money.py**: Currency handling and exchange rate utilities
+- **time.py**: Time zone and datetime utilities
+
+#### Authentication Module (`app/modules/auth/`)
+- **models.py**: User model with Flask-Login integration
+- **routes.py**: Authentication endpoints (login, register, profile)
+- **service.py**: Authentication business logic
+- **schemas.py**: Data validation schemas
+
+#### Budget Module (`app/modules/budget/`)
+- **models.py**: Category, Expense, Income, ExchangeRate models
+- **routes.py**: Budget management endpoints
+- **service.py**: Budget calculation and management logic
+- **schemas.py**: Budget-related data validation
+
+#### Goals Module (`app/modules/goals/`)
+- **models.py**: SavingsGoal, SharedBudget models
+- **routes.py**: Goal management endpoints  
+- **service.py**: Goal tracking and progress calculation
+- **schemas.py**: Goal-related data validation
+
+#### API (`app/api/v1/`)
+- **__init__.py**: API v1 blueprint registration
+- **budget.py**: Budget-related API endpoints
+- **goals.py**: Goals-related API endpoints
+- **schemas.py**: API response schemas
 
 ### Database Design
-SQLite with strict user isolation and automatic schema migration:
-- **users**: Telegram-only authentication (telegram_id required), preferences, avatar paths
-- **categories**: Budget categories with fixed/percentage limits and rollover logic
+SQLAlchemy models with Alembic migrations:
+- **users**: User authentication and preferences
+- **categories**: Budget categories with limits and rollover logic
 - **expenses**: User expense records with multi-currency support
 - **income**: Monthly income tracking per user
-- **savings_goals**: Goal tracking with progress calculation and notifications
-- **shared_budgets**: Family budget collaboration with invitation codes
-- **shared_budget_members**: Family budget member relationships and permissions
-- **exchange_rates**: Currency exchange rate cache with expiration
+- **savings_goals**: Goal tracking with progress calculation
+- **shared_budgets**: Family budget collaboration
+- **shared_budget_members**: Budget sharing relationships
+- **exchange_rates**: Currency exchange rate cache
 
 ### Frontend Structure
 - **Templates**: 18+ HTML templates using Bootstrap 5 and Russian localization
@@ -171,43 +214,74 @@ LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 
 ```
 
+### Key Implementation Details
+
+#### Application Factory Pattern
+- **Entry Point**: `app.py` - Minimal entry point that creates app instance
+- **Factory**: `app/__init__.py:create_app()` - Configures and returns Flask app
+- **Blueprint Registration**: All modules register as Flask blueprints
+- **Backward Compatibility**: Legacy route endpoints are maintained for existing integrations
+
+#### Database Migrations
+- **Migration Directory**: `migrations/` - Alembic migration files
+- **Configuration**: `migrations/alembic.ini` - Migration settings
+- **Version Control**: All schema changes must go through migration system
+
+#### Configuration Management
+- **Environment-Based**: Development/Production/Testing configurations
+- **Security**: Production config validates required environment variables
+- **Database**: Configurable via `BUDGET_DB` environment variable
+- **Sessions**: 30-day lifetime with secure cookie configuration
+
 ### Important File Locations
-Current codebase structure:
-- `app.py` - Main Flask application (~4737 lines) with embedded Telegram authentication
-- `new_app.py` - Alternative/backup version of the main application
-- `requirements.txt` - Python dependencies (Flask 3.x, Werkzeug 3.x, requests, gunicorn, python-dotenv)
-- `templates/` - Jinja2 templates with Russian UI, including reusable components:
-  - `templates/components/` - Reusable UI components (modals, forms, cards)
-  - `templates/pages/` - Main page templates
-  - `templates/auth/` - Authentication-related templates
-  - `templates/budget/` - Budget management templates
-- `static/` - Frontend assets:
-  - `static/js/` - JavaScript modules with entry points and reusable modules
-    - `entries/` - Page-specific entry points (dashboard.entry.js, expenses.entry.js)
-    - `modules/` - Reusable modules (ui.js, forms.js, swipe.js)
-  - `static/css/` - CSS themes and responsive styles
-  - `static/icons/` - PWA icons and favicons
-  - `static/avatars/` - User avatar uploads
-  - PWA manifests (manifest.json, manifest.webmanifest) and service worker (sw.js)
-- `init_db.py` - Database initialization script
-- `admin_panel/` - Administrative interface with deployment scripts:
-  - `admin_panel.py` - Admin Flask app
-  - `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`, `logs_admin.sh`
-  - `admin-panel.service` - Admin systemd service
-  - `nginx-admin-panel.conf` - Admin nginx config
-- `README.md` - Russian documentation with v1.1 features and setup instructions
+```
+app/
+├── __init__.py              # Application factory
+├── core/                    # Core utilities and configuration
+│   ├── config.py           # Environment-based config classes
+│   ├── extensions.py       # Flask extensions initialization
+│   └── [other core modules]
+├── modules/                 # Feature modules
+│   ├── auth/               # Authentication module
+│   ├── budget/             # Budget management module
+│   └── goals/              # Goals tracking module
+└── api/                    # API endpoints
+    └── v1/                 # API version 1
+
+migrations/                  # Database migrations
+templates/                   # Jinja2 templates
+static/                     # Frontend assets  
+admin_panel/                # Administrative interface
+app.py                      # Application entry point
+requirements.txt            # Python dependencies
+crystalbudget.service       # Systemd service file
+```
 
 ### Service Files
 - `crystalbudget.service` - Main application systemd service (uses Gunicorn WSGI server)
 - `admin_panel/admin-panel.service` - Admin panel systemd service
 
-### Missing Deployment Files
-These files are referenced but not present in current codebase:
-- `deploy.sh` - Main app deployment script
-- `setup-https.sh` - HTTPS/SSL setup script  
-- `nginx-crystalbudget.conf` - Main app nginx config
-- `emergency_fix.py` - Database repair script
-- `TELEGRAM_AUTH_SETUP.md` - Telegram setup guide
+### Development Workflow
+
+#### Adding New Features
+1. Create new module in `app/modules/` or extend existing module
+2. Define SQLAlchemy models in `models.py`
+3. Generate migration: `flask db migrate -m "Add feature"`
+4. Apply migration: `flask db upgrade`
+5. Implement routes, services, and schemas
+6. Register blueprint in `app/__init__.py` if new module
+7. Add templates and static assets as needed
+
+#### Working with Database
+- **Model Changes**: Always create migrations for schema changes
+- **Data Changes**: Use Flask CLI commands or write migration scripts
+- **Testing**: Use in-memory SQLite for testing configuration
+
+#### Code Organization Patterns
+- **Models**: SQLAlchemy models with relationships and validation
+- **Routes**: Flask blueprint routes handling HTTP requests/responses
+- **Services**: Business logic separated from route handlers
+- **Schemas**: Data validation using schemas (likely Marshmallow or similar)
 
 ### Service Installation
 ```bash

@@ -6,13 +6,16 @@
         <h5 class="modal-title" id="categoryModalLabel">Редактировать категорию</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
-      <form id="categoryForm">
+
+      <form id="categoryForm" data-form="category" autocomplete="off">
         <input type="hidden" name="id" id="catId">
+
         <div class="modal-body">
           <div class="mb-3">
             <label for="catName" class="form-label">Название</label>
-            <input type="text" class="form-control" id="catName" name="name" required maxlength="100">
+            <input type="text" class="form-control" id="catName" name="name" maxlength="100" required placeholder="Например, Продукты">
           </div>
+
           <div class="mb-3">
             <label for="catLimitType" class="form-label">Тип лимита</label>
             <select class="form-select" id="catLimitType" name="limit_type">
@@ -20,15 +23,28 @@
               <option value="percent">Процент от дохода</option>
             </select>
           </div>
+
           <div class="mb-3">
             <label for="catValue" class="form-label">Значение</label>
-            <input type="number" step="0.01" class="form-control" id="catValue" name="value" required>
-            <div class="form-text">Для «Процент» укажи 0–100, для «Фикс» — сумму в ₽.</div>
+            <input
+              type="text"
+              class="form-control"
+              id="catValue"
+              name="value"
+              inputmode="decimal"
+              pattern="^\s*\d+([,\.]\d{1,2})?\s*$"
+              placeholder="Для % — 15; для суммы — 30 000,00"
+              required
+            >
+            <div class="form-text">
+              Для «Процент» — число от 0 до 100. Для «Фиксированной суммы» — сумма в валюте профиля, запятая или точка допустимы.
+            </div>
           </div>
         </div>
+
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Отмена</button>
-          <button class="btn btn-primary" type="submit">Сохранить</button>
+          <button class="btn btn-primary" type="submit" data-loading-text="Сохраняем…">Сохранить</button>
         </div>
       </form>
     </div>

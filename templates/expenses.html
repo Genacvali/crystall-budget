@@ -27,15 +27,15 @@
         {% endif %}
     </div>
     <div class="period-nav">
-        <a href="{{ url_for('expenses', month=month_data.prev_month) }}" 
+        <a href="{{ url_for('budget.expenses', month=month_data.prev_month) }}" 
            class="period-btn" title="Предыдущий месяц">
             <i class="bi bi-chevron-left"></i>
         </a>
-        <a href="{{ url_for('expenses') }}" 
+        <a href="{{ url_for('budget.expenses') }}" 
            class="period-btn current" title="Текущий месяц">
             <i class="bi bi-house"></i>
         </a>
-        <a href="{{ url_for('expenses', month=month_data.next_month) }}" 
+        <a href="{{ url_for('budget.expenses', month=month_data.next_month) }}" 
            class="period-btn" title="Следующий месяц">
             <i class="bi bi-chevron-right"></i>
         </a>

@@ -1,0 +1,12 @@
+# Testing dependencies
+pytest==8.3.4
+pytest-playwright==0.5.2
+playwright==1.51.0
+requests==2.32.5
+pytest-asyncio==0.25.0
+pytest-html==4.1.1
+Pillow==11.0.0
+
+# For API testing
+httpx==0.28.1
+faker==35.0.0

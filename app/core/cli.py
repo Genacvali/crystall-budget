@@ -248,3 +248,7 @@ def register_cli_commands(app):
     app.cli.add_command(user_cli)
     app.cli.add_command(db_cli)
     app.cli.add_command(dev_cli)
+    
+    # Register screenshot commands
+    from app.core.screenshot_cli import register_screenshot_commands
+    register_screenshot_commands(app)

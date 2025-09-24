@@ -1,5 +1,102 @@
 /* ===== ОБЩИЙ JAVASCRIPT ДЛЯ ВСЕХ СТРАНИЦ ===== */
 
+// === CSRF Protection для всех fetch запросов ===
+(() => {
+  // Сохраняем оригинальный fetch
+  const originalFetch = window.fetch;
+  
+  // Получаем CSRF токен из мета-тега
+  const getCSRFToken = () => {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.getAttribute('content') : null;
+  };
+  
+  // Перехватчик для fetch
+  window.fetch = function(url, options = {}) {
+    const token = getCSRFToken();
+    
+    // Проверяем, нужен ли CSRF токен
+    const method = (options.method || 'GET').toUpperCase();
+    const needsCSRF = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+    
+    if (needsCSRF && token) {
+      // Подготавливаем headers
+      const headers = new Headers(options.headers || {});
+      
+      // Добавляем X-CSRF-Token если его еще нет
+      if (!headers.has('X-CSRF-Token')) {
+        headers.set('X-CSRF-Token', token);
+      }
+      
+      // Создаем новые опции с CSRF заголовком
+      options = {
+        ...options,
+        headers: headers
+      };
+    }
+    
+    // Вызываем оригинальный fetch
+    return originalFetch.call(this, url, options);
+  };
+})();
+
+// === Нормализация decimal для RU-локали ===
+(() => {
+  // Функция для нормализации числа (замена запятой на точку)
+  const normalizeDecimal = (value) => {
+    if (typeof value === 'string') {
+      return value.replace(',', '.');
+    }
+    return value;
+  };
+
+  // Инициализация при загрузке DOM
+  document.addEventListener('DOMContentLoaded', () => {
+    // Находим все поля ввода чисел
+    const numberInputs = document.querySelectorAll('input[type="number"], input[inputmode="decimal"]');
+    
+    numberInputs.forEach(input => {
+      // Обработка при вводе - заменяем запятую на точку в реальном времени
+      input.addEventListener('input', (e) => {
+        const originalValue = e.target.value;
+        const normalizedValue = normalizeDecimal(originalValue);
+        
+        if (originalValue !== normalizedValue) {
+          // Сохраняем позицию курсора
+          const selectionStart = e.target.selectionStart;
+          const selectionEnd = e.target.selectionEnd;
+          
+          e.target.value = normalizedValue;
+          
+          // Восстанавливаем позицию курсора
+          e.target.setSelectionRange(selectionStart, selectionEnd);
+        }
+      });
+      
+      // Обработка при потере фокуса - финальная нормализация
+      input.addEventListener('blur', (e) => {
+        e.target.value = normalizeDecimal(e.target.value);
+      });
+      
+      // Обработка перед отправкой формы
+      const form = input.closest('form');
+      if (form && !form.dataset.decimalNormalized) {
+        form.dataset.decimalNormalized = 'true';
+        
+        form.addEventListener('submit', () => {
+          const allNumberInputs = form.querySelectorAll('input[type="number"], input[inputmode="decimal"]');
+          allNumberInputs.forEach(inp => {
+            inp.value = normalizeDecimal(inp.value);
+          });
+        });
+      }
+    });
+  });
+  
+  // Экспортируем функцию для использования в других скриптах
+  window.normalizeDecimal = normalizeDecimal;
+})();
+
 // === Дроп-календарь ===
 (() => {
   const root  = document.getElementById('datePicker');

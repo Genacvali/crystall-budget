@@ -2,7 +2,7 @@
 {% block title %}Дашборд — CrystalBudget{% endblock %}
 
 {% block page_css %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}?v=20250922-02">
+  <link rel="stylesheet" href="{{ versioned_static('css/dashboard.css') }}">
 {% endblock %}
 
 {% block content %}
@@ -26,6 +26,6 @@
 {% endblock %}
 
 {% block page_js %}
-<script defer src="{{ url_for('static', filename='js/entries/dashboard.entry.js') }}?v=20250922-1"></script>
-<script defer src="{{ url_for('static', filename='js/dashboard-cats.js') }}?v=20250921-1"></script>
+<script defer src="{{ versioned_static('js/entries/dashboard.entry.js') }}"></script>
+<script defer src="{{ versioned_static('js/dashboard-cats.js') }}"></script>
 {% endblock %}

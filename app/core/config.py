@@ -1,12 +1,13 @@
 """Application configuration."""
 import os
+import secrets
 from datetime import timedelta
 
 
 class BaseConfig:
     """Base configuration."""
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
-    SQLALCHEMY_DATABASE_URI = os.environ.get('BUDGET_DB', f'sqlite:///{os.path.abspath("budget.db")}')
+    SECRET_KEY = os.environ.get('SECRET_KEY') or secrets.token_hex(32)
+    SQLALCHEMY_DATABASE_URI = os.environ.get('BUDGET_DB', 'sqlite:////opt/crystall-budget/instance/budget.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_timeout': 20,
@@ -27,6 +28,9 @@ class BaseConfig:
     # Telegram
     TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
     
+    # Diagnostics
+    DIAGNOSTICS_ENABLED = os.environ.get('DIAGNOSTICS_ENABLED', 'false').lower() == 'true'
+    
     # Logging
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
 
@@ -42,6 +46,15 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
     TESTING = False
     SESSION_COOKIE_SECURE = os.environ.get('HTTPS_MODE', 'false').lower() == 'true'
+    
+    def __init__(self):
+        """Validate production configuration."""
+        super().__init__()
+        if not os.environ.get('SECRET_KEY'):
+            raise RuntimeError(
+                "SECRET_KEY environment variable must be set in production. "
+                "Generate one with: python -c 'import secrets; print(secrets.token_hex(32))'"
+            )
 
 
 class TestingConfig(BaseConfig):

@@ -11,8 +11,9 @@ WorkingDirectory=/opt/crystall-budget
 Environment=SECRET_KEY=production-secret-key-change-me-12345
 Environment=HTTPS_MODE=false
 Environment=TELEGRAM_BOT_TOKEN=test-token
-Environment=BUDGET_DB=/opt/crystall-budget/budget.db
+Environment=BUDGET_DB=sqlite:////opt/crystall-budget/instance/budget.db
 Environment=LOG_LEVEL=INFO
+ExecStartPre=/bin/mkdir -p /opt/crystall-budget/instance
 ExecStart=/opt/crystall-budget/.venv/bin/python app.py
 Restart=always
 RestartSec=10
@@ -26,6 +27,7 @@ PrivateTmp=yes
 ProtectSystem=strict
 ProtectHome=yes
 ReadWritePaths=/opt/crystall-budget
+ReadWritePaths=/opt/crystall-budget/instance
 ReadWritePaths=/opt/crystall-budget/static/avatars
 
 # Ограничения ресурсов

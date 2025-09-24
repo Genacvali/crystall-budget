@@ -5,7 +5,7 @@ from datetime import datetime, date
 from sqlalchemy import func, extract
 from flask import current_app
 from app.core.extensions import db
-from app.core.money import Money, SUPPORTED_CURRENCIES
+from app.core.money import Money, SUPPORTED_CURRENCIES, get_user_currency
 from app.core.time import YearMonth
 from app.core.caching import cached_per_user_month, CacheManager
 from .models import Category, Expense, Income, CategoryRule, ExchangeRate
@@ -74,10 +74,17 @@ class BudgetService:
     
     @staticmethod
     def add_expense(user_id: int, category_id: int, amount: Decimal, 
-                   description: str = None, date_val: date = None, currency: str = 'RUB') -> Expense:
+                   description: str = None, date_val: date = None, currency: str = None) -> Expense:
         """Add new expense."""
         if date_val is None:
             date_val = datetime.utcnow().date()
+        
+        # Get currency with fallback for outside request context
+        if currency is None:
+            try:
+                currency = get_user_currency()
+            except RuntimeError:
+                currency = 'RUB'
         
         expense = Expense(
             user_id=user_id,
@@ -98,16 +105,30 @@ class BudgetService:
         return expense
     
     @staticmethod
-    def get_expenses_for_month(user_id: int, year_month: YearMonth) -> List[Expense]:
-        """Get all expenses for user in given month."""
+    def get_expenses_for_month(user_id: int, year_month: YearMonth, 
+                             limit: Optional[int] = None, offset: int = 0,
+                             category_id: Optional[int] = None) -> List[Expense]:
+        """Get expenses for user in given month with optional pagination and filtering."""
         start_date = year_month.to_date()
         end_date = year_month.last_day()
         
-        return Expense.query.filter(
+        query = Expense.query.filter(
             Expense.user_id == user_id,
             Expense.date >= start_date,
             Expense.date <= end_date
-        ).order_by(Expense.date.desc()).all()
+        )
+        
+        # Optional category filter
+        if category_id:
+            query = query.filter(Expense.category_id == category_id)
+        
+        query = query.order_by(Expense.date.desc())
+        
+        # Optional pagination
+        if limit:
+            query = query.offset(offset).limit(limit)
+        
+        return query.all()
     
     @staticmethod
     def update_expense(expense_id: int, user_id: int, **kwargs) -> Optional[Expense]:
@@ -189,61 +210,99 @@ class BudgetService:
         return income
     
     @staticmethod
-    def get_income_for_month(user_id: int, year_month: YearMonth) -> List[Income]:
-        """Get all income for user in given month."""
-        return Income.query.filter_by(
+    def get_income_for_month(user_id: int, year_month: YearMonth, 
+                           limit: Optional[int] = None, offset: int = 0) -> List[Income]:
+        """Get income for user in given month with optional pagination."""
+        query = Income.query.filter_by(
             user_id=user_id,
             year=year_month.year,
             month=year_month.month
-        ).all()
+        ).order_by(Income.created_at.desc())
+        
+        # Optional pagination
+        if limit:
+            query = query.offset(offset).limit(limit)
+        
+        return query.all()
     
     @staticmethod
     def get_total_income_for_month(user_id: int, year_month: YearMonth) -> Money:
         """Get total income for month."""
         incomes = BudgetService.get_income_for_month(user_id, year_month)
         total = sum(income.money_amount.amount for income in incomes)
-        return Money(total, 'RUB')  # TODO: handle different currencies
+        
+        # Use RUB as default currency for calculations outside of request context
+        currency = 'RUB'
+        try:
+            currency = get_user_currency()
+        except RuntimeError:
+            # We're outside request context, use RUB as fallback
+            pass
+            
+        return Money(total, currency)
     
     @staticmethod
-    @cached_per_user_month(timeout=300)
+    def get_category_spending_summary(user_id: int, year_month: YearMonth) -> Dict[int, Decimal]:
+        """Get category spending summary with SQL GROUP BY."""
+        start_date = year_month.to_date()
+        end_date = year_month.last_day()
+        
+        # SQL aggregate query - much faster than Python grouping
+        spending_data = db.session.query(
+            Expense.category_id,
+            func.sum(Expense.amount).label('total_amount')
+        ).filter(
+            Expense.user_id == user_id,
+            Expense.date >= start_date,
+            Expense.date <= end_date
+        ).group_by(Expense.category_id).all()
+        
+        # Return as dict for O(1) lookup
+        return {cat_id: total for cat_id, total in spending_data}
+    
+    @staticmethod
+    # @cached_per_user_month(timeout=300)  # Temporarily disabled for stabilization
     def calculate_month_snapshot(user_id: int, year_month: YearMonth) -> Dict:
         """Calculate complete budget snapshot for month."""
         categories = BudgetService.get_user_categories(user_id)
-        expenses = BudgetService.get_expenses_for_month(user_id, year_month)
         total_income = BudgetService.get_total_income_for_month(user_id, year_month)
         
-        # Group expenses by category
-        expenses_by_category = {}
-        for expense in expenses:
-            if expense.category_id not in expenses_by_category:
-                expenses_by_category[expense.category_id] = []
-            expenses_by_category[expense.category_id].append(expense)
+        # Get category spending summary with SQL GROUP BY
+        spending_by_category = BudgetService.get_category_spending_summary(user_id, year_month)
         
         # Calculate category summaries
         category_summaries = []
-        total_spent = Money.zero()
-        total_limits = Money.zero()
+        
+        # Get currency for calculations (fallback to RUB outside request context)
+        currency = 'RUB'
+        try:
+            currency = get_user_currency()
+        except RuntimeError:
+            pass
+            
+        total_spent = Money.zero(currency)
+        total_limits = Money.zero(currency)
         
         for category in categories:
-            category_expenses = expenses_by_category.get(category.id, [])
-            spent = sum(exp.money_amount.amount for exp in category_expenses)
-            spent_money = Money(spent, 'RUB')
+            spent_amount = spending_by_category.get(category.id, Decimal('0'))
+            spent_money = Money(spent_amount, currency)
             
             # Calculate limit
             if category.limit_type == 'fixed':
-                limit = category.limit_value
+                limit = Money(category.value, currency)
             else:  # percentage
-                limit = Money(total_income.amount * (category.value / 100), total_income.currency)
+                limit = Money(total_income.amount * (category.value / 100), currency)
             
             remaining = limit - spent_money
+            is_overspent = remaining.amount < 0
             
             category_summaries.append({
                 'category': category,
                 'spent': spent_money,
                 'limit': limit,
                 'remaining': remaining,
-                'percentage_used': (spent_money.amount / limit.amount * 100) if limit.amount > 0 else 0,
-                'expenses': category_expenses
+                'is_overspent': is_overspent,
+                'percentage_used': (spent_money.amount / limit.amount * 100) if limit.amount > 0 else 0
             })
             
             total_spent += spent_money
@@ -257,8 +316,7 @@ class BudgetService:
             'total_spent': total_spent,
             'total_limits': total_limits,
             'total_remaining': total_remaining,
-            'categories': category_summaries,
-            'expenses': expenses
+            'categories': category_summaries
         }
 
 

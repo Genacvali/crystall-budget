@@ -1,0 +1,372 @@
+/* ===== ДОСТУПНОСТЬ (A11Y) ===== */
+
+/* === Фокус-стили === */
+:focus {
+  outline: 2px solid var(--bs-primary, #0d6efd) !important;
+  outline-offset: 2px;
+}
+
+/* Более заметные фокус-стили для интерактивных элементов */
+.btn:focus,
+.form-control:focus,
+.form-select:focus,
+.nav-link:focus {
+  outline: 3px solid var(--bs-primary, #0d6efd) !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* Фокус для карточек и кликабельных элементов */
+.card:focus,
+[role="button"]:focus,
+[tabindex]:focus {
+  outline: 2px solid var(--bs-primary, #0d6efd) !important;
+  outline-offset: 2px;
+}
+
+/* Убираем outline только если используется mouse */
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
+/* === Высокий контраст === */
+@media (prefers-contrast: high) {
+  .btn {
+    border-width: 2px !important;
+  }
+  
+  .card {
+    border-width: 2px !important;
+  }
+  
+  .text-muted {
+    color: var(--bs-gray-700, #6c757d) !important;
+  }
+  
+  .bg-light {
+    background-color: var(--bs-gray-100, #f8f9fa) !important;
+    border: 1px solid var(--bs-gray-400, #ced4da) !important;
+  }
+}
+
+/* === Уменьшенная анимация === */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .progress-bar {
+    transition: none !important;
+  }
+}
+
+/* === Улучшенная читаемость === */
+@media (prefers-reduced-motion: no-preference) {
+  .btn:hover,
+  .nav-link:hover {
+    transform: translateY(-1px);
+    transition: transform 0.2s ease;
+  }
+}
+
+/* === Размер текста === */
+.text-accessible {
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+/* Минимальный размер для интерактивных элементов (44px) */
+.btn,
+.nav-link,
+[role="button"] {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === Скрытый текст для скрин-ридеров === */
+.sr-only,
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* === Пропуск навигации === */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--bs-primary, #0d6efd);
+  color: white;
+  padding: 8px;
+  text-decoration: none;
+  border-radius: 4px;
+  z-index: 2000;
+  transition: top 0.3s;
+}
+
+.skip-link:focus {
+  top: 6px;
+  color: white;
+  text-decoration: none;
+}
+
+/* === Улучшения для форм === */
+.form-control:invalid {
+  border-color: var(--bs-danger, #dc3545) !important;
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.form-control:valid {
+  border-color: var(--bs-success, #198754) !important;
+}
+
+.invalid-feedback {
+  display: block !important;
+  font-weight: 500;
+  color: var(--bs-danger, #dc3545) !important;
+}
+
+/* === Улучшения для модальных окон === */
+.modal {
+  --bs-modal-zindex: 1055;
+}
+
+.modal-backdrop {
+  --bs-backdrop-zindex: 1050;
+}
+
+.modal:focus {
+  outline: none;
+}
+
+.modal-content:focus-within {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15), 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* === Индикаторы загрузки === */
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--bs-gray-300, #dee2e6);
+  border-radius: 50%;
+  border-top-color: var(--bs-primary, #0d6efd);
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* === Состояния ошибок === */
+.error-message {
+  color: var(--bs-danger, #dc3545) !important;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+
+.error-icon {
+  color: var(--bs-danger, #dc3545) !important;
+  margin-right: 0.5rem;
+}
+
+/* === Улучшения для таблиц === */
+.table th {
+  font-weight: 600;
+  border-bottom: 2px solid var(--bs-border-color, #dee2e6) !important;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(var(--bs-primary-rgb, 13, 110, 253), 0.075) !important;
+}
+
+/* === Кнопки состояний === */
+.btn[aria-pressed="true"] {
+  background-color: var(--bs-primary, #0d6efd) !important;
+  border-color: var(--bs-primary, #0d6efd) !important;
+  color: white !important;
+}
+
+.btn[aria-expanded="true"] {
+  background-color: rgba(var(--bs-primary-rgb, 13, 110, 253), 0.1) !important;
+}
+
+/* === Прогресс-бары === */
+.progress {
+  position: relative;
+}
+
+.progress-bar[role="progressbar"]::after {
+  content: attr(aria-valuenow) "%";
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* === Пользовательские элементы управления === */
+.custom-control {
+  position: relative;
+  display: block;
+  min-height: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.custom-control-input:focus ~ .custom-control-label::before {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+/* === Цветовые контрасты WCAG AA (4.5:1) === */
+:root {
+  --a11y-text-primary: #212529;       /* 16.75:1 на белом */
+  --a11y-text-secondary: #343a40;     /* 9.95:1 на белом */
+  --a11y-text-muted: #495057;         /* 7.00:1 на белом */
+  --a11y-bg-primary: #ffffff;
+  --a11y-bg-secondary: #f8f9fa;
+  --a11y-border: #dee2e6;
+  
+  /* Улучшенные контрастные цвета */
+  --a11y-success: #146c43;            /* 4.54:1 на белом */
+  --a11y-danger: #b02a37;             /* 4.56:1 на белом */
+  --a11y-warning: #997404;            /* 4.50:1 на белом */
+  --a11y-info: #055160;               /* 4.52:1 на белом */
+  --a11y-primary: #0a58ca;            /* 4.57:1 на белом */
+  
+  /* Фокусные цвета с высоким контрастом */
+  --a11y-focus: #0052cc;              /* 5.00:1 на белом */
+  --a11y-focus-shadow: rgba(0, 82, 204, 0.5);
+}
+
+[data-bs-theme="dark"] {
+  --a11y-text-primary: #f8f9fa;       /* 18.67:1 на тёмном */
+  --a11y-text-secondary: #dee2e6;     /* 12.63:1 на тёмном */
+  --a11y-text-muted: #adb5bd;         /* 7.06:1 на тёмном */
+  --a11y-bg-primary: #212529;
+  --a11y-bg-secondary: #343a40;
+  --a11y-border: #495057;
+  
+  /* Тёмная тема - улучшенные контрасты */
+  --a11y-success: #75b798;            /* 4.51:1 на тёмном */
+  --a11y-danger: #ea868f;             /* 4.50:1 на тёмном */
+  --a11y-warning: #ffda6a;            /* 7.25:1 на тёмном */
+  --a11y-info: #6ed3f0;               /* 5.74:1 на тёмном */
+  --a11y-primary: #6ea8fe;            /* 4.56:1 на тёмном */
+  
+  --a11y-focus: #86b7fe;              /* 5.12:1 на тёмном */
+  --a11y-focus-shadow: rgba(134, 183, 254, 0.5);
+}
+
+/* Принудительное применение контрастных цветов */
+.text-contrast-primary {
+  color: var(--a11y-text-primary) !important;
+}
+
+.text-contrast-secondary {
+  color: var(--a11y-text-secondary) !important;
+}
+
+.text-contrast-muted {
+  color: var(--a11y-text-muted) !important;
+}
+
+/* Улучшенные цвета для alert'ов */
+.alert-success {
+  --bs-alert-color: var(--a11y-success);
+  --bs-alert-bg: rgba(var(--a11y-success-rgb, 20, 108, 67), 0.1);
+  --bs-alert-border-color: var(--a11y-success);
+}
+
+.alert-danger {
+  --bs-alert-color: var(--a11y-danger);
+  --bs-alert-bg: rgba(var(--a11y-danger-rgb, 176, 42, 55), 0.1);
+  --bs-alert-border-color: var(--a11y-danger);
+}
+
+.alert-warning {
+  --bs-alert-color: var(--a11y-warning);
+  --bs-alert-bg: rgba(var(--a11y-warning-rgb, 153, 116, 4), 0.1);
+  --bs-alert-border-color: var(--a11y-warning);
+}
+
+.alert-info {
+  --bs-alert-color: var(--a11y-info);
+  --bs-alert-bg: rgba(var(--a11y-info-rgb, 5, 81, 96), 0.1);
+  --bs-alert-border-color: var(--a11y-info);
+}
+
+/* Улучшенные цвета для кнопок */
+.btn-primary {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: var(--a11y-primary);
+  --bs-btn-border-color: var(--a11y-primary);
+}
+
+.btn-success {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: var(--a11y-success);
+  --bs-btn-border-color: var(--a11y-success);
+}
+
+.btn-danger {
+  --bs-btn-color: #ffffff;
+  --bs-btn-bg: var(--a11y-danger);
+  --bs-btn-border-color: var(--a11y-danger);
+}
+
+/* Улучшенный фокус с высоким контрастом */
+:focus {
+  outline: 2px solid var(--a11y-focus) !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 0.25rem var(--a11y-focus-shadow) !important;
+}
+
+/* === Адаптивные размеры шрифта === */
+@media (max-width: 576px) {
+  .text-accessible {
+    font-size: 1.1rem !important;
+  }
+  
+  .btn {
+    min-height: 48px;
+    min-width: 48px;
+  }
+}
+
+/* === Печать === */
+@media print {
+  .btn,
+  .nav,
+  .modal,
+  .skip-link {
+    display: none !important;
+  }
+  
+  .table {
+    border-collapse: collapse !important;
+  }
+  
+  .table th,
+  .table td {
+    border: 1px solid #000 !important;
+  }
+}

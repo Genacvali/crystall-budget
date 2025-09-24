@@ -1,16 +1,29 @@
 """Money handling utilities."""
 from decimal import Decimal, ROUND_HALF_UP
+from flask import session
+
+
+def get_user_currency() -> str:
+    """Get user's default currency from session or fallback to RUB."""
+    return session.get('currency', 'RUB')
+
+
+def get_user_currency_or_fallback(currency: str = None) -> str:
+    """Get currency: explicit -> user default -> fallback to RUB."""
+    if currency:
+        return currency
+    return get_user_currency()
 
 
 class Money:
     """Immutable money value with currency."""
     
-    def __init__(self, amount, currency='RUB'):
+    def __init__(self, amount, currency=None):
         """Initialize Money with automatic Decimal conversion."""
         if not isinstance(amount, Decimal):
             amount = Decimal(str(amount))
         self._amount = amount
-        self._currency = currency
+        self._currency = get_user_currency_or_fallback(currency)
     
     @property
     def amount(self) -> Decimal:
@@ -82,22 +95,22 @@ class Money:
         return Money(abs(self.amount), self.currency)
     
     @classmethod
-    def zero(cls, currency: str = 'RUB') -> 'Money':
+    def zero(cls, currency: str = None) -> 'Money':
         """Create zero money value."""
-        return cls(Decimal('0'), currency)
+        return cls(Decimal('0'), get_user_currency_or_fallback(currency))
     
     @classmethod
-    def from_float(cls, amount: float, currency: str = 'RUB') -> 'Money':
+    def from_float(cls, amount: float, currency: str = None) -> 'Money':
         """Create money from float (use with caution)."""
-        return cls(Decimal(str(amount)), currency)
+        return cls(Decimal(str(amount)), get_user_currency_or_fallback(currency))
     
     @classmethod
-    def from_string(cls, amount: str, currency: str = 'RUB') -> 'Money':
+    def from_string(cls, amount: str, currency: str = None) -> 'Money':
         """Create money from string."""
-        return cls(Decimal(amount), currency)
+        return cls(Decimal(amount), get_user_currency_or_fallback(currency))
 
 
-def parse_money(value: str, currency: str = 'RUB') -> Money:
+def parse_money(value: str, currency: str = None) -> Money:
     """Parse money from user input string."""
     if not value:
         return Money.zero(currency)
