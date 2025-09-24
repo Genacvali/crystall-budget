@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="{{ versioned_static('css/app.css') }}">
   <link rel="stylesheet" href="{{ versioned_static('css/drawer.css') }}">
   <link rel="stylesheet" href="{{ versioned_static('css/accessibility.css') }}">
+  <link rel="stylesheet" href="{{ versioned_static('css/nav-ff.css') }}">
 
   <!-- Страничные стили при необходимости -->
   {% block page_css %}{% endblock %}
@@ -30,9 +31,6 @@
   <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192x192.png') }}">
 </head>
 <body class="is-compact ui-compact">
-
-{# Ссылка для пропуска навигации #}
-<a href="#main-content" class="skip-link">Перейти к основному содержимому</a>
 
 {# Единая навигация #}
 {% include "components/_nav.html" %}
@@ -99,6 +97,7 @@
 <!-- Общий JavaScript -->
 <script src="{{ versioned_static('js/app.js') }}"></script>
 <script src="{{ versioned_static('js/accessibility.js') }}"></script>
+<script src="{{ versioned_static('js/nav-ff.js') }}" defer></script>
 
 <!-- Страничный JavaScript при необходимости -->
 {% block page_js %}{% endblock %}

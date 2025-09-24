@@ -1,194 +1,115 @@
 {# templates/components/_nav.html #}
 {% set ep = request.endpoint %}
 
-<header class="cb-nav" role="banner">
-  <div class="container-xl">
-    <div class="cb-nav-row">
-      
-      {# Левая часть - логотип #}
-      <div class="cb-brand">
-        <a href="{{ url_for('budget.dashboard') }}" class="cb-brand-link" aria-label="CrystalBudget - перейти на главную страницу">
-          <span class="cb-brand-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="24" height="24">
-              <path d="M6 3h12l4 6-10 12L2 9l4-6z" fill="currentColor"/>
-            </svg>
-          </span>
-          <span class="cb-brand-text">CrystalBudget</span>
-        </a>
-      </div>
-      
-      {# Центральная навигация #}
-      <nav class="cb-tabs" aria-label="Основная навигация" role="navigation">
-        <a class="cb-tab {{ 'is-active' if ep == 'budget.dashboard' else '' }}" 
-           href="{{ url_for('budget.dashboard') }}"
-           aria-label="Дашборд - обзор бюджета"
-           {{ 'aria-current="page"' if ep == 'budget.dashboard' else '' }}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-          Дашборд
-        </a>
-        <a class="cb-tab {{ 'is-active' if ep == 'budget.categories' else '' }}" 
-           href="{{ url_for('budget.categories') }}"
-           aria-label="Категории - управление категориями расходов"
-           {{ 'aria-current="page"' if ep == 'budget.categories' else '' }}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l4 4-8 8-4-4 8-8zm-3 14l-1 4 4-1 8-8-3-3-8 8z"/></svg>
-          Категории
-        </a>
-        <a class="cb-tab {{ 'is-active' if ep == 'budget.income' else '' }}" 
-           href="{{ url_for('budget.income') }}"
-           aria-label="Доходы - управление источниками доходов"
-           {{ 'aria-current="page"' if ep == 'budget.income' else '' }}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l4 7H8l4-7zm-7 9h14l-7 9-7-9z"/></svg>
-          Доходы
-        </a>
-        <a class="cb-tab {{ 'is-active' if ep == 'budget.expenses' else '' }}" 
-           href="{{ url_for('budget.expenses') }}"
-           aria-label="Расходы - просмотр всех расходов"
-           {{ 'aria-current="page"' if ep == 'budget.expenses' else '' }}>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14V6c0-1.1-.9-2-2-2H3c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zm-9-1c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg>
-          Расходы
-        </a>
-      </nav>
-
-      {# Правая часть - календарь, тема, пользователь #}
-      <div class="cb-right">
-        
-        {# Современный бургер для мобильных #}
-        <button class="cb-burger-modern" 
-                id="openDrawer" 
-                type="button" 
-                aria-label="Открыть меню навигации"
-                aria-expanded="false"
-                aria-controls="drawer">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/>
-          </svg>
-        </button>
-        
-        {# Дроп-календарь #}
-        <div class="date-picker" id="datePicker">
-          <button class="dp-btn" type="button" id="dpBtn" title="Выбрать дату">
-            <svg viewBox="0 0 24 24"><path d="M7 2h2v2h6V2h2v2h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h3V2zm14 8H3v10a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V10zM4 9h16V6a1 1 0 0 0-1-1h-3v2h-2V5H9v2H7V5H4a1 1 0 0 0-1 1v3z"/></svg>
-            <span id="dpLabel"></span>
-          </button>
-          
-          <div class="dp-dropdown">
-            <div class="dp-header">
-              <div class="dp-title" id="dpTitle"></div>
-              <div class="dp-nav">
-                <button class="dp-nav-btn" id="dpPrev" type="button" title="Предыдущий месяц">‹</button>
-                <button class="dp-nav-btn" id="dpNext" type="button" title="Следующий месяц">›</button>
-              </div>
-            </div>
-            <div class="dp-grid" id="dpGrid"></div>
-            <div class="dp-footer">
-              <button class="dp-today-btn" id="dpToday" type="button">Сегодня</button>
-            </div>
-          </div>
-        </div>
-
-        {# Переключатель темы #}
-        <label class="theme-toggle" for="theme">
-          <span class="visually-hidden">Переключить тему</span>
-          <input type="checkbox" 
-                 id="theme" 
-                 role="switch"
-                 aria-label="Переключить между светлой и тёмной темой"
-                 aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}"
-                 {{ 'checked' if session.get('theme') == 'dark' else '' }}>
-          <span class="theme-slider" aria-hidden="true"></span>
-        </label>
-
-
-      </div>
-    </div>
-  </div>
-</header>
-
-{# Современный Drawer для мобильных #}
-<div class="cb-drawer-dim" id="dim" hidden></div>
-
-<aside class="cb-drawer" id="drawer" aria-modal="true" role="dialog" aria-labelledby="dwTitle" hidden>
-  <div class="cb-dw-head">
-    <a class="cb-brand" href="{{ url_for('budget.dashboard') }}">
-      <span class="cb-brand-icon">
-        <svg viewBox="0 0 24 24" width="24" height="24">
-          <path d="M6 3h12l4 6-10 12L2 9l4-6z" fill="currentColor"/>
-        </svg>
-      </span>
-      <span id="dwTitle">CrystalBudget</span>
+<header class="cb-nav navbar navbar-expand-lg" role="banner" aria-label="Главная навигация">
+  <div class="container-xl d-flex align-items-center justify-content-between cb-nav-inner">
+    <a href="{{ url_for('budget.dashboard') }}" class="navbar-brand d-flex align-items-center gap-2" aria-label="CrystalBudget — на главную">
+      <span class="ff-gem" aria-hidden="true"></span>
+      <span class="ff-logo fw-bold">CrystalBudget</span>
     </a>
-    <button class="cb-dw-close" id="closeDrawer" aria-label="Закрыть">
-      <svg viewBox="0 0 24 24">
-        <path d="M6 6l12 12m0-12L6 18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
-      </svg>
+
+    <button class="btn cb-btn btn-outline-secondary d-lg-none px-3" id="navToggle"
+            type="button" aria-label="Открыть меню" aria-controls="mobileDrawer" aria-expanded="false">
+      <i class="bi bi-list" aria-hidden="true"></i>
     </button>
-  </div>
 
-  <div class="cb-drawer-group" aria-label="Навигация">
-    <div class="cb-drawer-group-title">Навигация</div>
+    <nav class="d-none d-lg-flex ff-tabs-wrap" role="navigation" aria-label="Основная навигация">
+      <ul class="nav nav-pills ff-tabs p-1">
+        <li class="nav-item">
+          <a class="nav-link ff-pill {{ 'active' if ep=='budget.dashboard' else '' }}" href="{{ url_for('budget.dashboard') }}" aria-current="{{ 'page' if ep=='budget.dashboard' else 'false' }}">
+            <i class="bi bi-house-door me-2" aria-hidden="true"></i>Дашборд
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ff-pill {{ 'active' if ep=='budget.expenses' else '' }}" href="{{ url_for('budget.expenses') }}">
+            <i class="bi bi-wallet2 me-2" aria-hidden="true"></i>Расходы
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ff-pill {{ 'active' if ep=='budget.categories' else '' }}" href="{{ url_for('budget.categories') }}">
+            <i class="bi bi-tags me-2" aria-hidden="true"></i>Категории
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link ff-pill {{ 'active' if ep=='budget.income' else '' }}" href="{{ url_for('budget.income') }}">
+            <i class="bi bi-graph-up-arrow me-2" aria-hidden="true"></i>Доходы
+          </a>
+        </li>
+      </ul>
+    </nav>
 
-    <a class="cb-drawer-item {{ 'is-active' if ep == 'budget.dashboard' else '' }}" href="{{ url_for('budget.dashboard') }}">
-      <span class="cb-ico">
-        <svg viewBox="0 0 24 24"><path d="M3 3h8v8H3zM13 3h8v8h-8zM3 13h8v8H3zM13 13h8v8h-8z"/></svg>
-      </span>
-      <span class="cb-label">Дашборд</span>
-      <span class="cb-hint"></span>
-    </a>
+    <div class="d-flex align-items-center gap-2">
+      <label class="ff-switch mb-0" aria-label="Переключить тему" role="switch" aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}">
+        <input type="checkbox" id="themeToggle" class="visually-hidden" {{ 'checked' if session.get('theme') == 'dark' else '' }}/>
+        <span class="ff-track d-inline-flex align-items-center justify-content-between">
+          <i class="bi bi-sun-fill" aria-hidden="true"></i>
+          <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+          <span class="ff-thumb" aria-hidden="true"></span>
+        </span>
+      </label>
 
-    <a class="cb-drawer-item {{ 'is-active' if ep == 'budget.categories' else '' }}" href="{{ url_for('budget.categories') }}">
-      <span class="cb-ico">
-        <svg viewBox="0 0 24 24"><path d="M12 2l4 4-8 8-4-4 8-8zM6 14l-1 4 4-1" fill="currentColor"/></svg>
-      </span>
-      <span class="cb-label">Категории</span>
-      <span class="cb-hint"></span>
-    </a>
-
-    <a class="cb-drawer-item {{ 'is-active' if ep == 'budget.income' else '' }}" href="{{ url_for('budget.income') }}">
-      <span class="cb-ico">
-        <svg viewBox="0 0 24 24"><path d="M4 14h6v6H4zM14 4h6v6h-6zM9 11l6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-      </span>
-      <span class="cb-label">Доходы</span>
-      <span class="cb-hint"></span>
-    </a>
-
-    <a class="cb-drawer-item {{ 'is-active' if ep == 'budget.expenses' else '' }}" href="{{ url_for('budget.expenses') }}">
-      <span class="cb-ico">
-        <svg viewBox="0 0 24 24"><circle cx="18" cy="6" r="2" /><rect x="4" y="10" width="16" height="8" rx="2"/></svg>
-      </span>
-      <span class="cb-label">Расходы</span>
-      <span class="cb-hint"></span>
-    </a>
-
-
-  </div>
-
-  {% if session.user_id %}
-  <a class="cb-drawer-user" href="{{ url_for('auth.profile') }}">
-    <div class="cb-drawer-avatar">
-      {% if session.name %}
-        {{ session.name[0].upper() }}
-      {% else %}
-        ?
+      {% if session.user_id %}
+      <button class="btn btn-outline-secondary cb-btn d-none d-sm-inline-flex px-3" aria-label="Открыть меню профиля" role="button">
+        <i class="bi bi-person-circle me-2" aria-hidden="true"></i>
+        <span class="d-none d-xl-inline">{{ session.name or 'Пользователь' }}</span>
+        <i class="bi bi-caret-down-fill ms-1" aria-hidden="true"></i>
+      </button>
       {% endif %}
     </div>
-    <div>
-      <div class="cb-name">{{ session.name or 'Пользователь' }}</div>
-      <div class="cb-sub">Личный аккаунт</div>
-    </div>
-  </a>
-
-  <div class="cb-drawer-group">
-    <div class="cb-drawer-switch">
-      <span class="cb-label">Тема</span>
-      <div class="cb-sw" id="themeToggleDrawer" role="switch" tabindex="0" aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}" aria-label="Переключить тему"></div>
-    </div>
-    
-    <a class="cb-drawer-item" href="{{ url_for('auth.logout') }}">
-      <span class="cb-ico">
-        <svg viewBox="0 0 24 24"><path d="M10 8l-6 4 6 4V8zM13 4h7v16h-7" fill="currentColor"/></svg>
-      </span>
-      <span class="cb-label">Выйти</span>
-    </a>
   </div>
-  {% endif %}
-</aside>
+
+  <!-- моб.дровер оставляем как есть -->
+  <div id="mobileDrawer" class="offcanvas-backdrop" hidden></div>
+  <aside class="offcanvas-panel" role="dialog" aria-modal="true" aria-label="Меню" hidden>
+    <div class="p-3 d-flex align-items-center justify-content-between">
+      <span class="fw-bold">CrystalBudget</span>
+      <button class="btn cb-btn btn-outline-secondary" id="navClose" aria-label="Закрыть меню">
+        <i class="bi bi-x-lg" aria-hidden="true"></i>
+      </button>
+    </div>
+    <nav class="px-2 pb-3" role="navigation">
+      <a class="list-group-item list-group-item-action py-3 {{ 'active' if ep == 'budget.dashboard' else '' }}" 
+         href="{{ url_for('budget.dashboard') }}"
+         {{ 'aria-current="page"' if ep == 'budget.dashboard' else '' }}>
+        <i class="bi bi-house-door me-2" aria-hidden="true"></i>Дашборд
+      </a>
+      <a class="list-group-item list-group-item-action py-3 {{ 'active' if ep == 'budget.expenses' else '' }}" 
+         href="{{ url_for('budget.expenses') }}"
+         {{ 'aria-current="page"' if ep == 'budget.expenses' else '' }}>
+        <i class="bi bi-wallet2 me-2" aria-hidden="true"></i>Расходы
+      </a>
+      <a class="list-group-item list-group-item-action py-3 {{ 'active' if ep == 'budget.categories' else '' }}" 
+         href="{{ url_for('budget.categories') }}"
+         {{ 'aria-current="page"' if ep == 'budget.categories' else '' }}>
+        <i class="bi bi-tags me-2" aria-hidden="true"></i>Категории
+      </a>
+      <a class="list-group-item list-group-item-action py-3 {{ 'active' if ep == 'budget.income' else '' }}" 
+         href="{{ url_for('budget.income') }}"
+         {{ 'aria-current="page"' if ep == 'budget.income' else '' }}>
+        <i class="bi bi-graph-up-arrow me-2" aria-hidden="true"></i>Доходы
+      </a>
+    </nav>
+
+    {% if session.user_id %}
+    <div class="border-top p-3">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+             style="width: 40px; height: 40px;">
+          {% if session.name %}
+            {{ session.name[0].upper() }}
+          {% else %}
+            ?
+          {% endif %}
+        </div>
+        <div>
+          <div class="fw-semibold">{{ session.name or 'Пользователь' }}</div>
+          <div class="small text-muted">Личный аккаунт</div>
+        </div>
+      </div>
+      <a class="btn btn-outline-secondary w-100" href="{{ url_for('auth.logout') }}">
+        <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Выйти
+      </a>
+    </div>
+    {% endif %}
+  </aside>
+</header>

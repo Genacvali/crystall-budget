@@ -1,0 +1,332 @@
+/* ==== базовые переменные проекта уже существуют ==== */
+
+.cb-nav-inner{ min-height: var(--cb-nav-height); }
+
+/* ---------- Кристалл-логотип (Final Fantasy vibe) ---------- */
+.ff-gem{
+  position: relative;
+  width: 14px; height: 22px;
+  transform: skewY(-12deg) rotate(-2deg);
+  border-radius: 3px;
+  background:
+    conic-gradient(from 210deg at 50% 50%, #a077ff, #6ea8fe, #4dd0ff, #a077ff);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.10) inset,
+    0 10px 24px rgba(110,168,254,.35),
+    0 -8px 18px rgba(160,119,255,.35);
+  display: inline-block;
+}
+.ff-gem::before, .ff-gem::after{
+  content:""; position:absolute; inset:0; border-radius:3px; pointer-events:none;
+}
+/* внутренняя грань */
+.ff-gem::before{
+  clip-path: polygon(50% 5%, 95% 35%, 70% 95%, 30% 95%, 5% 35%);
+  background: linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0));
+  mix-blend-mode: screen; opacity:.8;
+}
+/* блик */
+.ff-gem::after{
+  top:-6px; left:-8px; right:-8px; bottom:-6px;
+  background: radial-gradient(40% 40% at 20% 10%, rgba(255,255,255,.65), transparent 60%);
+  filter: blur(6px); opacity:.7;
+}
+
+/* логотип-текст */
+.ff-logo{
+  letter-spacing:.2px;
+  background: linear-gradient(90deg, #6ea8fe, #9b6bff);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+}
+
+/* ---------- Табы ---------- */
+.ff-tabs{
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.18);
+}
+.ff-pill{
+  color: var(--bs-body-color);
+  border-radius: 12px;
+  min-height: 44px;
+  transition: all .18s ease;
+}
+.ff-pill:hover{ background: rgba(255,255,255,.06); }
+.ff-pill.active{
+  color: var(--bs-body-color);
+  background: radial-gradient(120% 160% at 10% -10%, rgba(110,168,254,.25), rgba(155,107,255,.25) 60%, transparent 65%);
+  box-shadow:
+    0 0 0 1px rgba(110,168,254,.25) inset,
+    0 8px 24px rgba(110,168,254,.35),
+    0 12px 30px rgba(155,107,255,.25);
+}
+/* убираем любую нижнюю полоску (если появлялась) */
+.ff-tabs, .ff-tabs::after, .ff-pill::after{ content:none !important; border-bottom:0 !important; }
+
+/* ---------- Тумблер темы ---------- */
+.ff-switch .ff-track{
+  position: relative; width: 84px; height: 36px; border-radius: 999px;
+  border: 1px solid var(--bs-border-color);
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  padding: 0 10px; gap: 8px; color: var(--bs-body-color);
+}
+.ff-switch .ff-thumb{
+  position: absolute; top: 3px; left: 4px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: radial-gradient(80% 80% at 30% 20%, #fff, #eaf1ff);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.4) inset,
+    0 10px 20px rgba(110,168,254,.35),
+    0 6px 16px rgba(155,107,255,.25);
+  transition: transform .2s ease;
+}
+:root[data-bs-theme="dark"] .ff-switch .ff-thumb{ transform: translateX(48px); }
+
+/* ---------- Светлая тема (отдельные корректировки) ---------- */
+:root[data-bs-theme="light"] .cb-nav{ background: rgba(255,255,255,.75); backdrop-filter: blur(10px); }
+:root[data-bs-theme="light"] .ff-tabs{ background: rgba(0,0,0,.04); }
+:root[data-bs-theme="light"] .ff-pill:hover{ background: rgba(0,0,0,.05); }
+:root[data-bs-theme="light"] .ff-pill.active{
+  background: radial-gradient(120% 160% at 10% -10%, rgba(110,168,254,.18), rgba(155,107,255,.18) 60%, transparent 65%);
+  box-shadow:
+    0 0 0 1px rgba(110,168,254,.18) inset,
+    0 8px 20px rgba(110,168,254,.25),
+    0 10px 24px rgba(155,107,255,.20);
+}
+
+/* ---------- Большие кнопки Дох/Расх (для дашборда) ---------- */
+/* Контейнер кнопок (чтоб красиво раскладывались) */
+.ff-actions {
+  display: flex;
+  gap: .75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* Базовый вид — крупные капсулы */
+.ff-action{
+  display: inline-flex;
+  align-items: center;
+  gap: .75rem;
+  border-radius: 999px;
+  border: 1px solid var(--bs-border-color);
+  padding: 1rem 1.5rem;          /* ↑ толще область клика */
+  min-height: 64px;              /* ↑ высота */
+  min-width: 180px;              /* ↑ ширина, не сжимается по тексту */
+  font-size: 1.0625rem;          /* 17px */
+  line-height: 1;
+  font-weight: 700;
+  white-space: nowrap;           /* не переносим текст */
+  box-shadow: 0 10px 28px rgba(0,0,0,.18);
+  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+}
+
+.ff-action .label { flex: 1 1 auto; }
+
+/* Крупнее значок/бейдж */
+.ff-action .ff-badge{
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.6);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.ff-action i { font-size: 1.15rem; }
+
+/* Hover/Active эффекты */
+.ff-action:hover { box-shadow: 0 14px 34px rgba(0,0,0,.22); transform: translateY(-1px); }
+.ff-action:active { transform: translateY(0); box-shadow: 0 8px 18px rgba(0,0,0,.18); }
+
+.ff-expense{
+  background: linear-gradient(90deg, #ff6b9e, #ff8ba7);
+  color: #1f0b16;
+}
+.ff-income{
+  background: linear-gradient(90deg, #3ed1a5, #52e0c0);
+  color: #071b14;
+}
+
+/* XL-вариант для десктопа */
+@media (min-width: 992px){
+  .ff-action{
+    padding: 1.25rem 2rem;
+    min-height: 72px;
+    min-width: 220px;
+    font-size: 1.125rem;        /* 18px */
+  }
+  .ff-action .ff-badge{
+    width: 38px; height: 38px;
+  }
+  .ff-action i { font-size: 1.25rem; }
+}
+
+/* Светлая тема: текст чуть темнее для контраста */
+:root[data-bs-theme="light"] .ff-expense{ color: #26121b; }
+:root[data-bs-theme="light"] .ff-income{  color: #0d241b; }
+
+/* ---- Страница расходов ---- */
+
+/* карточка empty-state со стеклянной каймой */
+.ff-empty .card-body{
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  border-radius: 12px;
+}
+.ff-empty{
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 200% at 0% 0%, rgba(110,168,254,.08), transparent 40%),
+    radial-gradient(120% 200% at 100% 0%, rgba(155,107,255,.07), transparent 40%);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* иконка пустого состояния */
+.ff-empty-icon{
+  width: 48px; height: 48px; border-radius: 12px;
+  display: inline-flex; align-items:center; justify-content:center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--bs-border-color);
+  color: var(--bs-body-color);
+  box-shadow: 0 8px 22px rgba(0,0,0,.15) inset;
+  font-size: 1.25rem;
+}
+
+/* цветной индикатор категории */
+.ff-cat-dot{
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--dot, var(--bs-primary));
+  box-shadow: 0 0 0 2px rgba(0,0,0,.08);
+  display:inline-block;
+}
+
+/* таблица: компактные ячейки, хорошая читаемость */
+.table > :not(caption) > * > *{
+  padding: .875rem .75rem;
+}
+
+/* off-canvas (мобилка) — нейтральный, под твои общие стили */
+.offcanvas-backdrop{
+  position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1040;
+  opacity: 0; visibility: hidden; transition: opacity .2s ease;
+}
+.offcanvas-panel{
+  position: fixed; inset: 0 auto 0 0; width: var(--cb-sidebar-width);
+  max-width: calc(100% - 72px);
+  background: var(--bs-body-bg);
+  border-right: 1px solid var(--bs-border-color);
+  transform: translateX(-100%); transition: transform .2s ease; z-index: 1041;
+}
+.offcanvas-open .offcanvas-backdrop{ opacity:1; visibility: visible; }
+.offcanvas-open .offcanvas-panel{ transform: translateX(0); }
+
+/* hit-area >= 44px */
+.cb-btn, .ff-pill{ min-height: 44px; }
+
+/* ===== КОМПАКТНЫЕ КАПСУЛЫ-ДЕЙСТВИЯ ===== */
+/* Наши «большие» капсулы оставляем для дашборда, здесь — модификатор --md */
+.ff-action.ff-action--md{
+  padding: .75rem 1.1rem;
+  min-height: 48px;
+  min-width: 0;          /* не тянем на всю ширину */
+  font-size: 1rem;
+  font-weight: 600;
+}
+.ff-action.ff-action--md .ff-badge{ width: 28px; height: 28px; }
+.ff-action.ff-action--md i{ font-size: 1.05rem; }
+
+/* Смягчаем палитру «Расход» — стеклянный розовый, не «конфета» */
+.ff-expense{
+  background: linear-gradient(135deg, rgba(255,107,158,.35), rgba(255,139,167,.35));
+  color: var(--bs-body-color);
+  border-color: rgba(255,255,255,.2);
+  backdrop-filter: blur(6px);
+}
+:root[data-bs-theme="light"] .ff-expense{
+  background: linear-gradient(135deg, rgba(255,107,158,.22), rgba(255,139,167,.22));
+  border-color: rgba(0,0,0,.08);
+}
+
+/* ===== ФИЛЬТРЫ — нейтральный фокус и без «зелёной валидации» ===== */
+.form-control, .form-select { box-shadow: none; }
+.form-control:focus, .form-select:focus{
+  border-color: var(--bs-border-color);
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+}
+
+/* отключаем «ярко-зелёный» valid у полей на этой странице */
+#main-content .form-control.is-valid,
+#main-content .form-select.is-valid,
+#main-content .was-validated .form-control:valid,
+#main-content .was-validated .form-select:valid{
+  border-color: var(--bs-border-color) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding-right: .75rem !important;
+}
+
+/* Карточка фильтров компактнее */
+.cb-card .card-body{ padding: 1rem 1rem; }
+
+/* ===== EMPTY STATE — менее тяжёлый фон ===== */
+.ff-empty{
+  border-radius: 12px;
+  background:
+    radial-gradient(120% 200% at 0% 0%, rgba(110,168,254,.05), transparent 40%),
+    radial-gradient(120% 200% at 100% 0%, rgba(155,107,255,.05), transparent 40%);
+  border: 1px solid var(--bs-border-color);
+}
+
+/* ===== СВЕТЛАЯ ТЕМА — читаемость ===== */
+:root[data-bs-theme="light"] .cb-nav{ background: rgba(255,255,255,.85); }
+:root[data-bs-theme="light"] .ff-empty{ background:
+  radial-gradient(120% 200% at 0% 0%, rgba(110,168,254,.06), transparent 38%),
+  radial-gradient(120% 200% at 100% 0%, rgba(155,107,255,.06), transparent 38%); }
+
+/* тёмная шапка лёгкой дымкой (не переопределяем bootstrap, только фон) */
+:root[data-bs-theme="dark"] .cb-nav{
+  background: rgba(34,37,41,.6);
+  backdrop-filter: blur(8px);
+}
+
+/* === Единая высота и отступы для элементов панели фильтров === */
+.ff-filters .input-group > .form-control,
+.ff-filters .input-group > .form-select,
+.ff-filters .input-group > .btn,
+.ff-filters .input-group-text,
+.ff-filters .btn {                       /* захватим и кнопку сортировки */
+  height: 44px;                          /* единая высота */
+  padding-top: .375rem;
+  padding-bottom: .375rem;
+}
+
+/* Чуть крупнее шрифт, чтобы текст не «тонул» */
+.ff-filters .form-control,
+.ff-filters .form-select,
+.ff-filters .btn,
+.ff-filters .input-group-text {
+  font-size: 1rem;
+  line-height: 1.25;
+}
+
+/* Выравниваем радиусы у input-group, чтобы капсула была ровная */
+.ff-filters .input-group .form-control { border-radius: .5rem; }
+.ff-filters .input-group .input-group-text { border-radius: .5rem; }
+
+/* Нейтральный focus и без зелёной валидации (если вдруг прилипло) */
+.ff-filters .form-control:focus,
+.ff-filters .form-select:focus { 
+  border-color: var(--bs-border-color);
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+}
+.ff-filters .form-control.is-valid,
+.ff-filters .form-select.is-valid,
+.ff-filters .was-validated .form-control:valid,
+.ff-filters .was-validated .form-select:valid{
+  border-color: var(--bs-border-color) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding-right: .75rem !important;
+}

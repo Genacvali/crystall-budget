@@ -6,30 +6,121 @@
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-    <h2 class="h4 m-0"><i class="bi bi-wallet2 text-danger me-2"></i>Мои расходы</h2>
-    <button class="btn-hero" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
-        <i class="bi bi-plus-lg me-1"></i>
-        <span class="d-none d-sm-inline">Добавить </span>Расход
+<!-- Шапка раздела -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <h1 class="h4 d-flex align-items-center gap-2 m-0">
+    <i class="bi bi-wallet2" aria-hidden="true"></i>
+    Мои расходы
+  </h1>
+
+  <!-- действия: компактная капсула -->
+  <div class="ff-actions">
+    <button class="ff-action ff-action--md ff-expense cb-btn" type="button" aria-label="Добавить расход" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
+      <span class="ff-badge"><i class="bi bi-plus-lg" aria-hidden="true"></i></span>
+      <span class="label">Добавить расход</span>
     </button>
+  </div>
 </div>
 
 {% include 'components/forms/_add_expense_form.html' %}
 
+<!-- Панель фильтров: сетка 12/6/4 -->
+<div class="card cb-card shadow-sm mb-3">
+  <div class="card-body ff-filters">
+    <div class="row g-2 align-items-center">
+      <div class="col-12 col-md-4">
+        <div class="input-group" role="group" aria-label="Фильтр по месяцу">
+          <span class="input-group-text"><i class="bi bi-calendar-week" aria-hidden="true"></i></span>
+          <input type="month" class="form-control" value="2025-09" aria-label="Выберите месяц">
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="input-group" role="group" aria-label="Поиск по комментарию">
+          <span class="input-group-text"><i class="bi bi-search" aria-hidden="true"></i></span>
+          <input type="search" class="form-control" placeholder="Найти по комментарию">
+        </div>
+      </div>
+      <div class="col-12 col-md-4">
+        <div class="dropdown w-100">
+          <button class="btn btn-outline-secondary cb-btn w-100 d-inline-flex align-items-center justify-content-between"
+                  data-bs-toggle="dropdown" aria-expanded="false" aria-label="Сортировка">
+            <span><i class="bi bi-sort-down me-2" aria-hidden="true"></i>По дате (новые)</span>
+            <i class="bi bi-caret-down-fill ms-2" aria-hidden="true"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end w-100">
+            <li><button class="dropdown-item" type="button">По дате (новые)</button></li>
+            <li><button class="dropdown-item" type="button">По дате (старые)</button></li>
+            <li><button class="dropdown-item" type="button">По сумме (по убыв.)</button></li>
+            <li><button class="dropdown-item" type="button">По сумме (по возр.)</button></li>
+            <li><button class="dropdown-item" type="button">По категории</button></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if not expenses %}
+<!-- Empty state -->
+<section class="card cb-card shadow-sm ff-empty">
+  <div class="card-body">
+    <div class="d-flex align-items-start gap-3">
+      <div class="ff-empty-icon" aria-hidden="true">
+        <i class="bi bi-inbox"></i>
+      </div>
+      <div>
+        <h2 class="h5 mb-1">Пока что расходов нет</h2>
+        <p class="text-muted mb-3">Начните отслеживать свои траты, добавив первый расход.</p>
+
+      </div>
+    </div>
+  </div>
+</section>
+{% else %}
+<!-- Таблица расходов -->
+<section class="card cb-card shadow-sm" id="expensesTableCard" aria-label="Список расходов">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover m-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th scope="col">Сумма</th>
+            <th scope="col">Дата</th>
+            <th scope="col">Категория</th>
+            <th scope="col">Комментарий</th>
+            <th scope="col" class="text-end">Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for expense in expenses %}
+          <tr>
+            <td><strong>{{ expense.amount|format_currency(expense.currency) }}</strong></td>
+            <td><span class="text-muted">{{ expense.date.strftime('%d.%m.%Y') }}</span></td>
+            <td>
+              <span class="ff-cat-dot me-2" style="--dot:{{ expense.category.color or '#6ea8fe' }}" aria-hidden="true"></span>
+              {{ expense.category.name }}
+            </td>
+            <td>{{ expense.note or '' }}</td>
+            <td class="text-end">
+              <div class="btn-group" role="group" aria-label="Действия">
+                <a href="{{ url_for('budget.edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-outline-secondary cb-btn" aria-label="Редактировать"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                <button class="btn btn-sm btn-outline-danger cb-btn delete-expense-btn" data-expense-id="{{ expense.id }}" aria-label="Удалить"><i class="bi bi-trash" aria-hidden="true"></i></button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <!-- Мобильные карточки -->
-<div class="d-block d-md-none">
+<div class="d-block d-md-none mt-3">
     {% for expense in expenses %}
     {% include 'components/cards/_expense_mobile_card.html' %}
     {% endfor %}
 </div>
-
-<!-- Настольная таблица -->
-<div class="table-responsive d-none d-md-block">
-    {% include 'components/tables/_expenses_table.html' %}
-</div>
-
-{% if not expenses %}
-{% include 'components/states/_empty_expenses.html' %}
 {% endif %}
 
 {% include 'components/hints/_swipe_hint.html' %}

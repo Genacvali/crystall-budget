@@ -4,7 +4,8 @@
       "Bash(BUDGET_DB=sqlite:////opt/crystall-budget/instance/budget.db python -m flask screenshot --help)",
       "Bash(BUDGET_DB=sqlite:////opt/crystall-budget/instance/budget.db python -m flask screenshot capture auth --url=http://localhost:5030 --variants=desktop)",
       "Bash(./scripts/run-tests.sh:*)",
-      "Bash(APP_PORT=5000 APP_CONFIG=testing ./scripts/ci-check.sh --suite all --no-e2e)"
+      "Bash(APP_PORT=5000 APP_CONFIG=testing ./scripts/ci-check.sh --suite all --no-e2e)",
+      "Bash(PORT=5040 python:*)"
     ],
     "deny": [],
     "ask": []
