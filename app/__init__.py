@@ -1,19 +1,30 @@
 from flask import Flask
 from app.core.extensions import db, migrate, login_manager, csrf, cache
 from app.core.config import get_config
+from app.core.config import config_by_name
+import os
+from typing import Optional
 
 
-def create_app(config_name=None):
+def create_app(config_name: Optional[str] = None):
     """Application factory pattern."""
     import os
+    if config_name is None:
+        config_name = os.getenv("APP_CONFIG", "production")
+    
     # Set template and static folders relative to project root
     template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
     static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
     # Load configuration
-    config = get_config(config_name)
-    app.config.from_object(config)
+    app.config.from_object(config_by_name[config_name])
+    
+    # For self-checking (temporary)
+    app.logger.warning(
+        f"Config={config_name} TESTING={app.config.get('TESTING')} "
+        f"CSRF={app.config.get('WTF_CSRF_ENABLED')}"
+    )
     
     # Initialize extensions
     db.init_app(app)
@@ -22,15 +33,38 @@ def create_app(config_name=None):
     csrf.init_app(app)
     cache.init_app(app)
     
-    # Configure login manager
-    login_manager.login_view = 'auth.login'
-    login_manager.login_message = 'Пожалуйста, войдите в систему'
-    login_manager.login_message_category = 'info'
+    # Configure login manager (skip for testing)
+    if not app.config.get('LOGIN_DISABLED', False):
+        login_manager.login_view = 'auth.login'
+        login_manager.login_message = 'Пожалуйста, войдите в систему'
+        login_manager.login_message_category = 'info'
     
     @login_manager.user_loader
     def load_user(user_id):
         from app.modules.auth.models import User
         return User.query.get(int(user_id))
+    
+    # Test mode user loader override
+    if app.config.get('TESTING', False):
+        @login_manager.request_loader
+        def load_user_from_request(request):
+            """Auto-authenticate in testing mode."""
+            from app.modules.auth.models import User
+            # Return a mock test user (create if doesn't exist)
+            test_user = User.query.filter_by(telegram_id=12345).first()
+            if not test_user:
+                test_user = User(
+                    name='Test User',
+                    telegram_id=12345,
+                    auth_type='telegram',
+                    currency='RUB'
+                )
+                db.session.add(test_user)
+                try:
+                    db.session.commit()
+                except:
+                    db.session.rollback()
+            return test_user
     
     # Register blueprints
     from app.modules.auth import auth_bp
@@ -38,6 +72,9 @@ def create_app(config_name=None):
     from app.modules.goals import goals_bp
     from app.modules.issues import issues_bp
     from app.api.v1 import api_v1_bp
+    
+    # Exempt API from CSRF protection
+    csrf.exempt(api_v1_bp)
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(budget_bp)
@@ -163,3 +200,4 @@ def create_app(config_name=None):
     init_diagnostics(app)
     
     return app
+

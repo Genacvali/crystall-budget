@@ -58,12 +58,18 @@ class ProductionConfig(BaseConfig):
 
 
 class TestingConfig(BaseConfig):
-    """Testing configuration."""
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    WTF_CSRF_ENABLED = False
-    CACHE_TYPE = 'NullCache'
+    WTF_CSRF_ENABLED = False          # CSRF отключён только в тестах
+    LOGIN_DISABLED = True             # Flask-Login не требует логин
+    SQLALCHEMY_DATABASE_URI = os.getenv("BUDGET_DB", "sqlite:///test_local.db")
+    SQLALCHEMY_ECHO = False
 
+
+config_by_name = {
+    "production": ProductionConfig,
+    "development": DevelopmentConfig,
+    "testing": TestingConfig,
+}
 
 def get_config(config_name=None):
     """Get configuration based on environment."""
