@@ -3,6 +3,9 @@ import { postExpense, postIncome } from './api.js';
 import { showToast } from './ui.js';
 
 export function initForms() {
+  // Initialize dirty field tracking for income modal
+  initIncomeModalValidation();
+  
   // Handle expense form
   document.addEventListener('submit', async (e) => {
     if (e.target.matches('[data-form="expense"]')) {
@@ -13,6 +16,67 @@ export function initForms() {
     if (e.target.matches('[data-form="income"]')) {
       e.preventDefault();
       await handleIncomeForm(e.target);
+    }
+  });
+}
+
+function initIncomeModalValidation() {
+  const modal = document.getElementById('incomeModal');
+  if (!modal) return;
+
+  const form = modal.querySelector('#incomeForm');
+  const amount = form?.querySelector('#incAmount');
+
+  if (!form) return;
+
+  // Убираем любые классы валидации при открытии модала
+  modal.addEventListener('show.bs.modal', () => {
+    form.classList.remove('was-validated');
+    form.querySelectorAll('.form-control, .form-select').forEach(el => {
+      el.classList.remove('dirty', 'is-valid', 'is-invalid');
+    });
+  });
+
+  // помечаем поля как "dirty" только после реального взаимодействия
+  form.querySelectorAll('input, select').forEach(el => {
+    let hasBeenTouched = false;
+    
+    el.addEventListener('focus', () => {
+      hasBeenTouched = true;
+    });
+    
+    el.addEventListener('input', () => {
+      if (hasBeenTouched) {
+        el.classList.add('dirty');
+      }
+    });
+    
+    el.addEventListener('blur', () => {
+      if (hasBeenTouched) {
+        el.classList.add('dirty');
+      }
+    });
+  });
+
+  form.addEventListener('submit', (e) => {
+    // помечаем все поля как dirty при попытке сабмита
+    form.querySelectorAll('input, select').forEach(el => {
+      el.classList.add('dirty');
+    });
+
+    // нормализуем сумму "1 000,5" -> "1000.50"
+    if (amount && amount.value) {
+      const v = amount.value.replace(/\s+/g, '').replace(',', '.');
+      if (/^\d+(\.\d{1,2})?$/.test(v)) {
+        amount.value = (Math.round(parseFloat(v) * 100) / 100).toFixed(2);
+      }
+    }
+    
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated'); // активируем показ ошибок
+      return false; // Don't proceed with form submission
     }
   });
 }

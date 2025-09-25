@@ -201,38 +201,7 @@
   label.textContent = fmt(selected);
 })();
 
-// === Тема ===
-(() => {
-  const root = document.documentElement;
-  const themeCheckbox = document.getElementById('theme');
-  
-  function applyTheme(theme){ 
-    root.setAttribute('data-bs-theme', theme); 
-    if (themeCheckbox) themeCheckbox.checked = theme === 'dark'; 
-  }
-  
-  async function saveTheme(theme){ 
-    try{ 
-      await fetch('/set-theme',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({theme})
-      }); 
-    } catch(e) {
-      console.error('Error saving theme:', e);
-    }
-  }
-  
-  if (themeCheckbox){ 
-    themeCheckbox.addEventListener('change', () => { 
-      const next = themeCheckbox.checked ? 'dark' : 'light'; 
-      applyTheme(next); 
-      saveTheme(next); 
-    }); 
-  }
-  
-  applyTheme(root.getAttribute('data-bs-theme') || 'light');
-})();
+// === Тема (удалено - используется nav-ff.js) ===
 
 // === Пользовательское меню ===
 (() => {
@@ -348,30 +317,7 @@ window.confirmDelete = function(message, onConfirm) {
   dim.hidden = true;
 })();
 
-/* === Переключатель темы внутри drawer === */
-(() => {
-  const sw = document.getElementById('themeToggleDrawer');
-  if (!sw) return;
-
-  const root = document.documentElement;
-  const isDark = () => (root.getAttribute('data-bs-theme') || 'light') === 'dark';
-  const apply = (dark) => {
-    const theme = dark ? 'dark' : 'light';
-    root.setAttribute('data-bs-theme', theme);
-    sw.setAttribute('aria-checked', String(dark));
-    // если у тебя есть серверный эндпоинт:
-    fetch('/set-theme', { method:'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({theme})
-    }).catch(()=>{});
-  };
-
-  sw.setAttribute('aria-checked', String(isDark()));
-  sw.addEventListener('click', () => apply(!isDark()));
-  sw.addEventListener('keydown', e => {
-    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); apply(!isDark()); }
-  });
-})();
+/* === Переключатель темы (удалено - используется nav-ff.js) === */
 
 /* === Валюта из select внутри drawer === */
 async function updateCurrency(code){

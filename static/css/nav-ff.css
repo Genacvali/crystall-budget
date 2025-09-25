@@ -230,7 +230,7 @@
 .ff-action.ff-action--md{
   padding: .75rem 1.1rem;
   min-height: 48px;
-  min-width: 0;          /* не тянем на всю ширину */
+  min-width: 180px;      /* единая ширина для всех кнопок */
   font-size: 1rem;
   font-weight: 600;
 }
@@ -329,4 +329,201 @@
   background-image: none !important;
   box-shadow: none !important;
   padding-right: .75rem !important;
+}
+
+/* ===== Таблица доходов — аккуратные отступы и разделители ===== */
+.ff-table-income > :not(caption) > * > *{
+  padding: .9rem .75rem;
+}
+.ff-table-income tbody tr + tr td{
+  border-top: 1px solid var(--bs-border-color);
+}
+
+/* Месяц — маленькая «пилюля» */
+.ff-month{
+  display: inline-block;
+  padding: .25rem .5rem;
+  border-radius: .5rem;
+  border: 1px solid var(--bs-border-color);
+  background: rgba(255,255,255,.05);
+  font-size: .95rem;
+}
+
+/* В светлой теме слегка меняем фон пилюли */
+:root[data-bs-theme="light"] .ff-month{
+  background: rgba(0,0,0,.03);
+}
+
+/* Кнопка "Добавить доход" — стеклянно-зелёная, не кричащая */
+.ff-income{
+  background: linear-gradient(135deg, rgba(62,209,165,.35), rgba(82,224,192,.35));
+  color: var(--bs-body-color);
+  border-color: rgba(255,255,255,.2);
+  backdrop-filter: blur(6px);
+}
+:root[data-bs-theme="light"] .ff-income{
+  background: linear-gradient(135deg, rgba(62,209,165,.22), rgba(82,224,192,.22));
+  border-color: rgba(0,0,0,.08);
+}
+
+/* Шапка: чтобы кнопка не давила заголовок */
+.expenses-toolbar{ min-height: 44px; }
+.expenses-add-btn{ min-width: 0; }        /* не фиксируем минимальную ширину */
+@media (max-width: 1200px){
+  .expenses-add-btn{ padding:.6rem .9rem; min-height: 44px; font-size:.95rem; }
+  .expenses-add-btn .ff-badge{ width:26px; height:26px; }
+}
+
+/* Ровная высота всех контролов в форме расходов */
+.ff-form .form-control,
+.ff-form .form-select,
+.ff-form .btn,
+.ff-form .input-group-text{ height: 44px; }
+
+.ff-form .form-label{ margin-bottom:.25rem; } /* выравниваем линию меток */
+
+/* нейтральный focus и без «зелёной» валидации */
+.ff-form .form-control:focus,
+.ff-form .form-select:focus{
+  border-color: var(--bs-border-color);
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+}
+.ff-form .form-control.is-valid,
+.ff-form .form-select.is-valid,
+.ff-form .was-validated .form-control:valid,
+.ff-form .was-validated .form-select:valid{
+  border-color: var(--bs-border-color) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  padding-right: .75rem !important;
+}
+
+/* Стеглянная карточка формы */
+.ff-form-card .card-body{
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0));
+  border-radius: 12px;
+}
+
+/* Дополнительные стили для модальных форм */
+.ff-help{ margin-top:.25rem; font-size:.875rem; color: var(--bs-secondary-color); }
+
+/* Единые радиусы у input-group */
+.ff-form .input-group .form-control,
+.ff-form .input-group .form-select,
+.ff-form .input-group .input-group-text{
+  border-radius: .5rem;
+}
+
+/* Светлая тема — чуть более заметная подложка */
+:root[data-bs-theme="light"] .ff-form-card .card-body{
+  background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0));
+}
+
+/* === Единый вид формы "Добавить расход" ===================== */
+.ff-expense-form .form-control,
+.ff-expense-form .form-select,
+.ff-expense-form .btn,
+.ff-expense-form .input-group-text{ height:44px; }
+
+.ff-expense-form .form-label{ margin-bottom:.25rem; }
+
+/* Скругления в input-group */
+.ff-expense-form .input-group .form-control,
+.ff-expense-form .input-group .form-select,
+.ff-expense-form .input-group .input-group-text{ border-radius:.5rem; }
+
+/* Нейтральный фокус */
+.ff-expense-form .form-control:focus,
+.ff-expense-form .form-select:focus{
+  border-color: var(--bs-border-color);
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+}
+
+/* Не показываем "красный/зелёный" до ввода/сабмита */
+.ff-expense-form .form-control:invalid,
+.ff-expense-form .form-select:invalid{
+  border-color: var(--bs-border-color);
+  box-shadow:none;
+}
+
+/* Показываем ошибку только когда поле тронули или форму отправили */
+.ff-expense-form .dirty:invalid,
+.ff-expense-form form.was-validated .form-control:invalid,
+.ff-expense-form form.was-validated .form-select:invalid{
+  border-color: var(--bs-danger);
+  box-shadow: 0 0 0 .2rem rgba(var(--bs-danger-rgb), .15);
+}
+
+/* Подравниваем текст-пояснение */
+.ff-expense-form .form-text{ margin-top:.25rem; }
+
+/* === Модалки форм (доход) — ровные размеры и нейтральная валидация === */
+.ff-modal .modal-body{ 
+  padding-top: 1rem; 
+  padding-bottom: 1rem;
+}
+
+.ff-modal .modal-dialog {
+  max-width: 500px;
+}
+
+.ff-modal .modal-content {
+  border-radius: 12px;
+}
+
+/* Унифицированная высота всех элементов формы */
+#incomeModal .ff-income-form .form-control,
+#incomeModal .ff-income-form .form-select,
+#incomeModal .ff-income-form .btn,
+#incomeModal .ff-income-form .input-group-text{ 
+  height: 44px !important; 
+  border-radius: .5rem !important;
+}
+
+#incomeModal .ff-income-form .form-label{ margin-bottom: .25rem; }
+
+/* Скругления в input-group - более специфично */
+#incomeModal .ff-income-form .input-group .form-control,
+#incomeModal .ff-income-form .input-group .form-select,
+#incomeModal .ff-income-form .input-group .input-group-text{ 
+  border-radius: .5rem !important; 
+}
+
+/* КРИТИЧНО: НЕ показывать красный/зелёный до взаимодействия */
+#incomeModal .ff-income-form .form-control:invalid,
+#incomeModal .ff-income-form .form-select:invalid,
+#incomeModal .ff-income-form input[type="month"]:invalid,
+#incomeModal .ff-income-form input[type="text"]:invalid{
+  border-color: var(--bs-border-color) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* Убираем любую зелёную подсветку */
+#incomeModal .ff-income-form .form-control:valid,
+#incomeModal .ff-income-form .form-select:valid,
+#incomeModal .ff-income-form input[type="month"]:valid,
+#incomeModal .ff-income-form input[type="text"]:valid{
+  border-color: var(--bs-border-color) !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+/* Показать ошибку только после взаимодействия или попытки сабмита */
+#incomeModal .ff-income-form .form-control.dirty:invalid,
+#incomeModal .ff-income-form .form-select.dirty:invalid,
+#incomeModal .ff-income-form.was-validated .form-control:invalid,
+#incomeModal .ff-income-form.was-validated .form-select:invalid{
+  border-color: var(--bs-danger) !important;
+  box-shadow: 0 0 0 .2rem rgba(var(--bs-danger-rgb), .15) !important;
+}
+
+/* Нейтральный фокус для всех полей */
+#incomeModal .ff-income-form .form-control:focus,
+#incomeModal .ff-income-form .form-select:focus,
+#incomeModal .ff-income-form input[type="month"]:focus,
+#incomeModal .ff-income-form input[type="text"]:focus{
+  border-color: var(--bs-primary) !important;
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.15) !important;
+  background-image: none !important;
 }

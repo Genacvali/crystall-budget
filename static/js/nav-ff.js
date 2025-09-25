@@ -1,20 +1,42 @@
 // nav-ff.js
 
-// Тема (data-bs-theme + localStorage)
+// Тема (data-bs-theme + server sync)
 (() => {
   const root = document.documentElement;
   const toggle = document.getElementById('themeToggle');
   if (!toggle) return;
 
-  const saved = localStorage.getItem('cb-theme');
-  const initial = saved || root.getAttribute('data-bs-theme') || 'dark'; // начнём с dark как на проде
-  root.setAttribute('data-bs-theme', initial);
+  // Получаем текущую тему от сервера (из HTML)
+  const initial = root.getAttribute('data-bs-theme') || 'light';
   toggle.checked = initial === 'dark';
+
+  async function saveTheme(theme) {
+    try {
+      await fetch('/set-theme', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        body: JSON.stringify({ theme })
+      });
+    } catch (e) {
+      console.error('Error saving theme:', e);
+    }
+  }
 
   toggle.addEventListener('change', () => {
     const next = toggle.checked ? 'dark' : 'light';
     root.setAttribute('data-bs-theme', next);
-    localStorage.setItem('cb-theme', next);
+    
+    // Сохраняем на сервер
+    saveTheme(next);
+    
+    // Update aria-checked on the switch label
+    const switchLabel = toggle.closest('label[role="switch"]');
+    if (switchLabel) {
+      switchLabel.setAttribute('aria-checked', toggle.checked ? 'true' : 'false');
+    }
   });
 })();
 

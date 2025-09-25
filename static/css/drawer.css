@@ -48,8 +48,16 @@
 
 /* ===== Dim + Drawer ===== */
 .cb-drawer-dim{
-  position:fixed; inset:0; background:#0008; z-index:29;
+  position:fixed; inset:0; z-index:29;
   opacity:0; visibility:hidden; transition:.2s ease;
+}
+
+:root[data-bs-theme="dark"] .cb-drawer-dim {
+  background:#0008;
+}
+
+:root[data-bs-theme="light"] .cb-drawer-dim {
+  background: rgba(13, 21, 36, .25);
 }
 .cb-drawer{
   position:fixed; inset:0 auto 0 0; width:320px; max-width:calc(100% - 72px);

@@ -1,74 +1,104 @@
-<div class="collapse mb-3" id="addExpenseForm" role="region" aria-labelledby="addExpenseButton">
-    <div class="ff-progress-card">
-        <form method="POST" action="{{ url_for('budget.expenses', month=month_data.month if month_data else None) }}" 
-              data-form="expense" role="form" aria-label="Форма добавления расхода" novalidate>
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <div class="row g-2 g-md-3 align-items-end">
-                <div class="col-6 col-md-3">
-                    <label for="date" class="form-label">Дата <span aria-hidden="true">*</span></label>
-                    <input type="date" id="date" name="date" value="{{ today }}" 
-                           class="form-control" required 
-                           aria-describedby="date-help" 
-                           aria-invalid="false">
-                    <div id="date-help" class="visually-hidden">Выберите дату расхода</div>
-                    <div class="invalid-feedback" role="alert" aria-live="polite"></div>
+<div class="mb-3" id="addExpenseForm" role="region" aria-labelledby="addExpenseButton">
+    <div class="card cb-card shadow-sm">
+        <div class="card-body ff-expense-form">
+            <form method="POST" action="{{ url_for('budget.expenses', month=month_data.month if month_data else None) }}" 
+                  data-form="expense" role="form" aria-label="Форма добавления расхода" novalidate>
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-3 col-lg-2">
+                    <label class="form-label mb-1">Дата <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
+                        <input type="date" class="form-control" name="date" value="{{ today }}" required>
+                    </div>
                 </div>
-                <div class="col-6 col-md-2">
-                    <label for="amount" class="form-label">Сумма <span aria-hidden="true">*</span></label>
-                    <input type="number" id="amount" name="amount" step="0.01" min="0.01"
-                           inputmode="decimal" class="form-control" required
-                           aria-describedby="amount-help"
-                           aria-invalid="false"
-                           placeholder="0.00">
-                    <div id="amount-help" class="visually-hidden">Введите сумму расхода в рублях</div>
-                    <div class="invalid-feedback" role="alert" aria-live="polite"></div>
+
+                <div class="col-12 col-md-3 col-lg-2">
+                    <label class="form-label mb-1">Сумма <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
+                        <input type="text" class="form-control" name="amount"
+                               inputmode="decimal" placeholder="0"
+                               pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required>
+                    </div>
+                    <div class="form-text">Запятая или точка, 2 знака после.</div>
                 </div>
-                <div class="col-12 col-md-3">
-                    <label for="category_id" class="form-label">Категория <span aria-hidden="true">*</span></label>
-                    <select id="category_id" name="category_id" class="form-select" required
-                            aria-describedby="category-help"
-                            aria-invalid="false">
+
+                <div class="col-12 col-md-3 col-lg-3">
+                    <label class="form-label mb-1">Категория <span class="text-danger">*</span></label>
+                    <select class="form-select" name="category_id" required>
                         <option value="">Выберите категорию</option>
                         {% for cat in categories %}
                         <option value="{{ cat.id }}">{{ cat.name }}</option>
                         {% endfor %}
                     </select>
-                    <div id="category-help" class="visually-hidden">Выберите категорию для классификации расхода</div>
-                    <div class="invalid-feedback" role="alert" aria-live="polite"></div>
                 </div>
-                <div class="col-12 col-md-3">
-                    <label for="note" class="form-label">Комментарий</label>
-                    <input type="text" id="note" name="note" class="form-control" 
-                           placeholder="Необязательно"
-                           aria-describedby="note-help"
-                           aria-invalid="false"
-                           maxlength="255">
-                    <div id="note-help" class="visually-hidden">Дополнительное описание расхода (необязательно)</div>
+
+                <div class="col-12 col-md-3 col-lg-4">
+                    <label class="form-label mb-1">Комментарий</label>
+                    <input type="text" class="form-control" name="note" placeholder="Необязательно">
                 </div>
-                <div class="col-12 col-md-auto d-grid btn-col">
-                    <label class="form-label d-none d-md-block" aria-hidden="true">&nbsp;</label>
-                    <button type="submit" class="btn btn-primary" 
-                            aria-describedby="submit-help">
-                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>
-                        <span>Добавить</span>
-                        <span class="visually-hidden">расход</span>
+
+                <div class="col-12 col-md-auto">
+                    <label class="form-label d-none d-md-block">&nbsp;</label>
+                    <button class="btn btn-primary cb-btn w-100" type="submit">
+                        <i class="bi bi-plus-lg me-1" aria-hidden="true"></i>Добавить
                     </button>
-                    <div id="submit-help" class="visually-hidden">Нажмите для сохранения расхода</div>
                 </div>
-            </div>
-            
-            <!-- Область для отображения общих ошибок формы -->
-            <div class="mt-3" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors" style="display: none;">
-                <div class="alert alert-danger">
-                    <strong>Ошибка:</strong> <span id="form-error-text"></span>
                 </div>
-            </div>
-            
-            <!-- Индикатор загрузки -->
-            <div class="mt-2 text-center" id="form-loading" style="display: none;" role="status" aria-live="polite">
-                <span class="loading-spinner" aria-hidden="true"></span>
-                <span class="visually-hidden">Сохранение расхода...</span>
-            </div>
+                
+                <!-- Область для отображения общих ошибок формы -->
+                <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+                    <div class="alert alert-danger">
+                        <strong>Ошибка:</strong> <span id="form-error-text"></span>
+                    </div>
+                </div>
+                
+                <!-- Индикатор загрузки -->
+                <div class="mt-2 text-center d-none" id="form-loading" role="status" aria-live="polite">
+                    <span class="loading-spinner" aria-hidden="true"></span>
+                    <span class="visually-hidden">Сохранение расхода…</span>
+                </div>
         </form>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const wrap = document.querySelector('#addExpenseForm');
+  if (!wrap) return;
+
+  const form = wrap.querySelector('form[data-form="expense"]');
+  const amount = form?.querySelector('input[name="amount"]');
+  const errBox = form?.querySelector('#form-errors');
+  const errText = form?.querySelector('#form-error-text');
+  const loading = form?.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  form.addEventListener('submit', (e) => {
+    // нормализуем сумму
+    if (amount && amount.value) {
+      const v = amount.value.replace(',', '.').trim();
+      if (/^\d+(\.\d{1,2})?$/.test(v)) {
+        amount.value = (Math.round(parseFloat(v)*100)/100).toFixed(2);
+      }
+    }
+
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // опционально — показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+});
+</script>

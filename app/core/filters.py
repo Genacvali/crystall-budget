@@ -1,6 +1,7 @@
 """Jinja2 template filters."""
 from decimal import Decimal
-from datetime import datetime
+from datetime import datetime, date
+import calendar
 from flask import Flask
 
 
@@ -73,9 +74,31 @@ def format_date_with_day(value):
         return str(value)
 
 
+RU_MONTHS = {
+    1: "Январь", 2: "Февраль", 3: "Март", 4: "Апрель",
+    5: "Май", 6: "Июнь", 7: "Июль", 8: "Август",
+    9: "Сентябрь", 10: "Октябрь", 11: "Ноябрь", 12: "Декабрь",
+}
+
+
+def format_month_ru(value):
+    """`value` может быть ('2025', '09') или (2025, 9) или date."""
+    if isinstance(value, tuple) and len(value) == 2:
+        y, m = value
+        y = int(y); m = int(m)
+    elif isinstance(value, date):
+        y, m = value.year, value.month
+    else:
+        # '2025-09' / '2025-9'
+        parts = str(value).split("-")
+        y = int(parts[0]); m = int(parts[1])
+    return f"{RU_MONTHS.get(m, calendar.month_name[m])} {y}"
+
+
 def register_filters(app: Flask):
     """Register custom filters with Flask app."""
     app.jinja_env.filters['format_amount'] = format_amount
     app.jinja_env.filters['format_currency'] = format_currency
     app.jinja_env.filters['percentage'] = percentage
     app.jinja_env.filters['format_date_with_day'] = format_date_with_day
+    app.jinja_env.filters['format_month_ru'] = format_month_ru

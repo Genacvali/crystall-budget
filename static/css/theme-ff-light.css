@@ -1,0 +1,284 @@
+/* FF-Pearl Light Theme - Final Fantasy Inspired Light Mode */
+/* Подключается последним для максимальной специфичности */
+
+/* ========== FF-PEARL LIGHT THEME VARIABLES ========== */
+:root[data-bs-theme="light"] {
+  /* Основная палитра FF-Pearl Light */
+  --ff-bg: #F4F7FB;                    /* Фон страницы - перламутровый */
+  --ff-text: #1E2732;                  /* Основной текст - тёмно-синий */
+  --ff-text-muted: #647089;            /* Вторичный текст */
+  --ff-card-bg: rgba(255,255,255,.95); /* Фон карточек - почти белый */
+  --ff-border: #E3E9F3;                /* Основная граница */
+  --ff-border-light: #CFD7E5;          /* Тонкая граница */
+  --ff-glass: rgba(0,24,64,.05);       /* Стекло/капсулы светлые */
+  --ff-glass-hover: rgba(0,24,64,.06); /* Стекло при hover */
+  --ff-zebra: rgba(0,24,64,.03);       /* Зебра таблиц */
+  --ff-hover: rgba(0,24,64,.05);       /* Hover эффекты */
+  
+  /* Тени FF-Pearl Light */
+  --ff-shadow-ring: 0 0 0 1px rgba(48,86,156,.10);
+  --ff-shadow-light: 0 8px 24px rgba(30,51,82,.08);
+  --ff-shadow-medium: 0 12px 32px rgba(30,51,82,.12);
+  
+  /* Backdrop для модалок */
+  --ff-backdrop: rgba(13, 21, 36, .25);
+  
+  /* Навигация */
+  --ff-nav-bg: rgba(255,255,255,.78);
+  --ff-nav-border: inset 0 -1px 0 #E7ECF6;
+  
+  /* Фокус */
+  --ff-focus-ring: rgba(13,110,253,.15);
+  
+  /* Dashboard совместимые переменные для светлой темы */
+  --bg: #F4F7FB;                       /* общий фон - соответствует --ff-bg */
+  --bg-soft: rgba(255,255,255,.95);    /* карточки - соответствует --ff-card-bg */
+  --bg-softer: #E3E9F3;                /* панели - соответствует --ff-border */
+  --muted: #647089;                     /* соответствует --ff-text-muted */
+  --text: #1E2732;                     /* соответствует --ff-text */
+  --text-dim: #647089;                 /* соответствует --ff-text-muted */
+  --primary: #0d6efd;                  /* синий Bootstrap */
+  --primary-2: #0dcaf0;                /* акцент градиента Bootstrap */
+  --success: #198754;                  /* Bootstrap success */
+  --danger: #dc3545;                   /* Bootstrap danger */
+  --warning: #ffc107;                  /* Bootstrap warning */
+  --surface: rgba(255,255,255,.95);    /* соответствует --ff-card-bg */
+  --shadow: 0 8px 24px rgba(30,51,82,.08);      /* соответствует --ff-shadow-light */
+  --shadow-soft: 0 4px 12px rgba(30,51,82,.06); /* более мягкая тень */
+  --card-border: 1px solid #E3E9F3;    /* соответствует --ff-border */
+}
+
+/* ========== БАЗОВЫЕ СТИЛИ СТРАНИЦЫ ========== */
+:root[data-bs-theme="light"] body {
+  background-color: var(--ff-bg) !important;
+  color: var(--ff-text) !important;
+}
+
+:root[data-bs-theme="light"] .page-wrap,
+:root[data-bs-theme="light"] .container-xl {
+  background-color: var(--ff-bg) !important;
+  color: var(--ff-text) !important;
+}
+
+/* ========== НАВИГАЦИЯ ========== */
+:root[data-bs-theme="light"] .cb-nav {
+  background: var(--ff-nav-bg) !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: var(--ff-nav-border) !important;
+  box-shadow: var(--ff-shadow-light) !important;
+}
+
+:root[data-bs-theme="light"] .cb-nav .nav-link,
+:root[data-bs-theme="light"] .cb-nav .navbar-brand {
+  color: var(--ff-text) !important;
+}
+
+:root[data-bs-theme="light"] .cb-nav .nav-link:hover {
+  background-color: var(--ff-glass-hover) !important;
+  color: var(--ff-text) !important;
+}
+
+/* FF-стиль табы и пиллы */
+:root[data-bs-theme="light"] .ff-tabs,
+:root[data-bs-theme="light"] .ff-pill {
+  background-color: var(--ff-glass) !important;
+  border-color: var(--ff-border) !important;
+}
+
+:root[data-bs-theme="light"] .ff-tabs:hover,
+:root[data-bs-theme="light"] .ff-pill:hover {
+  background-color: var(--ff-glass-hover) !important;
+}
+
+/* ========== КАРТОЧКИ И СЕКЦИИ ========== */
+:root[data-bs-theme="light"] .cb-card,
+:root[data-bs-theme="light"] .card.cb-card,
+:root[data-bs-theme="light"] .card {
+  background-color: var(--ff-card-bg) !important;
+  border-color: var(--ff-border) !important;
+  color: var(--ff-text) !important;
+  box-shadow: var(--ff-shadow-light) !important;
+}
+
+:root[data-bs-theme="light"] .cb-section,
+:root[data-bs-theme="light"] .card-soft {
+  background-color: var(--ff-card-bg) !important;
+  border-color: var(--ff-border) !important;
+  color: var(--ff-text) !important;
+  box-shadow: var(--ff-shadow-light) !important;
+}
+
+/* ========== ФОРМЫ И ИНПУТ-ГРУППЫ ========== */
+:root[data-bs-theme="light"] .form-control,
+:root[data-bs-theme="light"] .form-select {
+  min-height: 44px !important;
+  background-color: var(--ff-card-bg) !important;
+  border-color: var(--ff-border) !important;
+  color: var(--ff-text) !important;
+}
+
+:root[data-bs-theme="light"] .form-control:focus,
+:root[data-bs-theme="light"] .form-select:focus {
+  border-color: var(--bs-primary) !important;
+  box-shadow: 0 0 0 0.2rem var(--ff-focus-ring) !important;
+}
+
+:root[data-bs-theme="light"] .input-group-text {
+  min-height: 44px !important;
+  background-color: var(--ff-glass) !important;
+  border-color: var(--ff-border) !important;
+  color: var(--ff-text-muted) !important;
+}
+
+:root[data-bs-theme="light"] .btn {
+  min-height: 44px !important;
+}
+
+:root[data-bs-theme="light"] .btn-outline-secondary {
+  border-color: var(--ff-border) !important;
+  color: var(--ff-text-muted) !important;
+}
+
+:root[data-bs-theme="light"] .btn-outline-secondary:hover {
+  background-color: var(--ff-glass-hover) !important;
+  border-color: var(--ff-border) !important;
+  color: var(--ff-text) !important;
+}
+
+/* ========== ТАБЛИЦЫ ========== */
+:root[data-bs-theme="light"] .table {
+  color: var(--ff-text) !important;
+}
+
+:root[data-bs-theme="light"] .table-striped > tbody > tr:nth-of-type(odd) > td,
+:root[data-bs-theme="light"] .table-striped > tbody > tr:nth-of-type(odd) > th {
+  background-color: var(--ff-zebra) !important;
+}
+
+:root[data-bs-theme="light"] .table-hover tbody tr:hover {
+  background-color: var(--ff-hover) !important;
+}
+
+:root[data-bs-theme="light"] .table th,
+:root[data-bs-theme="light"] .table td {
+  border-color: var(--ff-border) !important;
+}
+
+:root[data-bs-theme="light"] .table-light {
+  background-color: var(--ff-glass) !important;
+  color: var(--ff-text) !important;
+}
+
+/* ========== МОДАЛКИ И ДРОВЕР ========== */
+:root[data-bs-theme="light"] .modal-content {
+  background-color: var(--ff-card-bg) !important;
+  border-color: var(--ff-border) !important;
+  box-shadow: var(--ff-shadow-medium) !important;
+}
+
+:root[data-bs-theme="light"] .modal-header,
+:root[data-bs-theme="light"] .modal-footer {
+  background-color: rgba(0,24,64,.04) !important;
+  border-color: var(--ff-border) !important;
+}
+
+:root[data-bs-theme="light"] .modal-backdrop {
+  background-color: var(--ff-backdrop) !important;
+}
+
+:root[data-bs-theme="light"] .offcanvas {
+  background-color: var(--ff-card-bg) !important;
+  color: var(--ff-text) !important;
+}
+
+:root[data-bs-theme="light"] .offcanvas-header {
+  border-color: var(--ff-border) !important;
+}
+
+/* ========== ДРОПДАУНЫ ========== */
+:root[data-bs-theme="light"] .dropdown-menu {
+  background-color: var(--ff-card-bg) !important;
+  border-color: var(--ff-border) !important;
+  box-shadow: var(--ff-shadow-light) !important;
+}
+
+:root[data-bs-theme="light"] .dropdown-item {
+  color: var(--ff-text) !important;
+}
+
+:root[data-bs-theme="light"] .dropdown-item:hover {
+  background-color: var(--ff-hover) !important;
+  color: var(--ff-text) !important;
+}
+
+/* ========== ГЕРОЙ-БАННЕР И СТЕКЛЯННЫЕ ЭЛЕМЕНТЫ ========== */
+:root[data-bs-theme="light"] .hero .pill,
+:root[data-bs-theme="light"] .glass-capsule {
+  background-color: rgba(0,24,64,.06) !important;
+  border-color: var(--ff-border) !important;
+  color: var(--ff-text) !important;
+}
+
+/* ========== ПРОГРЕСС-БАРЫ ========== */
+:root[data-bs-theme="light"] .progress {
+  background-color: var(--ff-glass) !important;
+}
+
+/* ========== АЛЕРТЫ И ТОСТЫ ========== */
+:root[data-bs-theme="light"] .alert {
+  border-color: var(--ff-border) !important;
+}
+
+:root[data-bs-theme="light"] .toast {
+  background-color: var(--ff-card-bg) !important;
+  border-color: var(--ff-border) !important;
+}
+
+/* ========== ПЕРЕКЛЮЧАТЕЛЬ ТЕМЫ ========== */
+:root[data-bs-theme="light"] .theme-toggle .theme-slider {
+  background-color: var(--ff-glass) !important;
+  border-color: var(--ff-border) !important;
+}
+
+/* ========== СПЕЦИФИЧНЫЕ FF КОМПОНЕНТЫ ========== */
+:root[data-bs-theme="light"] .ff-modal {
+  background-color: var(--ff-card-bg) !important;
+  border-color: var(--ff-border) !important;
+  box-shadow: var(--ff-shadow-medium) !important;
+}
+
+:root[data-bs-theme="light"] .ff-filters {
+  background-color: var(--ff-glass) !important;
+}
+
+:root[data-bs-theme="light"] .ff-empty {
+  background-color: var(--ff-card-bg) !important;
+  color: var(--ff-text-muted) !important;
+}
+
+/* ========== МОБИЛЬНЫЙ ДРОВЕР ========== */
+:root[data-bs-theme="light"] .offcanvas-panel {
+  background-color: var(--ff-card-bg) !important;
+  box-shadow: var(--ff-shadow-medium) !important;
+}
+
+:root[data-bs-theme="light"] #mobileDrawer {
+  background-color: var(--ff-backdrop) !important;
+}
+
+/* ========== УТИЛИТЫ ========== */
+:root[data-bs-theme="light"] .text-muted {
+  color: var(--ff-text-muted) !important;
+}
+
+:root[data-bs-theme="light"] .border {
+  border-color: var(--ff-border) !important;
+}
+
+:root[data-bs-theme="light"] .border-top {
+  border-top-color: var(--ff-border) !important;
+}
+
+:root[data-bs-theme="light"] .border-bottom {
+  border-bottom-color: var(--ff-border) !important;
+}

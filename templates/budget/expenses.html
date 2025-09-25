@@ -6,23 +6,13 @@
 {% endblock %}
 
 {% block content %}
-<!-- Шапка раздела -->
-<div class="d-flex align-items-center justify-content-between mb-3">
+<div class="mb-3">
   <h1 class="h4 d-flex align-items-center gap-2 m-0">
     <i class="bi bi-wallet2" aria-hidden="true"></i>
     Мои расходы
   </h1>
-
-  <!-- действия: компактная капсула -->
-  <div class="ff-actions">
-    <button class="ff-action ff-action--md ff-expense cb-btn" type="button" aria-label="Добавить расход" data-bs-toggle="collapse" data-bs-target="#addExpenseForm">
-      <span class="ff-badge"><i class="bi bi-plus-lg" aria-hidden="true"></i></span>
-      <span class="label">Добавить расход</span>
-    </button>
-  </div>
 </div>
 
-{% include 'components/forms/_add_expense_form.html' %}
 
 <!-- Панель фильтров: сетка 12/6/4 -->
 <div class="card cb-card shadow-sm mb-3">
