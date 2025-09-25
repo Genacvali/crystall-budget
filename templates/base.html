@@ -15,12 +15,14 @@
   <!-- Общие стили -->
   <link rel="stylesheet" href="{{ versioned_static('css/clean-theme.css') }}">
   <link rel="stylesheet" href="{{ versioned_static('css/app.css') }}">
-  <link rel="stylesheet" href="{{ versioned_static('css/drawer.css') }}">
+  <!-- <link rel="stylesheet" href="{{ versioned_static('css/drawer.css') }}"> ОТКЛЮЧЕН - используем nav-ff.css -->
   <link rel="stylesheet" href="{{ versioned_static('css/accessibility.css') }}">
-  <link rel="stylesheet" href="{{ versioned_static('css/nav-ff.css') }}">
   
-  <!-- FF-Pearl Light тема - подключается последней для максимальной специфичности -->
+  <!-- FF-Pearl Light тема -->
   <link rel="stylesheet" href="{{ versioned_static('css/theme-ff-light.css') }}">
+  
+  <!-- НАВИГАЦИЯ ПОСЛЕДНЕЙ - максимальная специфичность -->
+  <link rel="stylesheet" href="{{ versioned_static('css/nav-ff.css') }}">
 
   <!-- Страничные стили при необходимости -->
   {% block page_css %}{% endblock %}
@@ -44,10 +46,12 @@
     {# Flash сообщения #}
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        <div class="toast-container mb-4">
+        <div class="flash-container mb-4">
           {% for category, message in messages %}
-            <div class="alert alert-{{ 'warning' if category=='error' else category }} shadow-sm">
+            <div class="alert alert-{{ 'danger' if category=='error' else 'success' if category=='success' else 'warning' if category=='warning' else 'info' }} alert-dismissible fade show shadow-sm" role="alert" aria-live="polite">
+              <i class="bi bi-{{ 'exclamation-triangle' if category=='error' else 'check-circle' if category=='success' else 'info-circle' }} me-2" aria-hidden="true"></i>
               {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Закрыть уведомление"></button>
             </div>
           {% endfor %}
         </div>

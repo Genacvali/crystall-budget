@@ -344,7 +344,7 @@
                 <tr>
                   <td>{{ source_info.source_name }}</td>
                   <td class="text-end">
-                    <form method="POST" action="{{ url_for('update_source_percentage', cat_id=cat.id) }}" class="d-inline">
+                    <form method="POST" action="{{ url_for('budget.update_source_percentage', cat_id=cat.id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                       <input type="hidden" name="source_id" value="{{ source_info.source_id }}">
                       <div class="input-group input-group-sm" style="max-width: 120px;">
@@ -356,7 +356,7 @@
                     </form>
                   </td>
                   <td class="text-end">
-                    <form method="POST" action="{{ url_for('remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
+                    <form method="POST" action="{{ url_for('budget.remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                       <button type="submit" class="icon-btn icon-sm icon-danger"
                               onclick="return confirm('Убрать источник {{ source_info.source_name }} из категории?')" 
@@ -404,7 +404,7 @@
           <h6 class="mb-3">
             <i class="bi bi-plus-circle me-2"></i>Добавить источник:
           </h6>
-          <form method="POST" action="{{ url_for('add_source_to_category', cat_id=cat.id) }}">
+          <form method="POST" action="{{ url_for('budget.add_source_to_category', cat_id=cat.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <div class="row g-3 align-items-end">
               <div class="col-md-6">
@@ -455,7 +455,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-        <form method="POST" action="{{ url_for('toggle_multi_source', cat_id=cat.id) }}" class="d-inline">
+        <form method="POST" action="{{ url_for('budget.toggle_multi_source', cat_id=cat.id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="btn btn-outline-warning" 
                   onclick="return confirm('Отключить многоисточниковый режим? Все связи будут удалены.')">

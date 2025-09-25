@@ -31,11 +31,11 @@
             </div>
 
             <div class="col-12 col-sm-6">
-              <label for="incMonth" class="form-label mb-1">Месяц <span class="text-danger">*</span></label>
+              <label for="incDate" class="form-label mb-1">Дата <span class="text-danger">*</span></label>
               <div class="input-group">
                 <span class="input-group-text" aria-hidden="true"><i class="bi bi-calendar3"></i></span>
-                <input id="incMonth" name="month" type="month" class="form-control"
-                       value="{{ current_month }}" required>
+                <input id="incDate" name="date" type="date" class="form-control"
+                       value="{{ current_date or '' }}" required>
               </div>
             </div>
           </div>

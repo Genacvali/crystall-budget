@@ -208,6 +208,53 @@ class BudgetService:
         
         current_app.logger.info(f'Added income {amount} {currency} for user {user_id}')
         return income
+
+    @staticmethod
+    def update_income(income_id: int, user_id: int, source_name: str, amount: Decimal, 
+                     year: int, month: int, currency: str = 'RUB') -> Optional[Income]:
+        """Update income."""
+        income = Income.query.filter_by(id=income_id, user_id=user_id).first()
+        if not income:
+            return None
+        
+        old_year_month = YearMonth(income.year, income.month)
+        
+        # Update fields
+        income.source_name = source_name
+        income.amount = amount
+        income.year = year
+        income.month = month
+        income.currency = currency
+        
+        db.session.commit()
+        
+        # Invalidate cache for both old and new months
+        CacheManager.invalidate_budget_cache(user_id, old_year_month)
+        
+        if income.year != old_year_month.year or income.month != old_year_month.month:
+            new_year_month = YearMonth(income.year, income.month)
+            CacheManager.invalidate_budget_cache(user_id, new_year_month)
+        
+        current_app.logger.info(f'Updated income {income_id} for user {user_id}')
+        return income
+
+    @staticmethod
+    def delete_income(income_id: int, user_id: int) -> bool:
+        """Delete income."""
+        income = Income.query.filter_by(id=income_id, user_id=user_id).first()
+        if not income:
+            return False
+        
+        year_month = YearMonth(income.year, income.month)
+        
+        db.session.delete(income)
+        db.session.commit()
+        
+        # Invalidate cache
+        CacheManager.invalidate_budget_cache(user_id, year_month)
+        
+        current_app.logger.info(f'Deleted income {income_id} for user {user_id}')
+        return True
     
     @staticmethod
     def get_income_for_month(user_id: int, year_month: YearMonth, 

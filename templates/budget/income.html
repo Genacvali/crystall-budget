@@ -32,7 +32,7 @@
       <div class="col-12 col-md-4">
         <div class="dropdown w-100">
           <button class="btn btn-outline-secondary cb-btn w-100 d-inline-flex align-items-center justify-content-between"
-                  data-bs-toggle="dropdown" aria-expanded="false" aria-label="Сортировка">
+                  data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false" aria-label="Сортировка">
             <span><i class="bi bi-sort-down me-2" aria-hidden="true"></i>По месяцу (новые)</span>
             <i class="bi bi-caret-down-fill ms-2" aria-hidden="true"></i>
           </button>
@@ -65,8 +65,8 @@
   </div>
 </section>
 {% else %}
-<!-- Таблица доходов -->
-<section class="card cb-card shadow-sm" id="incomeTableCard" aria-label="Список доходов">
+<!-- Таблица доходов - только на больших экранах -->
+<section class="card cb-card shadow-sm d-none d-md-block" id="incomeTableCard" aria-label="Список доходов">
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover m-0 align-middle">
@@ -88,11 +88,24 @@
               {{ income.source_name }}
             </td>
             <td class="text-end">
-              <div class="btn-group" role="group" aria-label="Действия">
-                <button class="btn btn-sm btn-outline-secondary cb-btn edit-income-btn"
-                        data-id="{{ income.id }}" aria-label="Редактировать"><i class="bi bi-pencil" aria-hidden="true"></i></button>
-                <button class="btn btn-sm btn-outline-danger cb-btn delete-income-btn"
-                        data-id="{{ income.id }}" aria-label="Удалить"><i class="bi bi-trash" aria-hidden="true"></i></button>
+              <div class="ff-iconbtn-group" role="group" aria-label="Действия">
+                <button type="button" class="ff-iconbtn ff-iconbtn--edit edit-income-btn" 
+                        data-id="{{ income.id }}"
+                        data-source="{{ income.source_name }}"
+                        data-amount="{{ income.amount }}"
+                        data-date="{{ income.date or (income.year|string + '-' + (income.month|string).zfill(2) + '-01') }}"
+                        data-year="{{ income.year }}"
+                        data-month="{{ income.month }}"
+                        aria-label="Изменить" title="Изменить">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button type="button" class="ff-iconbtn ff-iconbtn--delete delete-income-btn" 
+                        data-id="{{ income.id }}"
+                        data-source="{{ income.source_name }}"
+                        data-amount="{{ income.amount|format_currency(income.currency) }}"
+                        aria-label="Удалить" title="Удалить">
+                  <i class="bi bi-trash3"></i>
+                </button>
               </div>
             </td>
           </tr>
@@ -113,12 +126,23 @@
             <div class="fw-bold">{{ income.amount|format_currency('RUB') }}</div>
             <small class="text-muted">{{ (income.year, income.month)|format_month_ru }}</small>
           </div>
-          <div class="btn-group" role="group">
-            <button class="btn btn-sm btn-outline-secondary edit-income-btn" data-id="{{ income.id }}">
+          <div class="ff-iconbtn-group" role="group">
+            <button type="button" class="ff-iconbtn ff-iconbtn--edit edit-income-btn" 
+                    data-id="{{ income.id }}"
+                    data-source="{{ income.source_name }}"
+                    data-amount="{{ income.amount }}"
+                    data-date="{{ income.date or (income.year|string + '-' + (income.month|string).zfill(2) + '-01') }}"
+                    data-year="{{ income.year }}"
+                    data-month="{{ income.month }}"
+                    aria-label="Изменить" title="Изменить">
               <i class="bi bi-pencil"></i>
             </button>
-            <button class="btn btn-sm btn-outline-danger delete-income-btn" data-id="{{ income.id }}">
-              <i class="bi bi-trash"></i>
+            <button type="button" class="ff-iconbtn ff-iconbtn--delete delete-income-btn" 
+                    data-id="{{ income.id }}"
+                    data-source="{{ income.source_name }}"
+                    data-amount="{{ income.amount|format_currency('RUB') }}"
+                    aria-label="Удалить" title="Удалить">
+              <i class="bi bi-trash3"></i>
             </button>
           </div>
         </div>
@@ -132,8 +156,197 @@
 {% endif %}
 
 {% include 'components/hints/_swipe_hint.html' %}
+
+<!-- Модал редактирования дохода -->
+<div class="modal fade" id="editIncomeModal" tabindex="-1" aria-labelledby="editIncomeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content ff-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editIncomeModalLabel">Редактировать доход</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+
+      <form id="editIncomeForm" method="POST" autocomplete="off" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="income_id" id="editIncomeId">
+        
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="editIncSource" class="form-label mb-1">Источник дохода <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text" aria-hidden="true"><i class="bi bi-briefcase"></i></span>
+                <input id="editIncSource" name="source_name" type="text" class="form-control"
+                       placeholder="Например, Зарплата" required>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <label for="editIncAmount" class="form-label mb-1">Сумма <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text" aria-hidden="true"><i class="bi bi-cash-coin"></i></span>
+                <input id="editIncAmount" name="amount" type="text" inputmode="decimal"
+                       class="form-control" placeholder="0"
+                       pattern="^\\s*\\d+([,\\.]\\d{1,2})?\\s*$" required>
+              </div>
+              <div class="form-text">Запятая или точка, 2 знака после.</div>
+            </div>
+
+            <div class="col-12 col-sm-6">
+              <label for="editIncDate" class="form-label mb-1">Дата <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <span class="input-group-text" aria-hidden="true"><i class="bi bi-calendar3"></i></span>
+                <input id="editIncDate" name="date" type="date" class="form-control" required>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary cb-btn" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary cb-btn">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Модал подтверждения удаления -->
+<div class="modal fade" id="deleteIncomeModal" tabindex="-1" aria-labelledby="deleteIncomeModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content ff-modal">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteIncomeModalLabel">Подтвердить удаление</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+      </div>
+      
+      <div class="modal-body">
+        <p>Удалить доход?</p>
+        <div class="alert alert-light">
+          <strong>Источник:</strong> <span id="deleteIncomeSource"></span><br>
+          <strong>Сумма:</strong> <span id="deleteIncomeAmount"></span>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary cb-btn" data-bs-dismiss="modal">Отмена</button>
+        <form id="deleteIncomeForm" method="POST" class="d-inline">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <button type="submit" class="btn btn-danger cb-btn">
+            <i class="bi bi-trash3 me-1"></i>Удалить
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
-{% block scripts %}
-<script type="module" src="{{ url_for('static', filename='js/entries/income.entry.js') }}"></script>
+{% block page_js %}
+<script>
+console.log('Income modals script loaded!');
+
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Income page DOMContentLoaded fired!');
+  
+  // Find buttons and modals
+  const editButtons = document.querySelectorAll('.edit-income-btn');
+  const deleteButtons = document.querySelectorAll('.delete-income-btn');
+  const editModal = document.getElementById('editIncomeModal');
+  const deleteModal = document.getElementById('deleteIncomeModal');
+  
+  console.log('Found elements:', {
+    editButtons: editButtons.length,
+    deleteButtons: deleteButtons.length,
+    editModal: !!editModal,
+    deleteModal: !!deleteModal
+  });
+  
+  // Edit button handlers
+  editButtons.forEach((btn) => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const id = this.dataset.id;
+      const source = this.dataset.source;
+      const amount = this.dataset.amount;
+      const year = this.dataset.year;
+      const month = this.dataset.month;
+      
+      console.log('Edit data:', {id, source, amount, year, month});
+      
+      if (editModal) {
+        // Fill form fields
+        const editForm = document.getElementById('editIncomeForm');
+        const idField = document.getElementById('editIncomeId');
+        const sourceField = document.getElementById('editIncSource');
+        const amountField = document.getElementById('editIncAmount');
+        const dateField = document.getElementById('editIncDate');
+        
+        if (idField) idField.value = id;
+        if (sourceField) sourceField.value = source;
+        if (amountField) amountField.value = amount;
+        if (dateField && this.dataset.date) {
+          // Use stored date if available, otherwise construct from year-month-01
+          dateField.value = this.dataset.date || `${year}-${month.toString().padStart(2, '0')}-01`;
+        }
+        if (editForm) editForm.action = `/income/edit/${id}`;
+        
+        // Show modal
+        const modal = new bootstrap.Modal(editModal);
+        modal.show();
+      } else {
+        alert(`Edit income ${id}: ${source} - ${amount}`);
+      }
+    });
+  });
+  
+  // Delete button handlers  
+  deleteButtons.forEach((btn) => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const id = this.dataset.id;
+      const source = this.dataset.source;
+      const amount = this.dataset.amount;
+      
+      console.log('Delete data:', {id, source, amount});
+      
+      if (deleteModal) {
+        // Fill modal content
+        const sourceSpan = document.getElementById('deleteIncomeSource');
+        const amountSpan = document.getElementById('deleteIncomeAmount');
+        const deleteForm = document.getElementById('deleteIncomeForm');
+        
+        if (sourceSpan) sourceSpan.textContent = source;
+        if (amountSpan) amountSpan.textContent = amount;
+        if (deleteForm) deleteForm.action = `/income/delete/${id}`;
+        
+        // Show modal
+        const modal = new bootstrap.Modal(deleteModal);
+        modal.show();
+      } else {
+        if (confirm(`Удалить доход "${source}" на сумму ${amount}?`)) {
+          // Create and submit delete form
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/income/delete/${id}`;
+          
+          const csrf = document.createElement('input');
+          csrf.type = 'hidden';
+          csrf.name = 'csrf_token';
+          csrf.value = '{{ csrf_token() }}';
+          form.appendChild(csrf);
+          
+          document.body.appendChild(form);
+          form.submit();
+        }
+      }
+    });
+  });
+});
+</script>
 {% endblock %}

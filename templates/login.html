@@ -28,7 +28,7 @@
   data-size="large"
   data-userpic="false"
   data-request-access="write"
-  data-auth-url="{{ url_for('auth_telegram', _external=True, next=request.args.get('next', url_for('budget.dashboard'))) }}">
+  data-auth-url="{{ url_for('auth.auth_telegram', _external=True, next=request.args.get('next', url_for('budget.dashboard'))) }}">
 </script>
 
           </div>

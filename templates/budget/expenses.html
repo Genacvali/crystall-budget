@@ -33,7 +33,7 @@
       <div class="col-12 col-md-4">
         <div class="dropdown w-100">
           <button class="btn btn-outline-secondary cb-btn w-100 d-inline-flex align-items-center justify-content-between"
-                  data-bs-toggle="dropdown" aria-expanded="false" aria-label="Сортировка">
+                  data-bs-toggle="dropdown" data-bs-boundary="viewport" aria-expanded="false" aria-label="Сортировка">
             <span><i class="bi bi-sort-down me-2" aria-hidden="true"></i>По дате (новые)</span>
             <i class="bi bi-caret-down-fill ms-2" aria-hidden="true"></i>
           </button>
@@ -67,8 +67,8 @@
   </div>
 </section>
 {% else %}
-<!-- Таблица расходов -->
-<section class="card cb-card shadow-sm" id="expensesTableCard" aria-label="Список расходов">
+<!-- Таблица расходов - только на больших экранах -->
+<section class="card cb-card shadow-sm d-none d-md-block" id="expensesTableCard" aria-label="Список расходов">
   <div class="card-body p-0">
     <div class="table-responsive">
       <table class="table table-hover m-0 align-middle">
@@ -92,9 +92,9 @@
             </td>
             <td>{{ expense.note or '' }}</td>
             <td class="text-end">
-              <div class="btn-group" role="group" aria-label="Действия">
-                <a href="{{ url_for('budget.edit_expense', expense_id=expense.id) }}" class="btn btn-sm btn-outline-secondary cb-btn" aria-label="Редактировать"><i class="bi bi-pencil" aria-hidden="true"></i></a>
-                <button class="btn btn-sm btn-outline-danger cb-btn delete-expense-btn" data-expense-id="{{ expense.id }}" aria-label="Удалить"><i class="bi bi-trash" aria-hidden="true"></i></button>
+              <div class="ff-iconbtn-group" role="group" aria-label="Действия">
+                <a href="{{ url_for('budget.edit_expense', expense_id=expense.id) }}" class="ff-iconbtn ff-iconbtn--edit" aria-label="Изменить" title="Изменить"><i class="bi bi-pencil"></i></a>
+                <button class="ff-iconbtn ff-iconbtn--delete delete-expense-btn" data-expense-id="{{ expense.id }}" aria-label="Удалить" title="Удалить"><i class="bi bi-trash3"></i></button>
               </div>
             </td>
           </tr>

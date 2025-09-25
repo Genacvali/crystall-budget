@@ -78,17 +78,7 @@
   color: var(--ff-text) !important;
 }
 
-/* FF-стиль табы и пиллы */
-:root[data-bs-theme="light"] .ff-tabs,
-:root[data-bs-theme="light"] .ff-pill {
-  background-color: var(--ff-glass) !important;
-  border-color: var(--ff-border) !important;
-}
-
-:root[data-bs-theme="light"] .ff-tabs:hover,
-:root[data-bs-theme="light"] .ff-pill:hover {
-  background-color: var(--ff-glass-hover) !important;
-}
+/* НАВИГАЦИЯ УБРАНА - используется nav-ff.css */
 
 /* ========== КАРТОЧКИ И СЕКЦИИ ========== */
 :root[data-bs-theme="light"] .cb-card,
@@ -264,6 +254,119 @@
 
 :root[data-bs-theme="light"] #mobileDrawer {
   background-color: var(--ff-backdrop) !important;
+}
+
+/* ========== FF ICON BUTTONS ========== */
+.ff-iconbtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--bs-border-color);
+  cursor: pointer;
+  transition: background-color .12s, box-shadow .12s, border-color .12s, color .12s;
+  font-size: 1.1rem;
+  color: var(--bs-secondary-color);
+  text-decoration: none;
+  position: relative;
+  outline: none;
+}
+
+/* Фон стекла - разный для светлой и темной темы */
+:root[data-bs-theme="light"] .ff-iconbtn {
+  background: rgba(0,24,64,.06);
+  box-shadow: 0 6px 16px rgba(30,51,82,.08);
+}
+
+:root[data-bs-theme="dark"] .ff-iconbtn {
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 6px 16px rgba(0,0,0,.25);
+}
+
+/* Hover состояния */
+:root[data-bs-theme="light"] .ff-iconbtn--edit:hover,
+:root[data-bs-theme="dark"] .ff-iconbtn--edit:hover {
+  background: rgba(70,130,250,.12);
+  color: #3a66f0;
+  border-color: rgba(70,130,250,.2);
+}
+
+:root[data-bs-theme="light"] .ff-iconbtn--delete:hover,
+:root[data-bs-theme="dark"] .ff-iconbtn--delete:hover {
+  background: rgba(232,106,106,.12);
+  color: #E86A6A;
+  border-color: rgba(232,106,106,.2);
+}
+
+/* Active состояния - имитация нажатия */
+.ff-iconbtn:active {
+  transform: translateY(1px);
+}
+
+:root[data-bs-theme="light"] .ff-iconbtn--edit:active {
+  background: rgba(70,130,250,.18);
+  box-shadow: 0 2px 8px rgba(30,51,82,.12);
+}
+
+:root[data-bs-theme="dark"] .ff-iconbtn--edit:active {
+  background: rgba(70,130,250,.18);
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+
+:root[data-bs-theme="light"] .ff-iconbtn--delete:active {
+  background: rgba(232,106,106,.18);
+  box-shadow: 0 2px 8px rgba(30,51,82,.12);
+}
+
+:root[data-bs-theme="dark"] .ff-iconbtn--delete:active {
+  background: rgba(232,106,106,.18);
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+}
+
+/* Focus кольцо - дружелюбное перламутрово-синее */
+.ff-iconbtn:focus-visible {
+  box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+  border-color: var(--bs-primary);
+}
+
+/* Disabled состояние */
+.ff-iconbtn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.ff-iconbtn:disabled:hover {
+  background: rgba(0,24,64,.06) !important;
+  color: var(--bs-secondary-color) !important;
+  border-color: var(--bs-border-color) !important;
+}
+
+:root[data-bs-theme="dark"] .ff-iconbtn:disabled:hover {
+  background: rgba(255,255,255,.06) !important;
+}
+
+/* Группировка кнопок */
+.ff-iconbtn-group {
+  display: flex;
+  gap: .5rem;
+  align-items: center;
+  justify-content: flex-end;
+  margin: 0;
+  padding: 0;
+}
+
+/* В таблицах - убираем все отступы для прижатия к краю */
+.table .ff-iconbtn-group {
+  margin-right: -8px;
+}
+
+/* Иконка внутри кнопки */
+.ff-iconbtn i {
+  font-size: inherit;
+  line-height: 1;
 }
 
 /* ========== УТИЛИТЫ ========== */

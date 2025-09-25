@@ -52,17 +52,28 @@ flask db current
 
 ### Testing and Code Quality
 ```bash
-# No formal test suite - manual testing via web interface
-# Verify application startup
-python app.py
-# Then visit http://localhost:5000 to test functionality
+# Run full test suite (preferred method)
+./scripts/run-tests.sh
 
-# Check for syntax errors and basic linting
+# Run specific test suites
+./scripts/run-tests.sh --suite api        # API tests only
+./scripts/run-tests.sh --suite e2e        # E2E tests only  
+./scripts/run-tests.sh --suite smoke      # Smoke test validation
+./scripts/run-tests.sh --suite all        # All automated tests
+
+# CI-compatible test runner (for production environments)
+APP_PORT=5000 APP_CONFIG=testing ./scripts/ci-check.sh --suite all --no-e2e
+
+# Manual testing and verification
+python app.py  # Then visit http://localhost:5000
+
+# Syntax checking
 python -m py_compile app.py
-python -c "import py_compile; py_compile.compile('app.py', doraise=True)"
-
-# Check all Python files in app module
 find app/ -name "*.py" -exec python -m py_compile {} \;
+
+# Install test dependencies
+pip install -r requirements-test.txt
+playwright install chromium  # For E2E tests
 ```
 
 ### Production Deployment
@@ -121,21 +132,26 @@ The application is organized into focused modules:
 
 #### Authentication Module (`app/modules/auth/`)
 - **models.py**: User model with Flask-Login integration
-- **routes.py**: Authentication endpoints (login, register, profile)
-- **service.py**: Authentication business logic
+- **routes.py**: Authentication endpoints (login, register, profile, theme settings)
+- **service.py**: Authentication business logic and Telegram integration
 - **schemas.py**: Data validation schemas
 
 #### Budget Module (`app/modules/budget/`)
-- **models.py**: Category, Expense, Income, ExchangeRate models
-- **routes.py**: Budget management endpoints
+- **models.py**: Category, Expense, Income, ExchangeRate, IncomeSource models
+- **routes.py**: Budget management endpoints (dashboard, expenses, categories, income)
 - **service.py**: Budget calculation and management logic
 - **schemas.py**: Budget-related data validation
 
 #### Goals Module (`app/modules/goals/`)
-- **models.py**: SavingsGoal, SharedBudget models
-- **routes.py**: Goal management endpoints  
+- **models.py**: SavingsGoal, SharedBudget, SharedBudgetMember models
+- **routes.py**: Goal management endpoints and family budget sharing
 - **service.py**: Goal tracking and progress calculation
 - **schemas.py**: Goal-related data validation
+
+#### Issues Module (`app/modules/issues/`)
+- **models.py**: Issue and IssueComment models for user feedback
+- **routes.py**: Issue reporting and management endpoints
+- **service.py**: Issue handling logic
 
 #### API (`app/api/v1/`)
 - **__init__.py**: API v1 blueprint registration
@@ -153,6 +169,9 @@ SQLAlchemy models with Alembic migrations:
 - **shared_budgets**: Family budget collaboration
 - **shared_budget_members**: Budget sharing relationships
 - **exchange_rates**: Currency exchange rate cache
+- **income_sources**: Income source tracking
+- **issues**: User feedback and issue reporting
+- **issue_comments**: Comments on reported issues
 
 ### Frontend Structure
 - **Templates**: 18+ HTML templates using Bootstrap 5 and Russian localization
@@ -218,9 +237,11 @@ LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 
 #### Application Factory Pattern
 - **Entry Point**: `app.py` - Minimal entry point that creates app instance
-- **Factory**: `app/__init__.py:create_app()` - Configures and returns Flask app
-- **Blueprint Registration**: All modules register as Flask blueprints
+- **Factory**: `app/__init__.py:create_app()` - Configures and returns Flask app with optional config name parameter
+- **Blueprint Registration**: All modules register as Flask blueprints (`auth`, `budget`, `goals`, `issues`, `api_v1`)
+- **Configuration**: Supports multiple configs via `APP_CONFIG` environment variable (development/production/testing)
 - **Backward Compatibility**: Legacy route endpoints are maintained for existing integrations
+- **Testing Support**: Special testing configuration with CSRF disabled and auto-authentication
 
 #### Database Migrations
 - **Migration Directory**: `migrations/` - Alembic migration files
@@ -244,7 +265,8 @@ app/
 ├── modules/                 # Feature modules
 │   ├── auth/               # Authentication module
 │   ├── budget/             # Budget management module
-│   └── goals/              # Goals tracking module
+│   ├── goals/              # Goals tracking module
+│   └── issues/             # Issue reporting module
 └── api/                    # API endpoints
     └── v1/                 # API version 1
 
@@ -252,8 +274,11 @@ migrations/                  # Database migrations
 templates/                   # Jinja2 templates
 static/                     # Frontend assets  
 admin_panel/                # Administrative interface
+tests/                      # Test suite (API, E2E, smoke)
+scripts/                    # Test and CI scripts
 app.py                      # Application entry point
 requirements.txt            # Python dependencies
+requirements-test.txt       # Test dependencies
 crystalbudget.service       # Systemd service file
 ```
 

@@ -1,14 +1,33 @@
 // nav-ff.js
 
-// Тема (data-bs-theme + server sync)
+// Тема (data-bs-theme + server sync) с синхронизацией двух переключателей
 (() => {
   const root = document.documentElement;
   const toggle = document.getElementById('themeToggle');
-  if (!toggle) return;
+  const toggleMobile = document.getElementById('themeToggleMobile');
 
   // Получаем текущую тему от сервера (из HTML)
   const initial = root.getAttribute('data-bs-theme') || 'light';
-  toggle.checked = initial === 'dark';
+  
+  // Синхронизируем состояние всех переключателей
+  function syncToggles(theme) {
+    const checked = theme === 'dark';
+    if (toggle) toggle.checked = checked;
+    if (toggleMobile) toggleMobile.checked = checked;
+    
+    // Update aria-checked для всех переключателей
+    [toggle, toggleMobile].forEach(t => {
+      if (t) {
+        const switchLabel = t.closest('label[role="switch"]');
+        if (switchLabel) {
+          switchLabel.setAttribute('aria-checked', checked ? 'true' : 'false');
+        }
+      }
+    });
+  }
+
+  // Инициализация
+  syncToggles(initial);
 
   async function saveTheme(theme) {
     try {
@@ -25,19 +44,26 @@
     }
   }
 
-  toggle.addEventListener('change', () => {
-    const next = toggle.checked ? 'dark' : 'light';
-    root.setAttribute('data-bs-theme', next);
-    
-    // Сохраняем на сервер
-    saveTheme(next);
-    
-    // Update aria-checked on the switch label
-    const switchLabel = toggle.closest('label[role="switch"]');
-    if (switchLabel) {
-      switchLabel.setAttribute('aria-checked', toggle.checked ? 'true' : 'false');
-    }
-  });
+  function changeTheme(newTheme) {
+    root.setAttribute('data-bs-theme', newTheme);
+    syncToggles(newTheme);
+    saveTheme(newTheme);
+  }
+
+  // Обработчики для обоих переключателей
+  if (toggle) {
+    toggle.addEventListener('change', () => {
+      const next = toggle.checked ? 'dark' : 'light';
+      changeTheme(next);
+    });
+  }
+
+  if (toggleMobile) {
+    toggleMobile.addEventListener('change', () => {
+      const next = toggleMobile.checked ? 'dark' : 'light';
+      changeTheme(next);
+    });
+  }
 })();
 
 // Off-canvas (мобилка)

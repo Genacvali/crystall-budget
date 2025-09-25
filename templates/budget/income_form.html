@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} — CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">{{ title }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.source_name.label(class="form-label") }}
+                            {{ form.source_name(class="form-control" + (" is-invalid" if form.source_name.errors else "")) }}
+                            {% if form.source_name.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.source_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.amount.label(class="form-label") }}
+                            <div class="input-group">
+                                {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), step="0.01", min="0") }}
+                                <span class="input-group-text">₽</span>
+                            </div>
+                            {% if form.amount.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.amount.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.year.label(class="form-label") }}
+                            {{ form.year(class="form-select" + (" is-invalid" if form.year.errors else "")) }}
+                            {% if form.year.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.year.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.month.label(class="form-label") }}
+                            {{ form.month(class="form-select" + (" is-invalid" if form.month.errors else "")) }}
+                            {% if form.month.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in form.month.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{{ url_for('budget.income') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Отмена
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i> Сохранить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

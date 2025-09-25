@@ -78,8 +78,11 @@ class Income(db.Model):
     source_name = db.Column(db.String(100), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     currency = db.Column(db.String(3), default='RUB')
-    year = db.Column(db.Integer, nullable=False)
-    month = db.Column(db.Integer, nullable=False)
+    # New date field - will replace year/month eventually
+    date = db.Column(db.Date, nullable=True)  # Initially nullable for migration
+    # Legacy fields - kept for backward compatibility during migration
+    year = db.Column(db.Integer, nullable=True)  # Made nullable for migration
+    month = db.Column(db.Integer, nullable=True)  # Made nullable for migration
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     __table_args__ = (db.UniqueConstraint('user_id', 'source_name', 'year', 'month'),)

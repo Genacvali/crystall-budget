@@ -1,4 +1,5 @@
 """Budget module routes."""
+from decimal import Decimal
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user
 from app.core.time import YearMonth, parse_year_month
@@ -330,5 +331,58 @@ def sources_add():
     except Exception as e:
         db.session.rollback()
         flash('Источник с таким названием уже существует', 'error')
+    
+    return redirect(url_for('budget.income'))
+
+
+@budget_bp.route('/income/edit/<int:income_id>', methods=['GET', 'POST'])
+@login_required
+def edit_income(income_id):
+    """Edit income."""
+    user_id = session['user_id']
+    income = Income.query.filter_by(id=income_id, user_id=user_id).first_or_404()
+    
+    if request.method == 'POST':
+        # Handle modal form submission
+        try:
+            source_name = request.form.get('source_name')
+            amount = Decimal(request.form.get('amount', '0'))
+            month_input = request.form.get('month')  # Format: YYYY-MM
+            
+            if month_input:
+                year, month = map(int, month_input.split('-'))
+            else:
+                year, month = income.year, income.month
+            
+            BudgetService.update_income(
+                income_id=income_id,
+                user_id=user_id,
+                source_name=source_name,
+                amount=amount,
+                year=year,
+                month=month,
+                currency='RUB'
+            )
+            flash('Доход обновлен', 'success')
+            return redirect(url_for('budget.income'))
+        except Exception as e:
+            flash(f'Ошибка при обновлении дохода: {str(e)}', 'error')
+            return redirect(url_for('budget.income'))
+    
+    # GET request - render form page
+    form = IncomeForm(obj=income)
+    return render_template('budget/income_form.html', form=form, title='Редактировать доход')
+
+
+@budget_bp.route('/income/delete/<int:income_id>', methods=['POST'])
+@login_required
+def delete_income(income_id):
+    """Delete income."""
+    user_id = session['user_id']
+    
+    if BudgetService.delete_income(income_id, user_id):
+        flash('Доход удален', 'success')
+    else:
+        flash('Доход не найден', 'error')
     
     return redirect(url_for('budget.income'))

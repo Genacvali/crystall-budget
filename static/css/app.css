@@ -205,9 +205,7 @@
     display: block;
   }
   
-  .cb-tabs {
-    display: none;
-  }
+  /* cb-tabs теперь в nav-ff.css */
   
   .cb-nav-row {
     grid-template-columns: auto 1fr auto;
@@ -293,6 +291,106 @@
 .dropdown-menu{ 
   border-radius:14px; 
   border: var(--border); 
+  z-index: 1100 !important;
+}
+
+/* Специальное правило для dropdown в ff-progress-card */
+.ff-progress-card .dropdown-menu {
+  z-index: 9999 !important;
+}
+
+/* Специальное правило для dropdown в картах доходов */
+.cb-card .dropdown-menu,
+.card .dropdown-menu {
+  z-index: 999999 !important;
+  position: absolute !important;
+}
+
+/* ФИНАЛЬНОЕ решение dropdown z-index проблем */
+
+/* 1. Принудительно убираем stacking context проблемы */
+.cb-card,
+.card,
+.card-body,
+.ff-filters {
+  overflow: visible !important;
+  /* Убираем potential stacking context creators */
+  transform: none !important;
+  backdrop-filter: none !important; 
+  filter: none !important;
+}
+
+/* 2. Максимально высокий z-index для всех dropdown */
+.dropdown-menu {
+  z-index: 99999 !important;
+  position: absolute !important;
+}
+
+/* ===== АДАПТИВНОСТЬ МОБИЛЬНОЙ ВЕРСИИ ===== */
+
+/* Убираем горизонтальный скролл */
+.table-responsive {
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+}
+
+/* Адаптивность для фильтров */
+@media (max-width: 767.98px) {
+  .ff-filters .row {
+    gap: 0.75rem;
+  }
+  
+  .ff-filters .col-12 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .ff-filters .input-group,
+  .ff-filters .dropdown {
+    max-width: 100%;
+    min-width: 0;
+  }
+  
+  /* Компактные кнопки на мобильных */
+  .ff-iconbtn-group {
+    gap: 0.25rem;
+  }
+  
+  .ff-iconbtn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0.25rem;
+  }
+}
+
+/* Глобальная максимальная ширина контента для читабельности */
+.container-xl {
+  max-width: 1320px !important; /* Ограничиваем ширину контента */
+  margin: 0 auto; /* Центрируем */
+  padding-left: 16px; /* Минимальные боковые отступы */
+  padding-right: 16px;
+  overflow-x: visible;
+}
+
+/* Увеличиваем отступы на больших экранах */
+@media (min-width: 768px) {
+  .container-xl {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* Супер-широкий брейкпоинт для огромных мониторов */
+@media (min-width: 1600px) {
+  .container-xl {
+    max-width: 1440px !important; /* Ещё больше ограничиваем на очень широких экранах */
+  }
+}
+
+/* Предотвращаем переполнение в карточках и фильтрах */
+.card-body,
+.ff-filters {
+  max-width: 100%;
+  overflow-x: visible;
 }
 
 /* ===== Контейнеры ===== */
@@ -386,51 +484,7 @@
   gap: 1rem;
 }
 
-.cb-tabs {
-  display: flex;
-  justify-self: center;
-  gap: 0.5rem;
-  padding: 2px;
-  background: var(--surface);
-  border: var(--border);
-  border-radius: 12px;
-  box-shadow: var(--shadow-soft);
-}
-
-.cb-tab {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 8px 12px;
-  border-radius: 10px;
-  color: var(--muted);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.cb-tab svg {
-  width: 16px;
-  height: 16px;
-  fill: currentColor;
-}
-
-.cb-tab:hover {
-  color: var(--text);
-  background: rgba(0, 0, 0, 0.05);
-}
-
-[data-bs-theme="dark"] .cb-tab:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.cb-tab.is-active {
-  color: var(--text);
-  background: linear-gradient(135deg, var(--hero-a), var(--hero-b));
-  color: white;
-  font-weight: 600;
-}
+/* НАВИГАЦИЯ УДАЛЕНА - используем nav-ff.css */
 
 .cb-right {
   display: flex;
@@ -897,15 +951,20 @@ input:checked + .theme-slider:before {
 
 /* ===== СПЕЦИФИЧНЫЕ СТИЛИ ДЛЯ ПРОГРЕСС-БАРОВ ===== */
 
-/* FF Progress Card (новый дизайн) */
+/* FF Progress Card (новый дизайн) - Two Wrapper Solution */
 .ff-progress-card{
+  border-radius: 18px;
+  box-shadow: var(--shadow-soft);
+  overflow: visible !important;
+}
+
+.ff-progress-card-inner{
   background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
   border: 1px solid var(--bs-border-color);
   border-radius: 18px;
-  box-shadow: var(--shadow-soft);
-  overflow: hidden;
+  overflow: visible;
 }
-[data-bs-theme="dark"] .ff-progress-card{
+[data-bs-theme="dark"] .ff-progress-card-inner{
   background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
   border: 1px solid rgba(255,255,255,.1);
 }
@@ -1198,9 +1257,7 @@ input:checked + .theme-slider:before {
     order: 1;
   }
   
-  .cb-tabs {
-    display: none;
-  }
+  /* cb-tabs теперь в nav-ff.css */
   
   .cb-right {
     order: 3;
@@ -2013,4 +2070,64 @@ input:checked + .theme-slider:before {
 .is-compact [data-compact-text]::after {
   content: attr(data-compact-text);
   display: inline;
+}
+
+/* === Flash Messages / Alerts === */
+.flash-container {
+  position: relative;
+  z-index: 1040; /* Ниже модалов (1050), но выше контента */
+}
+
+.flash-container .alert {
+  margin-bottom: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  animation: flashSlideIn 0.3s ease-out;
+}
+
+.flash-container .alert:last-child {
+  margin-bottom: 0;
+}
+
+.flash-container .alert .bi {
+  flex-shrink: 0;
+  font-size: 1.1em;
+}
+
+.flash-container .alert .btn-close {
+  margin-left: auto;
+  margin-right: -8px;
+  padding: 8px;
+}
+
+/* Flash animation */
+@keyframes flashSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Auto-fade out animation */
+.flash-container .alert.auto-fade {
+  animation: flashSlideIn 0.3s ease-out, flashFadeOut 0.5s ease-in 4s forwards;
+}
+
+@keyframes flashFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
 }

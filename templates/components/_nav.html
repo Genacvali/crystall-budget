@@ -1,45 +1,57 @@
-{# templates/components/_nav.html #}
+{# templates/components/_nav.html - ЕДИНЫЙ ИСТОЧНИК НАВИГАЦИИ #}
 {% set ep = request.endpoint %}
 
 <header class="cb-nav navbar navbar-expand-lg" role="banner" aria-label="Главная навигация">
-  <div class="container-xl d-flex align-items-center justify-content-between cb-nav-inner">
-    <a href="{{ url_for('budget.dashboard') }}" class="navbar-brand d-flex align-items-center gap-2" aria-label="CrystalBudget — на главную">
+  <div class="container-xl d-flex align-items-center cb-nav-inner">
+    {# БРЕНД - order-1 #}
+    <a href="{{ url_for('budget.dashboard') }}" class="navbar-brand d-flex align-items-center gap-2 order-1" aria-label="CrystalBudget — на главную">
       <span class="ff-gem" aria-hidden="true"></span>
       <span class="ff-logo fw-bold">CrystalBudget</span>
     </a>
 
-    <button class="btn cb-btn btn-outline-secondary d-lg-none px-3" id="navToggle"
-            type="button" aria-label="Открыть меню" aria-controls="mobileDrawer" aria-expanded="false">
-      <i class="bi bi-list" aria-hidden="true"></i>
-    </button>
-
-    <nav class="d-none d-lg-flex ff-tabs-wrap" role="navigation" aria-label="Основная навигация">
-      <ul class="nav nav-pills ff-tabs p-1">
+    {# ДЕСКТОПНАЯ НАВИГАЦИЯ - order-2, скрыта на мобилке #}
+    <nav class="d-none d-lg-flex ff-tabs-wrap order-2" role="navigation" aria-label="Основная навигация">
+      <ul class="ff-tabs nav nav-pills p-1">
         <li class="nav-item">
-          <a class="nav-link ff-pill {{ 'active' if ep=='budget.dashboard' else '' }}" href="{{ url_for('budget.dashboard') }}" aria-current="{{ 'page' if ep=='budget.dashboard' else 'false' }}">
-            <i class="bi bi-house-door me-2" aria-hidden="true"></i>Дашборд
+          <a class="ff-pill nav-link {{ 'is-active' if ep=='budget.dashboard' else '' }}" 
+             href="{{ url_for('budget.dashboard') }}" 
+             {{ 'aria-current="page"' if ep=='budget.dashboard' else '' }}>
+            <i class="bi bi-house-door" aria-hidden="true"></i>Дашборд
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ff-pill {{ 'active' if ep=='budget.expenses' else '' }}" href="{{ url_for('budget.expenses') }}">
-            <i class="bi bi-wallet2 me-2" aria-hidden="true"></i>Расходы
+          <a class="ff-pill nav-link {{ 'is-active' if ep=='budget.expenses' else '' }}" 
+             href="{{ url_for('budget.expenses') }}"
+             {{ 'aria-current="page"' if ep=='budget.expenses' else '' }}>
+            <i class="bi bi-wallet2" aria-hidden="true"></i>Расходы
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ff-pill {{ 'active' if ep=='budget.categories' else '' }}" href="{{ url_for('budget.categories') }}">
-            <i class="bi bi-tags me-2" aria-hidden="true"></i>Категории
+          <a class="ff-pill nav-link {{ 'is-active' if ep=='budget.categories' else '' }}" 
+             href="{{ url_for('budget.categories') }}"
+             {{ 'aria-current="page"' if ep=='budget.categories' else '' }}>
+            <i class="bi bi-tags" aria-hidden="true"></i>Категории
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link ff-pill {{ 'active' if ep=='budget.income' else '' }}" href="{{ url_for('budget.income') }}">
-            <i class="bi bi-graph-up-arrow me-2" aria-hidden="true"></i>Доходы
+          <a class="ff-pill nav-link {{ 'is-active' if ep=='budget.income' else '' }}" 
+             href="{{ url_for('budget.income') }}"
+             {{ 'aria-current="page"' if ep=='budget.income' else '' }}>
+            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>Доходы
           </a>
         </li>
       </ul>
     </nav>
 
-    <div class="d-flex align-items-center gap-2">
-      <label class="ff-switch mb-0" aria-label="Переключить тему" role="switch" aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}">
+    {# ПРАВЫЙ БЛОК - order-3 ms-auto (справа) #}
+    <div class="d-flex align-items-center gap-2 order-3 ms-auto">
+      {# МОБИЛЬНАЯ КНОПКА МЕНЮ - только на мобилке #}
+      <button class="btn cb-btn btn-outline-secondary d-lg-none px-3" id="navToggle"
+              type="button" aria-label="Открыть меню" aria-controls="mobileDrawer" aria-expanded="false">
+        <i class="bi bi-list" aria-hidden="true"></i>
+      </button>
+      <!-- Переключатель темы скрыт на мобилке, показывается от md -->
+      <label class="ff-switch mb-0 d-none d-md-inline-flex" aria-label="Переключить тему" role="switch" aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}">
         <input type="checkbox" id="themeToggle" class="visually-hidden" {{ 'checked' if session.get('theme') == 'dark' else '' }}/>
         <span class="ff-track d-inline-flex align-items-center justify-content-between">
           <i class="bi bi-sun-fill" aria-hidden="true"></i>
@@ -49,20 +61,24 @@
       </label>
 
       {% if session.user_id %}
-      <button class="btn btn-outline-secondary cb-btn d-none d-sm-inline-flex px-3" aria-label="Открыть меню профиля" role="button">
-        <i class="bi bi-person-circle me-2" aria-hidden="true"></i>
+      <button class="ff-pill ff-user d-none d-sm-inline-flex" aria-label="Открыть меню профиля" role="button">
+        <i class="bi bi-person-circle" aria-hidden="true"></i>
         <span class="d-none d-xl-inline">{{ session.name or 'Пользователь' }}</span>
         <i class="bi bi-caret-down-fill ms-1" aria-hidden="true"></i>
       </button>
       {% endif %}
     </div>
   </div>
+</header>
 
-  <!-- моб.дровер оставляем как есть -->
-  <div id="mobileDrawer" class="offcanvas-backdrop" hidden></div>
-  <aside class="offcanvas-panel" role="dialog" aria-modal="true" aria-label="Меню" hidden>
+<!-- МОБИЛЬНЫЙ ДРОВЕР ВЫНЕСЕН ИЗ HEADER для избежания наследования стилей -->
+<div id="mobileDrawer" class="offcanvas-backdrop" hidden></div>
+<aside class="offcanvas-panel" role="dialog" aria-modal="true" aria-label="Меню" hidden>
     <div class="p-3 d-flex align-items-center justify-content-between">
-      <span class="fw-bold">CrystalBudget</span>
+      <div class="d-flex align-items-center gap-2">
+        <span class="ff-gem" aria-hidden="true"></span>
+        <span class="fw-bold">CrystalBudget</span>
+      </div>
       <button class="btn cb-btn btn-outline-secondary" id="navClose" aria-label="Закрыть меню">
         <i class="bi bi-x-lg" aria-hidden="true"></i>
       </button>
@@ -90,6 +106,23 @@
       </a>
     </nav>
 
+    {# Переключатель темы в мобильном меню #}
+    <div class="px-3 py-2 d-flex d-md-none border-top">
+      <label class="ff-switch mb-0 d-flex align-items-center w-100" aria-label="Переключить тему" role="switch" aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}">
+        <span class="me-3">
+          <i class="bi bi-palette me-2" aria-hidden="true"></i>Тема
+        </span>
+        <div class="ms-auto">
+          <input type="checkbox" id="themeToggleMobile" class="visually-hidden" {{ 'checked' if session.get('theme') == 'dark' else '' }}/>
+          <span class="ff-track d-inline-flex align-items-center justify-content-between">
+            <i class="bi bi-sun-fill" aria-hidden="true"></i>
+            <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+            <span class="ff-thumb" aria-hidden="true"></span>
+          </span>
+        </div>
+      </label>
+    </div>
+
     {% if session.user_id %}
     <div class="border-top p-3">
       <div class="d-flex align-items-center gap-2 mb-3">
@@ -112,4 +145,3 @@
     </div>
     {% endif %}
   </aside>
-</header>

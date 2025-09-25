@@ -1,6 +1,7 @@
 {# templates/components/_progress_bars.html #}
 <section class="ff-progress-card mb-4" aria-label="Прогресс по категориям">
-  <div class="ff-header">
+  <div class="ff-progress-card-inner">
+    <div class="ff-header">
     <i class="bi bi-graph-up-arrow"></i>
     Прогресс по категориям
     
@@ -90,5 +91,6 @@
     {% else %}
       <div class="text-muted p-3">Нет категорий бюджета на выбранный месяц.</div>
     {% endfor %}
+    </div>
   </div>
 </section>

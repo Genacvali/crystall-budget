@@ -50,15 +50,8 @@ body{
 .brand-badge svg{width:18px;height:18px;fill:#fff}
 .brand span{font-weight:700;color:#eaf2ff}
 
-.nav{display:flex;gap:6px;align-items:center}
-.chip{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:8px 12px;border-radius:10px;border:var(--card-border);
-  background:var(--bg-soft);color:var(--text-dim);font-weight:600;
-  box-shadow:var(--shadow-soft)
-}
-.chip svg{width:16px;height:16px;opacity:.9}
-.chip.active{background:linear-gradient(90deg, rgba(59,130,246,.18), rgba(34,211,238,.18));color:var(--text)}
+/* НАВИГАЦИЯ УДАЛЕНА - используется nav-ff.css */
+/* Для внутренних элементов дашборда используйте .dash-* классы */
 
 .right{display:flex;align-items:center;gap:10px}
 .btn{
@@ -220,9 +213,7 @@ body{
   .hero h2 {
     font-size: 22px;
   }
-  .nav {
-    display: none;
-  }
+  /* nav скрытие удалено - используется nav-ff.css */
   .right {
     gap: 6px;
   }

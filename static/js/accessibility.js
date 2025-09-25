@@ -229,7 +229,12 @@
      * Утилита для логирования ошибок доступности в dev режиме
      */
     function logA11yIssues() {
-        if (process.env.NODE_ENV === 'development') {
+        // Проверяем режим разработки через location или localStorage
+        const isDevelopment = location.hostname === 'localhost' || 
+                             location.hostname === '127.0.0.1' || 
+                             localStorage.getItem('debug') === 'true';
+        
+        if (isDevelopment) {
             // Проверить наличие alt у изображений
             const images = document.querySelectorAll('img:not([alt])');
             if (images.length > 0) {

@@ -326,6 +326,55 @@ async function updateCurrency(code){
   location.reload();
 }
 
+// === Flash Messages Auto-hide ===
+(() => {
+  document.addEventListener('DOMContentLoaded', () => {
+    // Find all flash messages
+    const flashAlerts = document.querySelectorAll('.flash-container .alert');
+    
+    flashAlerts.forEach(alert => {
+      let autoHideTimeout;
+      
+      // Auto-hide after 5 seconds
+      const startAutoHide = () => {
+        autoHideTimeout = setTimeout(() => {
+          // Add fade out class and remove after animation
+          alert.style.animation = 'flashFadeOut 0.5s ease-in forwards';
+          setTimeout(() => {
+            if (alert.parentNode) {
+              alert.remove();
+              // Remove container if empty
+              const container = document.querySelector('.flash-container');
+              if (container && !container.children.length) {
+                container.remove();
+              }
+            }
+          }, 500);
+        }, 5000);
+      };
+      
+      // Pause on hover
+      const pauseAutoHide = () => {
+        if (autoHideTimeout) {
+          clearTimeout(autoHideTimeout);
+        }
+      };
+      
+      // Resume on mouse leave
+      const resumeAutoHide = () => {
+        startAutoHide();
+      };
+      
+      // Set up event listeners
+      alert.addEventListener('mouseenter', pauseAutoHide);
+      alert.addEventListener('mouseleave', resumeAutoHide);
+      
+      // Start initial auto-hide
+      startAutoHide();
+    });
+  });
+})();
+
 // === Функция для обновления валюты ===
 function updateCurrency(currency) {
   fetch('/set-currency', {
