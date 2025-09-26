@@ -95,6 +95,25 @@ def format_month_ru(value):
     return f"{RU_MONTHS.get(m, calendar.month_name[m])} {y}"
 
 
+def format_month_with_day(income_obj):
+    """Форматирует месяц с днем из объекта Income."""
+    try:
+        # Приоритет: поле date, затем year/month
+        if hasattr(income_obj, 'date') and income_obj.date:
+            dt = income_obj.date
+            day = dt.day
+            month_name = RU_MONTHS.get(dt.month, calendar.month_name[dt.month])
+            return f"{day} {month_name} {dt.year}"
+        elif hasattr(income_obj, 'year') and hasattr(income_obj, 'month') and income_obj.year and income_obj.month:
+            # Для legacy записей показываем 1-е число
+            month_name = RU_MONTHS.get(income_obj.month, calendar.month_name[income_obj.month])
+            return f"1 {month_name} {income_obj.year}"
+        else:
+            return "Не указано"
+    except Exception as e:
+        return "Ошибка отображения"
+
+
 def register_filters(app: Flask):
     """Register custom filters with Flask app."""
     app.jinja_env.filters['format_amount'] = format_amount
@@ -102,3 +121,4 @@ def register_filters(app: Flask):
     app.jinja_env.filters['percentage'] = percentage
     app.jinja_env.filters['format_date_with_day'] = format_date_with_day
     app.jinja_env.filters['format_month_ru'] = format_month_ru
+    app.jinja_env.filters['format_month_with_day'] = format_month_with_day

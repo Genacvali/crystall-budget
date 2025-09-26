@@ -273,15 +273,26 @@ def create_income():
         # Validate data
         validated_data = RequestValidator.validate_income_create(data)
         
-        # Create/update income
-        income = BudgetService.add_income(
-            user_id=user_id,
-            source_name=validated_data['source_name'],
-            amount=validated_data['amount'],
-            year=validated_data['year'],
-            month=validated_data['month'],
-            currency=validated_data['currency']
-        )
+        # Create/update income - use date if available, fallback to year/month
+        if 'date' in validated_data:
+            income = BudgetService.add_income(
+                user_id=user_id,
+                source_name=validated_data['source_name'],
+                amount=validated_data['amount'],
+                date=validated_data['date'],
+                currency=validated_data['currency']
+            )
+        else:
+            # Legacy year/month support
+            from datetime import date
+            income_date = date(validated_data['year'], validated_data['month'], 1)
+            income = BudgetService.add_income(
+                user_id=user_id,
+                source_name=validated_data['source_name'],
+                amount=validated_data['amount'],
+                date=income_date,
+                currency=validated_data['currency']
+            )
         
         return APIResponse.success(
             IncomeSchema.serialize(income),

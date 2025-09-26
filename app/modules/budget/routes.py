@@ -3,7 +3,7 @@ from decimal import Decimal
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user
 from app.core.time import YearMonth, parse_year_month
-from .service import BudgetService, CurrencyService
+from .service import BudgetService, CurrencyService, DashboardService
 from .schemas import CategoryForm, ExpenseForm, IncomeForm, QuickExpenseForm, BudgetFilterForm
 from .models import Category, Expense, Income, IncomeSource
 from . import budget_bp
@@ -25,14 +25,21 @@ def dashboard():
     # Get budget snapshot for the month
     snapshot = BudgetService.calculate_month_snapshot(user_id, year_month)
     
+    # Get income tiles for dashboard
+    income_tiles = DashboardService.get_income_tiles(user_id, year_month)
+    
     # Quick expense form
     quick_form = QuickExpenseForm()
     categories = BudgetService.get_user_categories(user_id)
+    income_sources = BudgetService.get_user_income_sources(user_id)
     
     return render_template('budget/dashboard.html', 
                          snapshot=snapshot, 
+                         budget_data=snapshot['categories'],
+                         income_tiles=income_tiles,
                          quick_form=quick_form,
                          categories=categories,
+                         income_sources=income_sources,
                          current_month=year_month)
 
 
@@ -137,8 +144,29 @@ def categories():
     """Categories management page."""
     user_id = session['user_id']
     categories_list = BudgetService.get_user_categories(user_id)
+    income_sources = BudgetService.get_user_income_sources(user_id)
     
-    return render_template('budget/categories.html', categories=categories_list)
+    # Build rules map for single-source categories
+    rules_map = {}
+    multi_source_links = {}
+    
+    for category in categories_list:
+        if category.is_multi_source:
+            # Get multi-source links for this category
+            multi_links = BudgetService.get_multi_source_links(category.id)
+            multi_source_links[category.id] = multi_links
+        else:
+            # Get single source rule for this category  
+            single_rule = BudgetService.get_category_single_source(category.id)
+            if single_rule:
+                rules_map[category.id] = single_rule.id
+    
+    return render_template('budget/categories.html', 
+                         categories=categories_list,
+                         expense_categories=categories_list,  # Template expects this name
+                         income_sources=income_sources,
+                         rules_map=rules_map,
+                         multi_source_links=multi_source_links)
 
 
 @budget_bp.route('/categories/add', methods=['GET', 'POST'])
@@ -214,20 +242,26 @@ def income():
     if request.method == 'POST':
         source_name = request.form.get('source_name')
         amount = request.form.get('amount')
-        month_input = request.form.get('month')  # Format: YYYY-MM
+        date_input = request.form.get('date')  # Format: YYYY-MM-DD
         
-        if source_name and amount and month_input:
+        if source_name and amount and date_input:
             try:
-                year, month = month_input.split('-')
+                from datetime import datetime
+                date_obj = datetime.strptime(date_input, '%Y-%m-%d').date()
                 income = BudgetService.add_income(
                     user_id=user_id,
                     source_name=source_name,
                     amount=float(amount),
-                    year=int(year),
-                    month=int(month),
+                    date=date_obj,
+                    # Legacy fields for backward compatibility
+                    year=date_obj.year,
+                    month=date_obj.month,
                     currency='RUB'
                 )
                 flash('Доход добавлен', 'success')
+                # Redirect to income page with the month of the added income
+                income_year_month = YearMonth.from_date(date_obj)
+                return redirect(url_for('budget.income', ym=str(income_year_month)))
             except Exception as e:
                 flash(f'Ошибка при добавлении дохода: {str(e)}', 'error')
         else:
@@ -347,24 +381,27 @@ def edit_income(income_id):
         try:
             source_name = request.form.get('source_name')
             amount = Decimal(request.form.get('amount', '0'))
-            month_input = request.form.get('month')  # Format: YYYY-MM
+            date_input = request.form.get('date')  # Format: YYYY-MM-DD
             
-            if month_input:
-                year, month = map(int, month_input.split('-'))
+            if date_input:
+                from datetime import datetime
+                date_obj = datetime.strptime(date_input, '%Y-%m-%d').date()
             else:
-                year, month = income.year, income.month
+                # Fallback to existing date or construct from year/month
+                date_obj = income.date or datetime(income.year, income.month, 1).date()
             
             BudgetService.update_income(
                 income_id=income_id,
                 user_id=user_id,
                 source_name=source_name,
                 amount=amount,
-                year=year,
-                month=month,
+                date=date_obj,
                 currency='RUB'
             )
             flash('Доход обновлен', 'success')
-            return redirect(url_for('budget.income'))
+            # Redirect to income page with the month of the updated income
+            income_year_month = YearMonth.from_date(date_obj)
+            return redirect(url_for('budget.income', ym=str(income_year_month)))
         except Exception as e:
             flash(f'Ошибка при обновлении дохода: {str(e)}', 'error')
             return redirect(url_for('budget.income'))

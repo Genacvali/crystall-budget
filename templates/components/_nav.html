@@ -50,6 +50,16 @@
               type="button" aria-label="Открыть меню" aria-controls="mobileDrawer" aria-expanded="false">
         <i class="bi bi-list" aria-hidden="true"></i>
       </button>
+      
+      {# КАЛЕНДАРЬ - месяц и год (скрыт на мобилке) #}
+      <div class="ff-month-picker d-none d-md-inline-flex" id="monthPicker">
+        <button type="button" class="ff-month-btn" aria-label="Выбрать месяц и год">
+          <i class="bi bi-calendar3" aria-hidden="true"></i>
+          <span id="currentMonthLabel">{{ current_month.month_name if current_month else 'Декабрь 2024' }}</span>
+          <i class="bi bi-chevron-down" aria-hidden="true"></i>
+        </button>
+      </div>
+      
       <!-- Переключатель темы скрыт на мобилке, показывается от md -->
       <label class="ff-switch mb-0 d-none d-md-inline-flex" aria-label="Переключить тему" role="switch" aria-checked="{{ 'true' if session.get('theme') == 'dark' else 'false' }}">
         <input type="checkbox" id="themeToggle" class="visually-hidden" {{ 'checked' if session.get('theme') == 'dark' else '' }}/>
@@ -61,11 +71,23 @@
       </label>
 
       {% if session.user_id %}
-      <button class="ff-pill ff-user d-none d-sm-inline-flex" aria-label="Открыть меню профиля" role="button">
-        <i class="bi bi-person-circle" aria-hidden="true"></i>
-        <span class="d-none d-xl-inline">{{ session.name or 'Пользователь' }}</span>
-        <i class="bi bi-caret-down-fill ms-1" aria-hidden="true"></i>
-      </button>
+      <div class="dropdown">
+        <button class="ff-pill ff-user d-none d-sm-inline-flex" aria-label="Открыть меню профиля" role="button" 
+                data-bs-toggle="dropdown" aria-expanded="false" id="userDropdown">
+          <i class="bi bi-person-circle" aria-hidden="true"></i>
+          <span class="d-none d-xl-inline">{{ session.name or 'Пользователь' }}</span>
+          <i class="bi bi-caret-down-fill ms-1" aria-hidden="true"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow-soft" aria-labelledby="userDropdown">
+          <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+            <i class="bi bi-person me-2" aria-hidden="true"></i>Профиль
+          </a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}">
+            <i class="bi bi-box-arrow-right me-2" aria-hidden="true"></i>Выйти
+          </a></li>
+        </ul>
+      </div>
       {% endif %}
     </div>
   </div>
@@ -105,6 +127,21 @@
         <i class="bi bi-graph-up-arrow me-2" aria-hidden="true"></i>Доходы
       </a>
     </nav>
+
+    {# Календарь в мобильном меню #}
+    <div class="px-3 py-2 d-flex d-md-none border-top">
+      <div class="d-flex align-items-center w-100">
+        <span class="me-3">
+          <i class="bi bi-calendar3 me-2" aria-hidden="true"></i>Период
+        </span>
+        <div class="ms-auto">
+          <button type="button" class="ff-month-btn" id="mobileMonthPicker" aria-label="Выбрать месяц и год">
+            <span id="mobileMonthLabel">{{ current_month.month_name if current_month else 'Декабрь 2024' }}</span>
+            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+    </div>
 
     {# Переключатель темы в мобильном меню #}
     <div class="px-3 py-2 d-flex d-md-none border-top">

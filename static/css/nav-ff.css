@@ -186,6 +186,59 @@
 }
 :root[data-bs-theme="dark"] .ff-switch .ff-thumb{ transform: translateX(48px); }
 
+/* ---------- Календарь (месяц/год) ---------- */
+.ff-month-picker {
+  display: inline-flex;
+  align-items: center;
+}
+
+.ff-month-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 12px;
+  background: rgba(255,255,255,.06);
+  color: var(--bs-body-color);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .15s ease;
+  min-height: 36px;
+  backdrop-filter: blur(6px);
+}
+
+.ff-month-btn:hover {
+  background: rgba(255,255,255,.1);
+  border-color: var(--bs-border-color);
+  color: var(--bs-body-color);
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+}
+
+.ff-month-btn i {
+  font-size: 13px;
+}
+
+.ff-month-btn .bi-chevron-down {
+  transition: transform .15s ease;
+}
+
+.ff-month-btn[aria-expanded="true"] .bi-chevron-down {
+  transform: rotate(180deg);
+}
+
+/* Светлая тема */
+:root[data-bs-theme="light"] .ff-month-btn {
+  background: rgba(0,24,64,.06);
+}
+
+:root[data-bs-theme="light"] .ff-month-btn:hover {
+  background: rgba(0,24,64,.1);
+}
+
 /* ========== ТЕМИЗАЦИЯ ========== */
 
 /* === СВЕТЛАЯ ТЕМА === */
@@ -316,76 +369,318 @@
 }
 
 /* ---------- Большие кнопки Дох/Расх (для дашборда) ---------- */
-/* Контейнер кнопок (чтоб красиво раскладывались) */
+/* CSS переменные для адаптивных размеров */
+:root {
+  --cta-h: clamp(44px, 6vw, 64px);
+  --cta-pad-x: clamp(14px, 2.5vw, 24px);
+  --cta-pad-y: clamp(8px, 1.5vw, 12px);
+  --cta-font: clamp(14px, 1.2vw, 18px);
+  --cta-badge: clamp(26px, 2vw, 36px);
+  --cta-gap: clamp(8px, 1vw, 14px);
+}
+
+/* Контейнер кнопок (грамотный перенос) */
 .ff-actions {
   display: flex;
-  gap: .75rem;
+  gap: clamp(12px, 1.5vw, 16px);
   flex-wrap: wrap;
   align-items: center;
+  justify-content: end;
 }
 
-/* Базовый вид — крупные капсулы */
-.ff-action{
+/* Базовый вид — резиновые адаптивные капсулы */
+.ff-action {
   display: inline-flex;
   align-items: center;
-  gap: .75rem;
-  border-radius: 999px;
-  border: 1px solid var(--bs-border-color);
-  padding: 1rem 1.5rem;          /* ↑ толще область клика */
-  min-height: 64px;              /* ↑ высота */
-  min-width: 180px;              /* ↑ ширина, не сжимается по тексту */
-  font-size: 1.0625rem;          /* 17px */
-  line-height: 1;
-  font-weight: 700;
-  white-space: nowrap;           /* не переносим текст */
-  box-shadow: 0 10px 28px rgba(0,0,0,.18);
-  transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  gap: var(--cta-gap);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  padding: var(--cta-pad-y) var(--cta-pad-x);
+  min-height: var(--cta-h);
+  min-width: clamp(140px, 42vw, 220px);
+  font-size: var(--cta-font);
+  line-height: 1.2;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,.15);
+  transition: transform .15s ease, box-shadow .15s ease;
+  justify-content: center;
 }
 
-.ff-action .label { flex: 1 1 auto; }
-
-/* Крупнее значок/бейдж */
-.ff-action .ff-badge{
-  width: 34px;
-  height: 34px;
+/* Значок/бейдж строго внутри круга */
+.ff-action .ff-badge {
+  width: var(--cta-badge);
+  height: var(--cta-badge);
   border-radius: 50%;
-  background: rgba(255,255,255,.6);
+  overflow: hidden; /* КРИТИЧНО: обрезает выходящие элементы */
+  background: rgba(255,255,255,.8);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  position: relative;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.2);
+}
+
+/* Иконка 60-65% от бейджа */
+.ff-action .ff-badge i { 
+  font-size: calc(var(--cta-badge) * 0.6);
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.2));
+  transition: filter .12s ease;
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover/Active эффекты */
+.ff-action:hover { 
+  box-shadow: 0 12px 32px rgba(0,0,0,.2); 
+  transform: translateY(-2px); 
+  text-decoration: none;
+}
+.ff-action:active { 
+  transform: translateY(0); 
+  box-shadow: 0 6px 16px rgba(0,0,0,.15); 
+}
+
+/* Фокус с кольцом */
+.ff-action:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: 2px;
+  box-shadow: 
+    0 8px 24px rgba(0,0,0,.15),
+    0 0 0 4px rgba(13,110,253,.25);
+}
+
+/* Цветовые схемы кнопок */
+.ff-expense {
+  background: linear-gradient(135deg, #ff6b9e, #ff8ba7);
+  color: #fff;
+  border-color: rgba(255,255,255,.1);
+}
+
+.ff-income {
+  background: linear-gradient(135deg, #3ed1a5, #52e0c0);
+  color: #fff;
+  border-color: rgba(255,255,255,.1);
+}
+
+/* ===== АДАПТИВНЫЕ БРЕЙКПОИНТЫ ===== */
+
+/* Очень узкие экраны: кнопки в столбик */
+@media (max-width: 480px) {
+  .ff-actions {
+    justify-content: stretch;
+    gap: 12px;
+  }
+  
+  .ff-action {
+    width: 100%;
+    min-width: unset;
+    justify-content: center;
+  }
+}
+
+/* Мобильные широкие: две кнопки в ряд */
+@media (min-width: 481px) and (max-width: 575.98px) {
+  .ff-actions {
+    justify-content: center;
+    gap: 12px;
+  }
+  
+  .ff-action {
+    flex: 1 1 48%;
+    min-width: 140px;
+    max-width: 48%;
+    justify-content: center;
+  }
+}
+
+/* Планшеты и выше: контейнер справа */
+@media (min-width: 576px) {
+  .ff-actions {
+    justify-content: end;
+  }
+}
+
+/* Светлая тема: улучшенный контраст */
+:root[data-bs-theme="light"] .ff-expense { 
+  color: #fff; 
+  box-shadow: 0 8px 24px rgba(255,107,158,.25);
+}
+:root[data-bs-theme="light"] .ff-income { 
+  color: #fff; 
+  box-shadow: 0 8px 24px rgba(62,209,165,.25);
+}
+
+/* Темная тема: мягкое свечение */
+:root[data-bs-theme="dark"] .ff-expense { 
+  color: #fff; 
+  box-shadow: 0 8px 24px rgba(255,107,158,.35);
+}
+:root[data-bs-theme="dark"] .ff-income { 
+  color: #fff; 
+  box-shadow: 0 8px 24px rgba(62,209,165,.35);
+}
+
+/* ========== FF-СТИЛЬ ВНУТРЕННИХ ЭЛЕМЕНТОВ ========== */
+
+/* Улучшенная капсула с внутренней подсветкой */
+.ff-action {
+  position: relative;
+  /* Внутренний градиент поверх фона */
+  background: 
+    radial-gradient(120% 160% at 20% 20%, rgba(255,255,255,.12), rgba(255,255,255,0) 60%),
+    var(--ff-action-bg); /* переменная для основного градиента */
+  
+  /* Внутренние тени для объема */
+  box-shadow:
+    /* внутренний кант */
+    inset 0 0 0 1px rgba(255,255,255,.18),
+    /* верхний блик */
+    inset 0 12px 24px rgba(255,255,255,.06),
+    /* внешняя тень */
+    0 8px 24px rgba(0,0,0,.15);
+    
+  /* Улучшенный текст с тенью */
+  color: #eef3ff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.15);
+  
+  transition: transform .12s ease, box-shadow .2s ease, opacity .12s ease;
+}
+
+/* Основные градиенты через переменные */
+.ff-expense {
+  --ff-action-bg: linear-gradient(135deg, #ff6b9e, #ff8ba7);
+  --ff-accent-color: #ff7aa8;
+  --ff-accent-bright: #ff4d7a;
+  --ff-glow-color: rgba(255,122,168,.35);
+}
+
+.ff-income {
+  --ff-action-bg: linear-gradient(135deg, #3ed1a5, #52e0c0);
+  --ff-accent-color: #46e6b1;
+  --ff-accent-bright: #26c6a2;
+  --ff-glow-color: rgba(70,230,177,.35);
+}
+
+/* Улучшенный бейдж с двухслойной структурой */
+.ff-action .ff-badge {
+  width: clamp(26px, 1.8vw, 32px);
+  height: clamp(26px, 1.8vw, 32px);
+  border-radius: 50%;
+  background: rgba(255,255,255,.8);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-}
-.ff-action i { font-size: 1.15rem; }
-
-/* Hover/Active эффекты */
-.ff-action:hover { box-shadow: 0 14px 34px rgba(0,0,0,.22); transform: translateY(-1px); }
-.ff-action:active { transform: translateY(0); box-shadow: 0 8px 18px rgba(0,0,0,.18); }
-
-.ff-expense{
-  background: linear-gradient(90deg, #ff6b9e, #ff8ba7);
-  color: #1f0b16;
-}
-.ff-income{
-  background: linear-gradient(90deg, #3ed1a5, #52e0c0);
-  color: #071b14;
+  flex-shrink: 0;
+  position: relative;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.2);
 }
 
-/* XL-вариант для десктопа */
-@media (min-width: 992px){
-  .ff-action{
-    padding: 1.25rem 2rem;
-    min-height: 72px;
-    min-width: 220px;
-    font-size: 1.125rem;        /* 18px */
-  }
-  .ff-action .ff-badge{
-    width: 38px; height: 38px;
-  }
-  .ff-action i { font-size: 1.25rem; }
+.ff-action .ff-badge::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  border: 2px solid var(--ff-accent-color);
+  opacity: 0.6;
+  transition: border-color .12s ease, opacity .12s ease;
 }
 
-/* Светлая тема: текст чуть темнее для контраста */
-:root[data-bs-theme="light"] .ff-expense{ color: #26121b; }
-:root[data-bs-theme="light"] .ff-income{  color: #0d241b; }
+/* Белая иконка с деликатным свечением */
+.ff-action .ff-badge i {
+  color: #ffffff;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.2));
+  transition: filter .12s ease;
+  position: relative;
+  z-index: 1;
+  font-size: clamp(12px, 1vw, 14px); /* Уменьшаем размер иконки */
+}
+
+/* ========== СОСТОЯНИЯ ВЗАИМОДЕЙСТВИЯ ========== */
+
+/* Hover: усиленная подсветка */
+.ff-action:hover {
+  background: 
+    radial-gradient(120% 160% at 20% 20%, rgba(255,255,255,.18), rgba(255,255,255,0) 60%),
+    var(--ff-action-bg);
+    
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.25),
+    inset 0 12px 24px rgba(255,255,255,.09),
+    0 12px 32px rgba(0,0,0,.2),
+    0 8px 24px var(--ff-glow-color); /* внешнее цветное свечение */
+    
+  transform: translateY(-2px);
+}
+
+.ff-action:hover .ff-badge::before {
+  border-color: var(--ff-accent-bright);
+  opacity: 0.8;
+}
+
+.ff-action:hover .ff-badge i {
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.2)) drop-shadow(0 0 4px rgba(255,255,255,.4));
+}
+
+/* Active: проминание */
+.ff-action:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.18),
+    inset 0 8px 16px rgba(255,255,255,.06),
+    0 4px 12px rgba(0,0,0,.25),
+    0 4px 16px var(--ff-glow-color);
+}
+
+/* Focus-visible: двойное кольцо */
+.ff-action:focus-visible {
+  outline: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.18),
+    inset 0 12px 24px rgba(255,255,255,.06),
+    0 8px 24px rgba(0,0,0,.15),
+    0 0 0 3px rgba(255,255,255,.18),
+    0 0 0 6px var(--ff-glow-color);
+}
+
+/* ========== СВЕТЛАЯ ТЕМА ========== */
+
+:root[data-bs-theme="light"] .ff-action {
+  color: #2a3340;
+  text-shadow: 0 1px 2px rgba(255,255,255,.3);
+  
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.3),
+    inset 0 12px 24px rgba(255,255,255,.12),
+    0 8px 24px rgba(0,0,0,.1);
+}
+
+:root[data-bs-theme="light"] .ff-action .ff-badge {
+  background: rgba(255,255,255,.6);
+  border-color: rgba(255,255,255,.4);
+}
+
+:root[data-bs-theme="light"] .ff-action:hover {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.4),
+    inset 0 12px 24px rgba(255,255,255,.15),
+    0 12px 32px rgba(0,0,0,.15),
+    0 8px 24px var(--ff-glow-color);
+}
+
+:root[data-bs-theme="light"] .ff-action:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.3),
+    inset 0 12px 24px rgba(255,255,255,.12),
+    0 8px 24px rgba(0,0,0,.1),
+    0 0 0 3px rgba(0,0,0,.08),
+    0 0 0 6px var(--ff-glow-color);
+}
 
 /* ---- Страница расходов ---- */
 
@@ -468,6 +763,354 @@
   color: var(--bs-body-color);
 }
 
+/* ===== ВЫПАДАЮЩЕЕ МЕНЮ ПРОФИЛЯ ===== */
+.ff-user .bi-caret-down-fill {
+  font-size: 10px;
+  transition: transform .15s ease;
+}
+
+.ff-user[aria-expanded="true"] .bi-caret-down-fill {
+  transform: rotate(180deg);
+}
+
+/* Стили для dropdown-menu */
+.dropdown-menu.shadow-soft {
+  border: 1px solid var(--bs-border-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+  backdrop-filter: blur(8px);
+  padding: 8px;
+  margin-top: 8px;
+}
+
+.dropdown-menu.shadow-soft .dropdown-item {
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  transition: all .15s ease;
+}
+
+.dropdown-menu.shadow-soft .dropdown-item:hover {
+  background: rgba(255,255,255,.1);
+}
+
+.dropdown-menu.shadow-soft .dropdown-item.text-danger:hover {
+  background: rgba(220,53,69,.1);
+  color: var(--bs-danger) !important;
+}
+
+/* Светлая тема */
+:root[data-bs-theme="light"] .dropdown-menu.shadow-soft {
+  background: rgba(255,255,255,.95);
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+}
+
+:root[data-bs-theme="light"] .dropdown-menu.shadow-soft .dropdown-item:hover {
+  background: rgba(0,0,0,.05);
+}
+
+/* Темная тема */
+:root[data-bs-theme="dark"] .dropdown-menu.shadow-soft {
+  background: rgba(34,37,41,.95);
+}
+
+/* ========== МОБИЛЬНАЯ ОПТИМИЗАЦИЯ HERO КАРТОЧКИ ========== */
+
+/* ========== ФЛЮИДНЫЕ CSS-ПЕРЕМЕННЫЕ ========== */
+:root {
+  /* Баннер/панель */
+  --ff-panel-pad: clamp(12px, 4vw, 24px);
+  --ff-panel-radius: clamp(12px, 3vw, 20px);
+  --ff-panel-gap: clamp(8px, 2vw, 12px);
+  
+  /* Типографика */
+  --ff-title: clamp(24px, 6vw, 34px);
+  --ff-meta: clamp(12px, 3.6vw, 16px);
+  
+  /* CTA кнопки */
+  --ff-cta-h: clamp(44px, 9vw, 56px);
+  --ff-cta-pad: clamp(14px, 4vw, 20px);
+  --ff-cta-gap: clamp(10px, 3vw, 16px);
+  --ff-cta-font: clamp(14px, 3vw, 16px);
+  --ff-cta-badge: clamp(1.6em, 2vw, 2em);
+  --ff-cta-icon: 1.4em;
+}
+
+/* ========== ПРИМЕНЕНИЕ ФЛЮИДНОГО ДИЗАЙНА ========== */
+
+/* 1) Базовые стили баннера — работают везде */
+.hero {
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--ff-panel-radius);
+}
+
+.hero h1 {
+  font-size: var(--ff-title);
+  line-height: 1.2;
+}
+
+.hero .meta {
+  font-size: var(--ff-meta);
+  opacity: 0.8;
+}
+
+/* Блок с кнопками всегда в ряд, с нормальным зазором */
+.hero .ff-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Кнопки не на всю ширину по умолчанию */
+.hero .ff-action {
+  white-space: nowrap;
+  height: var(--ff-cta-h);
+  padding: 0 var(--ff-cta-pad);
+  font-size: var(--ff-cta-font);
+  border-radius: var(--ff-panel-radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ff-cta-gap);
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.ff-badge {
+  width: var(--ff-cta-badge);
+  height: var(--ff-cta-badge);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ff-badge i {
+  font-size: var(--ff-cta-icon);
+}
+
+/* 2) Только мобильные (<576px): компактная карточка и вертикальные кнопки */
+@media (max-width: 575.98px) {
+  .hero {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 0 1rem 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    position: relative !important;
+    float: none !important;
+    box-sizing: border-box;
+    border-radius: 16px;
+    overflow: hidden;
+    padding: 16px;
+    display: block !important;
+  }
+  
+  .cb-card {
+    width: 100%;
+    margin: 0 0 1rem 0;
+    box-sizing: border-box;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  
+  /* Внутренний контейнер баннера */
+  .hero > .d-flex {
+    flex-direction: column !important;
+    gap: 16px !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+  }
+  
+  /* Кнопки в баннере */
+  .hero .ff-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    margin: 0;
+    order: 2;
+  }
+  
+  .hero .ff-action {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+  
+  /* Текстовый контент баннера */
+  .hero > .d-flex > div:first-child {
+    order: 1;
+  }
+}
+
+/* 3) Начиная с md (≥768px): явный десктоп */
+@media (min-width: 768px) {
+  .hero {
+    max-width: none;
+    width: 100%;
+  }
+  
+  .hero .ff-actions {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .hero .ff-action {
+    width: auto;
+  }
+}
+
+/* Адаптивная hero карточка */
+@media (max-width: 576px) {
+  .hero {
+    padding: var(--hero-pad-y) var(--hero-pad-x);
+    margin: 0 16px; /* отступы от краев экрана */
+    border-radius: 16px; /* мягче углы */
+    box-shadow: 0 8px 24px rgba(0,0,0,.2); /* одна мягкая тень */
+  }
+  
+  /* Притушаем декоративный блик на мобильных */
+  .hero:before {
+    opacity: 0.4;
+    width: 200px;
+    height: 200px;
+    right: -50px;
+    top: -50px;
+  }
+  
+  /* Флюидная типографика */
+  .hero h1 {
+    font-size: var(--hero-font-size);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums; /* стабильные цифры */
+    margin: 0 0 var(--hero-gap);
+  }
+  
+  /* Компактная мета-информация */
+  .hero .meta {
+    font-size: 14px;
+    line-height: 1.4;
+    opacity: 0.9;
+    margin-bottom: var(--hero-gap);
+  }
+  
+  /* Мобильная статистика в виде списка */
+  .hero-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .hero-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  
+  .hero-stat i {
+    font-size: 12px;
+    opacity: 0.8;
+    width: 16px; /* фиксированная ширина для выравнивания */
+    text-align: center;
+  }
+  
+  .hero-stat strong {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: rgba(255,255,255,.95);
+  }
+  
+  .hero-stat span {
+    opacity: 0.8;
+    font-size: 12px;
+  }
+  
+  /* Контейнер для кнопок */
+  .hero .ff-actions {
+    margin-top: clamp(12px, 3vw, 16px);
+    gap: 12px;
+    justify-content: stretch;
+  }
+  
+  /* Переопределяем CTA переменные для мобильных */
+  :root {
+    --cta-h: clamp(44px, 8vw, 52px);
+    --cta-font: clamp(14px, 2.5vw, 16px);
+    --cta-badge: clamp(28px, 4vw, 32px);
+    --cta-pad-x: clamp(12px, 3vw, 16px);
+    --cta-gap: clamp(8px, 2vw, 12px);
+  }
+  
+  /* Упрощенные FF-эффекты на мобильных */
+  .ff-action {
+    box-shadow: 0 4px 16px rgba(0,0,0,.1); /* одна мягкая тень */
+  }
+  
+  .ff-action:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,.15);
+    transform: translateY(-1px); /* меньше движения */
+  }
+  
+  /* Упрощенный FF-стиль для внутренних элементов */
+  .ff-action {
+    background: var(--ff-action-bg); /* убираем сложный радиальный градиент */
+    box-shadow: 
+      inset 0 0 0 1px rgba(255,255,255,.1), /* простой внутренний кант */
+      0 4px 16px rgba(0,0,0,.1); /* одна внешняя тень */
+  }
+  
+  .ff-action:hover {
+    background: var(--ff-action-bg);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.15),
+      0 6px 20px rgba(0,0,0,.15),
+      0 4px 12px var(--ff-glow-color); /* цветное свечение */
+  }
+}
+
+/* Очень узкие экраны */
+@media (max-width: 360px) {
+  .hero {
+    margin: 0 12px;
+    padding: 14px 12px;
+  }
+  
+  .hero h1 {
+    font-size: 22px; /* фиксированный размер для узких экранов */
+  }
+  
+  .hero .meta {
+    font-size: 13px;
+  }
+  
+  /* Минимальные размеры кнопок */
+  :root {
+    --cta-h: 44px;
+    --cta-font: 14px;
+    --cta-badge: 26px;
+    --cta-pad-x: 12px;
+    --cta-gap: 8px;
+  }
+}
+
+/* Улучшенная светлая тема на мобильных */
+@media (max-width: 576px) {
+  :root[data-bs-theme="light"] .hero {
+    /* Притушенный градиент */
+    background: linear-gradient(135deg, 
+      color-mix(in srgb, var(--hero-a) 85%, white),
+      color-mix(in srgb, var(--hero-b) 85%, white)
+    );
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+}
+
 /* ===== КОМПАКТНЫЕ КАПСУЛЫ-ДЕЙСТВИЯ ===== */
 /* Наши «большие» капсулы оставляем для дашборда, здесь — модификатор --md */
 .ff-action.ff-action--md{
@@ -477,7 +1120,11 @@
   font-size: 1rem;
   font-weight: 600;
 }
-.ff-action.ff-action--md .ff-badge{ width: 28px; height: 28px; }
+.ff-action.ff-action--md .ff-badge{ 
+  width: 28px; 
+  height: 28px; 
+  /* Переопределяем только для модификатора --md */ 
+}
 .ff-action.ff-action--md i{ font-size: 1.05rem; }
 
 /* Смягчаем палитру «Расход» — стеклянный розовый, не «конфета» */
@@ -607,6 +1254,111 @@
 :root[data-bs-theme="light"] .ff-income{
   background: linear-gradient(135deg, rgba(62,209,165,.22), rgba(82,224,192,.22));
   border-color: rgba(0,0,0,.08);
+}
+
+/* ===== МОБИЛЬНЫЕ КАРТОЧКИ ДОХОДОВ ===== */
+@media (max-width: 767.98px) {
+  /* Компактные карточки доходов */
+  .income-mobile-card {
+    border: 1px solid var(--bs-border-color);
+    border-radius: 12px;
+    background: rgba(255,255,255,.02);
+    backdrop-filter: blur(4px);
+    margin-bottom: 8px;
+    transition: all .15s ease;
+  }
+  
+  .income-mobile-card:hover {
+    background: rgba(255,255,255,.05);
+    border-color: var(--bs-border-color-translucent);
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
+  }
+  
+  /* Основной контент карточки */
+  .income-card-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 16px 8px;
+  }
+  
+  /* Левая часть - сумма и месяц */
+  .income-card-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  .income-amount {
+    font-size: 16px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+    margin-bottom: 2px;
+    color: var(--bs-success, #198754);
+  }
+  
+  .income-date {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Правая часть - кнопки действий */
+  .income-card-actions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-top: -2px;
+  }
+  
+  /* Источник дохода внизу */
+  .income-source {
+    padding: 0 16px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--bs-body-color);
+    opacity: 0.85;
+    border-top: 1px solid rgba(255,255,255,.05);
+    margin-top: 4px;
+    padding-top: 8px;
+  }
+  
+  .income-source i {
+    font-size: 11px;
+    opacity: 0.7;
+  }
+  
+  /* Компактные кнопки действий */
+  .income-card-actions .ff-iconbtn {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    border-radius: 6px;
+  }
+  
+  /* Светлая тема */
+  :root[data-bs-theme="light"] .income-mobile-card {
+    background: rgba(0,0,0,.02);
+    border-color: var(--bs-border-color);
+  }
+  
+  :root[data-bs-theme="light"] .income-mobile-card:hover {
+    background: rgba(0,0,0,.04);
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  }
+  
+  :root[data-bs-theme="light"] .income-source {
+    border-top-color: rgba(0,0,0,.08);
+  }
+  
+  :root[data-bs-theme="light"] .income-amount {
+    color: #146c43;
+  }
 }
 
 /* Шапка: чтобы кнопка не давила заголовок */

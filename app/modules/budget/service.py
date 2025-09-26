@@ -8,7 +8,7 @@ from app.core.extensions import db
 from app.core.money import Money, SUPPORTED_CURRENCIES, get_user_currency
 from app.core.time import YearMonth
 from app.core.caching import cached_per_user_month, CacheManager
-from .models import Category, Expense, Income, CategoryRule, ExchangeRate
+from .models import Category, Expense, Income, CategoryRule, ExchangeRate, IncomeSource
 
 
 class BudgetService:
@@ -18,6 +18,11 @@ class BudgetService:
     def get_user_categories(user_id: int) -> List[Category]:
         """Get all categories for user."""
         return Category.query.filter_by(user_id=user_id).order_by(Category.name).all()
+    
+    @staticmethod
+    def get_user_income_sources(user_id: int) -> List[IncomeSource]:
+        """Get all income sources for user."""
+        return IncomeSource.query.filter_by(user_id=user_id).order_by(IncomeSource.name).all()
     
     @staticmethod
     def create_category(user_id: int, name: str, limit_type: str, value: Decimal) -> Category:
@@ -176,8 +181,30 @@ class BudgetService:
     
     @staticmethod
     def add_income(user_id: int, source_name: str, amount: Decimal, 
-                   year: int, month: int, currency: str = 'RUB') -> Income:
-        """Add or update income for month."""
+                   date: date = None, year: int = None, month: int = None, currency: str = 'RUB') -> Income:
+        """Add income with date support (backward compatible with year/month)."""
+        # Ensure income source exists
+        source = IncomeSource.query.filter_by(user_id=user_id, name=source_name).first()
+        if not source:
+            source = IncomeSource(user_id=user_id, name=source_name)
+            db.session.add(source)
+            db.session.flush()  # Get ID without committing
+        
+        # Handle date parameter
+        if date is not None:
+            year = date.year
+            month = date.month
+        elif year is None or month is None:
+            # Default to current date if neither date nor year/month provided
+            current_date = datetime.utcnow().date()
+            date = current_date
+            year = current_date.year
+            month = current_date.month
+        else:
+            # Construct date from year/month (legacy compatibility)
+            from datetime import date as date_class
+            date = date_class(year, month, 1)
+        
         # Try to find existing income
         income = Income.query.filter_by(
             user_id=user_id,
@@ -189,12 +216,14 @@ class BudgetService:
         if income:
             income.amount = amount
             income.currency = currency
+            income.date = date  # Update date field
         else:
             income = Income(
                 user_id=user_id,
                 source_name=source_name,
                 amount=amount,
                 currency=currency,
+                date=date,
                 year=year,
                 month=month
             )
@@ -211,17 +240,32 @@ class BudgetService:
 
     @staticmethod
     def update_income(income_id: int, user_id: int, source_name: str, amount: Decimal, 
-                     year: int, month: int, currency: str = 'RUB') -> Optional[Income]:
-        """Update income."""
+                     date: date = None, year: int = None, month: int = None, currency: str = 'RUB') -> Optional[Income]:
+        """Update income with date support (backward compatible with year/month)."""
         income = Income.query.filter_by(id=income_id, user_id=user_id).first()
         if not income:
             return None
         
-        old_year_month = YearMonth(income.year, income.month)
+        # Handle date parameter
+        if date is not None:
+            year = date.year
+            month = date.month
+        elif year is not None and month is not None:
+            # Construct date from year/month (legacy compatibility)
+            from datetime import date as date_class
+            date = date_class(year, month, 1)
+        else:
+            # Keep existing date if no new date info provided
+            date = income.date or date_class(income.year, income.month, 1)
+            year = date.year
+            month = date.month
+        
+        old_year_month = YearMonth(income.year, income.month) if income.year and income.month else None
         
         # Update fields
         income.source_name = source_name
         income.amount = amount
+        income.date = date
         income.year = year
         income.month = month
         income.currency = currency
@@ -229,10 +273,12 @@ class BudgetService:
         db.session.commit()
         
         # Invalidate cache for both old and new months
-        CacheManager.invalidate_budget_cache(user_id, old_year_month)
+        if old_year_month:
+            CacheManager.invalidate_budget_cache(user_id, old_year_month)
         
-        if income.year != old_year_month.year or income.month != old_year_month.month:
-            new_year_month = YearMonth(income.year, income.month)
+        if year != (old_year_month.year if old_year_month else None) or \
+           month != (old_year_month.month if old_year_month else None):
+            new_year_month = YearMonth(year, month)
             CacheManager.invalidate_budget_cache(user_id, new_year_month)
         
         current_app.logger.info(f'Updated income {income_id} for user {user_id}')
@@ -245,13 +291,21 @@ class BudgetService:
         if not income:
             return False
         
-        year_month = YearMonth(income.year, income.month)
+        # Use date field if available, fallback to year/month for backward compatibility
+        if income.date:
+            year_month = YearMonth.from_date(income.date)
+        elif income.year and income.month:
+            year_month = YearMonth(income.year, income.month)
+        else:
+            # If we can't determine the date, skip cache invalidation
+            year_month = None
         
         db.session.delete(income)
         db.session.commit()
         
-        # Invalidate cache
-        CacheManager.invalidate_budget_cache(user_id, year_month)
+        # Invalidate cache if we have date info
+        if year_month:
+            CacheManager.invalidate_budget_cache(user_id, year_month)
         
         current_app.logger.info(f'Deleted income {income_id} for user {user_id}')
         return True
@@ -260,10 +314,22 @@ class BudgetService:
     def get_income_for_month(user_id: int, year_month: YearMonth, 
                            limit: Optional[int] = None, offset: int = 0) -> List[Income]:
         """Get income for user in given month with optional pagination."""
-        query = Income.query.filter_by(
-            user_id=user_id,
-            year=year_month.year,
-            month=year_month.month
+        from sqlalchemy import or_, extract
+        
+        # Query using both date field and legacy year/month fields for compatibility
+        start_date = year_month.to_date()
+        end_date = year_month.last_day()
+        
+        query = Income.query.filter(
+            Income.user_id == user_id,
+            or_(
+                # Use date field if available
+                Income.date.between(start_date, end_date),
+                # Fallback to year/month for legacy records
+                Income.date.is_(None) & 
+                (Income.year == year_month.year) & 
+                (Income.month == year_month.month)
+            )
         ).order_by(Income.created_at.desc())
         
         # Optional pagination
@@ -365,6 +431,37 @@ class BudgetService:
             'total_remaining': total_remaining,
             'categories': category_summaries
         }
+    
+    @staticmethod
+    def get_multi_source_links(category_id: int):
+        """Get multi-source links for a category."""
+        from .models import CategoryRule, IncomeSource
+        
+        rules = (db.session.query(CategoryRule, IncomeSource)
+                .join(IncomeSource, CategoryRule.source_name == IncomeSource.name)
+                .filter(CategoryRule.category_id == category_id)
+                .all())
+        
+        return [
+            {
+                'source_id': income_source.id,
+                'source_name': income_source.name,
+                'percentage': float(rule.percentage)
+            }
+            for rule, income_source in rules
+        ]
+    
+    @staticmethod 
+    def get_category_single_source(category_id: int):
+        """Get single income source for a category."""
+        from .models import CategoryRule, IncomeSource
+        
+        rule = (db.session.query(CategoryRule, IncomeSource)
+                .join(IncomeSource, CategoryRule.source_name == IncomeSource.name)
+                .filter(CategoryRule.category_id == category_id)
+                .first())
+        
+        return rule[1] if rule else None
 
 
 class CurrencyService:
@@ -405,3 +502,85 @@ class CurrencyService:
         
         converted_amount = money.amount * rate
         return Money(converted_amount, to_currency)
+
+
+class DashboardService:
+    """Dashboard summary service."""
+    
+    @staticmethod
+    def get_income_tiles(user_id: int, year_month: YearMonth) -> List[Dict]:
+        """Get dashboard tiles grouped by income sources."""
+        # Get all income for the month
+        incomes = BudgetService.get_income_for_month(user_id, year_month)
+        
+        # Get all expenses for the month
+        expenses = BudgetService.get_expenses_for_month(user_id, year_month)
+        
+        # Get categories and calculate limits
+        categories = BudgetService.get_user_categories(user_id)
+        spending_by_category = BudgetService.get_category_spending_summary(user_id, year_month)
+        
+        # Get total income for percentage-based limits
+        total_income = BudgetService.get_total_income_for_month(user_id, year_month)
+        
+        # Get currency
+        currency = 'RUB'
+        try:
+            currency = get_user_currency()
+        except RuntimeError:
+            pass
+        
+        # Calculate total expenses
+        total_expenses = Money.zero(currency)
+        for expense in expenses:
+            total_expenses += Money(expense.amount, currency)
+        
+        # Calculate total limits and spent
+        total_limits = Money.zero(currency)
+        total_spent = Money.zero(currency)
+        
+        for category in categories:
+            spent_amount = spending_by_category.get(category.id, Decimal('0'))
+            spent_money = Money(spent_amount, currency)
+            
+            # Calculate limit
+            if category.limit_type == 'fixed':
+                limit = Money(category.value, currency)
+            else:  # percentage
+                limit = Money(total_income.amount * (category.value / 100), currency)
+            
+            total_limits += limit
+            total_spent += spent_money
+        
+        # Group incomes by source
+        income_by_source = {}
+        for income in incomes:
+            source = income.source_name
+            if source not in income_by_source:
+                income_by_source[source] = Money.zero(currency)
+            income_by_source[source] += Money(income.amount, currency)
+        
+        # Create tiles
+        tiles = []
+        for source_name, income_amount in income_by_source.items():
+            # For simplicity, distribute expenses proportionally to income
+            if total_income.amount > 0:
+                expense_share = total_expenses * (income_amount.amount / total_income.amount)
+            else:
+                expense_share = Money.zero(currency)
+            
+            # Calculate remaining after limits (same for all sources - total remaining)
+            remaining_after_limits = total_limits - total_spent
+            
+            # Calculate balance
+            balance = income_amount - expense_share
+            
+            tiles.append({
+                'title': source_name,
+                'income': income_amount,
+                'expense': expense_share,
+                'after_limits': remaining_after_limits,
+                'balance': balance
+            })
+        
+        return tiles

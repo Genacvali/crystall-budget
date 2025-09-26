@@ -87,18 +87,23 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const payload = {
-        operationId: Date.now() + '-' + Math.random().toString(36),
-        amount: Number(form.amount.value),
-        source_id: form.source_id.value,
-        date: form.date.value
-      };
+      
+      // Create form data for regular POST request
+      const formData = new FormData();
+      formData.append('source_name', form.source_name.value);
+      formData.append('amount', form.amount.value);
+      formData.append('date', form.date.value);
+      
+      // Add CSRF token
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+      if (csrfToken) {
+        formData.append('csrf_token', csrfToken);
+      }
 
       try {
-        const response = await fetch('/api/v1/income', {
+        const response = await fetch('/income', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          body: formData
         });
 
         if (response.ok) {
@@ -111,6 +116,12 @@
           // Reset form
           form.reset();
           safeResetDate(form.querySelector('input[name="date"]'));
+          
+          // Clear validation states
+          form.classList.remove('was-validated');
+          form.querySelectorAll('.is-invalid, .is-valid').forEach(el => {
+            el.classList.remove('is-invalid', 'is-valid');
+          });
 
           // Refresh page
           setTimeout(() => location.reload(), 1000);
@@ -278,5 +289,53 @@
       }
     });
   })();
+
+  // Amount field input filtering for dashboard income modal
+  const dashboardAmountField = document.getElementById('incAmount');
+  if (dashboardAmountField) {
+    // Filter input - allow only digits, comma, dot
+    dashboardAmountField.addEventListener('input', function(e) {
+      let value = e.target.value;
+      
+      // Remove any characters that aren't digits, comma, or dot
+      value = value.replace(/[^0-9,\.]/g, '');
+      
+      // Allow only one decimal separator
+      const commaCount = (value.match(/,/g) || []).length;
+      const dotCount = (value.match(/\./g) || []).length;
+      
+      if (commaCount + dotCount > 1) {
+        // Keep only the first separator
+        let separatorFound = false;
+        value = value.replace(/[,\.]/g, function(match) {
+          if (!separatorFound) {
+            separatorFound = true;
+            return match;
+          }
+          return '';
+        });
+      }
+      
+      // Limit decimal places to 2
+      const parts = value.split(/[,\.]/);
+      if (parts.length > 1 && parts[1].length > 2) {
+        parts[1] = parts[1].substring(0, 2);
+        value = parts.join(value.includes(',') ? ',' : '.');
+      }
+      
+      e.target.value = value;
+    });
+    
+    // Normalize on blur (replace comma with dot)
+    dashboardAmountField.addEventListener('blur', function(e) {
+      let value = e.target.value.replace(',', '.');
+      e.target.value = value;
+      
+      // Clear invalid state if value is now valid
+      if (value.match(/^\d+(\.\d{1,2})?$/)) {
+        e.target.classList.remove('is-invalid');
+      }
+    });
+  }
 
 })();

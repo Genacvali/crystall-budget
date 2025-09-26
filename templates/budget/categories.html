@@ -121,7 +121,7 @@
 <section class="ff-progress-card mb-4" aria-label="Категории расходов">
   <div class="ff-header">
     <i class="bi bi-dash-circle"></i>
-    Категории расходов ({{ expense_categories|length }})
+    Всего категорий: {{ expense_categories|length }}
   </div>
   <div class="ff-list">
     {% for cat in expense_categories %}
@@ -129,7 +129,7 @@
       <!-- Левая колонка: название и тип -->
       <div class="category-info">
         <div class="category-name">{{ cat.name }}</div>
-        {% if cat.multi_source == 1 %}
+        {% if cat.is_multi_source %}
         <div class="category-meta">
           <span class="badge-ghost">
             <i class="bi bi-diagram-3 me-1"></i>Мультиисточник
@@ -153,7 +153,7 @@
       
       <!-- Центральная колонка: детали источников (для мультиисточника) -->
       <div class="category-sources">
-        {% if cat.multi_source == 1 %}
+        {% if cat.is_multi_source %}
           {% set cat_sources = multi_source_links.get(cat.id, []) %}
           {% if cat_sources and cat_sources|length > 0 %}
             <div class="d-flex flex-wrap gap-1">
@@ -175,7 +175,7 @@
       <div class="category-limit">
         <div class="limit-value">
           {% if cat.limit_type == 'percent' %}
-            {% if cat.multi_source == 1 %}
+            {% if cat.is_multi_source %}
               <span class="limit-amount tabular-nums">Процентный</span>
               <span class="limit-type">от источников</span>
             {% else %}
@@ -187,18 +187,21 @@
             <span class="limit-type">фикс</span>
           {% endif %}
         </div>
-        <div class="category-actions">
-          {% if cat.multi_source == 1 %}
-            <button class="action-btn" data-bs-toggle="modal" data-bs-target="#multiSourceModal{{ cat.id }}" aria-label="Настроить источники">
+        <div class="ff-iconbtn-group" role="group" aria-label="Действия">
+          {% if cat.is_multi_source %}
+            <button type="button" class="ff-iconbtn ff-iconbtn--source" data-bs-toggle="modal" data-bs-target="#multiSourceModal{{ cat.id }}" 
+                    aria-label="Настроить источники" title="Настроить источники">
               <i class="bi bi-diagram-3"></i>
             </button>
           {% endif %}
-          <button class="action-btn" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}" aria-label="Редактировать категорию">
+          <button type="button" class="ff-iconbtn ff-iconbtn--edit" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}" 
+                  aria-label="Редактировать категорию" title="Редактировать">
             <i class="bi bi-pencil"></i>
           </button>
           <form method="POST" action="{{ url_for('budget.delete_category', category_id=cat.id) }}" class="d-inline">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button class="action-btn action-btn-danger" onclick="return confirm('Удалить категорию «{{ cat.name }}»?')" aria-label="Удалить категорию">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="ff-iconbtn ff-iconbtn--delete" onclick="return confirm('Удалить категорию «{{ cat.name }}»?')" 
+                    aria-label="Удалить категорию" title="Удалить">
               <i class="bi bi-trash3"></i>
             </button>
           </form>
@@ -241,10 +244,10 @@
                 <option value="percent" {% if cat.limit_type == 'percent' %}selected{% endif %}>Процент от дохода</option>
               </select>
             </div>
-            <div class="col-6" id="editValueField{{ cat.id }}" {% if cat.multi_source == 1 %}style="display: none;"{% endif %}>
+            <div class="col-6" id="editValueField{{ cat.id }}" {% if cat.is_multi_source %}style="display: none;"{% endif %}>
               <label class="form-label">Размер лимита</label>
               <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
-                     value="{{ cat.value }}" {% if cat.multi_source != 1 %}required{% endif %}>
+                     value="{{ cat.value }}" {% if not cat.is_multi_source %}required{% endif %}>
             </div>
           </div>
           
@@ -252,7 +255,7 @@
           <div class="mb-3">
             <div class="form-check form-switch">
               <input class="form-check-input" type="checkbox" id="multiSourceSwitch{{ cat.id }}" 
-                     {% if cat.multi_source == 1 %}checked{% endif %}
+                     {% if cat.is_multi_source %}checked{% endif %}
                      onchange="toggleMultiSourceMode({{ cat.id }}, this.checked)">
               <label class="form-check-label" for="multiSourceSwitch{{ cat.id }}">
                 <strong>Многоисточниковая категория</strong>
@@ -264,7 +267,7 @@
           </div>
 
           <!-- Источник дохода (только для обычных категорий) -->
-          <div class="mb-3" id="singleSourceDiv{{ cat.id }}" {% if cat.multi_source == 1 %}style="display: none;"{% endif %}>
+          <div class="mb-3" id="singleSourceDiv{{ cat.id }}" {% if cat.is_multi_source %}style="display: none;"{% endif %}>
             <label class="form-label">Источник дохода</label>
             <select name="source_id" class="form-select">
               <option value="">— Не привязан к источнику —</option>
@@ -279,7 +282,7 @@
           </div>
 
           <!-- Информация о многоисточниковых связях -->
-          <div class="mb-3" id="multiSourceInfo{{ cat.id }}" {% if cat.multi_source != 1 %}style="display: none;"{% endif %}>
+          <div class="mb-3" id="multiSourceInfo{{ cat.id }}" {% if not cat.is_multi_source %}style="display: none;"{% endif %}>
             {% set cat_sources = multi_source_links.get(cat.id, []) %}
             {% if cat_sources %}
               <label class="form-label">Настроенные источники:</label>
@@ -310,7 +313,7 @@
 
 <!-- Модальные окна для управления многоисточниковыми категориями -->
 {% for cat in expense_categories %}
-{% if cat.multi_source == 1 %}
+{% if cat.is_multi_source %}
 <div class="modal fade" id="multiSourceModal{{ cat.id }}" tabindex="-1">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
@@ -358,9 +361,9 @@
                   <td class="text-end">
                     <form method="POST" action="{{ url_for('budget.remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                      <button type="submit" class="icon-btn icon-sm icon-danger"
+                      <button type="submit" class="ff-iconbtn ff-iconbtn--delete"
                               onclick="return confirm('Убрать источник {{ source_info.source_name }} из категории?')" 
-                              data-bs-toggle="tooltip" data-bs-title="Удалить" aria-label="Удалить">
+                              title="Удалить" aria-label="Удалить">
                         <i class="bi bi-trash3"></i>
                       </button>
                     </form>
@@ -530,8 +533,8 @@ function addSourceToNewCategory() {
       </div>
     </div>
     <div class="col-2">
-      <button type="button" class="btn btn-sm btn-outline-danger" 
-              onclick="removeSourceFromNew(${newCategorySourceCounter})">
+      <button type="button" class="ff-iconbtn ff-iconbtn--delete" 
+              onclick="removeSourceFromNew(${newCategorySourceCounter})" title="Удалить">
         <i class="bi bi-trash3"></i>
       </button>
     </div>

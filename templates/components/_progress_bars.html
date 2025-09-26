@@ -3,7 +3,7 @@
   <div class="ff-progress-card-inner">
     <div class="ff-header">
     <i class="bi bi-graph-up-arrow"></i>
-    Прогресс по категориям
+    Прогресс
     
     <div class="ms-auto">
       <div class="segmented">
@@ -28,11 +28,16 @@
   </div>
 
   <div class="ff-list" id="catList">
-    {% for cat in budget_data %}
-      {% set base_limit = (cat.limit or 0)|float %}
-      {% set spent       = (cat.spent or 0)|float %}
+    {% for cat_summary in budget_data %}
+      {% set category = cat_summary.category %}
+      {% set spent_money = cat_summary.spent %}
+      {% set limit_money = cat_summary.limit %}
+      {% set remaining_money = cat_summary.remaining %}
+      
+      {% set base_limit = limit_money.amount|float %}
+      {% set spent = spent_money.amount|float %}
       {% set avail_limit = base_limit %}
-      {% set rest        = (avail_limit - spent)|round(2, 'floor') %}
+      {% set rest = remaining_money.amount|float %}
 
       {% if avail_limit > 0 %}
         {% set progress_raw = spent / avail_limit * 100 %}
@@ -40,25 +45,25 @@
         {% set progress_raw = (spent > 0) and 100 or 0 %}
       {% endif %}
 
-      {% set progress  = progress_raw|round(1) %}
+      {% set progress = progress_raw|round(1) %}
       {% set bar_width = [progress_raw, 100]|min|round(1) %}
 
       <article class="cat ff-item"
-               data-id="{{ cat.id if cat.id is defined else loop.index }}"
-               data-name="{{ (cat.name or '')|trim }}"
+               data-id="{{ category.id }}"
+               data-name="{{ category.name }}"
                data-progress="{{ progress }}"
                data-remaining="{{ rest }}"
                data-spent="{{ spent }}"
                data-limit="{{ avail_limit }}"
-               data-order="{{ cat.sort_order if cat.sort_order is defined else loop.index0 }}"
-               data-limit-type="{{ cat.limit_type or 'fixed' }}"
-               data-value="{{ cat.value or avail_limit }}">
+               data-order="{{ loop.index0 }}"
+               data-limit-type="{{ category.limit_type }}"
+               data-value="{{ category.value }}">
         
         <div class="ff-left">
-          <div class="cat-title ff-title">{{ cat.name }}</div>
+          <div class="cat-title ff-title">{{ category.name }}</div>
           <div class="cat-meta ff-meta">
-            {% if cat.limit_type == 'percent' %}
-              Процент {{ cat.value }}%
+            {% if category.limit_type == 'percent' %}
+              Процент {{ category.value }}%
             {% else %}
               Фикс <span class="limit">{{ base_limit|format_amount }}</span> ₽
             {% endif %}
@@ -77,16 +82,6 @@
           <div class="ff-meta">Остаток: <span class="rest {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">{{ rest|format_amount }}</span> ₽</div>
         </div>
 
-        <div class="ff-actions">
-          <button class="icon-btn icon-primary icon-faded" title="Редактировать" aria-label="Редактировать"
-                  data-action="edit"
-                  data-id="{{ cat.id }}">
-            <i class="bi bi-pencil"></i>
-          </button>
-          <button class="icon-btn icon-danger icon-faded" title="Удалить" aria-label="Удалить" data-action="delete" data-id="{{ cat.id }}">
-            <i class="bi bi-trash"></i>
-          </button>
-        </div>
       </article>
     {% else %}
       <div class="text-muted p-3">Нет категорий бюджета на выбранный месяц.</div>

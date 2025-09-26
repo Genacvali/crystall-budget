@@ -16,7 +16,9 @@
       "Bash(PORT=5000 python app.py)",
       "Bash(PORT=5001 python:*)",
       "Bash(flask db migrate:*)",
-      "Bash(flask db:*)"
+      "Bash(flask db:*)",
+      "Bash(sqlite3:*)",
+      "Bash(PORT=5050 python:*)"
     ],
     "deny": [],
     "ask": []

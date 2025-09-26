@@ -15,7 +15,12 @@
               <div class="input-group">
                 <span class="input-group-text" aria-hidden="true"><i class="bi bi-briefcase"></i></span>
                 <input id="incSource" name="source_name" type="text" class="form-control"
-                       placeholder="Например, Зарплата" required>
+                       placeholder="Например, Зарплата" list="income-sources" required>
+                <datalist id="income-sources">
+                  {% for source in income_sources %}
+                    <option value="{{ source.name }}">
+                  {% endfor %}
+                </datalist>
               </div>
             </div>
 
@@ -25,9 +30,9 @@
                 <span class="input-group-text" aria-hidden="true"><i class="bi bi-cash-coin"></i></span>
                 <input id="incAmount" name="amount" type="text" inputmode="decimal"
                        class="form-control" placeholder="0"
-                       pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required>
+                       pattern="^\d+([,\.]\d{1,2})?$" autocomplete="off" required>
               </div>
-              <div class="form-text">Запятая или точка, 2 знака после.</div>
+              <div class="form-text">Например: 50000 или 50000.50</div>
             </div>
 
             <div class="col-12 col-sm-6">

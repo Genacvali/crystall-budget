@@ -82,7 +82,7 @@
           {% for income in income_list %}
           <tr>
             <td><strong>{{ income.amount|format_currency('RUB') }}</strong></td>
-            <td><span class="text-muted">{{ (income.year, income.month)|format_month_ru }}</span></td>
+            <td><span class="text-muted">{{ income|format_month_with_day }}</span></td>
             <td>
               <i class="bi bi-briefcase me-2 text-muted" aria-hidden="true"></i>
               {{ income.source_name }}
@@ -119,36 +119,38 @@
 <!-- Мобильные карточки -->
 <div class="d-block d-md-none mt-3">
     {% for income in income_list %}
-    <div class="card mb-2">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          <div>
-            <div class="fw-bold">{{ income.amount|format_currency('RUB') }}</div>
-            <small class="text-muted">{{ (income.year, income.month)|format_month_ru }}</small>
-          </div>
-          <div class="ff-iconbtn-group" role="group">
-            <button type="button" class="ff-iconbtn ff-iconbtn--edit edit-income-btn" 
-                    data-id="{{ income.id }}"
-                    data-source="{{ income.source_name }}"
-                    data-amount="{{ income.amount }}"
-                    data-date="{{ income.date or (income.year|string + '-' + (income.month|string).zfill(2) + '-01') }}"
-                    data-year="{{ income.year }}"
-                    data-month="{{ income.month }}"
-                    aria-label="Изменить" title="Изменить">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button type="button" class="ff-iconbtn ff-iconbtn--delete delete-income-btn" 
-                    data-id="{{ income.id }}"
-                    data-source="{{ income.source_name }}"
-                    data-amount="{{ income.amount|format_currency('RUB') }}"
-                    aria-label="Удалить" title="Удалить">
-              <i class="bi bi-trash3"></i>
-            </button>
-          </div>
+    <div class="income-mobile-card">
+      <!-- Основной контент карточки -->
+      <div class="income-card-main">
+        <div class="income-card-info">
+          <div class="income-amount">{{ income.amount|format_currency('RUB') }}</div>
+          <div class="income-date">{{ income|format_month_with_day }}</div>
         </div>
-        <div class="text-muted">
-          <i class="bi bi-briefcase me-1"></i>{{ income.source_name }}
+        <div class="income-card-actions" role="group" aria-label="Действия">
+          <button type="button" class="ff-iconbtn ff-iconbtn--edit edit-income-btn" 
+                  data-id="{{ income.id }}"
+                  data-source="{{ income.source_name }}"
+                  data-amount="{{ income.amount }}"
+                  data-date="{{ income.date or (income.year|string + '-' + (income.month|string).zfill(2) + '-01') }}"
+                  data-year="{{ income.year }}"
+                  data-month="{{ income.month }}"
+                  aria-label="Изменить" title="Изменить">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button type="button" class="ff-iconbtn ff-iconbtn--delete delete-income-btn" 
+                  data-id="{{ income.id }}"
+                  data-source="{{ income.source_name }}"
+                  data-amount="{{ income.amount|format_currency('RUB') }}"
+                  aria-label="Удалить" title="Удалить">
+            <i class="bi bi-trash3"></i>
+          </button>
         </div>
+      </div>
+      
+      <!-- Источник дохода -->
+      <div class="income-source">
+        <i class="bi bi-briefcase"></i>
+        <span>{{ income.source_name }}</span>
       </div>
     </div>
     {% endfor %}
@@ -186,10 +188,9 @@
               <div class="input-group">
                 <span class="input-group-text" aria-hidden="true"><i class="bi bi-cash-coin"></i></span>
                 <input id="editIncAmount" name="amount" type="text" inputmode="decimal"
-                       class="form-control" placeholder="0"
-                       pattern="^\\s*\\d+([,\\.]\\d{1,2})?\\s*$" required>
+                       class="form-control" placeholder="0" autocomplete="off" required>
               </div>
-              <div class="form-text">Запятая или точка, 2 знака после.</div>
+              <div class="form-text">Например: 50000 или 50000.50</div>
             </div>
 
             <div class="col-12 col-sm-6">
@@ -294,6 +295,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (editForm) editForm.action = `/income/edit/${id}`;
         
+        // Clear validation states
+        if (editForm) {
+          editForm.classList.remove('was-validated');
+          editForm.querySelectorAll('.is-invalid, .is-valid').forEach(el => {
+            el.classList.remove('is-invalid', 'is-valid');
+          });
+        }
+        
         // Show modal
         const modal = new bootstrap.Modal(editModal);
         modal.show();
@@ -347,6 +356,68 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   });
+  
+  // Amount field input filtering
+  const amountField = document.getElementById('editIncAmount');
+  if (amountField) {
+    // Remove browser validation conflict
+    amountField.removeAttribute('pattern');
+    
+    // Clear invalid state when user starts typing
+    amountField.addEventListener('focus', function(e) {
+      e.target.classList.remove('is-invalid');
+    });
+    
+    // Filter input - allow only digits, comma, dot
+    amountField.addEventListener('input', function(e) {
+      let value = e.target.value;
+      
+      // Remove any characters that aren't digits, comma, or dot
+      value = value.replace(/[^0-9,\.]/g, '');
+      
+      // Allow only one decimal separator
+      const commaCount = (value.match(/,/g) || []).length;
+      const dotCount = (value.match(/\./g) || []).length;
+      
+      if (commaCount + dotCount > 1) {
+        // Keep only the first separator
+        let separatorFound = false;
+        value = value.replace(/[,\.]/g, function(match) {
+          if (!separatorFound) {
+            separatorFound = true;
+            return match;
+          }
+          return '';
+        });
+      }
+      
+      // Limit decimal places to 2
+      const parts = value.split(/[,\.]/);
+      if (parts.length > 1 && parts[1].length > 2) {
+        parts[1] = parts[1].substring(0, 2);
+        value = parts.join(value.includes(',') ? ',' : '.');
+      }
+      
+      e.target.value = value;
+      
+      // Remove invalid state while typing
+      e.target.classList.remove('is-invalid');
+    });
+    
+    // Normalize on blur (replace comma with dot)
+    amountField.addEventListener('blur', function(e) {
+      let value = e.target.value.replace(',', '.');
+      e.target.value = value;
+      
+      // Validate and show/hide invalid state
+      if (value && !value.match(/^\d+(\.\d{1,2})?$/)) {
+        e.target.classList.add('is-invalid');
+      } else if (value) {
+        e.target.classList.remove('is-invalid');
+        e.target.classList.add('is-valid');
+      }
+    });
+  }
 });
 </script>
 {% endblock %}
