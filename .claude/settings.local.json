@@ -23,7 +23,8 @@
       "Read(//tmp/**)",
       "Bash(flask --help)",
       "Bash(BUDGET_DB=\"sqlite:///instance/budget.db\" flask db-cli init-db)",
-      "Bash(BUDGET_DB=\"instance/budget.db\" flask db-cli init-db)"
+      "Bash(BUDGET_DB=\"instance/budget.db\" flask db-cli init-db)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
