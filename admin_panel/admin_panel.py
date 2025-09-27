@@ -11,12 +11,13 @@ import secrets
 from datetime import datetime, timedelta
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from werkzeug.security import generate_password_hash
+from werkzeug.utils import secure_filename
 import json
 
 # Конфигурация
 app = Flask(__name__, template_folder='templates')
 app.secret_key = os.environ.get('ADMIN_SECRET_KEY', 'admin-panel-secret-key-change-me')
-DB_PATH = os.environ.get('BUDGET_DB', '../budget.db')
+DB_PATH = os.environ.get('BUDGET_DB', '../instance/budget.db')
 
 # Простая авторизация админки
 ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
@@ -35,6 +36,59 @@ def login_required(f):
         return f(*args, **kwargs)
     wrapper.__name__ = f.__name__
     return wrapper
+
+def ensure_schema_compatibility():
+    """Ensure the restored DB has columns required by the current app version.
+    
+    Returns:
+        list[str]: List of actions performed in the form 'table.column'
+    """
+    actions = []
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+
+    def _table_exists(cur, name: str) -> bool:
+        cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (name,))
+        return cur.fetchone() is not None
+
+    def _columns(cur, table: str) -> set:
+        cur.execute(f"PRAGMA table_info({table})")
+        return {row[1] for row in cur.fetchall()}
+
+    def _add_if_missing(cur, table: str, col_name: str, col_def: str):
+        cols = _columns(cur, table)
+        if col_name not in cols:
+            cur.execute(f"ALTER TABLE {table} ADD COLUMN {col_def}")
+            actions.append(f"{table}.{col_name}")
+
+    try:
+        # users table required columns (for modern app expectations)
+        if _table_exists(cur, 'users'):
+            users_defs = [
+                ('theme', "theme TEXT DEFAULT 'light'"),
+                ('currency', "currency TEXT DEFAULT 'RUB'"),
+                ('timezone', "timezone TEXT DEFAULT 'UTC'"),
+                ('locale', "locale TEXT DEFAULT 'ru'"),
+                ('default_currency', "default_currency TEXT DEFAULT 'RUB'"),
+                ('avatar_path', "avatar_path TEXT"),
+                ('role', "role TEXT DEFAULT 'user'"),
+            ]
+            for name, definition in users_defs:
+                _add_if_missing(cur, 'users', name, definition)
+
+        # currency columns for expenses/income tables if missing
+        for table in ['expenses', 'income', 'income_daily']:
+            if _table_exists(cur, table):
+                _add_if_missing(cur, table, 'currency', "currency TEXT DEFAULT 'RUB'")
+
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+    return actions
 
 @app.route('/')
 @login_required
@@ -602,6 +656,86 @@ def backup():
         flash(f'Ошибка создания резервной копии: {e}', 'error')
     
     return redirect(url_for('index'))
+
+@app.route('/restore', methods=['POST'])
+@login_required
+def restore():
+    """Восстановление базы данных из загруженного бэкапа."""
+    file = request.files.get('backup_file')
+    if not file or file.filename == '':
+        flash('Не выбран файл для загрузки', 'error')
+        return redirect(url_for('database'))
+
+    try:
+        filename = secure_filename(file.filename)
+        allowed_exts = ('.db', '.sqlite', '.sqlite3', '.backup', '.bak')
+        if not filename.lower().endswith(allowed_exts):
+            flash('Недопустимый тип файла. Разрешены: .db, .sqlite, .sqlite3, .backup, .bak', 'error')
+            return redirect(url_for('database'))
+
+        os.makedirs('backups/uploads', exist_ok=True)
+        upload_path = os.path.join('backups', 'uploads', f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{filename}")
+        file.save(upload_path)
+
+        # Проверяем целостность загруженной БД
+        src_conn = sqlite3.connect(upload_path)
+        cur = src_conn.execute("PRAGMA integrity_check;")
+        row = cur.fetchone()
+        check = row[0] if row else None
+        if check != 'ok':
+            src_conn.close()
+            flash(f'Целостность загруженной БД нарушена: {check}', 'error')
+            return redirect(url_for('database'))
+
+        # Делаем автоснимок текущей БД перед восстановлением
+        os.makedirs('backups', exist_ok=True)
+        auto_name = f"auto_before_restore_{datetime.now().strftime('%Y%m%d_%H%M%S')}.db"
+        auto_path = os.path.join('backups', auto_name)
+        try:
+            current_conn = sqlite3.connect(DB_PATH)
+            auto_conn = sqlite3.connect(auto_path)
+            current_conn.backup(auto_conn)
+            auto_conn.close()
+            current_conn.close()
+        except Exception as be:
+            # Если не удалось создать автоснимок — прерываем операцию
+            src_conn.close()
+            flash(f'Не удалось создать автоснимок текущей БД: {be}', 'error')
+            return redirect(url_for('database'))
+
+        # Восстанавливаем данные в целевую БД
+        dest_conn = sqlite3.connect(DB_PATH)
+        src_conn.backup(dest_conn)
+        dest_conn.close()
+        src_conn.close()
+
+        # Ensure schema has all required columns for current app
+        try:
+            actions = ensure_schema_compatibility()
+            if actions:
+                flash('Схема обновлена: ' + ', '.join(actions), 'info')
+        except Exception as se:
+            flash(f'Предупреждение: не удалось синхронизировать схему: {se}', 'error')
+
+        flash('База данных успешно восстановлена из бэкапа. Создан автоснимок перед восстановлением.', 'success')
+    except Exception as e:
+        flash(f'Ошибка восстановления БД: {e}', 'error')
+
+    return redirect(url_for('database'))
+
+@app.route('/sync-schema', methods=['POST'])
+@login_required
+def sync_schema():
+    """Manually synchronize DB schema to match current app expectations."""
+    try:
+        actions = ensure_schema_compatibility()
+        if actions:
+            flash('Схема синхронизирована: ' + ', '.join(actions), 'success')
+        else:
+            flash('Схема уже соответствует текущей версии', 'info')
+    except Exception as e:
+        flash(f'Ошибка синхронизации схемы: {e}', 'error')
+    return redirect(url_for('database'))
 
 @app.route('/api/stats')
 @login_required

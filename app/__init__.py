@@ -9,16 +9,57 @@ from typing import Optional
 def create_app(config_name: Optional[str] = None):
     """Application factory pattern."""
     import os
+    import logging
+    from logging.handlers import RotatingFileHandler
+    
     if config_name is None:
         config_name = os.getenv("APP_CONFIG", "production")
     
     # Set template and static folders relative to project root
     template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
     static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
+    logs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'logs'))
+    
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
     # Load configuration
     app.config.from_object(config_by_name[config_name])
+    
+    # Setup logging to files
+    if not app.debug and not app.testing:
+        # Create logs directory if it doesn't exist
+        if not os.path.exists(logs_dir):
+            os.makedirs(logs_dir)
+        
+        # Main application log
+        file_handler = RotatingFileHandler(
+            os.path.join(logs_dir, 'crystalbudget.log'),
+            maxBytes=10240000,  # 10MB
+            backupCount=10
+        )
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        
+        # Error log
+        error_handler = RotatingFileHandler(
+            os.path.join(logs_dir, 'errors.log'),
+            maxBytes=10240000,
+            backupCount=5
+        )
+        error_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        error_handler.setLevel(logging.ERROR)
+        app.logger.addHandler(error_handler)
+        
+        # Set log level from config
+        log_level = app.config.get('LOG_LEVEL', 'INFO')
+        app.logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+        
+        app.logger.info(f'CrystalBudget startup - Config: {config_name}')
     
     # For self-checking (temporary)
     app.logger.warning(

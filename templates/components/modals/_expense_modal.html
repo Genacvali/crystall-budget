@@ -27,7 +27,8 @@
           <div class="mb-3">
             <label for="expenseCategory" class="form-label">Категория</label>
             <select class="form-select" id="expenseCategory" name="category_id" required>
-              {% for cat in budget_data %}
+              <option value="">Выберите категорию</option>
+              {% for cat in categories %}
                 <option value="{{ cat.id }}">{{ cat.name }}</option>
               {% endfor %}
             </select>

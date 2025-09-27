@@ -61,8 +61,15 @@ flask db current
 ./scripts/run-tests.sh --suite smoke      # Smoke test validation
 ./scripts/run-tests.sh --suite all        # All automated tests
 
+# Additional test script options
+./scripts/run-tests.sh --verbose          # Enable verbose output
+./scripts/run-tests.sh --stop-on-fail     # Stop on first failure
+
 # CI-compatible test runner (for production environments)
 APP_PORT=5000 APP_CONFIG=testing ./scripts/ci-check.sh --suite all --no-e2e
+
+# Fast CI tests (no server startup)
+APP_PORT=5000 APP_CONFIG=testing ./scripts/ci-check.sh --suite api --fast
 
 # Manual testing and verification
 python app.py  # Then visit http://localhost:5000
@@ -220,6 +227,30 @@ Separate Flask application in `/admin_panel/` for system administration:
 - Deployment scripts: `deploy_admin.sh`, `start_admin.sh`, `stop_admin.sh`, `restart_admin.sh`, `logs_admin.sh`
 
 
+### Flask CLI Commands
+```bash
+# Database management
+flask db-cli init-db                    # Initialize database with schema
+flask db-cli seed-categories --user-id=1 # Add default categories for user
+
+# User management  
+flask user-cli list-users               # List all users
+flask user-cli user-stats --user-id=1   # Show user statistics
+flask user-cli create-user --name="Test" --email="test@example.com" --password="pass123"
+
+# Budget operations
+flask budget-cli recalc-month --user-id=1 --ym=2024-01  # Recalculate budget for month
+flask budget-cli sync-currencies --user-id=1            # Update exchange rates
+
+# Development utilities
+flask dev-cli create-test-expenses --user-id=1 --count=20  # Generate test data
+
+# Screenshot management (UI testing)
+flask screenshot capture auth --url=http://localhost:5030 --variants=desktop,mobile
+flask screenshot compare before.png after.png --threshold=0.1
+flask screenshot auto-dashboard          # Capture dashboard in all states
+```
+
 ### Environment Variables
 ```bash
 # Required for production
@@ -230,6 +261,7 @@ TELEGRAM_BOT_TOKEN="your-telegram-bot-token"  # Required for Telegram authentica
 # Optional configuration  
 BUDGET_DB="/path/to/budget.db"  # Database location (default: ./budget.db)
 LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
+APP_CONFIG="testing"  # Configuration mode (development/production/testing)
 
 ```
 
@@ -307,6 +339,13 @@ crystalbudget.service       # Systemd service file
 - **Routes**: Flask blueprint routes handling HTTP requests/responses
 - **Services**: Business logic separated from route handlers
 - **Schemas**: Data validation using schemas (likely Marshmallow or similar)
+
+#### Testing Strategy
+- **API Tests**: Located in `tests/api/` - test API endpoints and business logic
+- **E2E Tests**: Located in `tests/e2e/` - browser-based user flow testing with Playwright
+- **Smoke Tests**: Basic validation that app starts and core endpoints respond
+- **Screenshot Testing**: UI regression testing with visual comparisons
+- **Test Configuration**: Uses `TestingConfig` with CSRF disabled and auto-authentication
 
 ### Service Installation
 ```bash

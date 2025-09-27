@@ -13,6 +13,42 @@
         <a href="{{ url_for('backup') }}" class="btn btn-outline-success">
             <i class="bi bi-download"></i> Создать бэкап
         </a>
+        <form action="{{ url_for('sync_schema') }}" method="post" class="d-inline-block ms-2">
+            <button type="submit" class="btn btn-outline-warning">
+                <i class="bi bi-tools"></i> Синхронизировать схему
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Восстановление БД из бэкапа -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card stat-card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-upload"></i> Восстановление базы данных из бэкапа
+                </h5>
+                <span class="badge bg-danger">Опасная операция</span>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Текущая база данных будет заменена содержимым из загруженного файла.
+                    Перед восстановлением автоматически создается резервный снимок текущей базы.
+                </div>
+                <form action="{{ url_for('restore') }}" method="post" enctype="multipart/form-data" class="row g-3">
+                    <div class="col-md-8">
+                        <input class="form-control" type="file" name="backup_file" accept=".db,.sqlite,.sqlite3,.backup,.bak" required>
+                    </div>
+                    <div class="col-md-4 d-grid">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-arrow-counterclockwise"></i> Загрузить и восстановить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 

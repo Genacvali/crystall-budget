@@ -1,0 +1,421 @@
+/* FF Crystal Auth Styles - CrystalBudget */
+
+/* Main Auth Container */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ff-body-bg, #f8f9fa);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated background gradient for glass effect */
+.auth-page::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(99, 102, 241, 0.1) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    circle at 70% 70%,
+    rgba(168, 85, 247, 0.08) 0%,
+    transparent 50%
+  );
+  animation: authFloat 20s ease-in-out infinite;
+  z-index: -1;
+}
+
+@keyframes authFloat {
+  0%, 100% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.1); }
+}
+
+/* Dark theme background */
+[data-bs-theme="dark"] .auth-page {
+  background: var(--ff-dark-bg, #121212);
+}
+
+[data-bs-theme="dark"] .auth-page::before {
+  background: radial-gradient(
+    circle at 30% 30%,
+    rgba(99, 102, 241, 0.05) 0%,
+    transparent 50%
+  ),
+  radial-gradient(
+    circle at 70% 70%,
+    rgba(168, 85, 247, 0.03) 0%,
+    transparent 50%
+  );
+}
+
+/* Glass Card */
+.ff-auth-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 2rem;
+  min-height: auto;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+/* Dark theme glass card */
+[data-bs-theme="dark"] .ff-auth-card {
+  background: rgba(18, 18, 18, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Crystal header */
+.ff-auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.ff-crystal-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+  filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3));
+  animation: crystalGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes crystalGlow {
+  0% { filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3)); }
+  100% { filter: drop-shadow(0 4px 8px rgba(168, 85, 247, 0.4)); }
+}
+
+.ff-auth-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: var(--bs-body-color);
+}
+
+.ff-auth-subtitle {
+  color: var(--bs-secondary);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Alert Messages */
+.ff-auth-alert {
+  border-radius: 8px;
+  border: none;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+}
+
+.ff-auth-alert.alert-danger {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border-left: 3px solid #dc3545;
+}
+
+.ff-auth-alert.alert-warning {
+  background: rgba(255, 193, 7, 0.1);
+  color: #856404;
+  border-left: 3px solid #ffc107;
+}
+
+/* Input Groups with Icons */
+.ff-input-group {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.ff-input-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--bs-body-color);
+  font-size: 0.9rem;
+}
+
+.ff-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ff-input-icon {
+  position: absolute;
+  left: 12px;
+  z-index: 3;
+  color: var(--bs-secondary);
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.ff-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--bs-body-color);
+  font-size: 1rem;
+  min-height: 44px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.ff-input:focus {
+  outline: none;
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Dark theme inputs */
+[data-bs-theme="dark"] .ff-input {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .ff-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #0d6efd;
+}
+
+/* Password Toggle */
+.ff-password-toggle {
+  position: absolute;
+  right: 12px;
+  z-index: 3;
+  background: none;
+  border: none;
+  color: var(--bs-secondary);
+  font-size: 1rem;
+  padding: 0.25rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.2s ease;
+  min-width: 24px;
+  min-height: 24px;
+}
+
+.ff-password-toggle:hover {
+  color: var(--bs-body-color);
+}
+
+.ff-password-toggle:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* Help Text */
+.ff-input-help {
+  font-size: 0.8rem;
+  color: var(--bs-secondary);
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+/* Main Button */
+.ff-auth-btn {
+  width: 100%;
+  padding: 0.875rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #0d6efd, #6610f2);
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  min-height: 48px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.ff-auth-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+.ff-auth-btn:active {
+  transform: translateY(0);
+}
+
+.ff-auth-btn:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+/* Loading state */
+.ff-auth-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Divider */
+.ff-auth-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: var(--bs-secondary);
+  font-size: 0.85rem;
+}
+
+.ff-auth-divider::before,
+.ff-auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+[data-bs-theme="dark"] .ff-auth-divider::before,
+[data-bs-theme="dark"] .ff-auth-divider::after {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.ff-auth-divider span {
+  padding: 0 1rem;
+}
+
+/* Footer Links */
+.ff-auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="dark"] .ff-auth-footer {
+  border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+.ff-auth-footer a {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.ff-auth-footer a:hover {
+  color: #0b5ed7;
+  text-decoration: underline;
+}
+
+/* Telegram Widget Styling */
+.ff-telegram-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.ff-telegram-fallback {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.ff-telegram-fallback ul {
+  margin: 0.5rem 0 0 1rem;
+  padding: 0;
+}
+
+.ff-telegram-fallback li {
+  margin: 0.25rem 0;
+}
+
+/* Form Validation */
+.ff-input.is-invalid {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.ff-input.is-valid {
+  border-color: #198754;
+  box-shadow: 0 0 0 3px rgba(25, 135, 84, 0.1);
+}
+
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  margin-left: 0.5rem;
+}
+
+/* Mobile Responsive */
+@media (max-width: 575.98px) {
+  .ff-auth-card {
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 12px;
+  }
+  
+  .ff-crystal-icon {
+    font-size: 1.75rem;
+  }
+  
+  .ff-auth-title {
+    font-size: 1.35rem;
+  }
+  
+  .ff-input {
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+  }
+  
+  .ff-auth-btn {
+    padding: 0.8rem 1.25rem;
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .ff-auth-card {
+    border: 2px solid var(--bs-border-color);
+    background: var(--bs-body-bg);
+    backdrop-filter: none;
+  }
+  
+  .ff-input {
+    border: 2px solid var(--bs-border-color);
+    background: var(--bs-body-bg);
+    backdrop-filter: none;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ff-auth-card,
+  .ff-input,
+  .ff-auth-btn,
+  .ff-password-toggle {
+    transition: none;
+  }
+  
+  .ff-crystal-icon {
+    animation: none;
+  }
+  
+  .auth-page::before {
+    animation: none;
+  }
+}

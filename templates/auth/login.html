@@ -1,84 +1,188 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 {% block title %}Вход - CrystalBudget{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
 {% block content %}
+<main id="main-content" class="auth-page" role="main">
+  <div class="container-xl">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+        <div class="ff-auth-card">
+          
+          <!-- Header with Crystal -->
+          <div class="ff-auth-header">
+            <span class="ff-crystal-icon" aria-hidden="true">💎</span>
+            <h1 class="ff-auth-title">Вход</h1>
+            <p class="ff-auth-subtitle">Войдите в свой аккаунт CrystalBudget</p>
+          </div>
 
-<div class="row justify-content-center auth-wrap">
-  <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
-    <div class="card auth-card shadow-sm">
-      <div class="card-body">
-        <div class="text-center">
-          <h2 class="auth-title">💎 Вход</h2>
-          <p class="auth-subtitle">Войдите в свой аккаунт CrystalBudget</p>
-        </div>
+          <!-- System Messages -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="ff-auth-alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                  {{ message }}
+                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
 
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            <div class="alert alert-danger py-2 mb-2">
-              {% for message in messages %}{{ message }}{% endfor %}
+          <!-- Telegram Login -->
+          <div class="ff-telegram-container">
+            <div id="telegram-widget-container">
+              <script async src="https://telegram.org/js/telegram-widget.js?22"
+                data-telegram-login="crystalbudget_bot"
+                data-size="large"
+                data-userpic="false"
+                data-request-access="write"
+                data-auth-url="{{ url_for('auth.telegram_auth', _external=True, next=request.args.get('next', url_for('budget.dashboard'))) }}">
+              </script>
             </div>
-          {% endif %}
-        {% endwith %}
-
-        <!-- Telegram Login -->
-        <div class="text-center mb-2">
-          <div id="telegram-widget-container" class="d-flex justify-content-center">
-<script async src="https://telegram.org/js/telegram-widget.js?22"
-  data-telegram-login="crystalbudget_bot"
-  data-size="large"
-  data-userpic="false"
-  data-request-access="write"
-  data-auth-url="{{ url_for('auth.telegram_auth', _external=True, next=request.args.get('next', url_for('budget.dashboard'))) }}">
-</script>
-
+            
+            <div id="telegram-fallback" class="ff-telegram-fallback ff-auth-alert alert-warning d-none">
+              <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+              Telegram-виджет не загрузился. Возможные причины:
+              <ul>
+                <li>Домен не настроен в @BotFather</li>
+                <li>Нужен HTTPS</li>
+                <li>Блокировщик скриптов</li>
+              </ul>
+            </div>
           </div>
-          <div id="telegram-fallback" class="alert alert-warning py-2 px-2 small d-none mt-2">
-            <i class="bi bi-exclamation-triangle"></i>
-            Telegram-виджет не загрузился. Возможные причины:
-            <ul class="mt-2">
-              <li>Домен не настроен в @BotFather</li>
-              <li>Нужен HTTPS</li>
-              <li>Блокировщик скриптов</li>
-            </ul>
-          </div>
-        </div>
 
-        <!-- Разделитель -->
-        <div class="auth-divider">
-          <span></span><small>или</small><span></span>
-        </div>
-
-        <!-- Email Login -->
-        <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <div class="mb-2">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+          <!-- Divider -->
+          <div class="ff-auth-divider">
+            <span>или</span>
           </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">Пароль</label>
-            <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
-          </div>
-          <button type="submit" class="btn btn-primary w-100 auth-btn">Войти</button>
-        </form>
 
-        <div class="text-center mt-2">
-          <small class="text-muted">
-            Нет аккаунта?
-            <a href="{{ url_for('auth.register') }}" class="text-decoration-none">Зарегистрироваться</a>
-          </small>
+          <!-- Email Login Form -->
+          <form method="POST" action="{{ url_for('auth.login') }}" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            
+            <!-- Email Field -->
+            <div class="ff-input-group">
+              <label for="email" class="form-label">Email</label>
+              <div class="ff-input-wrapper">
+                <i class="bi bi-envelope ff-input-icon" aria-hidden="true"></i>
+                <input 
+                  type="email" 
+                  class="ff-input" 
+                  id="email" 
+                  name="email" 
+                  required 
+                  autocomplete="username"
+                  aria-describedby="email-help"
+                  value="{{ request.form.get('email', '') if request.method == 'POST' else '' }}"
+                >
+              </div>
+              <div id="email-help" class="ff-input-help">Введите ваш email адрес</div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="ff-input-group">
+              <label for="password" class="form-label">Пароль</label>
+              <div class="ff-input-wrapper">
+                <i class="bi bi-lock ff-input-icon" aria-hidden="true"></i>
+                <input 
+                  type="password" 
+                  class="ff-input" 
+                  id="password" 
+                  name="password" 
+                  required 
+                  autocomplete="current-password"
+                  aria-describedby="password-help"
+                >
+                <button 
+                  type="button" 
+                  class="ff-password-toggle" 
+                  aria-label="Показать пароль"
+                  title="Показать пароль"
+                  onclick="togglePassword('password', this)"
+                >
+                  <i class="bi bi-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div id="password-help" class="ff-input-help">Введите ваш пароль</div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="ff-auth-btn">
+              <span>Войти</span>
+            </button>
+          </form>
+
+          <!-- Footer Links -->
+          <div class="ff-auth-footer">
+            <small class="text-muted">
+              Нет аккаунта?
+              <a href="{{ url_for('auth.register') }}">Зарегистрироваться</a>
+            </small>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+</main>
 
 <script>
-  // Показать фолбэк, если виджет не вставился
-  setTimeout(function () {
-    const container = document.getElementById('telegram-widget-container');
-    const fallback = document.getElementById('telegram-fallback');
-    if (!container.querySelector('iframe')) fallback.classList.remove('d-none');
-  }, 2500);
+// Telegram widget fallback
+setTimeout(function () {
+  const container = document.getElementById('telegram-widget-container');
+  const fallback = document.getElementById('telegram-fallback');
+  if (container && !container.querySelector('iframe')) {
+    fallback?.classList.remove('d-none');
+  }
+}, 2500);
+
+// Password visibility toggle
+function togglePassword(inputId, button) {
+  const input = document.getElementById(inputId);
+  const icon = button.querySelector('i');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'bi bi-eye-slash';
+    button.setAttribute('aria-label', 'Скрыть пароль');
+    button.setAttribute('title', 'Скрыть пароль');
+  } else {
+    input.type = 'password';
+    icon.className = 'bi bi-eye';
+    button.setAttribute('aria-label', 'Показать пароль');
+    button.setAttribute('title', 'Показать пароль');
+  }
+  
+  // Return focus to input
+  input.focus();
+}
+
+// Form validation enhancement
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  
+  // Add real-time validation feedback
+  function validateField(field) {
+    const isValid = field.checkValidity();
+    field.classList.toggle('is-invalid', !isValid && field.value !== '');
+    field.classList.toggle('is-valid', isValid && field.value !== '');
+  }
+  
+  emailInput.addEventListener('blur', () => validateField(emailInput));
+  passwordInput.addEventListener('blur', () => validateField(passwordInput));
+  
+  // Clear validation state on input
+  [emailInput, passwordInput].forEach(field => {
+    field.addEventListener('input', () => {
+      field.classList.remove('is-invalid', 'is-valid');
+    });
+  });
+  
+  // Auto-focus first field
+  emailInput.focus();
+});
 </script>
 {% endblock %}

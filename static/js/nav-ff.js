@@ -150,14 +150,27 @@
         position: absolute;
         top: 100%;
         right: 0;
+        width: 280px;
+        max-width: 95vw;
         background: var(--bs-body-bg);
         border: 1px solid var(--bs-border-color);
         border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,.15);
-        z-index: 1050;
-        min-width: 280px;
+        box-shadow: 0 8px 24px rgba(0,0,0,.15);
+        backdrop-filter: blur(8px);
+        z-index: 1080;
         margin-top: 8px;
         display: none;
+      }
+      :root[data-bs-theme="light"] .month-picker-dropdown {
+        background: rgba(255,255,255,.95);
+        border-color: var(--bs-border-color);
+        box-shadow: 0 8px 24px rgba(0,0,0,.12);
+        color: rgba(30,39,50,.8);
+      }
+      :root[data-bs-theme="dark"] .month-picker-dropdown {
+        background: rgba(34,37,41,.95);
+        border-color: var(--bs-border-color);
+        color: rgba(231,236,243,.8);
       }
       .month-picker-content {
         padding: 16px;
@@ -167,10 +180,25 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 12px;
+        padding: 0 4px;
+      }
+      .month-picker-header .btn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        border-radius: 6px;
+        min-width: 32px;
+        border: 1px solid var(--bs-border-color);
       }
       .year-label {
         font-weight: 600;
-        font-size: 16px;
+        font-size: 15px;
+        color: var(--bs-body-color);
+        user-select: none;
       }
       .month-grid {
         display: grid;
@@ -179,26 +207,107 @@
         margin-bottom: 12px;
       }
       .month-btn {
-        padding: 8px;
-        border: 1px solid var(--bs-border-color);
-        border-radius: 8px;
+        padding: 8px 4px;
+        border: 1px solid transparent;
+        border-radius: 6px;
         background: transparent;
         cursor: pointer;
         transition: all .15s ease;
         font-size: 14px;
+        color: var(--bs-body-color);
+        min-height: 38px;
+        position: relative;
+        overflow: hidden;
       }
       .month-btn:hover {
-        background: var(--bs-primary);
-        color: white;
+        background: rgba(var(--bs-primary-rgb),.1);
+        border-color: var(--bs-primary);
+        color: var(--bs-primary);
       }
       .month-btn.active {
         background: var(--bs-primary);
         color: white;
+        border-color: var(--bs-primary);
         font-weight: 600;
+      }
+      .month-btn:focus-visible {
+        outline: 2px solid var(--bs-primary);
+        outline-offset: 2px;
       }
       .month-picker-footer {
         display: flex;
         justify-content: center;
+        padding-top: 8px;
+        border-top: 1px solid var(--bs-border-color);
+      }
+      .month-picker-footer .btn {
+        font-size: 12px;
+        padding: 6px 16px;
+        height: 32px;
+        border-radius: 6px;
+      }
+      
+      @media (max-width: 575.98px) {
+        .month-picker-dropdown {
+          position: fixed;
+          top: 50% !important;
+          left: 50% !important;
+          right: auto !important;
+          transform: translate(-50%, -50%);
+          width: 300px;
+          max-width: 92vw;
+          max-height: 85vh;
+          border-radius: 16px;
+          box-shadow: 0 12px 40px rgba(0,0,0,.25);
+        }
+        .month-picker-content {
+          padding: 20px;
+        }
+        .month-picker-header {
+          margin-bottom: 16px;
+          padding: 0 8px;
+        }
+        .month-picker-header .btn {
+          width: 40px;
+          height: 40px;
+          font-size: 16px;
+          border-radius: 8px;
+          min-width: 40px;
+        }
+        .year-label {
+          font-size: 18px;
+          font-weight: 700;
+        }
+        .month-grid {
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+        .month-btn {
+          min-height: 48px;
+          font-size: 15px;
+          padding: 12px 8px;
+          border-radius: 8px;
+          font-weight: 500;
+          border-width: 2px;
+        }
+        .month-btn:hover,
+        .month-btn:focus {
+          transform: scale(1.05);
+        }
+        .month-btn.active {
+          box-shadow: 0 4px 12px rgba(var(--bs-primary-rgb),.3);
+        }
+        .month-picker-footer {
+          padding-top: 16px;
+          border-top: 2px solid var(--bs-border-color);
+        }
+        .month-picker-footer .btn {
+          font-size: 14px;
+          padding: 12px 24px;
+          height: 44px;
+          border-radius: 8px;
+          font-weight: 600;
+        }
       }
     `;
     document.head.appendChild(style);

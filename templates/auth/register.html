@@ -1,95 +1,320 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 {% block title %}Регистрация - CrystalBudget{% endblock %}
 
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-        <div class="card">
-            <div class="card-body">
-                <div class="text-center mb-4">
-                    <h2 class="card-title">💎 Регистрация</h2>
-                    <p class="text-muted">Создайте свой аккаунт CrystalBudget</p>
-                </div>
-                
-                <!-- Flash Messages -->
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        <div class="alert alert-danger">
-                            {% for message in messages %}
-                                {{ message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                {% endwith %}
+<main id="main-content" class="auth-page" role="main">
+  <div class="container-xl">
+    <div class="row justify-content-center">
+      <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+        <div class="ff-auth-card">
+          
+          <!-- Header with Crystal -->
+          <div class="ff-auth-header">
+            <span class="ff-crystal-icon" aria-hidden="true">💎</span>
+            <h1 class="ff-auth-title">Регистрация</h1>
+            <p class="ff-auth-subtitle">Создайте аккаунт CrystalBudget</p>
+          </div>
 
-                <!-- Telegram Registration -->
-                <div class="text-center mb-4">
-                    <div id="telegram-widget-container">
-                        <script async src="https://telegram.org/js/telegram-widget.js?22"
-                          data-telegram-login="crystalbudget_bot"
-                          data-size="large"
-                          data-userpic="false"
-                          data-request-access="write" 
-                          data-auth-url="{{ request.url_root }}auth/telegram?next={{ url_for('budget.dashboard') }}">
-                        </script>
-                    </div>
-                    <!-- Fallback button if widget doesn't load -->
-                    <div id="telegram-fallback" style="display: none;" class="mt-2">
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle"></i>
-                            Telegram виджет не загружается. Возможные причины:
-                            <ul class="mt-2 mb-0">
-                                <li>Домен не настроен в @BotFather</li>
-                                <li>Требуется HTTPS</li> 
-                                <li>Блокировщик рекламы</li>
-                            </ul>
-                        </div>
-                    </div>
+          <!-- System Messages -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="ff-auth-alert alert-{{ 'danger' if category == 'error' else category }}" role="alert">
+                  {{ message }}
                 </div>
-                
-                <script>
-                // Check if Telegram widget loaded after 3 seconds
-                setTimeout(function() {
-                    const container = document.getElementById('telegram-widget-container');
-                    const fallback = document.getElementById('telegram-fallback');
-                    
-                    if (!container.querySelector('iframe')) {
-                        console.warn('Telegram widget failed to load');
-                        fallback.style.display = 'block';
-                    }
-                }, 3000);
-                </script>
-                
-                <!-- Разделитель -->
-                <div class="text-center my-4">
-                    <span class="text-muted">или</span>
-                </div>
-                
-                <!-- Email Registration -->
-                <form method="POST" action="{{ url_for('auth.register') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
-                </form>
-                
-                <div class="text-center">
-                    <p class="text-muted mb-0">
-                        Уже есть аккаунт? 
-                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
-                            Войти
-                        </a>
-                    </p>
-                </div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+
+          <!-- Telegram Registration -->
+          <div class="ff-telegram-container">
+            <div id="telegram-widget-container">
+              <script async src="https://telegram.org/js/telegram-widget.js?22"
+                data-telegram-login="crystalbudget_bot"
+                data-size="large"
+                data-userpic="false"
+                data-request-access="write" 
+                data-auth-url="{{ request.url_root }}auth/telegram?next={{ url_for('budget.dashboard') }}">
+              </script>
             </div>
-        </div>
-    </div>
-</div>
+            
+            <div id="telegram-fallback" class="ff-telegram-fallback ff-auth-alert alert-warning d-none">
+              <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
+              Telegram-виджет не загрузился. Возможные причины:
+              <ul>
+                <li>Домен не настроен в @BotFather</li>
+                <li>Требуется HTTPS</li>
+                <li>Блокировщик скриптов</li>
+              </ul>
+            </div>
+          </div>
 
+          <!-- Divider -->
+          <div class="ff-auth-divider">
+            <span>или</span>
+          </div>
+
+          <!-- Email Registration Form -->
+          <form method="POST" action="{{ url_for('auth.register') }}" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            
+            <!-- Name Field -->
+            <div class="ff-input-group">
+              <label for="name" class="form-label">Имя</label>
+              <div class="ff-input-wrapper">
+                <i class="bi bi-person ff-input-icon" aria-hidden="true"></i>
+                <input 
+                  type="text" 
+                  class="ff-input" 
+                  id="name" 
+                  name="name" 
+                  required 
+                  autocomplete="name"
+                  aria-describedby="name-help"
+                  value="{{ request.form.get('name', '') if request.method == 'POST' else '' }}"
+                  minlength="2"
+                  maxlength="50"
+                >
+              </div>
+              <div id="name-help" class="ff-input-help">Как вас зовут?</div>
+            </div>
+            
+            <!-- Email Field -->
+            <div class="ff-input-group">
+              <label for="email" class="form-label">Email</label>
+              <div class="ff-input-wrapper">
+                <i class="bi bi-envelope ff-input-icon" aria-hidden="true"></i>
+                <input 
+                  type="email" 
+                  class="ff-input" 
+                  id="email" 
+                  name="email" 
+                  required 
+                  autocomplete="username"
+                  aria-describedby="email-help"
+                  value="{{ request.form.get('email', '') if request.method == 'POST' else '' }}"
+                >
+              </div>
+              <div id="email-help" class="ff-input-help">Ваш email адрес</div>
+            </div>
+
+            <!-- Password Field -->
+            <div class="ff-input-group">
+              <label for="password" class="form-label">Пароль</label>
+              <div class="ff-input-wrapper">
+                <i class="bi bi-lock ff-input-icon" aria-hidden="true"></i>
+                <input 
+                  type="password" 
+                  class="ff-input" 
+                  id="password" 
+                  name="password" 
+                  required 
+                  autocomplete="new-password"
+                  aria-describedby="password-help"
+                  minlength="8"
+                >
+                <button 
+                  type="button" 
+                  class="ff-password-toggle" 
+                  aria-label="Показать пароль"
+                  title="Показать пароль"
+                  onclick="togglePassword('password', this)"
+                >
+                  <i class="bi bi-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div id="password-help" class="ff-input-help">Минимум 8 символов</div>
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div class="ff-input-group">
+              <label for="confirm_password" class="form-label">Подтвердите пароль</label>
+              <div class="ff-input-wrapper">
+                <i class="bi bi-shield-lock ff-input-icon" aria-hidden="true"></i>
+                <input 
+                  type="password" 
+                  class="ff-input" 
+                  id="confirm_password" 
+                  name="confirm_password" 
+                  required 
+                  autocomplete="new-password"
+                  aria-describedby="confirm-password-help"
+                  minlength="8"
+                >
+                <button 
+                  type="button" 
+                  class="ff-password-toggle" 
+                  aria-label="Показать пароль"
+                  title="Показать пароль"
+                  onclick="togglePassword('confirm_password', this)"
+                >
+                  <i class="bi bi-eye" aria-hidden="true"></i>
+                </button>
+              </div>
+              <div id="confirm-password-help" class="ff-input-help">Повторите пароль</div>
+              <div id="confirm-password-error" class="invalid-feedback d-none">
+                Пароли не совпадают
+              </div>
+            </div>
+
+            <!-- Terms Agreement -->
+            <div class="ff-input-group">
+              <div class="form-check">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="terms" 
+                  name="terms" 
+                  required
+                  aria-describedby="terms-help"
+                >
+                <label class="form-check-label" for="terms">
+                  Я согласен с <a href="#" target="_blank" rel="noopener">условиями использования</a> и 
+                  <a href="#" target="_blank" rel="noopener">политикой конфиденциальности</a>
+                </label>
+              </div>
+              <div id="terms-help" class="ff-input-help">Обязательно для регистрации</div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="ff-auth-btn">
+              <span>Зарегистрироваться</span>
+            </button>
+          </form>
+
+          <!-- Footer Links -->
+          <div class="ff-auth-footer">
+            <small class="text-muted">
+              Уже есть аккаунт?
+              <a href="{{ url_for('auth.login') }}">Войти</a>
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+// Telegram widget fallback
+setTimeout(function () {
+  const container = document.getElementById('telegram-widget-container');
+  const fallback = document.getElementById('telegram-fallback');
+  if (container && !container.querySelector('iframe')) {
+    fallback?.classList.remove('d-none');
+  }
+}, 3000);
+
+// Password visibility toggle
+function togglePassword(inputId, button) {
+  const input = document.getElementById(inputId);
+  const icon = button.querySelector('i');
+  
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.className = 'bi bi-eye-slash';
+    button.setAttribute('aria-label', 'Скрыть пароль');
+    button.setAttribute('title', 'Скрыть пароль');
+  } else {
+    input.type = 'password';
+    icon.className = 'bi bi-eye';
+    button.setAttribute('aria-label', 'Показать пароль');
+    button.setAttribute('title', 'Показать пароль');
+  }
+  
+  // Return focus to input
+  input.focus();
+}
+
+// Form validation enhancement
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.querySelector('form');
+  const nameInput = document.getElementById('name');
+  const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const confirmPasswordInput = document.getElementById('confirm_password');
+  const termsInput = document.getElementById('terms');
+  const confirmPasswordError = document.getElementById('confirm-password-error');
+  
+  // Password confirmation validation
+  function validatePasswordConfirmation() {
+    const password = passwordInput.value;
+    const confirmPassword = confirmPasswordInput.value;
+    const matches = password === confirmPassword;
+    
+    if (confirmPassword && !matches) {
+      confirmPasswordInput.classList.add('is-invalid');
+      confirmPasswordError.classList.remove('d-none');
+    } else {
+      confirmPasswordInput.classList.remove('is-invalid');
+      confirmPasswordError.classList.add('d-none');
+      if (confirmPassword && matches) {
+        confirmPasswordInput.classList.add('is-valid');
+      }
+    }
+    
+    return matches;
+  }
+  
+  // Real-time validation
+  function validateField(field) {
+    const isValid = field.checkValidity();
+    field.classList.toggle('is-invalid', !isValid && field.value !== '');
+    field.classList.toggle('is-valid', isValid && field.value !== '');
+    return isValid;
+  }
+  
+  // Event listeners for validation
+  nameInput.addEventListener('blur', () => validateField(nameInput));
+  emailInput.addEventListener('blur', () => validateField(emailInput));
+  passwordInput.addEventListener('blur', () => validateField(passwordInput));
+  confirmPasswordInput.addEventListener('blur', validatePasswordConfirmation);
+  passwordInput.addEventListener('input', validatePasswordConfirmation);
+  confirmPasswordInput.addEventListener('input', validatePasswordConfirmation);
+  
+  // Clear validation state on input
+  [nameInput, emailInput, passwordInput, confirmPasswordInput].forEach(field => {
+    field.addEventListener('input', () => {
+      if (field !== confirmPasswordInput) {
+        field.classList.remove('is-invalid', 'is-valid');
+      }
+    });
+  });
+  
+  // Form submission validation
+  form.addEventListener('submit', function(e) {
+    const isNameValid = validateField(nameInput);
+    const isEmailValid = validateField(emailInput);
+    const isPasswordValid = validateField(passwordInput);
+    const isConfirmPasswordValid = validatePasswordConfirmation();
+    const isTermsValid = termsInput.checked;
+    
+    if (!isTermsValid) {
+      termsInput.classList.add('is-invalid');
+      termsInput.focus();
+    }
+    
+    if (!isNameValid || !isEmailValid || !isPasswordValid || !isConfirmPasswordValid || !isTermsValid) {
+      e.preventDefault();
+      // Focus first invalid field
+      const firstInvalid = form.querySelector('.is-invalid');
+      if (firstInvalid) {
+        firstInvalid.focus();
+      }
+    }
+  });
+  
+  // Terms checkbox validation
+  termsInput.addEventListener('change', function() {
+    this.classList.toggle('is-invalid', !this.checked);
+  });
+  
+  // Auto-focus first field
+  nameInput.focus();
+});
+</script>
 {% endblock %}

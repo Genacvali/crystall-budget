@@ -18,7 +18,12 @@
       "Bash(flask db migrate:*)",
       "Bash(flask db:*)",
       "Bash(sqlite3:*)",
-      "Bash(PORT=5050 python:*)"
+      "Bash(PORT=5050 python:*)",
+      "Bash(echo:*)",
+      "Read(//tmp/**)",
+      "Bash(flask --help)",
+      "Bash(BUDGET_DB=\"sqlite:///instance/budget.db\" flask db-cli init-db)",
+      "Bash(BUDGET_DB=\"instance/budget.db\" flask db-cli init-db)"
     ],
     "deny": [],
     "ask": []

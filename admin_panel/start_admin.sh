@@ -16,13 +16,13 @@ else
 fi
 
 # Проверяем наличие базы данных
-if [ ! -f "../budget.db" ]; then
+if [ ! -f "../instance/budget.db" ]; then
     echo "⚠️  База данных не найдена. Создаем..."
     cd .. && python init_db.py && cd admin_panel
 fi
 
 # Устанавливаем переменные окружения для админки
-export BUDGET_DB="../budget.db"
+export BUDGET_DB="../instance/budget.db"
 export ADMIN_USERNAME="${ADMIN_USERNAME:-admin}"
 export ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
 export ADMIN_SECRET_KEY="${ADMIN_SECRET_KEY:-admin-panel-secret-$(date +%s)}"

@@ -118,6 +118,38 @@ def user_stats(user_id):
     click.echo(f"  Expenses this month: {len(snapshot['expenses'])}")
 
 
+@user_cli.command()
+@click.option('--name', required=True, help='User name')
+@click.option('--email', required=True, help='User email')
+@click.option('--password', required=True, help='User password')
+@with_appcontext
+def create_user(name, email, password):
+    """Create a new email user."""
+    from app.modules.auth.service import AuthService
+    
+    # Check if user exists
+    existing_user = User.query.filter_by(email=email).first()
+    if existing_user:
+        click.echo(f"Error: User with email {email} already exists")
+        return
+    
+    try:
+        user = AuthService.register_email(
+            email=email,
+            name=name,
+            password=password
+        )
+        if user:
+            click.echo(f"✓ Created user: {user.name} (ID: {user.id})")
+            click.echo(f"  Email: {user.email}")
+            click.echo(f"  Auth Type: {user.auth_type}")
+        else:
+            click.echo("Error: Failed to create user")
+        
+    except Exception as e:
+        click.echo(f"Error creating user: {e}")
+
+
 @click.group()
 def db_cli():
     """Database management commands."""
@@ -171,12 +203,226 @@ def seed_categories(user_id):
 @db_cli.command()
 @with_appcontext
 def init_db():
-    """Initialize database with tables."""
+    """Initialize database with tables and handle schema migrations."""
     try:
+        # Import all models to ensure they're registered
+        from app.modules.auth.models import User
+        from app.modules.budget.models import Category, Expense, Income, ExchangeRate, IncomeSource, CategoryRule
+        from app.modules.goals.models import SavingsGoal, SharedBudget, SharedBudgetMember
+        from app.modules.issues.models import Issue, IssueComment
+        
+        # Create all tables first
         db.create_all()
-        click.echo("✓ Database initialized successfully")
+        click.echo("✓ All tables created/updated")
+        
+        # Handle potential schema updates for production data
+        from sqlalchemy import text
+        connection = db.engine.connect()
+        missing_columns = []
+        added_tables = []
+        
+        # Check for missing tables that might not be created by SQLAlchemy
+        try:
+            # Check if planned_income table exists
+            result = connection.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name='planned_income'"))
+            if not result.fetchone():
+                connection.execute(text("""
+                    CREATE TABLE planned_income (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        year INTEGER NOT NULL,
+                        month INTEGER NOT NULL,
+                        source_id INTEGER REFERENCES income_sources(id) ON DELETE CASCADE,
+                        amount REAL NOT NULL,
+                        UNIQUE(user_id, year, month, source_id)
+                    )
+                """))
+                connection.execute(text("CREATE INDEX idx_planned_income_user_period ON planned_income(user_id, year, month)"))
+                added_tables.append("planned_income")
+        except Exception as e:
+            click.echo(f"Note: Could not create planned_income table: {e}")
+        
+        try:
+            # Check if operation_log table exists
+            result = connection.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name='operation_log'"))
+            if not result.fetchone():
+                connection.execute(text("""
+                    CREATE TABLE operation_log (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        operation_id TEXT NOT NULL,
+                        resource_id INTEGER,
+                        kind TEXT NOT NULL,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(user_id, operation_id)
+                    )
+                """))
+                added_tables.append("operation_log")
+        except Exception as e:
+            click.echo(f"Note: Could not create operation_log table: {e}")
+        
+        try:
+            # Check if budget_rollover table exists with correct schema
+            result = connection.execute(text("SELECT name FROM sqlite_master WHERE type='table' AND name='budget_rollover'"))
+            if not result.fetchone():
+                connection.execute(text("""
+                    CREATE TABLE budget_rollover (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                        category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+                        month TEXT NOT NULL,
+                        limit_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                        spent_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                        rollover_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(user_id, category_id, month)
+                    )
+                """))
+                added_tables.append("budget_rollover")
+        except Exception as e:
+            click.echo(f"Note: Could not create budget_rollover table: {e}")
+        
+        try:
+            # Check if income_backup_monthly has correct schema
+            result = connection.execute(text("PRAGMA table_info(income_backup_monthly)"))
+            columns = [row[1] for row in result.fetchall()]
+            if 'id' not in columns:
+                # Recreate table with proper schema
+                connection.execute(text("DROP TABLE IF EXISTS income_backup_monthly"))
+                connection.execute(text("""
+                    CREATE TABLE income_backup_monthly (
+                        id INTEGER NOT NULL, 
+                        user_id INTEGER NOT NULL, 
+                        source_name VARCHAR(100) NOT NULL, 
+                        amount NUMERIC(10, 2) NOT NULL, 
+                        currency VARCHAR(3), 
+                        year INTEGER NOT NULL, 
+                        month INTEGER NOT NULL, 
+                        created_at DATETIME, 
+                        PRIMARY KEY (id), 
+                        FOREIGN KEY(user_id) REFERENCES users (id) ON DELETE CASCADE, 
+                        UNIQUE (user_id, source_name, year, month)
+                    )
+                """))
+                added_tables.append("income_backup_monthly (recreated)")
+        except Exception as e:
+            click.echo(f"Note: Could not fix income_backup_monthly table: {e}")
+        
+        # Check and add missing columns with proper error handling
+        try:
+            # Check for date column in income table (new field)
+            result = connection.execute(text("PRAGMA table_info(income)"))
+            columns = [row[1] for row in result.fetchall()]
+            if 'date' not in columns:
+                connection.execute(text("ALTER TABLE income ADD COLUMN date DATE"))
+                missing_columns.append("income.date")
+            if 'source_name' not in columns:
+                connection.execute(text("ALTER TABLE income ADD COLUMN source_name TEXT NOT NULL DEFAULT 'Основной'"))
+                missing_columns.append("income.source_name")
+            if 'year' not in columns:
+                connection.execute(text("ALTER TABLE income ADD COLUMN year INTEGER"))
+                missing_columns.append("income.year")
+            if 'created_at' not in columns:
+                connection.execute(text("ALTER TABLE income ADD COLUMN created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP"))
+                missing_columns.append("income.created_at")
+        except Exception as e:
+            click.echo(f"Note: Could not add income columns: {e}")
+        
+        try:
+            # Check for currency column in various tables
+            for table in ['expenses', 'income']:
+                result = connection.execute(text(f"PRAGMA table_info({table})"))
+                columns = [row[1] for row in result.fetchall()]
+                if 'currency' not in columns:
+                    connection.execute(text(f"ALTER TABLE {table} ADD COLUMN currency VARCHAR(3) DEFAULT 'RUB'"))
+                    missing_columns.append(f"{table}.currency")
+        except Exception as e:
+            click.echo(f"Note: Could not add currency columns: {e}")
+        
+        try:
+            # Check for theme column in users table
+            result = connection.execute(text("PRAGMA table_info(users)"))
+            columns = [row[1] for row in result.fetchall()]
+            if 'theme' not in columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN theme VARCHAR(10) DEFAULT 'light'"))
+                missing_columns.append("users.theme")
+        except Exception as e:
+            click.echo(f"Note: Could not add users.theme column: {e}")
+        
+        try:
+            # Check for auth_type and telegram_id columns in users table
+            result = connection.execute(text("PRAGMA table_info(users)"))
+            columns = [row[1] for row in result.fetchall()]
+            if 'auth_type' not in columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN auth_type VARCHAR(20) DEFAULT 'email'"))
+                missing_columns.append("users.auth_type")
+            if 'telegram_id' not in columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN telegram_id BIGINT"))
+                missing_columns.append("users.telegram_id")
+            if 'telegram_username' not in columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN telegram_username VARCHAR(100)"))
+                missing_columns.append("users.telegram_username")
+            if 'telegram_first_name' not in columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN telegram_first_name VARCHAR(100)"))
+                missing_columns.append("users.telegram_first_name")
+            if 'telegram_last_name' not in columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN telegram_last_name VARCHAR(100)"))
+                missing_columns.append("users.telegram_last_name")
+            if 'telegram_photo_url' not in columns:
+                connection.execute(text("ALTER TABLE users ADD COLUMN telegram_photo_url VARCHAR(500)"))
+                missing_columns.append("users.telegram_photo_url")
+        except Exception as e:
+            click.echo(f"Note: Could not add users auth columns: {e}")
+        
+        try:
+            # Check for rollover_from_previous column in categories
+            result = connection.execute(text("PRAGMA table_info(categories)"))
+            columns = [row[1] for row in result.fetchall()]
+            if 'rollover_from_previous' not in columns:
+                connection.execute(text("ALTER TABLE categories ADD COLUMN rollover_from_previous DECIMAL(10,2) DEFAULT 0"))
+                missing_columns.append("categories.rollover_from_previous")
+            if 'is_multi_source' not in columns:
+                connection.execute(text("ALTER TABLE categories ADD COLUMN is_multi_source BOOLEAN DEFAULT 0"))
+                missing_columns.append("categories.is_multi_source")
+        except Exception as e:
+            click.echo(f"Note: Could not add categories columns: {e}")
+        
+        try:
+            # Check for description column in expenses
+            result = connection.execute(text("PRAGMA table_info(expenses)"))
+            columns = [row[1] for row in result.fetchall()]
+            if 'description' not in columns:
+                connection.execute(text("ALTER TABLE expenses ADD COLUMN description TEXT"))
+                missing_columns.append("expenses.description")
+        except Exception as e:
+            click.echo(f"Note: Could not add expenses.description column: {e}")
+        
+        # Create missing indices
+        try:
+            connection.execute(text("CREATE INDEX IF NOT EXISTS idx_expenses_user_date ON expenses(user_id, date DESC)"))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS idx_expenses_user_month ON expenses(user_id, month)"))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS idx_expenses_category ON expenses(category_id)"))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS idx_categories_user ON categories(user_id)"))
+            connection.execute(text("CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)"))
+            connection.execute(text("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_telegram_id ON users(telegram_id) WHERE telegram_id IS NOT NULL"))
+        except Exception as e:
+            click.echo(f"Note: Could not create indices: {e}")
+        
+        connection.close()
+        
+        if added_tables:
+            click.echo(f"✓ Added missing tables: {', '.join(added_tables)}")
+        if missing_columns:
+            click.echo(f"✓ Added missing columns: {', '.join(missing_columns)}")
+        if not added_tables and not missing_columns:
+            click.echo("✓ All tables and columns up to date")
+            
+        click.echo("✓ Database initialization completed successfully")
+        
     except Exception as e:
         click.echo(f"Error initializing database: {e}")
+        raise
 
 
 @click.group()
