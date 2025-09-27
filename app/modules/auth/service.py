@@ -68,7 +68,7 @@ class AuthService:
         
         # Set additional session data for compatibility
         session['user_id'] = user.id
-        session['user_name'] = user.name
+        session['user_name'] = user.display_name
         session['theme'] = user.theme or 'light'
         session['currency'] = user.currency or 'RUB'
         session['auth_type'] = user.auth_type

@@ -42,40 +42,126 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const payload = {
-        operationId: Date.now() + '-' + Math.random().toString(36),
-        amount: Number(form.amount.value),
-        category_id: form.category_id.value,
-        date: form.date.value,
-        note: form.note.value
-      };
-
-      try {
-        const response = await fetch('/api/v1/expenses', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+      
+      const multiCategoryCheckbox = document.getElementById('multiCategory');
+      const isMultiCategory = multiCategoryCheckbox && multiCategoryCheckbox.checked;
+      
+      if (isMultiCategory) {
+        // Multi-category mode
+        const selectedCategories = [];
+        const totalAmount = parseFloat(form.amount.value.replace(',', '.')) || 0;
+        let usedAmount = 0;
+        
+        // Collect selected categories and amounts
+        document.querySelectorAll('.category-checkbox:checked').forEach(checkbox => {
+          const categoryId = checkbox.value;
+          const amountInput = document.getElementById('amount_' + categoryId);
+          const amount = parseFloat(amountInput.value.replace(',', '.')) || 0;
+          
+          if (amount > 0) {
+            selectedCategories.push({
+              category_id: categoryId,
+              amount: amount
+            });
+            usedAmount += amount;
+          }
         });
-
-        if (response.ok) {
-          notify('Расход успешно добавлен', 'success');
-
-          // Close modal
+        
+        // Validate
+        if (selectedCategories.length === 0) {
+          notify('Выберите хотя бы одну категорию и укажите сумму', 'danger');
+          return;
+        }
+        
+        if (Math.abs(usedAmount - totalAmount) > 0.01) {
+          notify('Сумма по категориям должна равняться общей сумме', 'danger');
+          return;
+        }
+        
+        // Send multiple expense requests
+        try {
+          const promises = selectedCategories.map(item => {
+            const payload = {
+              operationId: Date.now() + '-' + Math.random().toString(36) + '-' + item.category_id,
+              amount: item.amount,
+              category_id: item.category_id,
+              date: form.date.value,
+              note: form.note.value
+            };
+            
+            return fetch('/api/v1/expenses', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+          });
+          
+          const responses = await Promise.all(promises);
+          
+          // Check if all requests succeeded
+          const failed = responses.filter(r => !r.ok);
+          if (failed.length > 0) {
+            throw new Error(`${failed.length} из ${responses.length} расходов не удалось сохранить`);
+          }
+          
+          notify(`Добавлено ${selectedCategories.length} расходов`, 'success');
+          
+          // Close modal and reset
           const modal = getModalInstance('expenseModal');
           modal?.hide();
-
-          // Reset form
           form.reset();
+          const multiCategoryCheckbox = document.getElementById('multiCategory');
+          if (multiCategoryCheckbox) {
+            multiCategoryCheckbox.checked = false;
+            // Trigger change event to reset UI
+            multiCategoryCheckbox.dispatchEvent(new Event('change'));
+          }
           safeResetDate(form.querySelector('input[name="date"]'));
-
-          // Refresh page
+          
           setTimeout(() => location.reload(), 1000);
-        } else {
-          throw new Error('Ошибка сервера');
+          
+        } catch (error) {
+          console.error('Error adding multi-category expense:', error);
+          notify('Ошибка при добавлении расходов: ' + error.message, 'danger');
         }
-      } catch (error) {
-        console.error('Error adding expense:', error);
-        notify('Ошибка при добавлении расхода', 'danger');
+        
+      } else {
+        // Single category mode (original logic)
+        const payload = {
+          operationId: Date.now() + '-' + Math.random().toString(36),
+          amount: Number(form.amount.value.replace(',', '.')),
+          category_id: form.category_id.value,
+          date: form.date.value,
+          note: form.note.value
+        };
+
+        try {
+          const response = await fetch('/api/v1/expenses', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (response.ok) {
+            notify('Расход успешно добавлен', 'success');
+
+            // Close modal
+            const modal = getModalInstance('expenseModal');
+            modal?.hide();
+
+            // Reset form
+            form.reset();
+            safeResetDate(form.querySelector('input[name="date"]'));
+
+            // Refresh page
+            setTimeout(() => location.reload(), 1000);
+          } else {
+            throw new Error('Ошибка сервера');
+          }
+        } catch (error) {
+          console.error('Error adding expense:', error);
+          notify('Ошибка при добавлении расхода', 'danger');
+        }
       }
     });
   })();
@@ -339,3 +425,160 @@
   }
 
 })();
+
+  // Multi-category functionality setup
+  (function setupMultiCategory() {
+    function toggleMultiCategory() {
+      console.log('toggleMultiCategory called');
+      const checkbox = document.getElementById('multiCategory');
+      const singleGroup = document.getElementById('singleCategoryGroup');
+      const multiGroup = document.getElementById('multiCategoryGroup');
+      const categoryItems = document.querySelectorAll('.category-item');
+      const singleSelect = document.getElementById('expenseCategory');
+      
+      console.log('Elements found:', {
+        checkbox: !!checkbox,
+        singleGroup: !!singleGroup,
+        multiGroup: !!multiGroup,
+        categoryItems: categoryItems.length,
+        singleSelect: !!singleSelect
+      });
+      
+      if (!checkbox || !singleGroup || !multiGroup) {
+        console.log('Missing required elements, aborting');
+        return;
+      }
+      
+      if (checkbox.checked) {
+        // Switch to multi-category mode
+        singleGroup.style.display = 'none';
+        multiGroup.style.display = 'block';
+        if (singleSelect) singleSelect.required = false;
+        
+        // Show all category items
+        categoryItems.forEach(item => {
+          item.style.display = 'block';
+        });
+        
+        // Update remaining amount
+        updateRemainingAmount();
+      } else {
+        // Switch to single category mode
+        singleGroup.style.display = 'block';
+        multiGroup.style.display = 'none';
+        if (singleSelect) singleSelect.required = true;
+        
+        // Hide all category items and reset checkboxes
+        categoryItems.forEach(item => {
+          item.style.display = 'none';
+          const checkbox = item.querySelector('.category-checkbox');
+          const amountInput = item.querySelector('.category-amount');
+          if (checkbox) checkbox.checked = false;
+          if (amountInput) {
+            amountInput.disabled = true;
+            amountInput.value = '';
+          }
+        });
+      }
+    }
+
+    function toggleCategoryAmount(checkbox, categoryId) {
+      const amountInput = document.getElementById('amount_' + categoryId);
+      if (amountInput) {
+        amountInput.disabled = !checkbox.checked;
+        if (!checkbox.checked) {
+          amountInput.value = '';
+        }
+        updateRemainingAmount();
+      }
+    }
+
+    function updateRemainingAmount() {
+      const totalAmountInput = document.getElementById('expenseAmount');
+      const remainingSpan = document.getElementById('remainingAmount');
+      
+      if (!totalAmountInput || !remainingSpan) return;
+      
+      const totalAmount = parseFloat(totalAmountInput.value.replace(',', '.')) || 0;
+      let usedAmount = 0;
+      
+      // Sum all category amounts
+      document.querySelectorAll('.category-amount:not([disabled])').forEach(input => {
+        const amount = parseFloat(input.value.replace(',', '.')) || 0;
+        usedAmount += amount;
+      });
+      
+      const remaining = totalAmount - usedAmount;
+      remainingSpan.textContent = remaining.toFixed(2);
+      
+      // Color coding
+      if (remaining < 0) {
+        remainingSpan.style.color = 'red';
+      } else if (remaining === 0) {
+        remainingSpan.style.color = 'green';
+      } else {
+        remainingSpan.style.color = '';
+      }
+    }
+
+    // Initialize event listeners with multiple fallbacks
+    function initializeMultiCategory() {
+      console.log('initializeMultiCategory called');
+      const multiCategoryCheckbox = document.getElementById('multiCategory');
+      console.log('multiCategoryCheckbox found:', !!multiCategoryCheckbox);
+      
+      if (multiCategoryCheckbox && !multiCategoryCheckbox.hasAttribute('data-initialized')) {
+        console.log('Adding change listener to multiCategory checkbox');
+        multiCategoryCheckbox.addEventListener('change', toggleMultiCategory);
+        multiCategoryCheckbox.setAttribute('data-initialized', 'true');
+      } else if (multiCategoryCheckbox) {
+        console.log('multiCategory checkbox already initialized');
+      }
+      
+      const totalAmountInput = document.getElementById('expenseAmount');
+      if (totalAmountInput && !totalAmountInput.hasAttribute('data-initialized')) {
+        totalAmountInput.addEventListener('input', updateRemainingAmount);
+        totalAmountInput.setAttribute('data-initialized', 'true');
+      }
+      
+      // Add event listeners to category checkboxes and amount inputs
+      document.querySelectorAll('.category-checkbox:not([data-initialized])').forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+          const categoryId = this.getAttribute('data-category-id') || this.value;
+          toggleCategoryAmount(this, categoryId);
+        });
+        checkbox.setAttribute('data-initialized', 'true');
+      });
+      
+      document.querySelectorAll('.category-amount:not([data-initialized])').forEach(input => {
+        input.addEventListener('input', updateRemainingAmount);
+        input.setAttribute('data-initialized', 'true');
+      });
+    }
+
+    // Try multiple initialization points
+    document.addEventListener('DOMContentLoaded', initializeMultiCategory);
+    
+    // If already loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeMultiCategory);
+    } else {
+      initializeMultiCategory();
+    }
+
+    // Also listen for modal shown event to re-initialize
+    function setupModalListener() {
+      const expenseModal = document.getElementById('expenseModal');
+      if (expenseModal && !expenseModal.hasAttribute('data-listener-added')) {
+        expenseModal.addEventListener('shown.bs.modal', function() {
+          console.log('Modal shown, initializing multi-category functionality');
+          initializeMultiCategory();
+        });
+        expenseModal.setAttribute('data-listener-added', 'true');
+      }
+    }
+    
+    // Try to set up modal listener immediately and after DOM load
+    setupModalListener();
+    document.addEventListener('DOMContentLoaded', setupModalListener);
+  })();

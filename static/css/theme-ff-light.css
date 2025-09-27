@@ -48,6 +48,27 @@
   --card-border: 1px solid #E3E9F3;    /* соответствует --ff-border */
 }
 
+/* ========== FF-PEARL LIGHT THEME COMPONENT OVERRIDES ========== */
+
+/* Адаптация кнопки hero для светлой темы */
+:root[data-bs-theme="light"] .btn-hero {
+  color: var(--ff-text) !important;                     /* Темный текст вместо белого */
+  background: rgba(13, 110, 253, 0.1) !important;       /* Полупрозрачный синий фон */
+  border: 1px solid rgba(13, 110, 253, 0.2) !important; /* Синяя граница */
+}
+
+:root[data-bs-theme="light"] .btn-hero:hover {
+  color: var(--ff-text) !important;                     /* Темный текст при hover */
+  background: rgba(13, 110, 253, 0.15) !important;      /* Более яркий синий при hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(13, 110, 253, 0.25) !important; /* Синяя тень */
+}
+
+/* Убираем анимацию shimmer на светлой теме для лучшей видимости */
+:root[data-bs-theme="light"] .btn-hero::after {
+  background: linear-gradient(120deg, transparent, rgba(13, 110, 253, 0.1), transparent) !important;
+}
+
 /* ========== БАЗОВЫЕ СТИЛИ СТРАНИЦЫ ========== */
 :root[data-bs-theme="light"] body {
   background-color: var(--ff-bg) !important;

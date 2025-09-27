@@ -1,4 +1,5 @@
 """Budget module routes."""
+import datetime
 from decimal import Decimal
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user
@@ -40,7 +41,8 @@ def dashboard():
                          quick_form=quick_form,
                          categories=categories,
                          income_sources=income_sources,
-                         current_month=year_month)
+                         current_month=year_month,
+                         today=datetime.date.today().isoformat())
 
 
 @budget_bp.route('/expenses')
@@ -174,21 +176,53 @@ def categories():
 def add_category():
     """Add new category."""
     user_id = session['user_id']
-    form = CategoryForm()
     
-    if form.validate_on_submit():
+    if request.method == 'POST':
+        # Handle modal form data
+        name = request.form.get('name', '').strip()
+        limit_type = request.form.get('limit_type', 'fixed')
+        value = request.form.get('value', '0')
+        is_multi_source = request.form.get('multi_source') == 'on'
+        
+        if not name:
+            flash('Введите название категории', 'error')
+            return redirect(url_for('budget.categories'))
+        
         try:
+            # Create category
             category = BudgetService.create_category(
                 user_id=user_id,
-                name=form.name.data,
-                limit_type=form.limit_type.data,
-                value=form.value.data
+                name=name,
+                limit_type=limit_type,
+                value=float(value) if not is_multi_source else 0
             )
+            
+            # Set multi-source flag if needed
+            if is_multi_source:
+                category.is_multi_source = True
+                
+                # Process multi-source data
+                multi_sources = request.form.getlist('multi_sources')
+                for source_id in multi_sources:
+                    percentage_key = f'source_percentage_{source_id}'
+                    percentage = request.form.get(percentage_key, '0')
+                    if percentage and float(percentage) > 0:
+                        # Here you would create CategorySource relationships
+                        # For now, just log the data
+                        current_app.logger.info(f'Source {source_id}: {percentage}%')
+                
+                from app.core.extensions import db
+                db.session.commit()
+            
             flash('Категория создана', 'success')
             return redirect(url_for('budget.categories'))
+            
         except Exception as e:
             flash(f'Ошибка при создании категории: {str(e)}', 'error')
+            return redirect(url_for('budget.categories'))
     
+    # GET request - show form
+    form = CategoryForm()
     return render_template('budget/category_form.html', form=form, title='Добавить категорию')
 
 
@@ -423,3 +457,71 @@ def delete_income(income_id):
         flash('Доход не найден', 'error')
     
     return redirect(url_for('budget.income'))
+
+
+@budget_bp.route('/categories/<int:cat_id>/toggle-multi-source', methods=['POST'])
+@login_required
+def toggle_multi_source(cat_id):
+    """Toggle multi-source mode for category."""
+    user_id = session['user_id']
+    
+    try:
+        # Find category
+        category = Category.query.filter_by(id=cat_id, user_id=user_id).first()
+        if not category:
+            return jsonify({'error': 'Category not found'}), 404
+        
+        # Toggle multi-source flag
+        category.is_multi_source = not category.is_multi_source
+        
+        from app.core.extensions import db
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'is_multi_source': category.is_multi_source,
+            'message': 'Режим мультиисточников ' + ('включен' if category.is_multi_source else 'отключен')
+        })
+        
+    except Exception as e:
+        from app.core.extensions import db
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
+@budget_bp.route('/categories/<int:cat_id>/add-source', methods=['POST'])
+@login_required
+def add_source_to_category(cat_id):
+    """Add income source to category."""
+    user_id = session['user_id']
+    
+    try:
+        # Find category
+        category = Category.query.filter_by(id=cat_id, user_id=user_id).first()
+        if not category:
+            flash('Категория не найдена', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        source_name = request.form.get('source_name', '').strip()
+        if not source_name:
+            flash('Введите название источника', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        # Create new income source
+        from app.core.extensions import db
+        source = IncomeSource(
+            user_id=user_id,
+            name=source_name,
+            is_default=False
+        )
+        db.session.add(source)
+        db.session.commit()
+        
+        flash(f'Источник "{source_name}" добавлен', 'success')
+        
+    except Exception as e:
+        from app.core.extensions import db
+        db.session.rollback()
+        flash(f'Ошибка при добавлении источника: {str(e)}', 'error')
+    
+    return redirect(url_for('budget.categories'))

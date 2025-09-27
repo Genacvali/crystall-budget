@@ -98,9 +98,39 @@
           </div>
           
           <div class="mt-3" id="multiSourceConfig" style="display: none;">
-            <div class="alert alert-info">
+            <div class="alert alert-info mb-3">
               <i class="bi bi-info-circle me-2"></i>
-              <strong>Многоисточниковая категория:</strong> После создания вы сможете настроить процентное распределение между источниками дохода.
+              <strong>Многоисточниковая категория:</strong> Настройте процентное распределение между источниками дохода.
+            </div>
+            
+            <div id="multiSourceList">
+              {% for source in income_sources %}
+              <div class="row align-items-center mb-2 multi-source-item">
+                <div class="col-1">
+                  <input type="checkbox" class="form-check-input multi-source-checkbox" 
+                         name="multi_sources" value="{{ source.id }}"
+                         onchange="toggleSourcePercentage(this, '{{ source.id }}')">
+                </div>
+                <div class="col-6">
+                  <label class="form-label mb-0">{{ source.name }}</label>
+                </div>
+                <div class="col-5">
+                  <div class="input-group">
+                    <input type="number" class="form-control source-percentage" 
+                           name="source_percentage_{{ source.id }}" 
+                           min="0" max="100" step="0.1" 
+                           placeholder="0" disabled>
+                    <span class="input-group-text">%</span>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            
+            <div class="mt-2">
+              <small class="text-muted">Общий процент: <span id="totalPercentage">0</span>% 
+                <span id="percentageWarning" class="text-danger" style="display: none;">(должно быть 100%)</span>
+              </small>
             </div>
           </div>
         </div>
@@ -480,28 +510,67 @@
 function toggleNewCategorySourceField(enabled) {
   const singleSourceField = document.getElementById('singleSourceField');
   const multiSourceConfig = document.getElementById('multiSourceConfig');
-  const valueField = document.getElementById('addValueField');
   
   if (enabled) {
     singleSourceField.style.display = 'none';
     multiSourceConfig.style.display = 'block';
-    valueField.style.display = 'none';
-    // Убираем required с поля лимита
-    valueField.querySelector('input').removeAttribute('required');
-    // Добавляем первый источник по умолчанию
-    if (document.getElementById('sourcesList').children.length === 0) {
-      addSourceToNewCategory();
-    }
   } else {
     singleSourceField.style.display = 'block';
     multiSourceConfig.style.display = 'none';
-    valueField.style.display = 'block';
-    // Возвращаем required для поля лимита
-    valueField.querySelector('input').setAttribute('required', 'required');
-    // Очищаем список источников
-    document.getElementById('sourcesList').innerHTML = '';
+    // Сбрасываем все чекбоксы и проценты
+    document.querySelectorAll('.multi-source-checkbox').forEach(checkbox => {
+      checkbox.checked = false;
+    });
+    document.querySelectorAll('.source-percentage').forEach(input => {
+      input.disabled = true;
+      input.value = '';
+    });
+    updateTotalPercentage();
   }
 }
+
+// Включение/отключение поля процента для источника
+function toggleSourcePercentage(checkbox, sourceId) {
+  const percentageInput = document.querySelector(`input[name="source_percentage_${sourceId}"]`);
+  if (percentageInput) {
+    percentageInput.disabled = !checkbox.checked;
+    if (!checkbox.checked) {
+      percentageInput.value = '';
+    }
+    updateTotalPercentage();
+  }
+}
+
+// Обновление общего процента
+function updateTotalPercentage() {
+  let total = 0;
+  document.querySelectorAll('.source-percentage:not([disabled])').forEach(input => {
+    const value = parseFloat(input.value) || 0;
+    total += value;
+  });
+  
+  const totalSpan = document.getElementById('totalPercentage');
+  const warningSpan = document.getElementById('percentageWarning');
+  
+  if (totalSpan) {
+    totalSpan.textContent = total.toFixed(1);
+  }
+  
+  if (warningSpan) {
+    if (total !== 100 && total > 0) {
+      warningSpan.style.display = 'inline';
+    } else {
+      warningSpan.style.display = 'none';
+    }
+  }
+}
+
+// Добавить слушатели для полей процентов
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.source-percentage').forEach(input => {
+    input.addEventListener('input', updateTotalPercentage);
+  });
+});
 
 let newCategorySourceCounter = 0;
 

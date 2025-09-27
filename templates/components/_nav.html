@@ -75,7 +75,7 @@
         <button class="ff-pill ff-user d-none d-sm-inline-flex" aria-label="Открыть меню профиля" role="button" 
                 data-bs-toggle="dropdown" aria-expanded="false" id="userDropdown">
           <i class="bi bi-person-circle" aria-hidden="true"></i>
-          <span class="d-none d-xl-inline">{{ session.name or 'Пользователь' }}</span>
+          <span class="d-none d-xl-inline">{{ session.user_name or 'Пользователь' }}</span>
           <i class="bi bi-caret-down-fill ms-1" aria-hidden="true"></i>
         </button>
         <ul class="dropdown-menu dropdown-menu-end shadow-soft" aria-labelledby="userDropdown">
@@ -165,14 +165,14 @@
       <div class="d-flex align-items-center gap-2 mb-3">
         <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
              style="width: 40px; height: 40px;">
-          {% if session.name %}
-            {{ session.name[0].upper() }}
+          {% if session.user_name %}
+            {{ session.user_name[0].upper() }}
           {% else %}
             ?
           {% endif %}
         </div>
         <div>
-          <div class="fw-semibold">{{ session.name or 'Пользователь' }}</div>
+          <div class="fw-semibold">{{ session.user_name or 'Пользователь' }}</div>
           <div class="small text-muted">Личный аккаунт</div>
         </div>
       </div>
