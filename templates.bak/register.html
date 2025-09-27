@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Регистрация - CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <div class="card">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <h2 class="card-title">💎 Регистрация</h2>
+                    <p class="text-muted">Создайте свой аккаунт CrystalBudget</p>
+                </div>
+                
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="alert alert-danger">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Telegram Registration -->
+                <div class="text-center mb-4">
+                    <div id="telegram-widget-container">
+                        <script async src="https://telegram.org/js/telegram-widget.js?22"
+                          data-telegram-login="crystalbudget_bot"
+                          data-size="large"
+                          data-userpic="false"
+                          data-request-access="write" 
+                          data-auth-url="{{ request.url_root }}auth/telegram?next={{ url_for('dashboard') }}">
+                        </script>
+                    </div>
+                    <!-- Fallback button if widget doesn't load -->
+                    <div id="telegram-fallback" style="display: none;" class="mt-2">
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            Telegram виджет не загружается. Возможные причины:
+                            <ul class="mt-2 mb-0">
+                                <li>Домен не настроен в @BotFather</li>
+                                <li>Требуется HTTPS</li> 
+                                <li>Блокировщик рекламы</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <script>
+                // Check if Telegram widget loaded after 3 seconds
+                setTimeout(function() {
+                    const container = document.getElementById('telegram-widget-container');
+                    const fallback = document.getElementById('telegram-fallback');
+                    
+                    if (!container.querySelector('iframe')) {
+                        console.warn('Telegram widget failed to load');
+                        fallback.style.display = 'block';
+                    }
+                }, 3000);
+                </script>
+                
+                <!-- Разделитель -->
+                <div class="text-center my-4">
+                    <span class="text-muted">или</span>
+                </div>
+                
+                <!-- Email Registration -->
+                <form method="POST" action="{{ url_for('register') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Зарегистрироваться</button>
+                </form>
+                
+                <div class="text-center">
+                    <p class="text-muted mb-0">
+                        Уже есть аккаунт? 
+                        <a href="{{ url_for('login') }}" class="text-decoration-none">
+                            Войти
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

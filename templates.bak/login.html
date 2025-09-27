@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Вход - CrystalBudget{% endblock %}
+
+{% block content %}
+<style>
+  /* Компактная карточка авторизации */
+  .auth-wrap { margin-top: 24px; }
+  .auth-card { max-width: 380px; border-radius: 12px; }
+  .auth-card .card-body { padding: 18px 18px 16px; }
+
+  .auth-title { font-size: 20px; margin: 0 0 4px; }
+  .auth-subtitle { font-size: .95rem; margin: 0 0 12px; color: var(--bs-secondary-color, #6c757d); }
+
+  /* Аккуратный разделитель "или" */
+  .auth-divider { display: flex; align-items: center; gap: 10px; margin: 10px 0 14px; color: #6c757d; }
+  .auth-divider span { flex: 1; height: 1px; background: currentColor; opacity: .2; }
+  .auth-divider small { white-space: nowrap; }
+
+  /* Компактные поля/кнопки только в форме авторизации */
+  .auth-form .form-label { margin-bottom: 4px; font-size: .9rem; }
+  .auth-form .form-control { height: 38px; padding: 8px 10px; }
+  .auth-form .mb-3, .auth-form .mb-2 { margin-bottom: 10px !important; }
+  .auth-btn { height: 40px; }
+
+  /* Телеграм-виджет и фолбэк ближе друг к другу */
+  #telegram-fallback ul { margin-bottom: 0; padding-left: 16px; }
+</style>
+
+<div class="row justify-content-center auth-wrap">
+  <div class="col-12 col-sm-10 col-md-8 col-lg-5 col-xl-4">
+    <div class="card auth-card shadow-sm">
+      <div class="card-body">
+        <div class="text-center">
+          <h2 class="auth-title">💎 Вход</h2>
+          <p class="auth-subtitle">Войдите в свой аккаунт CrystalBudget</p>
+        </div>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert alert-danger py-2 mb-2">
+              {% for message in messages %}{{ message }}{% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <!-- Telegram Login -->
+        <div class="text-center mb-2">
+          <div id="telegram-widget-container" class="d-flex justify-content-center">
+<script async src="https://telegram.org/js/telegram-widget.js?22"
+  data-telegram-login="crystalbudget_bot"
+  data-size="large"
+  data-userpic="false"
+  data-request-access="write"
+  data-auth-url="{{ url_for('auth_telegram', _external=True, next=request.args.get('next', url_for('dashboard'))) }}">
+</script>
+
+          </div>
+          <div id="telegram-fallback" class="alert alert-warning py-2 px-2 small d-none mt-2">
+            <i class="bi bi-exclamation-triangle"></i>
+            Telegram-виджет не загрузился. Возможные причины:
+            <ul class="mt-2">
+              <li>Домен не настроен в @BotFather</li>
+              <li>Нужен HTTPS</li>
+              <li>Блокировщик скриптов</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Разделитель -->
+        <div class="auth-divider">
+          <span></span><small>или</small><span></span>
+        </div>
+
+        <!-- Email Login -->
+        <form method="POST" action="{{ url_for('login') }}" class="auth-form">
+          <div class="mb-2">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" required autocomplete="email">
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Пароль</label>
+            <input type="password" class="form-control" id="password" name="password" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn btn-primary w-100 auth-btn">Войти</button>
+        </form>
+
+        <div class="text-center mt-2">
+          <small class="text-muted">
+            Нет аккаунта?
+            <a href="{{ url_for('register') }}" class="text-decoration-none">Зарегистрироваться</a>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Показать фолбэк, если виджет не вставился
+  setTimeout(function () {
+    const container = document.getElementById('telegram-widget-container');
+    const fallback = document.getElementById('telegram-fallback');
+    if (!container.querySelector('iframe')) fallback.classList.remove('d-none');
+  }, 2500);
+</script>
+{% endblock %}

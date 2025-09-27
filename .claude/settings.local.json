@@ -24,7 +24,8 @@
       "Bash(flask --help)",
       "Bash(BUDGET_DB=\"sqlite:///instance/budget.db\" flask db-cli init-db)",
       "Bash(BUDGET_DB=\"instance/budget.db\" flask db-cli init-db)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git pull:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block title %}Цели накоплений{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+
+      <!-- Заголовок + Кнопка -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+          <i class="bi bi-bullseye text-primary me-2"></i> Цели накоплений
+        </h1>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+          <i class="bi bi-plus-lg"></i> Новая цель
+        </button>
+      </div>
+
+      <!-- Flash -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% if goals and goals|length %}
+        <div class="row">
+          {% for goal in goals %}
+          <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100 {% if goal.completed_at %}border-success{% endif %}">
+              <div class="card-body">
+
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <h5 class="card-title mb-0">{{ goal.name }}</h5>
+                  {% if goal.completed_at %}
+                    <span class="badge bg-success">Достигнуто!</span>
+                  {% endif %}
+                </div>
+
+                {% if goal.description %}
+                  <p class="card-text text-muted small">{{ goal.description }}</p>
+                {% endif %}
+
+                {# вычисляем проценты и ширину прогресса безопасно #}
+                {% set progress_percent = (goal.current_amount / goal.target_amount * 100) if goal.target_amount else 0 %}
+                {% set progress_percent = progress_percent|round(1) %}
+                {% set progress_width = 100 if progress_percent > 100 else progress_percent %}
+
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between mb-1">
+                    <small class="text-muted">Прогресс</small>
+                    <small class="text-muted">{{ progress_percent }}%</small>
+                  </div>
+                  <div class="progress" style="height: 8px;">
+                    <div class="progress-bar {% if goal.completed_at %}bg-success{% else %}bg-primary{% endif %}"
+                         role="progressbar"
+                         style="width: {{ progress_width }}%"></div>
+                  </div>
+                </div>
+
+                <div class="row text-center mb-3">
+                  <div class="col-6">
+                    <div class="text-muted small">Накоплено</div>
+                    <div class="fw-bold">{{ goal.current_amount|format_amount }} {{ currency_symbol }}</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-muted small">Цель</div>
+                    <div class="fw-bold">{{ goal.target_amount|format_amount }} {{ currency_symbol }}</div>
+                  </div>
+                </div>
+
+                {% if goal.target_date %}
+                  <div class="mb-3">
+                    <small class="text-muted">
+                      <i class="bi bi-calendar"></i> До: {{ goal.target_date|format_date_with_day }}
+                    </small>
+                  </div>
+                {% endif %}
+
+                {% if not goal.completed_at %}
+                  <form method="POST" action="{{ url_for('update_goal_progress', goal_id=goal.id) }}" class="d-flex">
+                    <input type="number" name="amount" class="form-control form-control-sm me-2"
+                           placeholder="Сумма" step="0.01" min="0.01" required>
+                    <button type="submit" class="btn btn-outline-primary btn-sm">
+                      <i class="bi bi-plus-lg"></i>
+                    </button>
+                  </form>
+                {% endif %}
+
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+      {% else %}
+        <!-- Пустое состояние -->
+        <div class="text-center py-5">
+          <div class="mb-4">
+            <i class="bi bi-bullseye display-1 text-muted"></i>
+          </div>
+          <h4 class="text-muted">Пока нет целей накоплений</h4>
+          <p class="text-muted mb-4">Создайте свою первую цель и начните копить на мечту!</p>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+            <i class="bi bi-plus-lg"></i> Создать цель
+          </button>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<!-- Модалка: Новая цель -->
+<div class="modal fade" id="addGoalModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-bullseye me-2 text-primary"></i> Новая цель накопления</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form method="POST" action="{{ url_for('add_goal') }}">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="goalName" class="form-label">Название цели <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="goalName" name="name" placeholder="Новый iPhone" required maxlength="100">
+          </div>
+
+          <div class="mb-3">
+            <label for="goalAmount" class="form-label">Целевая сумма <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input type="number" class="form-control" id="goalAmount" name="target_amount"
+                     placeholder="50000" step="0.01" min="0.01" required>
+              <span class="input-group-text">{{ currency_symbol }}</span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="goalDate" class="form-label">Желаемая дата (необязательно)</label>
+            <input type="date" class="form-control" id="goalDate" name="target_date">
+          </div>
+
+          <div class="mb-3">
+            <label for="goalDescription" class="form-label">Описание (необязательно)</label>
+            <textarea class="form-control" id="goalDescription" name="description" rows="3" maxlength="500"
+                      placeholder="Зачем вам эта цель?"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary">Создать цель</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
