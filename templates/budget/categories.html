@@ -63,7 +63,7 @@
             <input type="text" name="name" class="form-control" placeholder="Например, Продукты" required>
           </div>
           
-          <div class="row g-3">
+          <div class="row g-3" id="limitFields">
             <div class="col-md-6">
               <label class="form-label">Тип лимита</label>
               <select name="limit_type" class="form-select" required>
@@ -218,12 +218,6 @@
           {% endif %}
         </div>
         <div class="ff-iconbtn-group" role="group" aria-label="Действия">
-          {% if cat.is_multi_source %}
-            <button type="button" class="ff-iconbtn ff-iconbtn--source" data-bs-toggle="modal" data-bs-target="#multiSourceModal{{ cat.id }}" 
-                    aria-label="Настроить источники" title="Настроить источники">
-              <i class="bi bi-diagram-3"></i>
-            </button>
-          {% endif %}
           <button type="button" class="ff-iconbtn ff-iconbtn--edit" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}" 
                   aria-label="Редактировать категорию" title="Редактировать">
             <i class="bi bi-pencil"></i>
@@ -261,6 +255,7 @@
       </div>
       <form method="POST" action="{{ url_for('budget.edit_category', category_id=cat.id) }}">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <input type="hidden" name="is_multi_source" value="{{ '1' if cat.is_multi_source else '0' }}">
         <div class="modal-body">
           <div class="mb-3">
             <label class="form-label">Название</label>
@@ -311,24 +306,123 @@
             <div class="form-text">Выберите источник дохода, который будет использоваться для финансирования этой категории</div>
           </div>
 
-          <!-- Информация о многоисточниковых связях -->
+          <!-- Управление многоисточниковыми связями -->
           <div class="mb-3" id="multiSourceInfo{{ cat.id }}" {% if not cat.is_multi_source %}style="display: none;"{% endif %}>
+            <h6 class="mb-3">
+              <i class="bi bi-list-ul me-2"></i>Настройка источников:
+            </h6>
+            
             {% set cat_sources = multi_source_links.get(cat.id, []) %}
             {% if cat_sources %}
-              <label class="form-label">Настроенные источники:</label>
-              <div class="d-flex flex-wrap gap-2">
-                {% for source_info in cat_sources %}
-                  <span class="badge bg-primary">
-                    {{ source_info.source_name }}: {{ source_info.percentage }}%
-                  </span>
-                {% endfor %}
+            <div class="income-sources-list mb-3">
+              {% for source_info in cat_sources %}
+              <div class="income-source-item">
+                <div class="source-info">
+                  <div class="source-title">{{ source_info.source_name }}</div>
+                  <div class="source-meta">Источник дохода</div>
+                </div>
+                
+                <div class="source-amount">
+                  <form method="POST" action="{{ url_for('budget.update_source_percentage', cat_id=cat.id) }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <input type="hidden" name="source_id" value="{{ source_info.source_id }}">
+                    <div class="percentage-input">
+                      <input type="number" name="percentage" value="{{ source_info.percentage }}" 
+                             min="0.01" max="100" step="0.01" class="percentage-field tabular-nums" 
+                             onchange="this.form.submit()">
+                      <span class="percentage-symbol">%</span>
+                    </div>
+                  </form>
+                </div>
+                
+                <div class="source-actions">
+                  <form method="POST" action="{{ url_for('budget.remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="action-btn action-btn--delete"
+                            onclick="return confirm('Убрать источник {{ source_info.source_name }} из категории?')" 
+                            title="Удалить" aria-label="Удалить источник {{ source_info.source_name }}">
+                      <i class="bi bi-trash3"></i>
+                    </button>
+                  </form>
+                </div>
               </div>
-            {% else %}
-              <div class="alert alert-warning">
-                <i class="bi bi-exclamation-triangle"></i> 
-                Источники не настроены. Используйте кнопку "Источники" для настройки.
+              {% endfor %}
+              
+              <!-- Итоговая строка -->
+              <div class="income-source-total">
+                <div class="source-info">
+                  <div class="source-title">Общий процент:</div>
+                </div>
+                
+                <div class="source-amount">
+                  {% set total_percent = cat_sources | sum(attribute='percentage') %}
+                  <span class="total-amount tabular-nums">{{ "%.1f"|format(total_percent) }}%</span>
+                </div>
+                
+                <div class="source-status">
+                  {% if total_percent > 100 %}
+                    <small class="text-warning">
+                      <i class="bi bi-exclamation-triangle"></i>
+                      Превышен лимит 100%
+                    </small>
+                  {% elif total_percent == 0 %}
+                    <small class="text-muted">
+                      <i class="bi bi-info-circle"></i>
+                      Добавьте источники
+                    </small>
+                  {% else %}
+                    <small class="text-success">
+                      <i class="bi bi-check-circle"></i>
+                      Корректно
+                    </small>
+                  {% endif %}
+                </div>
               </div>
+            </div>
             {% endif %}
+            
+            <!-- Добавить новый источник -->
+            <div class="border-top pt-3">
+              <h6 class="mb-3">
+                <i class="bi bi-plus-circle me-2"></i>Добавить источник:
+              </h6>
+              <form method="POST" action="{{ url_for('budget.add_source_to_category', cat_id=cat.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <div class="row g-3 align-items-end">
+                  <div class="col-md-6">
+                    <label class="form-label">Источник дохода</label>
+                    <select name="source_id" class="form-select" required>
+                      <option value="">— Выберите источник —</option>
+                      {% for source in income_sources %}
+                        <!-- Показываем только источники, которые еще не добавлены -->
+                        {% set already_added = false %}
+                        {% for source_info in cat_sources %}
+                          {% if source_info.source_id == source.id %}
+                            {% set already_added = true %}
+                          {% endif %}
+                        {% endfor %}
+                        {% if not already_added %}
+                          <option value="{{ source.id }}">{{ source.name }}</option>
+                        {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Процент</label>
+                    <div class="input-group">
+                      <input type="number" name="percentage" min="0.01" max="100" step="0.01" 
+                             class="form-control" placeholder="0.0" required>
+                      <span class="input-group-text">%</span>
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <button type="submit" class="btn btn-success w-100">
+                      <i class="bi bi-plus"></i>
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
         <div class="modal-footer">
@@ -345,14 +439,14 @@
 {% for cat in expense_categories %}
 {% if cat.is_multi_source %}
 <div class="modal fade" id="multiSourceModal{{ cat.id }}" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg modal-sources">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-diagram-3 me-2"></i>
-          Настройка источников для «{{ cat.name }}»
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      <div class="modal-header sources-header">
+        <div class="header-content">
+          <i class="bi bi-diagram-3 header-icon"></i>
+          <h5 class="modal-title">Настройка источников</h5>
+        </div>
+        <button type="button" class="btn-close sources-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body">
         
@@ -363,71 +457,70 @@
           <h6 class="mb-3">
             <i class="bi bi-list-ul me-2"></i>Текущие источники:
           </h6>
-          <div class="table-responsive">
-            <table class="table table-sm">
-              <thead>
-                <tr>
-                  <th>Источник</th>
-                  <th class="text-end">Процент</th>
-                  <th class="text-end">Действия</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for source_info in cat_sources %}
-                <tr>
-                  <td>{{ source_info.source_name }}</td>
-                  <td class="text-end">
-                    <form method="POST" action="{{ url_for('budget.update_source_percentage', cat_id=cat.id) }}" class="d-inline">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                      <input type="hidden" name="source_id" value="{{ source_info.source_id }}">
-                      <div class="input-group input-group-sm" style="max-width: 120px;">
-                        <input type="number" name="percentage" value="{{ source_info.percentage }}" 
-                               min="0.01" max="100" step="0.01" class="form-control text-end" 
-                               onchange="this.form.submit()">
-                        <span class="input-group-text">%</span>
-                      </div>
-                    </form>
-                  </td>
-                  <td class="text-end">
-                    <form method="POST" action="{{ url_for('budget.remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                      <button type="submit" class="ff-iconbtn ff-iconbtn--delete"
-                              onclick="return confirm('Убрать источник {{ source_info.source_name }} из категории?')" 
-                              title="Удалить" aria-label="Удалить">
-                        <i class="bi bi-trash3"></i>
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-              <tfoot>
-                <tr class="table-info">
-                  <th>Общий процент:</th>
-                  <th class="text-end">
-                    {% set total_percent = cat_sources | sum(attribute='percentage') %}
-                    <strong>{{ total_percent }}%</strong>
-                    {% if total_percent > 100 %}
-                      <small class="text-warning">
-                        <i class="bi bi-exclamation-triangle"></i>
-                        (превышен лимит 100%)
-                      </small>
-                    {% elif total_percent == 0 %}
-                      <small class="text-muted">
-                        <i class="bi bi-info-circle"></i>
-                        (добавьте источники)
-                      </small>
-                    {% else %}
-                      <small class="text-success">
-                        <i class="bi bi-check-circle"></i>
-                        (корректно)
-                      </small>
-                    {% endif %}
-                  </th>
-                  <th></th>
-                </tr>
-              </tfoot>
-            </table>
+          <div class="income-sources-list">
+            {% for source_info in cat_sources %}
+            <div class="income-source-item">
+              <div class="source-info">
+                <div class="source-title">{{ source_info.source_name }}</div>
+                <div class="source-meta">Источник дохода</div>
+              </div>
+              
+              <div class="source-amount">
+                <form method="POST" action="{{ url_for('budget.update_source_percentage', cat_id=cat.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <input type="hidden" name="source_id" value="{{ source_info.source_id }}">
+                  <div class="percentage-input">
+                    <input type="number" name="percentage" value="{{ source_info.percentage }}" 
+                           min="0.01" max="100" step="0.01" class="percentage-field tabular-nums" 
+                           onchange="this.form.submit()">
+                    <span class="percentage-symbol">%</span>
+                  </div>
+                </form>
+              </div>
+              
+              <div class="source-actions">
+                <form method="POST" action="{{ url_for('budget.remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                  <button type="submit" class="action-btn action-btn--delete"
+                          onclick="return confirm('Убрать источник {{ source_info.source_name }} из категории?')" 
+                          title="Удалить" aria-label="Удалить источник {{ source_info.source_name }}">
+                    <i class="bi bi-trash3"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+            {% endfor %}
+            
+            <!-- Итоговая строка -->
+            <div class="income-source-total">
+              <div class="source-info">
+                <div class="source-title">Общий процент:</div>
+              </div>
+              
+              <div class="source-amount">
+                {% set total_percent = cat_sources | sum(attribute='percentage') %}
+                <span class="total-amount tabular-nums">{{ "%.1f"|format(total_percent) }}%</span>
+              </div>
+              
+              <div class="source-status">
+                {% if total_percent > 100 %}
+                  <small class="text-warning">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    Превышен лимит 100%
+                  </small>
+                {% elif total_percent == 0 %}
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle"></i>
+                    Добавьте источники
+                  </small>
+                {% else %}
+                  <small class="text-success">
+                    <i class="bi bi-check-circle"></i>
+                    Корректно
+                  </small>
+                {% endif %}
+              </div>
+            </div>
           </div>
         </div>
         {% endif %}
@@ -486,15 +579,20 @@
         {% endif %}
 
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-        <form method="POST" action="{{ url_for('budget.toggle_multi_source', cat_id=cat.id) }}" class="d-inline">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <button type="submit" class="btn btn-outline-warning" 
-                  onclick="return confirm('Отключить многоисточниковый режим? Все связи будут удалены.')">
-            <i class="bi bi-toggle-off"></i> Отключить режим
+      <div class="modal-footer sources-footer">
+        <div class="footer-actions">
+          <button type="button" class="btn btn-secondary cb-btn" data-bs-dismiss="modal">
+            <i class="bi bi-x me-1"></i>Закрыть
           </button>
-        </form>
+          <form method="POST" action="{{ url_for('budget.toggle_multi_source', cat_id=cat.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="btn btn-warning cb-btn" 
+                    onclick="return confirm('Отключить многоисточниковый режим? Все связи будут удалены.')"
+                    aria-label="Отключить многоисточниковый режим">
+              <i class="bi bi-toggle-off me-1"></i>Отключить режим
+            </button>
+          </form>
+        </div>
       </div>
     </div>
   </div>
@@ -504,19 +602,638 @@
 
 {% endblock %}
 
+{% block page_css %}
+<style>
+/* Стили для списка источников дохода */
+.income-sources-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 100%;
+}
+
+.income-source-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bs-body-bg);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  min-height: 76px;
+  transition: all 0.2s ease;
+}
+
+.income-source-item:hover {
+  border-color: var(--bs-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.income-source-total {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bs-light);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.75rem;
+  min-height: 76px;
+  margin-top: 0.5rem;
+}
+
+.source-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.source-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--bs-body-color);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.source-meta {
+  font-size: 0.875rem;
+  color: var(--bs-secondary-color);
+  line-height: 1.2;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.source-amount {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.percentage-input {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.percentage-field {
+  width: 80px;
+  padding: 0.5rem;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.375rem;
+  text-align: right;
+  font-size: 1rem;
+  font-weight: 500;
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+}
+
+.percentage-field:focus {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+  outline: 0;
+}
+
+.percentage-symbol {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--bs-secondary-color);
+}
+
+.total-amount {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--bs-body-color);
+}
+
+.source-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--bs-border-color);
+  border-radius: 0.5rem;
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 1.125rem;
+}
+
+.action-btn:hover {
+  background: var(--bs-secondary-bg);
+  border-color: var(--bs-secondary);
+  color: var(--bs-body-color);
+}
+
+.action-btn--delete:hover {
+  background: var(--bs-danger);
+  border-color: var(--bs-danger);
+  color: white;
+}
+
+.source-status {
+  flex-shrink: 0;
+  text-align: right;
+  min-width: 120px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .income-source-item,
+  .income-source-total {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+  
+  .source-info {
+    text-align: left;
+  }
+  
+  .source-amount,
+  .source-status {
+    text-align: left;
+  }
+  
+  .source-actions {
+    justify-content: flex-end;
+  }
+  
+  .percentage-input {
+    justify-content: flex-start;
+  }
+  
+  /* Мобильная оптимизация модальных окон */
+  .modal-dialog {
+    margin: 0.5rem !important;
+    max-width: calc(100vw - 1rem) !important;
+  }
+  
+  .modal-dialog.modal-lg {
+    max-width: calc(100vw - 1rem) !important;
+  }
+  
+  .modal-content {
+    border-radius: 1rem;
+    border: none;
+    box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.15);
+  }
+  
+  .modal-header {
+    padding: 1rem 1rem 0.5rem;
+    border-bottom: none;
+  }
+  
+  .modal-body {
+    padding: 0.5rem 1rem;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+  
+  .modal-footer {
+    padding: 0.5rem 1rem 1rem;
+    border-top: none;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .modal-title {
+    font-size: 1.1rem;
+    line-height: 1.3;
+  }
+  
+  /* Улучшения для форм в модалках */
+  .form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 0.375rem;
+  }
+  
+  .form-control,
+  .form-select {
+    font-size: 1rem;
+    padding: 0.75rem;
+  }
+  
+  .input-group-text {
+    font-size: 0.9rem;
+  }
+  
+  /* Кнопки в footer */
+  .modal-footer .btn {
+    flex: 1;
+    min-width: auto;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+  
+  .modal-footer .btn:not(:last-child) {
+    margin-right: 0;
+  }
+  
+  /* Компактные элементы формы */
+  .row.g-3 {
+    --bs-gutter-x: 0.75rem;
+    --bs-gutter-y: 0.75rem;
+  }
+  
+  .mb-3 {
+    margin-bottom: 1rem !important;
+  }
+  
+  /* Улучшения для списка источников в модалке */
+  .income-sources-list {
+    gap: 0.5rem;
+  }
+  
+  .income-source-item,
+  .income-source-total {
+    padding: 0.75rem;
+    min-height: auto;
+  }
+  
+  .source-title {
+    font-size: 1rem;
+  }
+  
+  .source-meta {
+    font-size: 0.8rem;
+  }
+  
+  .percentage-field {
+    width: 70px;
+    padding: 0.375rem;
+    font-size: 0.9rem;
+  }
+  
+  .action-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  /* Свертывание больших форм */
+  .alert {
+    padding: 0.75rem;
+    font-size: 0.875rem;
+  }
+  
+  .form-text {
+    font-size: 0.8rem;
+  }
+  
+  /* Кнопки добавления источника */
+  .col-md-6 {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .col-md-4 {
+    width: 100%;
+    max-width: 100%;
+  }
+  
+  .col-md-2 {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* Дополнительные улучшения для очень маленьких экранов */
+@media (max-width: 480px) {
+  .modal-dialog {
+    margin: 0.25rem !important;
+    max-width: calc(100vw - 0.5rem) !important;
+  }
+  
+  .modal-header {
+    padding: 0.75rem 0.75rem 0.25rem;
+    position: sticky;
+    top: 0;
+    background: var(--bs-body-bg);
+    z-index: 1;
+  }
+  
+  .modal-body {
+    padding: 0.25rem 0.75rem;
+    max-height: calc(100vh - 140px);
+  }
+  
+  .modal-footer {
+    padding: 0.25rem 0.75rem 0.75rem;
+    position: sticky;
+    bottom: 0;
+    background: var(--bs-body-bg);
+    z-index: 1;
+  }
+  
+  .modal-title {
+    font-size: 1rem;
+    line-height: 1.2;
+  }
+  
+  .btn-close {
+    padding: 0.25rem;
+    margin: 0;
+  }
+  
+  /* Компактные формы */
+  .income-source-item,
+  .income-source-total {
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+  }
+  
+  .source-title {
+    font-size: 0.95rem;
+  }
+  
+  .source-meta {
+    font-size: 0.75rem;
+  }
+  
+  .percentage-field {
+    width: 60px;
+    padding: 0.25rem;
+    font-size: 0.85rem;
+  }
+  
+  .action-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+  
+  .form-control,
+  .form-select {
+    font-size: 0.9rem;
+    padding: 0.5rem;
+  }
+  
+  .modal-footer .btn {
+    font-size: 0.85rem;
+    padding: 0.5rem;
+  }
+  
+  /* Свертывание отступов */
+  .mb-3 {
+    margin-bottom: 0.75rem !important;
+  }
+  
+  .alert {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .form-text {
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+  }
+  
+  /* Фиксированная высота для скроллинга */
+  .income-sources-list {
+    max-height: 40vh;
+    overflow-y: auto;
+  }
+}
+
+/* Ландшафтная ориентация на мобильных */
+@media (max-width: 768px) and (orientation: landscape) {
+  .modal-body {
+    max-height: calc(100vh - 120px);
+  }
+  
+  .income-sources-list {
+    max-height: 30vh;
+  }
+}
+
+/* Dark theme adjustments */
+@media (prefers-color-scheme: dark) {
+  .income-source-item:hover {
+    box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+  }
+}
+
+[data-bs-theme="dark"] .income-source-item:hover {
+  box-shadow: 0 2px 8px rgba(255,255,255,0.1);
+}
+
+/* Tabular numbers for better alignment */
+.tabular-nums {
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+}
+
+/* Мобильные стили для модалки источников */
+.modal-sources .modal-dialog {
+  margin: 0.5rem;
+  max-width: calc(100vw - 1rem);
+}
+
+.sources-header {
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid var(--bs-border-color);
+  position: sticky;
+  top: 0;
+  background: var(--bs-body-bg);
+  z-index: 10;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.header-icon {
+  font-size: 1.25rem;
+  color: var(--bs-primary);
+}
+
+.sources-close {
+  padding: 0.5rem;
+  margin: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sources-footer {
+  padding: 0.75rem 1rem 1rem;
+  border-top: 1px solid var(--bs-border-color);
+  position: sticky;
+  bottom: 0;
+  background: var(--bs-body-bg);
+  z-index: 10;
+}
+
+.footer-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.footer-actions .btn {
+  flex: 1;
+  min-width: 120px;
+  height: 44px;
+  font-weight: 500;
+  border-radius: 0.75rem;
+}
+
+.cb-btn {
+  transition: all 0.2s ease;
+  border-radius: 0.75rem;
+}
+
+/* Мобильная адаптация модалки источников */
+@media (max-width: 768px) {
+  .modal-sources .modal-dialog {
+    margin: 0.25rem;
+    max-width: calc(100vw - 0.5rem);
+    height: calc(100vh - 0.5rem);
+  }
+  
+  .modal-sources .modal-content {
+    height: 100%;
+    border-radius: 1rem;
+    border: none;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-sources .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.75rem 1rem;
+  }
+  
+  .sources-header {
+    padding: 0.75rem 1rem 0.5rem;
+    flex-shrink: 0;
+  }
+  
+  .sources-footer {
+    padding: 0.75rem 1rem;
+    flex-shrink: 0;
+  }
+  
+  .footer-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .footer-actions .btn {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  .modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  /* Компактные карточки на мобиле */
+  .income-sources-list {
+    gap: 0.5rem;
+  }
+  
+  .income-source-item {
+    padding: 0.75rem;
+    border-radius: 0.75rem;
+  }
+  
+  .source-title {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  .percentage-field {
+    width: 70px;
+    font-size: 0.9rem;
+  }
+  
+  .action-btn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-sources .modal-dialog {
+    margin: 0;
+    max-width: 100vw;
+    height: 100vh;
+  }
+  
+  .modal-sources .modal-content {
+    border-radius: 0;
+  }
+  
+  .sources-header,
+  .sources-footer {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .modal-sources .modal-body {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .modal-title {
+    font-size: 1rem;
+  }
+  
+  .header-icon {
+    font-size: 1.125rem;
+  }
+}
+</style>
+{% endblock %}
+
 {% block page_js %}
 <script>
 // Переключение полей в форме создания категории
 function toggleNewCategorySourceField(enabled) {
   const singleSourceField = document.getElementById('singleSourceField');
   const multiSourceConfig = document.getElementById('multiSourceConfig');
+  const limitFields = document.getElementById('limitFields');
   
   if (enabled) {
     singleSourceField.style.display = 'none';
     multiSourceConfig.style.display = 'block';
+    limitFields.style.display = 'none';
+    // Убираем обязательность полей лимита
+    const limitSelect = limitFields.querySelector('select[name="limit_type"]');
+    const limitInput = limitFields.querySelector('input[name="value"]');
+    if (limitSelect) limitSelect.removeAttribute('required');
+    if (limitInput) limitInput.removeAttribute('required');
   } else {
     singleSourceField.style.display = 'block';
     multiSourceConfig.style.display = 'none';
+    limitFields.style.display = 'block';
+    // Возвращаем обязательность полей лимита
+    const limitSelect = limitFields.querySelector('select[name="limit_type"]');
+    const limitInput = limitFields.querySelector('input[name="value"]');
+    if (limitSelect) limitSelect.setAttribute('required', 'required');
+    if (limitInput) limitInput.setAttribute('required', 'required');
     // Сбрасываем все чекбоксы и проценты
     document.querySelectorAll('.multi-source-checkbox').forEach(checkbox => {
       checkbox.checked = false;
@@ -625,30 +1342,24 @@ function removeSourceFromNew(index) {
 function toggleMultiSourceMode(categoryId, enabled) {
   console.log('Toggle multi-source mode:', categoryId, enabled);
   
-  // Отправляем AJAX запрос для переключения режима
-  fetch(`/categories/${categoryId}/toggle-multi-source`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    }
-  }).then(response => {
-    console.log('Response status:', response.status);
-    if (response.ok) {
-      console.log('Request successful, reloading page...');
-      // Просто перезагружаем страницу для обновления интерфейса
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-    } else {
-      // В случае ошибки возвращаем переключатель в исходное состояние
-      document.getElementById(`multiSourceSwitch${categoryId}`).checked = !enabled;
-      alert('Ошибка при изменении режима категории');
-    }
-  }).catch(error => {
-    // В случае ошибки возвращаем переключатель в исходное состояние
-    document.getElementById(`multiSourceSwitch${categoryId}`).checked = !enabled;
-    alert('Ошибка соединения');
-  });
+  // Показываем/скрываем соответствующие поля в форме
+  const singleSourceDiv = document.getElementById(`singleSourceDiv${categoryId}`);
+  const multiSourceInfo = document.getElementById(`multiSourceInfo${categoryId}`);
+  
+  if (enabled) {
+    if (singleSourceDiv) singleSourceDiv.style.display = 'none';
+    if (multiSourceInfo) multiSourceInfo.style.display = 'block';
+  } else {
+    if (singleSourceDiv) singleSourceDiv.style.display = 'block';
+    if (multiSourceInfo) multiSourceInfo.style.display = 'none';
+  }
+  
+  // НЕ отправляем AJAX запрос сразу - изменения сохранятся при сабмите формы
+  // Обновляем скрытое поле с режимом, если оно есть
+  const hiddenModeField = document.querySelector(`#editModal${categoryId} input[name="is_multi_source"]`);
+  if (hiddenModeField) {
+    hiddenModeField.value = enabled ? '1' : '0';
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {

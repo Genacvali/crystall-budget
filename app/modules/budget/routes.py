@@ -189,7 +189,10 @@ def add_category():
             return redirect(url_for('budget.categories'))
         
         try:
-            # Create category
+            from app.core.extensions import db
+            from app.modules.budget.models import CategoryRule
+            
+            # Create category with multi-source flag
             category = BudgetService.create_category(
                 user_id=user_id,
                 name=name,
@@ -197,9 +200,10 @@ def add_category():
                 value=float(value) if not is_multi_source else 0
             )
             
-            # Set multi-source flag if needed
+            # Set multi-source flag and process multi-source data
             if is_multi_source:
                 category.is_multi_source = True
+                db.session.flush()  # Flush to get category ID
                 
                 # Process multi-source data
                 multi_sources = request.form.getlist('multi_sources')
@@ -207,11 +211,16 @@ def add_category():
                     percentage_key = f'source_percentage_{source_id}'
                     percentage = request.form.get(percentage_key, '0')
                     if percentage and float(percentage) > 0:
-                        # Here you would create CategorySource relationships
-                        # For now, just log the data
-                        current_app.logger.info(f'Source {source_id}: {percentage}%')
+                        # Find source to get its name
+                        source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
+                        if source:
+                            cat_rule = CategoryRule(
+                                category_id=category.id,
+                                source_name=source.name,
+                                percentage=float(percentage)
+                            )
+                            db.session.add(cat_rule)
                 
-                from app.core.extensions import db
                 db.session.commit()
             
             flash('Категория создана', 'success')
@@ -233,23 +242,41 @@ def edit_category(category_id):
     user_id = session['user_id']
     category = Category.query.filter_by(id=category_id, user_id=user_id).first_or_404()
     
-    form = CategoryForm(obj=category)
-    
-    if form.validate_on_submit():
+    if request.method == 'POST':
         try:
-            BudgetService.update_category(
-                category_id=category_id,
-                user_id=user_id,
-                name=form.name.data,
-                limit_type=form.limit_type.data,
-                value=form.value.data
-            )
+            from app.core.extensions import db
+            
+            # Get form data
+            name = request.form.get('name', '').strip()
+            limit_type = request.form.get('limit_type', 'fixed')
+            value = request.form.get('value', '0')
+            is_multi_source = request.form.get('is_multi_source') == '1'
+            
+            if not name:
+                flash('Введите название категории', 'error')
+                return redirect(url_for('budget.categories'))
+            
+            # Update basic category info
+            category.name = name
+            category.limit_type = limit_type
+            category.is_multi_source = is_multi_source
+            
+            # Update value only if not multi-source
+            if not is_multi_source:
+                category.value = float(value) if value else 0
+            else:
+                category.value = 0
+            
+            db.session.commit()
             flash('Категория обновлена', 'success')
             return redirect(url_for('budget.categories'))
+            
         except Exception as e:
             flash(f'Ошибка при обновлении категории: {str(e)}', 'error')
+            return redirect(url_for('budget.categories'))
     
-    return render_template('budget/category_form.html', form=form, title='Редактировать категорию')
+    # GET request - redirect to categories (no separate form page)
+    return redirect(url_for('budget.categories'))
 
 
 @budget_bp.route('/categories/delete/<int:category_id>', methods=['POST'])
@@ -492,36 +519,160 @@ def toggle_multi_source(cat_id):
 @budget_bp.route('/categories/<int:cat_id>/add-source', methods=['POST'])
 @login_required
 def add_source_to_category(cat_id):
-    """Add income source to category."""
+    """Add income source to multi-source category."""
     user_id = session['user_id']
     
     try:
+        from app.core.extensions import db
+        from app.modules.budget.models import CategoryRule
+        
         # Find category
         category = Category.query.filter_by(id=cat_id, user_id=user_id).first()
         if not category:
             flash('Категория не найдена', 'error')
             return redirect(url_for('budget.categories'))
         
-        source_name = request.form.get('source_name', '').strip()
-        if not source_name:
-            flash('Введите название источника', 'error')
+        source_id = request.form.get('source_id')
+        percentage = request.form.get('percentage', type=float)
+        
+        if not source_id:
+            flash('Выберите источник дохода', 'error')
+            return redirect(url_for('budget.categories'))
+            
+        if not percentage or percentage <= 0 or percentage > 100:
+            flash('Укажите корректный процент (1-100)', 'error')
             return redirect(url_for('budget.categories'))
         
-        # Create new income source
-        from app.core.extensions import db
-        source = IncomeSource(
-            user_id=user_id,
-            name=source_name,
-            is_default=False
+        # Check if source exists and belongs to user
+        source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
+        if not source:
+            flash('Источник дохода не найден', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        # Check if this source is already added to category
+        existing = CategoryRule.query.filter_by(
+            category_id=cat_id, 
+            source_name=source.name
+        ).first()
+        if existing:
+            flash(f'Источник "{source.name}" уже добавлен к категории', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        # Add source to category
+        cat_rule = CategoryRule(
+            category_id=cat_id,
+            source_name=source.name,
+            percentage=percentage
         )
-        db.session.add(source)
+        db.session.add(cat_rule)
         db.session.commit()
         
-        flash(f'Источник "{source_name}" добавлен', 'success')
+        flash(f'Источник "{source.name}" добавлен к категории с {percentage}%', 'success')
         
     except Exception as e:
         from app.core.extensions import db
         db.session.rollback()
         flash(f'Ошибка при добавлении источника: {str(e)}', 'error')
+    
+    return redirect(url_for('budget.categories'))
+
+
+@budget_bp.route('/categories/<int:cat_id>/update-source-percentage', methods=['POST'])
+@login_required
+def update_source_percentage(cat_id):
+    """Update percentage for income source in multi-source category."""
+    user_id = session['user_id']
+    
+    try:
+        from app.core.extensions import db
+        from app.modules.budget.models import CategoryRule
+        
+        # Find category
+        category = Category.query.filter_by(id=cat_id, user_id=user_id).first()
+        if not category:
+            flash('Категория не найдена', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        source_id = request.form.get('source_id')
+        percentage = request.form.get('percentage', type=float)
+        
+        if not source_id:
+            flash('Источник не указан', 'error')
+            return redirect(url_for('budget.categories'))
+            
+        if not percentage or percentage <= 0 or percentage > 100:
+            flash('Укажите корректный процент (1-100)', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        # Find source to get its name
+        source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
+        if not source:
+            flash('Источник дохода не найден', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        # Find and update CategoryRule
+        cat_rule = CategoryRule.query.filter_by(
+            category_id=cat_id, 
+            source_name=source.name
+        ).first()
+        
+        if not cat_rule:
+            flash('Связь источника с категорией не найдена', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        cat_rule.percentage = percentage
+        db.session.commit()
+        
+        flash(f'Процент для источника "{source.name}" обновлен до {percentage}%', 'success')
+        
+    except Exception as e:
+        from app.core.extensions import db
+        db.session.rollback()
+        flash(f'Ошибка при обновлении процента: {str(e)}', 'error')
+    
+    return redirect(url_for('budget.categories'))
+
+
+@budget_bp.route('/categories/<int:cat_id>/remove-source/<int:source_id>', methods=['POST'])
+@login_required
+def remove_source_from_category(cat_id, source_id):
+    """Remove income source from multi-source category."""
+    user_id = session['user_id']
+    
+    try:
+        from app.core.extensions import db
+        from app.modules.budget.models import CategoryRule
+        
+        # Find category
+        category = Category.query.filter_by(id=cat_id, user_id=user_id).first()
+        if not category:
+            flash('Категория не найдена', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        # Find source to get its name
+        source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
+        if not source:
+            flash('Источник дохода не найден', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        # Find and remove CategoryRule
+        cat_rule = CategoryRule.query.filter_by(
+            category_id=cat_id, 
+            source_name=source.name
+        ).first()
+        
+        if not cat_rule:
+            flash('Связь источника с категорией не найдена', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        db.session.delete(cat_rule)
+        db.session.commit()
+        
+        flash(f'Источник "{source.name}" удален из категории', 'success')
+        
+    except Exception as e:
+        from app.core.extensions import db
+        db.session.rollback()
+        flash(f'Ошибка при удалении источника: {str(e)}', 'error')
     
     return redirect(url_for('budget.categories'))

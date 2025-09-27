@@ -435,10 +435,17 @@ class BudgetService:
     @staticmethod
     def get_multi_source_links(category_id: int):
         """Get multi-source links for a category."""
-        from .models import CategoryRule, IncomeSource
+        from .models import CategoryRule, IncomeSource, Category
         
+        # First get the category to get user_id
+        category = Category.query.get(category_id)
+        if not category:
+            return []
+            
         rules = (db.session.query(CategoryRule, IncomeSource)
-                .join(IncomeSource, CategoryRule.source_name == IncomeSource.name)
+                .join(IncomeSource, 
+                      db.and_(CategoryRule.source_name == IncomeSource.name,
+                             IncomeSource.user_id == category.user_id))
                 .filter(CategoryRule.category_id == category_id)
                 .all())
         
