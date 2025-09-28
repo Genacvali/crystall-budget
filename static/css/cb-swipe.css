@@ -1,0 +1,285 @@
+/* ===== CRYSTALBUDGET SWIPE ACTIONS ===== */
+/* Свайп-действия для мобильных карточек */
+
+/* ===== SWIPE CONTAINER ===== */
+.cb-swipe {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--cb-radius-md);
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-surface-border);
+  box-shadow: var(--cb-shadow-sm);
+  transition: box-shadow 0.2s ease;
+}
+
+.cb-swipe:hover {
+  box-shadow: var(--cb-shadow-md);
+}
+
+/* ===== SWIPE TRACK (содержимое) ===== */
+.cb-swipe-track {
+  transform: translateX(0);
+  transition: transform 180ms ease;
+  touch-action: pan-y; /* Важно: не блокируем вертикальный скролл */
+  padding: var(--cb-space-4);
+  padding-right: calc(var(--cb-space-4) + 120px); /* Место для панели действий */
+  position: relative;
+  z-index: 1;
+  background: var(--cb-surface);
+}
+
+/* Убираем transition во время свайпа */
+.cb-swipe-track.is-swiping {
+  transition: none;
+}
+
+/* ===== SWIPE ACTIONS PANEL ===== */
+.cb-swipe-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--cb-space-2);
+  padding: 0 var(--cb-space-3);
+  background: linear-gradient(90deg, rgba(0,0,0,0) 0%, var(--cb-surface-hover) 20%, var(--cb-surface-hover) 100%);
+  z-index: 2;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms ease, visibility 180ms ease;
+}
+
+/* Состояние открытой панели */
+.cb-swipe[data-open="true"] .cb-swipe-track {
+  transform: translateX(-120px);
+}
+
+.cb-swipe[data-open="true"] .cb-swipe-actions {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* ===== SWIPE ACTION BUTTONS ===== */
+.cb-swipe-btn {
+  width: var(--cb-hit-zone-md);
+  height: var(--cb-hit-zone-md);
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  font-size: var(--cb-icon-md);
+}
+
+.cb-swipe-btn:focus-visible {
+  outline: 2px solid var(--cb-focus-ring);
+  outline-offset: 2px;
+}
+
+.cb-swipe-btn-edit {
+  background: var(--cb-primary);
+  color: var(--cb-text-inverse);
+}
+
+.cb-swipe-btn-edit:hover {
+  background: var(--cb-primary-hover);
+  transform: scale(1.1);
+}
+
+.cb-swipe-btn-delete {
+  background: var(--cb-danger);
+  color: var(--cb-text-inverse);
+}
+
+.cb-swipe-btn-delete:hover {
+  background: var(--cb-danger-hover);
+  transform: scale(1.1);
+}
+
+/* ===== OVERFLOW MENU BUTTON (⋮) ===== */
+.cb-swipe-menu {
+  position: absolute;
+  top: var(--cb-space-3);
+  right: var(--cb-space-3);
+  width: var(--cb-hit-zone-sm);
+  height: var(--cb-hit-zone-sm);
+  border: none;
+  background: var(--cb-surface-hover);
+  color: var(--cb-text-dim);
+  border-radius: var(--cb-radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  transition: all 0.2s ease;
+  font-size: var(--cb-icon-sm);
+}
+
+.cb-swipe-menu:hover {
+  background: var(--cb-surface-border);
+  color: var(--cb-text);
+}
+
+.cb-swipe-menu:focus-visible {
+  outline: 2px solid var(--cb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ===== CARD CONTENT LAYOUT ===== */
+.cb-swipe-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--cb-space-2);
+}
+
+.cb-swipe-title {
+  font-weight: var(--cb-font-weight-semibold);
+  color: var(--cb-text);
+  margin: 0;
+  font-size: var(--cb-font-size-base);
+}
+
+.cb-swipe-amount {
+  font-weight: var(--cb-font-weight-bold);
+  font-size: var(--cb-font-size-lg);
+  color: var(--cb-text);
+}
+
+.cb-swipe-amount.negative {
+  color: var(--cb-danger);
+}
+
+.cb-swipe-amount.positive {
+  color: var(--cb-success);
+}
+
+.cb-swipe-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--cb-space-3);
+  font-size: var(--cb-font-size-sm);
+  color: var(--cb-text-dim);
+  margin: 0;
+}
+
+.cb-swipe-category {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cb-space-1);
+}
+
+.cb-swipe-date {
+  display: flex;
+  align-items: center;
+  gap: var(--cb-space-1);
+}
+
+/* ===== DESKTOP VERSION (≥992px) ===== */
+@media (min-width: 992px) {
+  /* На десктопе убираем свайп-механизм */
+  .cb-swipe-track {
+    padding-right: var(--cb-space-4);
+    touch-action: auto;
+  }
+  
+  .cb-swipe-actions {
+    position: static;
+    width: auto;
+    opacity: 1;
+    visibility: visible;
+    background: transparent;
+    padding: 0;
+    gap: var(--cb-space-2);
+  }
+  
+  .cb-swipe-menu {
+    display: none; /* Не нужна на десктопе */
+  }
+  
+  /* Меняем layout на горизонтальный */
+  .cb-swipe-main {
+    flex: 1;
+    margin-bottom: 0;
+  }
+  
+  .cb-swipe-track {
+    display: flex;
+    align-items: center;
+    gap: var(--cb-space-4);
+  }
+  
+  .cb-swipe-btn {
+    width: var(--cb-hit-zone-sm);
+    height: var(--cb-hit-zone-sm);
+    border-radius: var(--cb-radius-sm);
+  }
+}
+
+/* ===== MOBILE SPECIFIC (< 992px) ===== */
+@media (max-width: 991.98px) {
+  /* На мобайле скрываем actions пока не свайпнули */
+  .cb-swipe[data-open="false"] .cb-swipe-actions {
+    opacity: 0;
+    visibility: hidden;
+  }
+  
+  /* Индикатор что можно свайпнуть */
+  .cb-swipe::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: var(--cb-space-2);
+    width: 3px;
+    height: 20px;
+    background: linear-gradient(to bottom, transparent 0%, var(--cb-text-muted) 50%, transparent 100%);
+    border-radius: 2px;
+    transform: translateY(-50%);
+    opacity: 0.3;
+    z-index: 1;
+  }
+  
+  .cb-swipe[data-open="true"]::after {
+    opacity: 0;
+  }
+}
+
+/* ===== STATES ===== */
+.cb-swipe[aria-expanded="true"] {
+  z-index: 10; /* Поверх других карточек */
+}
+
+.cb-swipe-actions[aria-hidden="true"] {
+  pointer-events: none;
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  .cb-swipe-track,
+  .cb-swipe-actions,
+  .cb-swipe-btn {
+    transition: none !important;
+  }
+}
+
+/* ===== LOADING STATE ===== */
+.cb-swipe.is-loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.cb-swipe.is-loading .cb-swipe-actions {
+  pointer-events: none;
+}
+
+/* ===== ERROR STATE ===== */
+.cb-swipe.has-error {
+  border-color: var(--cb-danger);
+  background: var(--cb-danger-soft);
+}

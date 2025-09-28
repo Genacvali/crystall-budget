@@ -1,0 +1,297 @@
+{% extends "base.html" %}
+
+{% block cb_components %}
+<link rel="stylesheet" href="{{ versioned_static('css/cb-components-safe.css') }}">
+<link rel="stylesheet" href="{{ versioned_static('css/cb-swipe.css') }}">
+<script type="module" src="{{ versioned_static('js/modules/cb-swipe.js') }}"></script>
+{% endblock %}
+
+{% block title %}Design System Test - CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="container-xl">
+  <div class="row">
+    <div class="col-12">
+      <h1 class="mb-4">🎨 CrystalBudget Design System Test</h1>
+      <p class="text-muted">Тестирование новых компонентов без влияния на остальную систему</p>
+    </div>
+  </div>
+
+  <!-- Hero Test -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="cb-hero">
+        <h2 class="cb-hero-title">💎 Hero Компонент</h2>
+        <p class="cb-hero-subtitle">Тестируем новую дизайн-систему CrystalBudget</p>
+        <div class="cb-hero-actions">
+          <a href="#" class="cb-btn cb-btn-primary">Основная кнопка</a>
+          <a href="#" class="cb-btn cb-btn-secondary">Вторичная кнопка</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons Test -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="cb-card">
+        <h3 class="cb-card-title">🔘 Кнопки</h3>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <button class="cb-btn cb-btn-primary">Primary</button>
+          <button class="cb-btn cb-btn-secondary">Secondary</button>
+          <button class="cb-btn cb-btn-ghost">Ghost</button>
+          <button class="cb-btn cb-btn-destructive">Destructive</button>
+        </div>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <button class="cb-btn cb-btn-sm cb-btn-primary">Small</button>
+          <button class="cb-btn cb-btn-primary">Medium</button>
+          <button class="cb-btn cb-btn-lg cb-btn-primary">Large</button>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="cb-btn cb-btn-icon cb-btn-secondary">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="cb-btn cb-btn-primary">
+            <i class="bi bi-plus"></i>
+            С иконкой
+          </button>
+          <button class="cb-btn cb-btn-primary" disabled>Disabled</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cards Test -->
+  <div class="row mb-5">
+    <div class="col-md-4">
+      <div class="cb-card">
+        <h4 class="cb-card-title">
+          <i class="bi bi-wallet2"></i>
+          Карточка 1
+        </h4>
+        <p>Содержимое первой карточки с базовым стилем.</p>
+        <div class="d-flex gap-2">
+          <button class="cb-btn cb-btn-sm cb-btn-primary">Действие</button>
+          <button class="cb-btn cb-btn-sm cb-btn-ghost">Отмена</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="cb-card">
+        <h4 class="cb-card-title">
+          <i class="bi bi-graph-up"></i>
+          Карточка 2
+        </h4>
+        <p>Вторая карточка для тестирования hover эффектов.</p>
+        <span class="cb-badge cb-badge-success">Активно</span>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="cb-card">
+        <h4 class="cb-card-title">
+          <i class="bi bi-gear"></i>
+          Карточка 3
+        </h4>
+        <p>Третья карточка для проверки сетки.</p>
+        <span class="cb-badge cb-badge-warning">Ожидание</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forms Test -->
+  <div class="row mb-5">
+    <div class="col-md-6">
+      <div class="cb-card">
+        <h4 class="cb-card-title">
+          <i class="bi bi-ui-checks"></i>
+          Формы
+        </h4>
+        <div class="cb-form-group">
+          <label class="cb-label">Название</label>
+          <input type="text" class="cb-input" placeholder="Введите название">
+        </div>
+        <div class="cb-form-group">
+          <label class="cb-label">Сумма</label>
+          <input type="number" class="cb-input" placeholder="0.00">
+        </div>
+        <div class="d-flex gap-2">
+          <button class="cb-btn cb-btn-primary">Сохранить</button>
+          <button class="cb-btn cb-btn-ghost">Отмена</button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="cb-card">
+        <h4 class="cb-card-title">
+          <i class="bi bi-palette"></i>
+          Badges & States
+        </h4>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          <span class="cb-badge cb-badge-primary">Primary</span>
+          <span class="cb-badge cb-badge-success">Success</span>
+          <span class="cb-badge cb-badge-danger">Danger</span>
+          <span class="cb-badge cb-badge-warning">Warning</span>
+        </div>
+        
+        <div class="cb-empty-state">
+          <div class="cb-empty-state-title">Пустое состояние</div>
+          <p>Здесь пока ничего нет</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison with Legacy -->
+  <div class="row mb-5">
+    <div class="col-md-6">
+      <h4>🚀 Новые .cb-* компоненты</h4>
+      <div class="cb-card">
+        <h5 class="cb-card-title">CB Card</h5>
+        <p>Использует новую дизайн-систему</p>
+        <button class="cb-btn cb-btn-primary">CB Button</button>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <h4>📦 Legacy Bootstrap компоненты</h4>
+      <div class="card">
+        <div class="card-body">
+          <h5 class="card-title">Bootstrap Card</h5>
+          <p>Использует старые стили</p>
+          <button class="btn btn-primary">Bootstrap Button</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Swipe Actions Test -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <h4>👆 Свайп-действия (мобильная версия)</h4>
+      <p class="text-muted mb-4">На мобильных устройствах (<992px) свайпните влево для действий. На десктопе кнопки видны сразу.</p>
+      
+      <!-- Swipe Card 1 -->
+      <div class="cb-swipe mb-3" data-open="false" data-item-id="1" data-item-type="expense" aria-expanded="false">
+        <button class="cb-swipe-menu" aria-label="Открыть меню действий">⋮</button>
+        
+        <div class="cb-swipe-track">
+          <div class="cb-swipe-main">
+            <div>
+              <h6 class="cb-swipe-title">Продукты питания</h6>
+              <div class="cb-swipe-meta">
+                <span class="cb-swipe-category">
+                  <i class="bi bi-basket"></i>
+                  Еда
+                </span>
+                <span class="cb-swipe-date">
+                  <i class="bi bi-calendar3"></i>
+                  Сегодня
+                </span>
+              </div>
+            </div>
+            <div class="cb-swipe-amount negative">-1,250 ₽</div>
+          </div>
+        </div>
+        
+        <div class="cb-swipe-actions" aria-hidden="true">
+          <button class="cb-swipe-btn cb-swipe-btn-edit" aria-label="Изменить расход">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="cb-swipe-btn cb-swipe-btn-delete" aria-label="Удалить расход">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Swipe Card 2 -->
+      <div class="cb-swipe mb-3" data-open="false" data-item-id="2" data-item-type="income" aria-expanded="false">
+        <button class="cb-swipe-menu" aria-label="Открыть меню действий">⋮</button>
+        
+        <div class="cb-swipe-track">
+          <div class="cb-swipe-main">
+            <div>
+              <h6 class="cb-swipe-title">Зарплата</h6>
+              <div class="cb-swipe-meta">
+                <span class="cb-swipe-category">
+                  <i class="bi bi-briefcase"></i>
+                  Работа
+                </span>
+                <span class="cb-swipe-date">
+                  <i class="bi bi-calendar3"></i>
+                  1 дек
+                </span>
+              </div>
+            </div>
+            <div class="cb-swipe-amount positive">+85,000 ₽</div>
+          </div>
+        </div>
+        
+        <div class="cb-swipe-actions" aria-hidden="true">
+          <button class="cb-swipe-btn cb-swipe-btn-edit" aria-label="Изменить доход">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="cb-swipe-btn cb-swipe-btn-delete" aria-label="Удалить доход">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Swipe Card 3 -->
+      <div class="cb-swipe mb-3" data-open="false" data-item-id="3" data-item-type="expense" aria-expanded="false">
+        <button class="cb-swipe-menu" aria-label="Открыть меню действий">⋮</button>
+        
+        <div class="cb-swipe-track">
+          <div class="cb-swipe-main">
+            <div>
+              <h6 class="cb-swipe-title">Транспорт</h6>
+              <div class="cb-swipe-meta">
+                <span class="cb-swipe-category">
+                  <i class="bi bi-bus-front"></i>
+                  Метро
+                </span>
+                <span class="cb-swipe-date">
+                  <i class="bi bi-calendar3"></i>
+                  Вчера
+                </span>
+              </div>
+            </div>
+            <div class="cb-swipe-amount negative">-150 ₽</div>
+          </div>
+        </div>
+        
+        <div class="cb-swipe-actions" aria-hidden="true">
+          <button class="cb-swipe-btn cb-swipe-btn-edit" aria-label="Изменить расход">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <button class="cb-swipe-btn cb-swipe-btn-delete" aria-label="Удалить расход">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="alert alert-info">
+        <h6><i class="bi bi-info-circle"></i> Инструкция по тестированию:</h6>
+        <ul class="mb-0">
+          <li><strong>Мобильная версия</strong>: Свайпните карточку влево для действий</li>
+          <li><strong>Десктопная версия</strong>: Кнопки видны справа постоянно</li>
+          <li><strong>Кнопка ⋮</strong>: Альтернативный способ открыть действия</li>
+          <li><strong>Доступность</strong>: Используйте Tab + Enter/Space + Стрелки</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Test -->
+  <div class="row">
+    <div class="col-12">
+      <div class="cb-card">
+        <h4 class="cb-card-title">📱 Адаптивность</h4>
+        <p>Уменьшите окно браузера для проверки адаптивности:</p>
+        <div class="cb-hero-actions">
+          <button class="cb-btn cb-btn-primary cb-btn-mobile-compact">Компактная кнопка</button>
+          <button class="cb-btn cb-btn-secondary cb-btn-mobile-compact">Еще кнопка</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

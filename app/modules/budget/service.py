@@ -79,7 +79,8 @@ class BudgetService:
     
     @staticmethod
     def add_expense(user_id: int, category_id: int, amount: Decimal, 
-                   description: str = None, date_val: date = None, currency: str = None) -> Expense:
+                   description: str = None, date_val: date = None, currency: str = None,
+                   transaction_type: str = 'expense', carryover_from_month: str = None) -> Expense:
         """Add new expense."""
         if date_val is None:
             date_val = datetime.utcnow().date()
@@ -97,7 +98,9 @@ class BudgetService:
             amount=amount,
             description=description,
             date=date_val,
-            currency=currency
+            currency=currency,
+            transaction_type=transaction_type,
+            carryover_from_month=carryover_from_month
         )
         db.session.add(expense)
         db.session.commit()
@@ -406,20 +409,28 @@ class BudgetService:
             else:  # percentage
                 limit = Money(total_income.amount * (category.value / 100), currency)
             
-            remaining = limit - spent_money
+            # Get carryover amounts for this category
+            carryover_info = BudgetService.get_category_carryover_info(user_id, category.id, year_month)
+            
+            # Adjust limit with carryover
+            effective_limit = limit + Money(carryover_info['amount'], currency)
+            
+            remaining = effective_limit - spent_money
             is_overspent = remaining.amount < 0
             
             category_summaries.append({
                 'category': category,
                 'spent': spent_money,
                 'limit': limit,
+                'effective_limit': effective_limit,
+                'carryover': carryover_info,
                 'remaining': remaining,
                 'is_overspent': is_overspent,
-                'percentage_used': (spent_money.amount / limit.amount * 100) if limit.amount > 0 else 0
+                'percentage_used': (spent_money.amount / effective_limit.amount * 100) if effective_limit.amount > 0 else 0
             })
             
             total_spent += spent_money
-            total_limits += limit
+            total_limits += effective_limit
         
         total_remaining = total_income - total_spent
         
@@ -591,3 +602,171 @@ class DashboardService:
             })
         
         return tiles
+    
+    @staticmethod
+    def delete_income_source(source_id: int, user_id: int) -> bool:
+        """Delete income source and all related data."""
+        source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
+        if not source:
+            return False
+        
+        # Delete related category rules
+        from .models import CategoryRule
+        CategoryRule.query.filter_by(source_name=source.name).delete()
+        
+        # Delete related income records
+        Income.query.filter_by(user_id=user_id, source_name=source.name).delete()
+        
+        # Delete the source itself
+        db.session.delete(source)
+        db.session.commit()
+        
+        # Invalidate cache
+        CacheManager.invalidate_budget_cache(user_id)
+        
+        current_app.logger.info(f'Deleted income source {source.name} for user {user_id}')
+        return True
+    
+    @staticmethod
+    def create_carryover(user_id: int, category_id: int, amount: Decimal, 
+                        from_month: YearMonth, to_month: YearMonth, currency: str = 'RUB') -> Expense:
+        """Create a carryover pseudo-transaction."""
+        carryover_description = f"Перенос с {from_month.to_string()}"
+        
+        return BudgetService.add_expense(
+            user_id=user_id,
+            category_id=category_id,
+            amount=amount,
+            description=carryover_description,
+            date_val=to_month.to_date(),
+            currency=currency,
+            transaction_type='carryover',
+            carryover_from_month=from_month.to_string()
+        )
+    
+    @staticmethod
+    def calculate_category_carryover(user_id: int, category_id: int, year_month: YearMonth) -> Decimal:
+        """Calculate carryover amount for a category in given month."""
+        categories = BudgetService.get_user_categories(user_id)
+        category = next((c for c in categories if c.id == category_id), None)
+        if not category:
+            return Decimal('0')
+            
+        # Get total income for percentage-based limits
+        total_income = BudgetService.get_total_income_for_month(user_id, year_month)
+        
+        # Calculate limit
+        if category.limit_type == 'fixed':
+            limit = Money(category.value, 'RUB')  # TODO: user currency
+        else:  # percentage
+            limit = Money(total_income.amount * (category.value / 100), 'RUB')
+        
+        # Get spending summary (excluding carryovers to avoid double counting)
+        start_date = year_month.to_date()
+        end_date = year_month.last_day()
+        
+        total_spent = db.session.query(func.sum(Expense.amount)).filter(
+            Expense.user_id == user_id,
+            Expense.category_id == category_id,
+            Expense.date >= start_date,
+            Expense.date <= end_date,
+            Expense.transaction_type == 'expense'  # Exclude carryovers
+        ).scalar() or Decimal('0')
+        
+        # Calculate balance: positive = remaining, negative = overspent
+        balance = limit.amount - total_spent
+        return balance
+    
+    @staticmethod
+    def process_month_carryovers(user_id: int, from_month: YearMonth, to_month: YearMonth):
+        """Process carryovers when switching from one month to another."""
+        categories = BudgetService.get_user_categories(user_id)
+        
+        # First, remove any existing carryovers for the target month
+        BudgetService.clear_carryovers_for_month(user_id, to_month)
+        
+        for category in categories:
+            balance = BudgetService.calculate_category_carryover(user_id, category.id, from_month)
+            
+            if balance != 0:  # Only create carryover if there's a balance
+                BudgetService.create_carryover(
+                    user_id=user_id,
+                    category_id=category.id,
+                    amount=abs(balance),  # Store as positive amount
+                    from_month=from_month,
+                    to_month=to_month
+                )
+                
+        current_app.logger.info(f'Processed carryovers from {from_month} to {to_month} for user {user_id}')
+    
+    @staticmethod
+    def clear_carryovers_for_month(user_id: int, year_month: YearMonth):
+        """Clear all carryover transactions for a specific month."""
+        start_date = year_month.to_date()
+        end_date = year_month.last_day()
+        
+        carryovers = Expense.query.filter(
+            Expense.user_id == user_id,
+            Expense.date >= start_date,
+            Expense.date <= end_date,
+            Expense.transaction_type == 'carryover'
+        ).all()
+        
+        for carryover in carryovers:
+            db.session.delete(carryover)
+        
+        db.session.commit()
+        
+        # Invalidate cache
+        CacheManager.invalidate_budget_cache(user_id, year_month)
+    
+    @staticmethod
+    def get_category_carryover_info(user_id: int, category_id: int, year_month: YearMonth) -> Dict:
+        """Get carryover information for a category in given month."""
+        start_date = year_month.to_date()
+        end_date = year_month.last_day()
+        
+        # Get carryover transactions for this category in this month
+        carryovers = Expense.query.filter(
+            Expense.user_id == user_id,
+            Expense.category_id == category_id,
+            Expense.date >= start_date,
+            Expense.date <= end_date,
+            Expense.transaction_type == 'carryover'
+        ).all()
+        
+        total_carryover = Decimal('0')
+        carryover_details = []
+        
+        for carryover in carryovers:
+            # Determine if this is positive (remaining) or negative (overspent) carryover
+            # We need to check the previous month's balance to determine the sign
+            from_month_str = carryover.carryover_from_month
+            if from_month_str:
+                from_month = YearMonth.from_string(from_month_str)
+                previous_balance = BudgetService.calculate_category_carryover(user_id, category_id, from_month)
+                
+                # If previous balance was positive (remaining), carryover increases limit
+                # If previous balance was negative (overspent), carryover decreases limit
+                if previous_balance > 0:
+                    total_carryover += carryover.amount
+                    carryover_details.append({
+                        'type': 'remaining',
+                        'amount': carryover.amount,
+                        'from_month': from_month_str,
+                        'description': carryover.description
+                    })
+                else:
+                    total_carryover -= carryover.amount
+                    carryover_details.append({
+                        'type': 'overspent',
+                        'amount': carryover.amount,
+                        'from_month': from_month_str,
+                        'description': carryover.description
+                    })
+        
+        return {
+            'amount': total_carryover,
+            'has_carryover': len(carryovers) > 0,
+            'details': carryover_details
+        }

@@ -50,3 +50,6 @@ nginx-*-temp.conf
 init_db.py
 budget-2025-09-18-181522.bak
 admin_panel/admin_panel.pid
+DESIGN_SYSTEM_MIGRATION.md
+DESIGN_SYSTEM_STABILIZED.md
+SWIPE_ACTIONS_IMPLEMENTATION.md

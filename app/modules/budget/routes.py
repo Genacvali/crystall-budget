@@ -10,6 +10,12 @@ from .models import Category, Expense, Income, IncomeSource
 from . import budget_bp
 
 
+@budget_bp.route('/design-test')
+def design_system_test():
+    """Design system test page (temporary)."""
+    return render_template('design-system-test.html')
+
+
 @budget_bp.route('/')
 @login_required
 def dashboard():
@@ -22,6 +28,14 @@ def dashboard():
         year_month = parse_year_month(ym_param) if ym_param else YearMonth.current()
     except ValueError:
         year_month = YearMonth.current()
+    
+    # Check if we need to process carryovers for month transitions
+    current_month = YearMonth.current()
+    if ym_param and year_month != current_month:
+        # User is navigating to a different month
+        # Check if carryovers need to be created for the target month
+        prev_month = year_month.prev_month()
+        BudgetService.process_month_carryovers(user_id, prev_month, year_month)
     
     # Get budget snapshot for the month
     snapshot = BudgetService.calculate_month_snapshot(user_id, year_month)
@@ -674,5 +688,19 @@ def remove_source_from_category(cat_id, source_id):
         from app.core.extensions import db
         db.session.rollback()
         flash(f'Ошибка при удалении источника: {str(e)}', 'error')
+    
+    return redirect(url_for('budget.categories'))
+
+
+@budget_bp.route('/income-sources/delete/<int:source_id>', methods=['POST'])
+@login_required
+def delete_income_source(source_id):
+    """Delete income source."""
+    user_id = session['user_id']
+    
+    if BudgetService.delete_income_source(source_id, user_id):
+        flash('Источник дохода удален', 'success')
+    else:
+        flash('Источник дохода не найден', 'error')
     
     return redirect(url_for('budget.categories'))

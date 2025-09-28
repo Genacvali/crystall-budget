@@ -25,7 +25,12 @@
       "Bash(BUDGET_DB=\"sqlite:///instance/budget.db\" flask db-cli init-db)",
       "Bash(BUDGET_DB=\"instance/budget.db\" flask db-cli init-db)",
       "Bash(git commit:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(PORT=5030 FLASK_ENV=development python app.py)",
+      "Bash(flask budget-cli:*)",
+      "Bash(flask user-cli:*)",
+      "Bash(flask dev-cli create-test-expenses:*)",
+      "Bash(BUDGET_DB=\"sqlite:///budget.db\" flask db-cli init-db)"
     ],
     "deny": [],
     "ask": []

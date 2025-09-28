@@ -32,21 +32,26 @@
       {% set category = cat_summary.category %}
       {% set spent_money = cat_summary.spent %}
       {% set limit_money = cat_summary.limit %}
+      {% set effective_limit_money = cat_summary.effective_limit %}
       {% set remaining_money = cat_summary.remaining %}
+      {% set carryover_info = cat_summary.carryover %}
       
       {% set base_limit = limit_money.amount|float %}
       {% set spent = spent_money.amount|float %}
-      {% set avail_limit = base_limit %}
+      {% set avail_limit = effective_limit_money.amount|float %}
       {% set rest = remaining_money.amount|float %}
 
       {% if avail_limit > 0 %}
         {% set progress_raw = spent / avail_limit * 100 %}
+      {% elif avail_limit < 0 %}
+        {# Negative effective limit due to carryover debt #}
+        {% set progress_raw = 100 + (spent / abs(avail_limit) * 100) %}
       {% else %}
         {% set progress_raw = (spent > 0) and 100 or 0 %}
       {% endif %}
 
       {% set progress = progress_raw|round(1) %}
-      {% set bar_width = [progress_raw, 100]|min|round(1) %}
+      {% set bar_width = [progress_raw, 150]|min|round(1) %} {# Allow bar to exceed 100% for overspent categories #}
 
       <article class="cat ff-item"
                data-id="{{ category.id }}"
@@ -67,6 +72,18 @@
             {% else %}
               Фикс <span class="limit">{{ base_limit|format_amount }}</span> ₽
             {% endif %}
+            {% if carryover_info.has_carryover %}
+              <br><small class="carryover-info text-muted">
+                {% for detail in carryover_info.details %}
+                  {% if detail.type == 'remaining' %}
+                    <span class="text-success">+{{ detail.amount|format_amount }} ₽</span> из {{ detail.from_month }}
+                  {% else %}
+                    <span class="text-danger">-{{ detail.amount|format_amount }} ₽</span> из {{ detail.from_month }}
+                  {% endif %}
+                  {% if not loop.last %}, {% endif %}
+                {% endfor %}
+              </small>
+            {% endif %}
           </div>
         </div>
 
@@ -77,7 +94,7 @@
             <span class="cat-right"><span class="limit muted mono">{{ avail_limit|format_amount }}</span> ₽</span>
           </div>
           <div class="ff-track" role="meter" aria-valuemin="0" aria-valuenow="{{ progress|round }}" aria-valuemax="100">
-            <div class="ff-bar" style="width: {{ [bar_width, 100]|min }}%; --bar-color: {% if progress_raw < 50 %}var(--ok){% elif progress_raw < 85 %}var(--warn){% else %}var(--bad){% endif %}"></div>
+            <div class="ff-bar" style="width: {{ bar_width }}%; --bar-color: {% if avail_limit < 0 %}var(--danger){% elif progress_raw >= 100 %}var(--bad){% elif progress_raw >= 85 %}var(--warn){% elif progress_raw >= 50 %}var(--caution){% else %}var(--ok){% endif %}"></div>
           </div>
           <div class="ff-meta">Остаток: <span class="rest {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">{{ rest|format_amount }}</span> ₽</div>
         </div>

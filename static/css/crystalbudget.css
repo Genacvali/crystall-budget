@@ -1,0 +1,466 @@
+/* ===== CRYSTALBUDGET DESIGN SYSTEM ===== */
+/* Единая дизайн-система для CrystalBudget */
+/* Версия: 1.0.0 */
+
+/* Подключаем дизайн-токены первыми */
+@import 'design-tokens.css';
+
+/* Затем компоненты */
+@import 'components.css';
+
+/* И адаптивные стили */
+@import 'responsive.css';
+
+/* ===== PAGE LAYOUT ===== */
+/* Единый каркас для всех страниц */
+
+#main-content {
+  min-height: 100vh;
+  padding: var(--cb-space-5) 0;
+}
+
+.page-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--cb-space-4);
+}
+
+/* Заголовки страниц */
+.page-header {
+  margin-bottom: var(--cb-space-6);
+  text-align: center;
+}
+
+.page-title {
+  font-size: var(--cb-font-size-3xl);
+  font-weight: var(--cb-font-weight-bold);
+  color: var(--cb-text);
+  margin: 0 0 var(--cb-space-2) 0;
+}
+
+.page-subtitle {
+  font-size: var(--cb-font-size-lg);
+  color: var(--cb-text-dim);
+  margin: 0;
+}
+
+/* ===== NAVIGATION OVERRIDES ===== */
+/* Стандартизируем навигацию */
+
+.topbar,
+.navbar,
+.nav-container {
+  background: var(--cb-surface-soft);
+  border: 1px solid var(--cb-surface-border);
+  border-radius: var(--cb-radius-full);
+  padding: var(--cb-space-2);
+  display: flex;
+  align-items: center;
+  gap: var(--cb-space-3);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: var(--cb-space-4);
+  z-index: var(--cb-z-sticky);
+  margin-bottom: var(--cb-space-6);
+}
+
+.brand,
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--cb-space-2);
+  padding: var(--cb-space-2) var(--cb-space-3);
+  text-decoration: none;
+  color: var(--cb-text);
+  font-weight: var(--cb-font-weight-semibold);
+}
+
+.brand:hover,
+.navbar-brand:hover {
+  color: var(--cb-primary);
+}
+
+.brand-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--cb-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--cb-primary), var(--cb-info));
+  color: white;
+}
+
+/* ===== LEGACY COMPATIBILITY ===== */
+/* Обеспечиваем совместимость с существующими классами */
+
+/* Bootstrap compatibility */
+.container-xl {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--cb-space-4);
+}
+
+.card {
+  @extend .cb-card;
+}
+
+.btn {
+  @extend .cb-btn;
+}
+
+.btn-primary {
+  @extend .cb-btn-primary;
+}
+
+.btn-secondary {
+  @extend .cb-btn-secondary;
+}
+
+.btn-success {
+  @extend .cb-btn-success;
+}
+
+.btn-danger {
+  @extend .cb-btn-destructive;
+}
+
+.btn-warning {
+  @extend .cb-btn-warning;
+}
+
+.form-control {
+  @extend .cb-input;
+}
+
+.form-label {
+  @extend .cb-label;
+}
+
+.form-group {
+  @extend .cb-form-group;
+}
+
+.table {
+  @extend .cb-table;
+}
+
+.modal {
+  @extend .cb-modal;
+}
+
+.modal-dialog {
+  @extend .cb-modal-dialog;
+}
+
+.modal-header {
+  @extend .cb-modal-header;
+}
+
+.modal-body {
+  @extend .cb-modal-body;
+}
+
+.modal-footer {
+  @extend .cb-modal-footer;
+}
+
+.nav {
+  @extend .cb-nav-tabs;
+}
+
+.nav-link {
+  @extend .cb-nav-tab;
+}
+
+.nav-link.active {
+  @extend .cb-nav-tab.active;
+}
+
+.dropdown-menu {
+  @extend .cb-dropdown-menu;
+}
+
+.dropdown-item {
+  @extend .cb-dropdown-item;
+}
+
+.badge {
+  @extend .cb-badge;
+}
+
+.badge-primary {
+  @extend .cb-badge-primary;
+}
+
+.badge-success {
+  @extend .cb-badge-success;
+}
+
+.badge-danger {
+  @extend .cb-badge-danger;
+}
+
+.badge-warning {
+  @extend .cb-badge-warning;
+}
+
+/* ===== COMPONENT STANDARDIZATION ===== */
+/* Переопределяем компоненты для единообразия */
+
+/* Все карточки используют единую систему */
+.expense-card,
+.income-card,
+.category-card,
+.goal-card,
+.dashboard-card {
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-surface-border);
+  border-radius: var(--cb-radius-md);
+  box-shadow: var(--cb-shadow-sm);
+  padding: var(--cb-space-4);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.expense-card:hover,
+.income-card:hover,
+.category-card:hover,
+.goal-card:hover,
+.dashboard-card:hover {
+  box-shadow: var(--cb-shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Все кнопки действий используют единую систему */
+.action-btn,
+.edit-btn,
+.delete-btn,
+.add-btn,
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--cb-space-2);
+  height: var(--cb-hit-zone-md);
+  padding: 0 var(--cb-space-4);
+  font-size: var(--cb-font-size-base);
+  font-weight: var(--cb-font-weight-medium);
+  border: 1px solid transparent;
+  border-radius: var(--cb-radius-sm);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.add-btn,
+.save-btn {
+  background: var(--cb-primary);
+  color: var(--cb-text-inverse);
+  border-color: var(--cb-primary);
+}
+
+.add-btn:hover,
+.save-btn:hover {
+  background: var(--cb-primary-hover);
+  border-color: var(--cb-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--cb-shadow-sm);
+}
+
+.edit-btn,
+.action-btn {
+  background: var(--cb-surface);
+  color: var(--cb-text);
+  border-color: var(--cb-surface-border);
+}
+
+.edit-btn:hover,
+.action-btn:hover {
+  background: var(--cb-surface-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--cb-shadow-sm);
+}
+
+.delete-btn {
+  background: var(--cb-danger);
+  color: var(--cb-text-inverse);
+  border-color: var(--cb-danger);
+}
+
+.delete-btn:hover {
+  background: var(--cb-danger-hover);
+  border-color: var(--cb-danger-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--cb-shadow-sm);
+}
+
+/* Все формы используют единую систему */
+.expense-form,
+.income-form,
+.category-form,
+.goal-form,
+.auth-form {
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-surface-border);
+  border-radius: var(--cb-radius-md);
+  box-shadow: var(--cb-shadow-sm);
+  padding: var(--cb-space-6);
+}
+
+.expense-form input,
+.income-form input,
+.category-form input,
+.goal-form input,
+.auth-form input,
+.expense-form select,
+.income-form select,
+.category-form select,
+.goal-form select,
+.auth-form select {
+  width: 100%;
+  height: var(--cb-hit-zone-md);
+  padding: 0 var(--cb-space-3);
+  font-size: var(--cb-font-size-base);
+  color: var(--cb-text);
+  background: var(--cb-surface);
+  border: 1px solid var(--cb-surface-border);
+  border-radius: var(--cb-radius-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.expense-form input:focus,
+.income-form input:focus,
+.category-form input:focus,
+.goal-form input:focus,
+.auth-form input:focus,
+.expense-form select:focus,
+.income-form select:focus,
+.category-form select:focus,
+.goal-form select:focus,
+.auth-form select:focus {
+  outline: none;
+  border-color: var(--cb-primary);
+  box-shadow: 0 0 0 3px var(--cb-focus-ring);
+}
+
+/* ===== THEME INTEGRATION ===== */
+/* Обеспечиваем правильную работу тем */
+
+html[data-bs-theme="light"] {
+  color-scheme: light;
+}
+
+html[data-bs-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+/* Улучшенная доступность для всех компонентов */
+
+/* Улучшенный фокус */
+*:focus-visible {
+  outline: 2px solid var(--cb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Улучшенные размеры хит-зон */
+button,
+a,
+input,
+select,
+textarea,
+[role="button"],
+[tabindex="0"] {
+  min-height: var(--cb-hit-zone-md);
+  min-width: var(--cb-hit-zone-md);
+}
+
+/* Улучшенная читаемость */
+p,
+li,
+td,
+th {
+  line-height: var(--cb-line-height-normal);
+}
+
+/* ===== Z-INDEX MANAGEMENT ===== */
+/* Управление слоями для правильного отображения */
+
+.dropdown-menu,
+.calendar-popup,
+.datepicker {
+  z-index: var(--cb-z-dropdown);
+}
+
+.modal,
+.modal-backdrop {
+  z-index: var(--cb-z-modal);
+}
+
+.toast,
+.alert-fixed {
+  z-index: var(--cb-z-toast);
+}
+
+.navbar,
+.topbar,
+.sticky-header {
+  z-index: var(--cb-z-sticky);
+}
+
+/* ===== UTILITY CLASSES ===== */
+/* Дополнительные утилиты для быстрого развития */
+
+.cb-visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.cb-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: var(--cb-primary);
+  color: var(--cb-text-inverse);
+  padding: var(--cb-space-2) var(--cb-space-4);
+  border-radius: var(--cb-radius-sm);
+  text-decoration: none;
+  transition: top 0.3s;
+  z-index: 9999;
+}
+
+.cb-skip-link:focus {
+  top: 6px;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .cb-no-print,
+  .btn,
+  .cb-btn,
+  .navbar,
+  .topbar {
+    display: none !important;
+  }
+  
+  .cb-card,
+  .expense-card,
+  .income-card,
+  .category-card,
+  .goal-card {
+    box-shadow: none !important;
+    border: 1px solid #000 !important;
+  }
+  
+  .page-wrap {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+}

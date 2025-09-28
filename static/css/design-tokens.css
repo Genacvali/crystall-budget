@@ -1,0 +1,285 @@
+/* ===== CRYSTALBUDGET DESIGN TOKENS ===== */
+/* Единые токены для всех компонентов и страниц */
+
+:root {
+  /* ===== BREAKPOINTS ===== */
+  --cb-breakpoint-sm: 576px;
+  --cb-breakpoint-md: 768px; 
+  --cb-breakpoint-lg: 992px;
+  --cb-breakpoint-xl: 1200px;
+  --cb-breakpoint-xxl: 1400px;
+
+  /* ===== SPACING SCALE ===== */
+  --cb-space-1: 4px;   /* 0.25rem */
+  --cb-space-2: 8px;   /* 0.5rem */
+  --cb-space-3: 12px;  /* 0.75rem */
+  --cb-space-4: 16px;  /* 1rem */
+  --cb-space-5: 20px;  /* 1.25rem */
+  --cb-space-6: 24px;  /* 1.5rem */
+  --cb-space-8: 32px;  /* 2rem */
+  --cb-space-10: 40px; /* 2.5rem */
+  --cb-space-12: 48px; /* 3rem */
+
+  /* ===== BORDER RADIUS ===== */
+  --cb-radius-sm: 4px;   /* Кнопки */
+  --cb-radius-md: 8px;   /* Карточки */
+  --cb-radius-lg: 12px;  /* Большие элементы */
+  --cb-radius-xl: 16px;  /* Hero блоки */
+  --cb-radius-full: 999px; /* Аватары, badges */
+
+  /* ===== SHADOWS ===== */
+  --cb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --cb-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+  --cb-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.16);
+  --cb-shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.20);
+
+  /* ===== TYPOGRAPHY SCALE ===== */
+  --cb-font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --cb-font-size-xs: 0.75rem;   /* 12px */
+  --cb-font-size-sm: 0.875rem;  /* 14px */
+  --cb-font-size-base: 1rem;    /* 16px */
+  --cb-font-size-lg: 1.125rem;  /* 18px */
+  --cb-font-size-xl: 1.25rem;   /* 20px */
+  --cb-font-size-2xl: 1.5rem;   /* 24px */
+  --cb-font-size-3xl: 1.875rem; /* 30px */
+  --cb-font-size-4xl: 2.25rem;  /* 36px */
+
+  --cb-font-weight-normal: 400;
+  --cb-font-weight-medium: 500;
+  --cb-font-weight-semibold: 600;
+  --cb-font-weight-bold: 700;
+
+  --cb-line-height-tight: 1.25;
+  --cb-line-height-normal: 1.5;
+  --cb-line-height-relaxed: 1.75;
+
+  /* ===== ICON SIZES ===== */
+  --cb-icon-xs: 12px;
+  --cb-icon-sm: 16px;
+  --cb-icon-md: 20px;
+  --cb-icon-lg: 24px;
+  --cb-icon-xl: 32px;
+
+  /* ===== HIT ZONES ===== */
+  --cb-hit-zone-sm: 32px;  /* Мелкие элементы */
+  --cb-hit-zone-md: 44px;  /* Основные кнопки и поля */
+  --cb-hit-zone-lg: 48px;  /* Крупные элементы */
+
+  /* ===== Z-INDEX SCALE ===== */
+  --cb-z-dropdown: 1050;
+  --cb-z-sticky: 1040;
+  --cb-z-modal: 1060;
+  --cb-z-toast: 1070;
+}
+
+/* ===== LIGHT THEME COLORS ===== */
+:root[data-bs-theme="light"] {
+  /* Primary colors */
+  --cb-primary: #0d6efd;
+  --cb-primary-hover: #0b5ed7;
+  --cb-primary-active: #0a58ca;
+  
+  /* Surface colors */
+  --cb-surface: #ffffff;
+  --cb-surface-soft: rgba(255, 255, 255, 0.95);
+  --cb-surface-hover: rgba(0, 24, 64, 0.05);
+  --cb-surface-border: #e3e9f3;
+  
+  /* Text colors */
+  --cb-text: #1e2732;
+  --cb-text-dim: #647089;
+  --cb-text-muted: #9ca3af;
+  --cb-text-inverse: #ffffff;
+  
+  /* Status colors */
+  --cb-success: #198754;
+  --cb-success-hover: #157347;
+  --cb-success-soft: rgba(25, 135, 84, 0.1);
+  
+  --cb-danger: #dc3545;
+  --cb-danger-hover: #bb2d3b;
+  --cb-danger-soft: rgba(220, 53, 69, 0.1);
+  
+  --cb-warning: #fd7e14;
+  --cb-warning-hover: #e8681b;
+  --cb-warning-soft: rgba(253, 126, 20, 0.1);
+  
+  --cb-info: #0dcaf0;
+  --cb-info-hover: #31d2f2;
+  --cb-info-soft: rgba(13, 202, 240, 0.1);
+
+  /* Background */
+  --cb-bg: #f4f7fb;
+  --cb-bg-gradient: radial-gradient(1200px 700px at 80% -10%, rgba(13, 110, 253, 0.08), transparent 60%),
+                    radial-gradient(800px 500px at -10% 0%, rgba(13, 202, 240, 0.08), transparent 60%),
+                    var(--cb-bg);
+
+  /* Focus and interaction */
+  --cb-focus-ring: rgba(13, 110, 253, 0.25);
+  --cb-border: #e3e9f3;
+  --cb-border-light: #f1f5f9;
+
+  /* Shadow overrides for light theme */
+  --cb-shadow-sm: 0 2px 8px rgba(30, 51, 82, 0.08);
+  --cb-shadow-md: 0 4px 16px rgba(30, 51, 82, 0.12);
+  --cb-shadow-lg: 0 8px 24px rgba(30, 51, 82, 0.16);
+  --cb-shadow-xl: 0 12px 32px rgba(30, 51, 82, 0.20);
+}
+
+/* ===== DARK THEME COLORS ===== */
+:root[data-bs-theme="dark"] {
+  /* Primary colors */
+  --cb-primary: #3b82f6;
+  --cb-primary-hover: #2563eb;
+  --cb-primary-active: #1d4ed8;
+  
+  /* Surface colors */
+  --cb-surface: #0b1020;
+  --cb-surface-soft: #121a28;
+  --cb-surface-hover: rgba(255, 255, 255, 0.05);
+  --cb-surface-border: rgba(255, 255, 255, 0.1);
+  
+  /* Text colors */
+  --cb-text: #e7ecf3;
+  --cb-text-dim: #b9c2d0;
+  --cb-text-muted: #6b7280;
+  --cb-text-inverse: #0f1420;
+  
+  /* Status colors */
+  --cb-success: #22c55e;
+  --cb-success-hover: #16a34a;
+  --cb-success-soft: rgba(34, 197, 94, 0.15);
+  
+  --cb-danger: #ef4444;
+  --cb-danger-hover: #dc2626;
+  --cb-danger-soft: rgba(239, 68, 68, 0.15);
+  
+  --cb-warning: #f59e0b;
+  --cb-warning-hover: #d97706;
+  --cb-warning-soft: rgba(245, 158, 11, 0.15);
+  
+  --cb-info: #22d3ee;
+  --cb-info-hover: #06b6d4;
+  --cb-info-soft: rgba(34, 211, 238, 0.15);
+
+  /* Background */
+  --cb-bg: #0f1420;
+  --cb-bg-gradient: radial-gradient(1200px 700px at 80% -10%, rgba(59, 130, 246, 0.15), transparent 60%),
+                    radial-gradient(800px 500px at -10% 0%, rgba(34, 211, 238, 0.15), transparent 60%),
+                    var(--cb-bg);
+
+  /* Focus and interaction */
+  --cb-focus-ring: rgba(59, 130, 246, 0.5);
+  --cb-border: rgba(255, 255, 255, 0.1);
+  --cb-border-light: rgba(255, 255, 255, 0.05);
+
+  /* Shadow overrides for dark theme */
+  --cb-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --cb-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --cb-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --cb-shadow-xl: 0 12px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* ===== BASE STYLES ===== */
+body {
+  font-family: var(--cb-font-family);
+  font-size: var(--cb-font-size-base);
+  line-height: var(--cb-line-height-normal);
+  font-weight: var(--cb-font-weight-normal);
+  color: var(--cb-text);
+  background: var(--cb-bg-gradient);
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== TYPOGRAPHY CLASSES ===== */
+.cb-text-xs { font-size: var(--cb-font-size-xs); }
+.cb-text-sm { font-size: var(--cb-font-size-sm); }
+.cb-text-base { font-size: var(--cb-font-size-base); }
+.cb-text-lg { font-size: var(--cb-font-size-lg); }
+.cb-text-xl { font-size: var(--cb-font-size-xl); }
+.cb-text-2xl { font-size: var(--cb-font-size-2xl); }
+.cb-text-3xl { font-size: var(--cb-font-size-3xl); }
+.cb-text-4xl { font-size: var(--cb-font-size-4xl); }
+
+.cb-font-normal { font-weight: var(--cb-font-weight-normal); }
+.cb-font-medium { font-weight: var(--cb-font-weight-medium); }
+.cb-font-semibold { font-weight: var(--cb-font-weight-semibold); }
+.cb-font-bold { font-weight: var(--cb-font-weight-bold); }
+
+.cb-leading-tight { line-height: var(--cb-line-height-tight); }
+.cb-leading-normal { line-height: var(--cb-line-height-normal); }
+.cb-leading-relaxed { line-height: var(--cb-line-height-relaxed); }
+
+.cb-text-primary { color: var(--cb-primary); }
+.cb-text-dim { color: var(--cb-text-dim); }
+.cb-text-muted { color: var(--cb-text-muted); }
+.cb-text-success { color: var(--cb-success); }
+.cb-text-danger { color: var(--cb-danger); }
+.cb-text-warning { color: var(--cb-warning); }
+.cb-text-info { color: var(--cb-info); }
+
+/* ===== SPACING UTILITIES ===== */
+.cb-space-1 { gap: var(--cb-space-1); }
+.cb-space-2 { gap: var(--cb-space-2); }
+.cb-space-3 { gap: var(--cb-space-3); }
+.cb-space-4 { gap: var(--cb-space-4); }
+.cb-space-5 { gap: var(--cb-space-5); }
+.cb-space-6 { gap: var(--cb-space-6); }
+.cb-space-8 { gap: var(--cb-space-8); }
+.cb-space-10 { gap: var(--cb-space-10); }
+.cb-space-12 { gap: var(--cb-space-12); }
+
+/* ===== LAYOUT UTILITIES ===== */
+.cb-page-wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--cb-space-5);
+}
+
+.cb-container {
+  width: 100%;
+  max-width: var(--cb-breakpoint-xl);
+  margin: 0 auto;
+  padding-left: var(--cb-space-4);
+  padding-right: var(--cb-space-4);
+}
+
+/* ===== FOCUS UTILITIES ===== */
+.cb-focus {
+  outline: 2px solid var(--cb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Ensure all interactive elements have proper focus styles */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--cb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ===== ACCESSIBILITY ===== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  :root {
+    --cb-shadow-sm: none;
+    --cb-shadow-md: none;
+    --cb-shadow-lg: none;
+    --cb-shadow-xl: none;
+  }
+  
+  .cb-no-print {
+    display: none !important;
+  }
+}

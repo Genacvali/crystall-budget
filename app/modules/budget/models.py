@@ -58,6 +58,8 @@ class Expense(db.Model):
     description = db.Column(db.Text)
     date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     currency = db.Column(db.String(3), default='RUB')
+    transaction_type = db.Column(db.String(20), default='expense')  # 'expense', 'carryover'
+    carryover_from_month = db.Column(db.String(7), nullable=True)  # YYYY-MM format for carryover tracking
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def __repr__(self):
@@ -67,6 +69,16 @@ class Expense(db.Model):
     def money_amount(self):
         """Get amount as Money object."""
         return Money(self.amount, self.currency)
+    
+    @property
+    def is_carryover(self):
+        """Check if this is a carryover transaction."""
+        return self.transaction_type == 'carryover'
+    
+    @property
+    def is_expense(self):
+        """Check if this is a regular expense."""
+        return self.transaction_type == 'expense'
 
 
 class Income(db.Model):

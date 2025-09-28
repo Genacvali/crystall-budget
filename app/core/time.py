@@ -12,6 +12,10 @@ class YearMonth(NamedTuple):
     def __str__(self) -> str:
         return f"{self.year}-{self.month:02d}"
     
+    def to_string(self) -> str:
+        """Convert to string format."""
+        return str(self)
+    
     @classmethod
     def current(cls) -> 'YearMonth':
         """Get current year-month."""

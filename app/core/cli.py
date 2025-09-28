@@ -55,6 +55,58 @@ def sync_currencies(user_id):
     click.echo("✓ Currency sync completed (placeholder)")
 
 
+@budget_cli.command()
+@click.option('--user-id', type=int, required=True, help='User ID')
+@click.option('--from-month', help='From month (YYYY-MM)')
+@click.option('--to-month', help='To month (YYYY-MM)')
+@with_appcontext
+def process_carryovers(user_id, from_month, to_month):
+    """Process carryovers from one month to another."""
+    try:
+        from app.core.time import parse_year_month
+        
+        # Check if user exists
+        user = User.query.get(user_id)
+        if not user:
+            click.echo(f"Error: User {user_id} not found")
+            return
+        
+        # Parse months
+        if from_month:
+            from_ym = parse_year_month(from_month)
+        else:
+            from_ym = YearMonth.current().prev_month()
+            
+        if to_month:
+            to_ym = parse_year_month(to_month)
+        else:
+            to_ym = YearMonth.current()
+        
+        # Process carryovers
+        BudgetService.process_month_carryovers(user_id, from_ym, to_ym)
+        
+        click.echo(f"✓ Processed carryovers for user {user_id} ({user.name})")
+        click.echo(f"  From: {from_ym}")
+        click.echo(f"  To: {to_ym}")
+        
+        # Show summary of carryovers created
+        categories = BudgetService.get_user_categories(user_id)
+        carryover_count = 0
+        total_carryover = Decimal('0')
+        
+        for category in categories:
+            carryover_info = BudgetService.get_category_carryover_info(user_id, category.id, to_ym)
+            if carryover_info['has_carryover']:
+                carryover_count += 1
+                total_carryover += abs(carryover_info['amount'])
+                click.echo(f"  {category.name}: {carryover_info['amount']} ₽")
+        
+        click.echo(f"Total categories with carryovers: {carryover_count}")
+        
+    except Exception as e:
+        click.echo(f"Error: {e}")
+
+
 @click.group()
 def user_cli():
     """User management commands."""
