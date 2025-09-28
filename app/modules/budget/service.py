@@ -2,7 +2,7 @@
 from typing import List, Dict, Optional, Tuple
 from decimal import Decimal
 from datetime import datetime, date
-from sqlalchemy import func, extract
+from sqlalchemy import func, extract, text
 from flask import current_app
 from app.core.extensions import db
 from app.core.money import Money, SUPPORTED_CURRENCIES, get_user_currency
@@ -78,37 +78,112 @@ class BudgetService:
         return True
     
     @staticmethod
-    def add_expense(user_id: int, category_id: int, amount: Decimal, 
+    def add_expense(user_id: int, category_id: int, amount: Decimal,
                    description: str = None, date_val: date = None, currency: str = None,
                    transaction_type: str = 'expense', carryover_from_month: str = None) -> Expense:
-        """Add new expense."""
+        """Add new expense with backward-compatibility for legacy schemas.
+
+        Some existing SQLite databases still have a NOT NULL 'month' column on the 'expenses' table
+        (legacy monolith). Our current ORM model does not include that column. To avoid 500 errors
+        like 'NOT NULL constraint failed: expenses.month', we introspect the table schema and
+        perform a raw INSERT that includes exactly the columns present in the database. This works
+        both for the new schema (no 'month' column) and for legacy schemas (with 'month', and
+        possibly without 'transaction_type' or 'carryover_from_month').
+        """
         if date_val is None:
             date_val = datetime.utcnow().date()
-        
+
         # Get currency with fallback for outside request context
         if currency is None:
             try:
                 currency = get_user_currency()
             except RuntimeError:
                 currency = 'RUB'
-        
-        expense = Expense(
-            user_id=user_id,
-            category_id=category_id,
-            amount=amount,
-            description=description,
-            date=date_val,
-            currency=currency,
-            transaction_type=transaction_type,
-            carryover_from_month=carryover_from_month
-        )
-        db.session.add(expense)
-        db.session.commit()
-        
-        # Invalidate cache for that month
+
+        # Introspect current 'expenses' table columns
+        def _get_expenses_columns() -> set:
+            try:
+                rows = db.session.execute(text("PRAGMA table_info(expenses)")).fetchall()
+                return {row[1] for row in rows}  # row[1] is 'name'
+            except Exception as e:
+                current_app.logger.warning(f"Could not introspect expenses table schema: {e}")
+                # Fallback: assume modern columns
+                return {
+                    'id', 'user_id', 'category_id', 'amount', 'description',
+                    'date', 'currency', 'transaction_type', 'carryover_from_month', 'created_at'
+                }
+
+        columns = _get_expenses_columns()
+
+        # Build insert payload
         year_month = YearMonth.from_date(date_val)
+        month_string = year_month.to_string()
+
+        base_values = {
+            'user_id': user_id,
+            'category_id': category_id,
+            'amount': amount,
+            'description': description,
+            'date': date_val,
+            'currency': currency,
+            'transaction_type': transaction_type,
+            'carryover_from_month': carryover_from_month,
+            'created_at': datetime.utcnow(),
+            'month': month_string,  # only used if column exists
+        }
+
+        # Determine which columns we will insert (intersection with actual table)
+        preferred_order = [
+            'user_id', 'category_id', 'amount', 'description', 'date', 'currency',
+            'transaction_type', 'carryover_from_month', 'created_at', 'month'
+        ]
+        insert_cols = [c for c in preferred_order if c in columns]
+        insert_params = {c: base_values[c] for c in insert_cols}
+
+        try:
+            # Use raw INSERT to satisfy legacy constraints if needed
+            placeholders = ", ".join(f":{c}" for c in insert_cols)
+            col_list = ", ".join(insert_cols)
+            db.session.execute(
+                text(f"INSERT INTO expenses ({col_list}) VALUES ({placeholders})"),
+                insert_params
+            )
+            db.session.commit()
+
+            # Retrieve last inserted id (SQLite)
+            try:
+                new_id = db.session.execute(text("SELECT last_insert_rowid()")).scalar()
+            except Exception:
+                # Generic fallback if last_insert_rowid is not available
+                new_id = db.session.execute(text("SELECT id FROM expenses ORDER BY id DESC LIMIT 1")).scalar()
+
+            expense = Expense.query.filter_by(id=new_id, user_id=user_id).first()
+            if not expense:
+                # As a final fallback, refresh session and try again
+                db.session.expire_all()
+                expense = Expense.query.filter_by(id=new_id, user_id=user_id).first()
+
+        except Exception as raw_insert_error:
+            # If raw path fails for any reason, try ORM insert as a fallback
+            db.session.rollback()
+            current_app.logger.warning(f"Raw INSERT path failed, fallback to ORM insert: {raw_insert_error}")
+
+            expense = Expense(
+                user_id=user_id,
+                category_id=category_id,
+                amount=amount,
+                description=description,
+                date=date_val,
+                currency=currency,
+                transaction_type=transaction_type,
+                carryover_from_month=carryover_from_month
+            )
+            db.session.add(expense)
+            db.session.commit()
+
+        # Invalidate cache for that month
         CacheManager.invalidate_budget_cache(user_id, year_month)
-        
+
         current_app.logger.info(f'Added expense {amount} {currency} for user {user_id}')
         return expense
     
@@ -481,6 +556,38 @@ class BudgetService:
         
         return rule[1] if rule else None
 
+    @staticmethod
+    def get_category_carryover_info(user_id: int, category_id: int, year_month: YearMonth) -> Dict:
+        """Get carryover information for a category in given month."""
+        start_date = year_month.to_date()
+        end_date = year_month.last_day()
+        
+        # Get carryover transactions for this category in this month
+        carryovers = Expense.query.filter(
+            Expense.user_id == user_id,
+            Expense.category_id == category_id,
+            Expense.date >= start_date,
+            Expense.date <= end_date,
+            Expense.transaction_type == 'carryover'
+        ).all()
+        
+        total_amount = Decimal('0')
+        details = []
+        
+        for carryover in carryovers:
+            total_amount += carryover.amount
+            details.append({
+                'amount': carryover.amount,
+                'from_month': carryover.carryover_from_month,
+                'type': 'remaining' if carryover.amount > 0 else 'overspent'
+            })
+        
+        return {
+            'amount': total_amount,
+            'has_carryover': len(details) > 0,
+            'details': details
+        }
+
 
 class CurrencyService:
     """Currency exchange service."""
@@ -720,56 +827,6 @@ class DashboardService:
         # Invalidate cache
         CacheManager.invalidate_budget_cache(user_id, year_month)
     
-    @staticmethod
-    def get_category_carryover_info(user_id: int, category_id: int, year_month: YearMonth) -> Dict:
-        """Get carryover information for a category in given month."""
-        start_date = year_month.to_date()
-        end_date = year_month.last_day()
-        
-        # Get carryover transactions for this category in this month
-        carryovers = Expense.query.filter(
-            Expense.user_id == user_id,
-            Expense.category_id == category_id,
-            Expense.date >= start_date,
-            Expense.date <= end_date,
-            Expense.transaction_type == 'carryover'
-        ).all()
-        
-        total_carryover = Decimal('0')
-        carryover_details = []
-        
-        for carryover in carryovers:
-            # Determine if this is positive (remaining) or negative (overspent) carryover
-            # We need to check the previous month's balance to determine the sign
-            from_month_str = carryover.carryover_from_month
-            if from_month_str:
-                from_month = YearMonth.from_string(from_month_str)
-                previous_balance = BudgetService.calculate_category_carryover(user_id, category_id, from_month)
-                
-                # If previous balance was positive (remaining), carryover increases limit
-                # If previous balance was negative (overspent), carryover decreases limit
-                if previous_balance > 0:
-                    total_carryover += carryover.amount
-                    carryover_details.append({
-                        'type': 'remaining',
-                        'amount': carryover.amount,
-                        'from_month': from_month_str,
-                        'description': carryover.description
-                    })
-                else:
-                    total_carryover -= carryover.amount
-                    carryover_details.append({
-                        'type': 'overspent',
-                        'amount': carryover.amount,
-                        'from_month': from_month_str,
-                        'description': carryover.description
-                    })
-        
-        return {
-            'amount': total_carryover,
-            'has_carryover': len(carryovers) > 0,
-            'details': carryover_details
-        }
 
     @staticmethod
     def delete_income_source_new(source_id: int, user_id: int) -> bool:

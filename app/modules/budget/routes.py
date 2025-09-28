@@ -538,7 +538,7 @@ def add_source_to_category(cat_id):
     
     try:
         from app.core.extensions import db
-        from app.modules.budget.models import CategoryRule
+        from app.modules.budget.models import CategoryIncomeSource
         
         # Find category
         category = Category.query.filter_by(id=cat_id, user_id=user_id).first()
@@ -547,14 +547,10 @@ def add_source_to_category(cat_id):
             return redirect(url_for('budget.categories'))
         
         source_id = request.form.get('source_id')
-        percentage = request.form.get('percentage', type=float)
+        limit_type = request.form.get('limit_type', 'percent')
         
         if not source_id:
             flash('Выберите источник дохода', 'error')
-            return redirect(url_for('budget.categories'))
-            
-        if not percentage or percentage <= 0 or percentage > 100:
-            flash('Укажите корректный процент (1-100)', 'error')
             return redirect(url_for('budget.categories'))
         
         # Check if source exists and belongs to user
@@ -564,24 +560,53 @@ def add_source_to_category(cat_id):
             return redirect(url_for('budget.categories'))
         
         # Check if this source is already added to category
-        existing = CategoryRule.query.filter_by(
+        existing = CategoryIncomeSource.query.filter_by(
             category_id=cat_id, 
-            source_name=source.name
+            source_id=source_id
         ).first()
         if existing:
             flash(f'Источник "{source.name}" уже добавлен к категории', 'error')
             return redirect(url_for('budget.categories'))
         
-        # Add source to category
-        cat_rule = CategoryRule(
-            category_id=cat_id,
-            source_name=source.name,
-            percentage=percentage
-        )
-        db.session.add(cat_rule)
+        # Validate and get limit value based on type
+        if limit_type == 'percent':
+            percentage = request.form.get('percentage', type=float)
+            if not percentage or percentage <= 0 or percentage > 100:
+                flash('Укажите корректный процент (0.01-100)', 'error')
+                return redirect(url_for('budget.categories'))
+            
+            # Create CategoryIncomeSource with percentage
+            cat_source = CategoryIncomeSource(
+                user_id=user_id,
+                category_id=cat_id,
+                source_id=source_id,
+                limit_type='percent',
+                percentage=percentage,
+                fixed_amount=None
+            )
+            flash_msg = f'Источник "{source.name}" добавлен к категории с {percentage}%'
+            
+        else:  # fixed amount
+            fixed_amount = request.form.get('fixed_amount', type=float)
+            if not fixed_amount or fixed_amount <= 0:
+                flash('Укажите корректную сумму (больше 0)', 'error')
+                return redirect(url_for('budget.categories'))
+            
+            # Create CategoryIncomeSource with fixed amount
+            cat_source = CategoryIncomeSource(
+                user_id=user_id,
+                category_id=cat_id,
+                source_id=source_id,
+                limit_type='fixed',
+                percentage=None,
+                fixed_amount=fixed_amount
+            )
+            flash_msg = f'Источник "{source.name}" добавлен к категории с {fixed_amount} ₽'
+        
+        db.session.add(cat_source)
         db.session.commit()
         
-        flash(f'Источник "{source.name}" добавлен к категории с {percentage}%', 'success')
+        flash(flash_msg, 'success')
         
     except Exception as e:
         from app.core.extensions import db

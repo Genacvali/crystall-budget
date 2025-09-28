@@ -30,7 +30,8 @@
       "Bash(flask budget-cli:*)",
       "Bash(flask user-cli:*)",
       "Bash(flask dev-cli create-test-expenses:*)",
-      "Bash(BUDGET_DB=\"sqlite:///budget.db\" flask db-cli init-db)"
+      "Bash(BUDGET_DB=\"sqlite:///budget.db\" flask db-cli init-db)",
+      "WebFetch(domain:docs.claude.com)"
     ],
     "deny": [],
     "ask": []

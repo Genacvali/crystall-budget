@@ -152,10 +152,15 @@ class ExpenseData:
             raise ValueError('Invalid category ID')
         
         # Optional fields
-        if 'description' in data:
+        # Accept both 'description' and legacy 'note' from frontend
+        if 'description' in data and data['description'] is not None:
             desc = str(data['description']).strip()
             if len(desc) <= 500:
                 cleaned['description'] = desc
+        elif 'note' in data and data['note'] is not None:
+            note = str(data['note']).strip()
+            if len(note) <= 500:
+                cleaned['description'] = note
         
         if 'currency' in data and data['currency'] in SUPPORTED_CURRENCIES:
             cleaned['currency'] = data['currency']

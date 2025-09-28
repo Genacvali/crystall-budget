@@ -160,3 +160,47 @@ class IncomeSource(db.Model):
     
     def __repr__(self):
         return f'<IncomeSource {self.name}>'
+
+
+class CategoryIncomeSource(db.Model):
+    """Category to income source mapping for multi-source categories."""
+    __tablename__ = 'category_income_sources'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('categories.id', ondelete='CASCADE'), nullable=False)
+    source_id = db.Column(db.Integer, db.ForeignKey('income_sources.id', ondelete='CASCADE'), nullable=False)
+    
+    # Limit configuration - either percentage OR fixed amount
+    limit_type = db.Column(db.String(10), nullable=False, default='percent')  # 'percent' or 'fixed'
+    percentage = db.Column(db.Numeric(5, 2), nullable=True)  # For percentage-based limits
+    fixed_amount = db.Column(db.Numeric(10, 2), nullable=True)  # For fixed limits
+    
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        db.UniqueConstraint('category_id', 'source_id'),
+        db.CheckConstraint('limit_type IN ("percent", "fixed")'),
+        db.CheckConstraint(
+            '(limit_type = "percent" AND percentage IS NOT NULL AND fixed_amount IS NULL) OR '
+            '(limit_type = "fixed" AND fixed_amount IS NOT NULL AND percentage IS NULL)'
+        )
+    )
+    
+    # Relationships
+    category = db.relationship('Category', backref='income_source_links')
+    source = db.relationship('IncomeSource', backref='category_links')
+    
+    def __repr__(self):
+        if self.limit_type == 'percent':
+            return f'<CategoryIncomeSource {self.category.name} <- {self.source.name} ({self.percentage}%)>'
+        else:
+            return f'<CategoryIncomeSource {self.category.name} <- {self.source.name} ({self.fixed_amount} RUB)>'
+    
+    @property
+    def display_value(self):
+        """Get display value for the limit."""
+        if self.limit_type == 'percent':
+            return f"{self.percentage}%"
+        else:
+            return f"{self.fixed_amount} ₽"
