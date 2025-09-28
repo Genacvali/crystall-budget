@@ -5,7 +5,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <h2 class="h4 m-0"><i class="bi bi-dash-circle text-primary me-2"></i>Категории расходов</h2>
-  <button class="btn-hero icon-only" data-bs-toggle="modal" data-bs-target="#addCategoryModal"
+  <button type="button" id="openAddCategoryBtn" class="btn-hero icon-only" data-bs-toggle="modal" data-bs-target="#addCategoryModal"
           title="Добавить категорию" aria-label="Добавить категорию">
     <i class="bi bi-plus-lg"></i>
     <span class="visually-hidden">Добавить категорию</span>
@@ -45,7 +45,7 @@
 
 <!-- Модальное окно добавления категории -->
 <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header sticky-top bg-body border-bottom">
         <h5 class="modal-title" id="addCategoryModalLabel">
@@ -81,7 +81,7 @@
               </div>
               
               <div class="col-lg-6">
-                <div class="mb-3" id="limitValueField">
+                <div class="mb-3" id="addValueField">
                   <label class="form-label">Значение</label>
                   <div class="input-group">
                     <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
@@ -146,6 +146,9 @@
                   </table>
                 </div>
               </div>
+              
+              <!-- Контейнер для старой логики (для совместимости) -->
+              <div id="sourcesList" style="display: none;"></div>
               
               <!-- Добавление источника -->
               <div class="border-top pt-3">
@@ -319,7 +322,7 @@
 <!-- Модальные окна для редактирования категорий -->
 {% for cat in expense_categories %}
 <div class="modal fade" id="editModal{{ cat.id }}" tabindex="-1">
-  <div class="modal-dialog modal-lg">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header sticky-top bg-body border-bottom">
         <div class="d-flex align-items-center gap-2">
@@ -372,7 +375,7 @@
                   <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" id="multiSourceSwitch{{ cat.id }}" 
                            {% if cat.is_multi_source %}checked{% endif %}
-                           onchange="toggleMultiSourceMode({{ cat.id }}, this.checked)">
+                           data-category-id="{{ cat.id }}" onchange="toggleMultiSourceMode(this.dataset.categoryId, this.checked)">
                     <label class="form-check-label" for="multiSourceSwitch{{ cat.id }}">
                       Несколько источников
                     </label>
@@ -560,7 +563,7 @@
 {% for cat in expense_categories %}
 {% if cat.is_multi_source %}
 <div class="modal fade" id="multiSourceModal{{ cat.id }}" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-sources">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-sources">
     <div class="modal-content">
       <div class="modal-header sources-header">
         <div class="header-content">
@@ -1542,58 +1545,65 @@
 <script>
 // Переключение полей в форме создания категории
 function toggleNewCategorySourceField(enabled) {
-  const singleSourceField = document.getElementById('singleSourceField');
-  const multiSourceConfig = document.getElementById('multiSourceConfig');
-  const limitTypeField = document.getElementById('limitTypeField');
-  const limitValueField = document.getElementById('limitValueField');
-  
-  if (enabled) {
-    // Показываем многоисточниковые поля
-    if (singleSourceField) singleSourceField.style.display = 'none';
-    if (multiSourceConfig) multiSourceConfig.style.display = 'block';
-    if (limitTypeField) limitTypeField.style.display = 'none';
-    if (limitValueField) limitValueField.style.display = 'none';
+  try {
+    const singleSourceField = document.getElementById('singleSourceField');
+    const multiSourceConfig = document.getElementById('multiSourceConfig');
+    const limitTypeField = document.getElementById('limitTypeField');
+    const addValueField = document.getElementById('addValueField'); // Исправленный ID
     
-    // Убираем обязательность полей лимита
-    const valueInput = limitValueField?.querySelector('input[name="value"]');
-    const sourceSelect = singleSourceField?.querySelector('select[name="source_id"]');
-    if (valueInput) {
-      valueInput.removeAttribute('required');
-      valueInput.disabled = true;
+    if (enabled) {
+      // Показываем многоисточниковые поля
+      if (singleSourceField) singleSourceField.style.display = 'none';
+      if (multiSourceConfig) multiSourceConfig.style.display = 'block';
+      if (limitTypeField) limitTypeField.style.display = 'none';
+      if (addValueField) addValueField.style.display = 'none';
+      
+      // Убираем обязательность полей лимита
+      const valueInput = addValueField?.querySelector('input[name="value"]');
+      const sourceSelect = singleSourceField?.querySelector('select[name="source_id"]');
+      if (valueInput) {
+        valueInput.removeAttribute('required');
+        valueInput.disabled = true;
+      }
+      if (sourceSelect) {
+        sourceSelect.disabled = true;
+      }
+    } else {
+      // Показываем обычные поля
+      if (singleSourceField) singleSourceField.style.display = 'block';
+      if (multiSourceConfig) multiSourceConfig.style.display = 'none';
+      if (limitTypeField) limitTypeField.style.display = 'block';
+      if (addValueField) addValueField.style.display = 'block';
+      
+      // Возвращаем обязательность полей лимита
+      const valueInput = addValueField?.querySelector('input[name="value"]');
+      const sourceSelect = singleSourceField?.querySelector('select[name="source_id"]');
+      if (valueInput) {
+        valueInput.setAttribute('required', 'required');
+        valueInput.disabled = false;
+      }
+      if (sourceSelect) {
+        sourceSelect.disabled = false;
+      }
+      
+      // Очищаем многоисточниковые данные
+      clearMultiSourceList();
     }
-    if (sourceSelect) {
-      sourceSelect.removeAttribute('required');
-      sourceSelect.disabled = true;
-    }
-  } else {
-    // Показываем обычные поля
-    if (singleSourceField) singleSourceField.style.display = 'block';
-    if (multiSourceConfig) multiSourceConfig.style.display = 'none';
-    if (limitTypeField) limitTypeField.style.display = 'block';
-    if (limitValueField) limitValueField.style.display = 'block';
-    
-    // Возвращаем обязательность полей лимита
-    const valueInput = limitValueField?.querySelector('input[name="value"]');
-    const sourceSelect = singleSourceField?.querySelector('select[name="source_id"]');
-    if (valueInput) {
-      valueInput.setAttribute('required', 'required');
-      valueInput.disabled = false;
-    }
-    if (sourceSelect) {
-      sourceSelect.disabled = false;
-    }
-    
-    // Очищаем многоисточниковые данные
-    clearMultiSourceList();
+  } catch (error) {
+    console.error('Error in toggleNewCategorySourceField:', error);
   }
 }
 
 // Очистка списка многоисточниковых данных
 function clearMultiSourceList() {
-  const list = document.getElementById('multiSourceList');
-  if (list) {
-    list.innerHTML = '';
-    updateMultiSourceTotal();
+  try {
+    const list = document.getElementById('multiSourceList');
+    if (list) {
+      list.innerHTML = '';
+      updateMultiSourceTotal();
+    }
+  } catch (error) {
+    console.error('Error in clearMultiSourceList:', error);
   }
 }
 
@@ -1651,10 +1661,16 @@ function addSourceToNewCategory() {
   sourceDiv.id = `newSource${newCategorySourceCounter}`;
   
   // Создаем опции для select из данных, переданных с сервера
+  const sourcesSelect = document.getElementById('newSourceSelect');
   let sourcesOptions = '<option value="">— Выберите источник —</option>';
-  {% for source in income_sources %}
-    sourcesOptions += '<option value="{{ source.id }}">{{ source.name }}</option>';
-  {% endfor %}
+  if (sourcesSelect) {
+    const options = sourcesSelect.querySelectorAll('option');
+    options.forEach(option => {
+      if (option.value) {
+        sourcesOptions += `<option value="${option.value}">${option.textContent}</option>`;
+      }
+    });
+  }
   
   sourceDiv.innerHTML = `
     <div class="col-6">
@@ -1689,80 +1705,95 @@ function removeSourceFromNew(index) {
   }
 }
 
-// Переключение многоисточникового режима
+// Переключение многоисточникового режима (только UI, сохранение через форму)
 function toggleMultiSourceMode(categoryId, enabled) {
-  console.log('Toggle multi-source mode:', categoryId, enabled);
-  
-  // Получаем элементы формы
-  const singleSourceDiv = document.getElementById(`singleSourceDiv${categoryId}`);
-  const multiSourceInfo = document.getElementById(`multiSourceInfo${categoryId}`);
-  const limitTypeField = document.getElementById(`editLimitTypeField${categoryId}`);
-  const limitValueField = document.getElementById(`editValueField${categoryId}`);
-  
-  if (enabled) {
-    // Включаем многоисточниковый режим
-    if (singleSourceDiv) singleSourceDiv.style.display = 'none';
-    if (multiSourceInfo) multiSourceInfo.style.display = 'block';
-    if (limitTypeField) limitTypeField.style.display = 'none';
-    if (limitValueField) limitValueField.style.display = 'none';
+  try {
+    console.log('Toggle multi-source mode:', categoryId, enabled);
     
-    // Отключаем валидацию обычных полей
-    const valueInput = limitValueField?.querySelector('input[name="value"]');
-    const sourceSelect = singleSourceDiv?.querySelector('select[name="source_id"]');
-    if (valueInput) {
-      valueInput.removeAttribute('required');
-      valueInput.disabled = true;
-    }
-    if (sourceSelect) {
-      sourceSelect.disabled = true;
-    }
-  } else {
-    // Отключаем многоисточниковый режим
-    if (singleSourceDiv) singleSourceDiv.style.display = 'block';
-    if (multiSourceInfo) multiSourceInfo.style.display = 'none';
-    if (limitTypeField) limitTypeField.style.display = 'block';
-    if (limitValueField) limitValueField.style.display = 'block';
+    // Получаем элементы формы
+    const singleSourceDiv = document.getElementById(`singleSourceDiv${categoryId}`);
+    const multiSourceInfo = document.getElementById(`multiSourceInfo${categoryId}`);
+    const limitTypeField = document.getElementById(`editLimitTypeField${categoryId}`);
+    const limitValueField = document.getElementById(`editValueField${categoryId}`);
     
-    // Включаем валидацию обычных полей
-    const valueInput = limitValueField?.querySelector('input[name="value"]');
-    const sourceSelect = singleSourceDiv?.querySelector('select[name="source_id"]');
-    if (valueInput) {
-      valueInput.setAttribute('required', 'required');
-      valueInput.disabled = false;
+    if (enabled) {
+      // Включаем многоисточниковый режим
+      if (singleSourceDiv) singleSourceDiv.style.display = 'none';
+      if (multiSourceInfo) multiSourceInfo.style.display = 'block';
+      if (limitTypeField) limitTypeField.style.display = 'none';
+      if (limitValueField) limitValueField.style.display = 'none';
+      
+      // Отключаем валидацию обычных полей
+      const valueInput = limitValueField?.querySelector('input[name="value"]');
+      const sourceSelect = singleSourceDiv?.querySelector('select[name="source_id"]');
+      if (valueInput) {
+        valueInput.removeAttribute('required');
+        valueInput.disabled = true;
+      }
+      if (sourceSelect) {
+        sourceSelect.disabled = true;
+      }
+    } else {
+      // Отключаем многоисточниковый режим
+      if (singleSourceDiv) singleSourceDiv.style.display = 'block';
+      if (multiSourceInfo) multiSourceInfo.style.display = 'none';
+      if (limitTypeField) limitTypeField.style.display = 'block';
+      if (limitValueField) limitValueField.style.display = 'block';
+      
+      // Включаем валидацию обычных полей
+      const valueInput = limitValueField?.querySelector('input[name="value"]');
+      const sourceSelect = singleSourceDiv?.querySelector('select[name="source_id"]');
+      if (valueInput) {
+        valueInput.setAttribute('required', 'required');
+        valueInput.disabled = false;
+      }
+      if (sourceSelect) {
+        sourceSelect.disabled = false;
+      }
     }
-    if (sourceSelect) {
-      sourceSelect.disabled = false;
+    
+    // Обновляем скрытое поле с режимом (сохранение произойдет при сабмите формы)
+    const hiddenModeField = document.querySelector(`#editModal${categoryId} input[name="is_multi_source"]`);
+    if (hiddenModeField) {
+      hiddenModeField.value = enabled ? '1' : '0';
     }
-  }
-  
-  // Обновляем скрытое поле с режимом
-  const hiddenModeField = document.querySelector(`#editModal${categoryId} input[name="is_multi_source"]`);
-  if (hiddenModeField) {
-    hiddenModeField.value = enabled ? '1' : '0';
+  } catch (error) {
+    console.error('Error in toggleMultiSourceMode:', error);
   }
 }
 
 // Авто-переключение суффиксов в модалках
 function setupLimitTypeToggle(modalId) {
-  const modal = document.getElementById(modalId);
-  if (!modal) return;
-  
-  const limitTypeRadios = modal.querySelectorAll('input[name="limit_type"]');
-  const valueInput = modal.querySelector('input[name="value"]');
-  const valueSuffix = modal.querySelector('.input-group-text');
-  
-  limitTypeRadios.forEach(radio => {
-    radio.addEventListener('change', function() {
-      if (valueSuffix) {
-        valueSuffix.textContent = this.value === 'percent' ? '%' : '₽';
-      }
-      if (valueInput) {
-        valueInput.placeholder = this.value === 'percent' ? '15.0' : '15000';
-        valueInput.step = this.value === 'percent' ? '0.1' : '0.01';
-        valueInput.max = this.value === 'percent' ? '100' : '';
-      }
+  try {
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+      console.warn(`Modal with id "${modalId}" not found`);
+      return;
+    }
+    
+    const limitTypeRadios = modal.querySelectorAll('input[name="limit_type"]');
+    const valueInput = modal.querySelector('input[name="value"]');
+    const valueSuffix = modal.querySelector('.input-group-text');
+    
+    limitTypeRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        try {
+          if (valueSuffix) {
+            valueSuffix.textContent = this.value === 'percent' ? '%' : '₽';
+          }
+          if (valueInput) {
+            valueInput.placeholder = this.value === 'percent' ? '15.0' : '15000';
+            valueInput.step = this.value === 'percent' ? '0.1' : '0.01';
+            valueInput.max = this.value === 'percent' ? '100' : '';
+          }
+        } catch (error) {
+          console.error('Error in limit type toggle:', error);
+        }
+      });
     });
-  });
+  } catch (error) {
+    console.error('Error in setupLimitTypeToggle:', error);
+  }
 }
 
 // Форматирование чисел с тысячными разделителями
@@ -1813,68 +1844,83 @@ function validateMultiSourceTotal(containerId) {
 
 // Добавление многоисточника в модалке создания
 function addMultiSource() {
-  const sourceSelect = document.getElementById('newSourceSelect');
-  const typeRadios = document.querySelectorAll('input[name="new_limit_type"]');
-  const valueInput = document.getElementById('newSourceValue');
-  const list = document.getElementById('multiSourceList');
-  
-  if (!sourceSelect.value || !valueInput.value) {
-    alert('Выберите источник и укажите значение');
-    return;
+  try {
+    const sourceSelect = document.getElementById('newSourceSelect');
+    const typeRadios = document.querySelectorAll('input[name="new_limit_type"]');
+    const valueInput = document.getElementById('newSourceValue');
+    const list = document.getElementById('multiSourceList');
+    
+    if (!sourceSelect || !valueInput || !list) {
+      console.error('Required elements not found for addMultiSource');
+      return;
+    }
+    
+    if (!sourceSelect.value || !valueInput.value) {
+      alert('Выберите источник и укажите значение');
+      return;
+    }
+    
+    const selectedOption = sourceSelect.options[sourceSelect.selectedIndex];
+    if (!selectedOption) {
+      alert('Выберите источник');
+      return;
+    }
+    
+    const sourceName = selectedOption.text;
+    const sourceId = selectedOption.value;
+    const limitType = [...typeRadios].find(r => r.checked)?.value || 'percent';
+    const value = parseFloat(valueInput.value);
+    const suffix = limitType === 'percent' ? '%' : '₽';
+    
+    // Проверка на дубликаты
+    if (list.querySelector(`tr[data-source-id="${sourceId}"]`)) {
+      alert('Источник уже добавлен');
+      return;
+    }
+    
+    const row = document.createElement('tr');
+    row.setAttribute('data-source-id', sourceId);
+    row.innerHTML = `
+      <td>
+        <div class="fw-semibold">${sourceName}</div>
+        <input type="hidden" name="multi_sources[]" value="${sourceId}">
+        <input type="hidden" name="multi_limit_types[]" value="${limitType}">
+      </td>
+      <td>
+        <span class="badge bg-light text-dark">${limitType === 'percent' ? 'Процент' : 'Фикс.'}</span>
+      </td>
+      <td class="text-end">
+        <div class="input-group input-group-sm" style="width: 100px; margin-left: auto;">
+          <input type="number" name="multi_values[]" value="${value}" 
+                 min="0.01" step="${limitType === 'percent' ? '0.1' : '0.01'}" 
+                 ${limitType === 'percent' ? 'max="100"' : ''} 
+                 class="form-control text-end tabular-nums" 
+                 onchange="updateMultiSourceTotal()">
+          <span class="input-group-text">${suffix}</span>
+        </div>
+      </td>
+      <td class="text-center">
+        <button type="button" class="btn btn-link btn-sm text-danger p-1" 
+                onclick="removeMultiSourceRow(this)" title="Удалить">
+          <i class="bi bi-trash3"></i>
+        </button>
+      </td>
+    `;
+    
+    list.appendChild(row);
+    
+    // Очистка формы
+    sourceSelect.selectedIndex = 0;
+    valueInput.value = '';
+    
+    // Удаление источника из списка
+    selectedOption.remove();
+    
+    updateMultiSourceTotal();
+  } catch (error) {
+    console.error('Error in addMultiSource:', error);
+    alert('Произошла ошибка при добавлении источника');
   }
-  
-  const selectedOption = sourceSelect.options[sourceSelect.selectedIndex];
-  const sourceName = selectedOption.text;
-  const sourceId = selectedOption.value;
-  const limitType = [...typeRadios].find(r => r.checked)?.value;
-  const value = parseFloat(valueInput.value);
-  const suffix = limitType === 'percent' ? '%' : '₽';
-  
-  // Проверка на дубликаты
-  if (list.querySelector(`tr[data-source-id="${sourceId}"]`)) {
-    alert('Источник уже добавлен');
-    return;
-  }
-  
-  const row = document.createElement('tr');
-  row.setAttribute('data-source-id', sourceId);
-  row.innerHTML = `
-    <td>
-      <div class="fw-semibold">${sourceName}</div>
-      <input type="hidden" name="multi_sources[]" value="${sourceId}">
-      <input type="hidden" name="multi_limit_types[]" value="${limitType}">
-    </td>
-    <td>
-      <span class="badge bg-light text-dark">${limitType === 'percent' ? 'Процент' : 'Фикс.'}</span>
-    </td>
-    <td class="text-end">
-      <div class="input-group input-group-sm" style="width: 100px; margin-left: auto;">
-        <input type="number" name="multi_values[]" value="${value}" 
-               min="0.01" step="${limitType === 'percent' ? '0.1' : '0.01'}" 
-               ${limitType === 'percent' ? 'max="100"' : ''} 
-               class="form-control text-end tabular-nums" 
-               onchange="updateMultiSourceTotal()">
-        <span class="input-group-text">${suffix}</span>
-      </div>
-    </td>
-    <td class="text-center">
-      <button type="button" class="btn btn-link btn-sm text-danger p-1" 
-              onclick="removeMultiSourceRow(this)" title="Удалить">
-        <i class="bi bi-trash3"></i>
-      </button>
-    </td>
-  `;
-  
-  list.appendChild(row);
-  
-  // Очистка формы
-  sourceSelect.selectedIndex = 0;
-  valueInput.value = '';
-  
-  // Удаление источника из списка
-  selectedOption.remove();
-  
-  updateMultiSourceTotal();
 }
 
 // Удаление строки многоисточника
@@ -1896,7 +1942,11 @@ function removeMultiSourceRow(button) {
 
 // Обновление итогов многоисточников
 function updateMultiSourceTotal() {
-  validateMultiSourceTotal('multiSourceConfig');
+  try {
+    validateMultiSourceTotal('multiSourceConfig');
+  } catch (error) {
+    console.error('Error in updateMultiSourceTotal:', error);
+  }
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -2152,6 +2202,39 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   preventDoubleSubmit();
+  
+  // Страховочный обработчик для кнопки добавления категории
+  const addCategoryBtn = document.getElementById('openAddCategoryBtn');
+  if (addCategoryBtn) {
+    addCategoryBtn.addEventListener('click', function(e) {
+      // Проверяем, что Bootstrap Modal доступен
+      if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        // Bootstrap должен обработать это сам, ничего не делаем
+        return;
+      }
+      
+      // Если Bootstrap не работает, открываем модалку вручную
+      e.preventDefault();
+      const modal = document.getElementById('addCategoryModal');
+      if (modal) {
+        try {
+          const bsModal = new bootstrap.Modal(modal);
+          bsModal.show();
+        } catch (error) {
+          console.error('Error opening modal manually:', error);
+          // Fallback: просто показываем модалку через CSS
+          modal.style.display = 'block';
+          modal.classList.add('show');
+          document.body.classList.add('modal-open');
+          
+          // Добавляем backdrop
+          const backdrop = document.createElement('div');
+          backdrop.className = 'modal-backdrop fade show';
+          document.body.appendChild(backdrop);
+        }
+      }
+    });
+  }
 });
 </script>
 {% endblock %}
