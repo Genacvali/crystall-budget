@@ -244,6 +244,88 @@
 </div>
 {% endif %}
 
+<!-- Секция управления источниками доходов -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 mt-5">
+  <h2 class="h4 m-0"><i class="bi bi-cash-coin text-success me-2"></i>Источники доходов</h2>
+  <button class="btn-hero icon-only" data-bs-toggle="modal" data-bs-target="#addIncomeSourceModal"
+          title="Добавить источник дохода" aria-label="Добавить источник дохода">
+    <i class="bi bi-plus-lg"></i>
+    <span class="visually-hidden">Добавить источник дохода</span>
+  </button>
+</div>
+
+{% if income_sources %}
+<section class="ff-progress-card mb-4" aria-label="Источники доходов">
+  <div class="ff-header">
+    <i class="bi bi-cash-coin"></i>
+    Всего источников: {{ income_sources|length }}
+  </div>
+  <div class="ff-list">
+    {% for source in income_sources %}
+    <div class="category-row">
+      <!-- Левая колонка: название источника -->
+      <div class="category-info">
+        <div class="category-name">{{ source.name }}</div>
+        <div class="category-meta">
+          <span class="text-muted">Источник дохода</span>
+        </div>
+      </div>
+
+      <!-- Правая колонка: действия -->
+      <div class="category-actions">
+        <div class="ff-iconbtn-group" role="group" aria-label="Действия">
+          <form method="POST" action="{{ url_for('budget.delete_income_source', source_id=source.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="ff-iconbtn ff-iconbtn--delete" 
+                    onclick="return confirm('Удалить источник дохода «{{ source.name }}»? Это действие нельзя отменить.')" 
+                    aria-label="Удалить источник дохода" title="Удалить">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if not income_sources %}
+<div class="text-center py-5">
+  <p class="text-muted mb-3">Источников доходов пока нет. Используйте кнопку "Добавить источник дохода" выше для создания первого источника.</p>
+</div>
+{% endif %}
+
+<!-- Модальное окно добавления источника дохода -->
+<div class="modal fade" id="addIncomeSourceModal" tabindex="-1" aria-labelledby="addIncomeSourceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addIncomeSourceModalLabel">
+          <i class="bi bi-plus-circle text-success me-2"></i>Новый источник дохода
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST" action="{{ url_for('budget.add_income_source') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Название источника</label>
+            <input type="text" name="name" class="form-control" placeholder="Например, Основная работа" required>
+            <div class="form-text">Укажите название источника дохода</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-success">
+            <i class="bi bi-plus me-1"></i>Создать источник
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <!-- Модальные окна для редактирования категорий -->
 {% for cat in expense_categories %}
 <div class="modal fade" id="editModal{{ cat.id }}" tabindex="-1">
@@ -1368,6 +1450,33 @@ document.addEventListener('DOMContentLoaded', function() {
   const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
+  
+  // Prevent double-click submissions
+  function preventDoubleSubmit() {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+      form.addEventListener('submit', function(e) {
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn && !submitBtn.disabled) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="bi bi-hourglass"></i> Обработка...';
+          // Re-enable after 3 seconds as fallback
+          setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = submitBtn.getAttribute('data-original-text') || 'Отправить';
+          }, 3000);
+        }
+      });
+      
+      // Store original button text
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.setAttribute('data-original-text', submitBtn.innerHTML);
+      }
+    });
+  }
+  
+  preventDoubleSubmit();
 });
 </script>
 {% endblock %}

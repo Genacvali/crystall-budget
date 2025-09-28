@@ -770,3 +770,27 @@ class DashboardService:
             'has_carryover': len(carryovers) > 0,
             'details': carryover_details
         }
+
+    @staticmethod
+    def delete_income_source_new(source_id: int, user_id: int) -> bool:
+        """Delete income source and all related data."""
+        source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
+        if not source:
+            return False
+        
+        # Delete related category rules
+        from .models import CategoryRule
+        CategoryRule.query.filter_by(source_name=source.name).delete()
+        
+        # Delete related income records
+        Income.query.filter_by(user_id=user_id, source_name=source.name).delete()
+        
+        # Delete the source itself
+        db.session.delete(source)
+        db.session.commit()
+        
+        # Invalidate cache
+        CacheManager.invalidate_budget_cache(user_id)
+        
+        current_app.logger.info(f'Deleted income source {source.name} for user {user_id}')
+        return True

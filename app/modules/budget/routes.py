@@ -692,15 +692,99 @@ def remove_source_from_category(cat_id, source_id):
     return redirect(url_for('budget.categories'))
 
 
+@budget_bp.route('/income-sources/add', methods=['POST'])
+@login_required
+def add_income_source():
+    """Add new income source."""
+    from .models import IncomeSource
+    from app.core.extensions import db
+    from flask import current_app
+    from sqlalchemy import func
+    
+    user_id = session['user_id']
+    name = request.form.get('name', '').strip()
+    
+    if not name:
+        flash('Название источника дохода не может быть пустым', 'error')
+        return redirect(url_for('budget.categories'))
+    
+    # Check if source with this name already exists (case-insensitive)
+    existing_source = IncomeSource.query.filter(
+        IncomeSource.user_id == user_id,
+        func.lower(IncomeSource.name) == func.lower(name)
+    ).first()
+    if existing_source:
+        flash(f'Источник дохода с названием "{name}" уже существует', 'error')
+        return redirect(url_for('budget.categories'))
+    
+    # Create new income source
+    try:
+        new_source = IncomeSource(user_id=user_id, name=name)
+        db.session.add(new_source)
+        db.session.commit()
+        flash(f'Источник дохода "{name}" создан', 'success')
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f'Error creating income source for user {user_id}: {str(e)}')
+        flash('Ошибка при создании источника дохода', 'error')
+    
+    return redirect(url_for('budget.categories'))
+
+
 @budget_bp.route('/income-sources/delete/<int:source_id>', methods=['POST'])
 @login_required
 def delete_income_source(source_id):
     """Delete income source."""
+    from .models import IncomeSource, CategoryRule, Income
+    from app.core.extensions import db
+    from flask import current_app
+    
     user_id = session['user_id']
     
-    if BudgetService.delete_income_source(source_id, user_id):
-        flash('Источник дохода удален', 'success')
-    else:
-        flash('Источник дохода не найден', 'error')
+    try:
+        # Find the source to delete
+        source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
+        
+        if not source:
+            flash('Источник дохода не найден', 'error')
+            return redirect(url_for('budget.categories'))
+        
+        source_name = source.name
+        
+        # Delete all related data in transaction
+        
+        # 1. Delete category_rules (links by source_name)
+        CategoryRule.query.filter_by(source_name=source_name).delete()
+        
+        # 2. Delete source_category_rules (links by source_id)
+        db.session.execute(
+            db.text("DELETE FROM source_category_rules WHERE source_id = :source_id"),
+            {"source_id": source_id}
+        )
+        
+        # 3. Delete category_income_sources (links by source_id)
+        db.session.execute(
+            db.text("DELETE FROM category_income_sources WHERE source_id = :source_id"),
+            {"source_id": source_id}
+        )
+        
+        # 4. Delete related income records (by source_name)
+        Income.query.filter_by(user_id=user_id, source_name=source_name).delete()
+        
+        # Delete the source itself
+        db.session.delete(source)
+        db.session.commit()
+        
+        # Invalidate cache
+        from app.core.caching import CacheManager
+        CacheManager.invalidate_budget_cache(user_id)
+        
+        current_app.logger.info(f'Deleted income source {source_name} for user {user_id}')
+        flash(f'Источник дохода "{source_name}" удален', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f'Error deleting income source {source_id} for user {user_id}: {str(e)}')
+        flash('Ошибка при удалении источника дохода', 'error')
     
     return redirect(url_for('budget.categories'))
