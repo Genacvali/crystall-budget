@@ -5,7 +5,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <h2 class="h4 m-0"><i class="bi bi-dash-circle text-primary me-2"></i>Категории расходов</h2>
-  <button type="button" id="openAddCategoryBtn" class="btn-hero icon-only" data-bs-toggle="modal" data-bs-target="#addCategoryModal"
+  <button type="button" id="openAddCategoryBtn" class="btn-hero icon-only" data-modal-url="{{ url_for('budget.add_category') }}"
           title="Добавить категорию" aria-label="Добавить категорию">
     <i class="bi bi-plus-lg"></i>
     <span class="visually-hidden">Добавить категорию</span>

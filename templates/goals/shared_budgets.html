@@ -11,7 +11,7 @@
         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#joinBudgetModal">
             <i class="bi bi-plus-lg"></i> Присоединиться
         </button>
-        <button class="btn-hero" data-bs-toggle="modal" data-bs-target="#createBudgetModal">
+        <button class="btn-hero" data-modal-url="{{ url_for('modals.shared_budget_create') }}">
             <i class="bi bi-plus-lg"></i> Создать
         </button>
     </div>
@@ -88,7 +88,7 @@
                         <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#joinBudgetModal">
                             <i class="bi bi-plus-lg"></i> Присоединиться
                         </button>
-                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createBudgetModal">
+                        <button class="btn btn-primary" data-modal-url="{{ url_for('modals.shared_budget_create') }}">
                             <i class="bi bi-plus-lg"></i> Создать семейный бюджет
                         </button>
                     </div>

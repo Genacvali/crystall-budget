@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(MODAL_SYSTEM_ENABLED=true PORT=5030 python app.py)",
-      "Bash(python test_manual_scenarios.py:*)"
+      "Bash(python test_manual_scenarios.py:*)",
+      "Bash(find:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)"
     ],
     "deny": [],
     "ask": []

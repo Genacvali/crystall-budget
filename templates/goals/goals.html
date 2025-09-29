@@ -8,7 +8,7 @@
   <h2 class="h4 m-0">
     <i class="bi bi-bullseye text-primary me-2"></i>Цели накоплений
   </h2>
-  <button class="btn-hero" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+  <button class="btn-hero" data-modal-url="{{ url_for('goal_add_modal') }}">
           <i class="bi bi-plus-lg"></i> Новая цель
         </button>
       </div>
@@ -104,7 +104,7 @@
           </div>
           <h4 class="text-muted">Пока нет целей накоплений</h4>
           <p class="text-muted mb-4">Создайте свою первую цель и начните копить на мечту!</p>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+          <button class="btn btn-primary" data-modal-url="{{ url_for('goal_add_modal') }}">
             <i class="bi bi-plus-lg"></i> Создать цель
           </button>
         </div>
@@ -114,48 +114,5 @@
   </div>
 </div>
 
-<!-- Модалка: Новая цель -->
-<div class="modal fade" id="addGoalModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-bullseye me-2 text-primary"></i> Новая цель накопления</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-
-      <form method="POST" action="{{ url_for('add_goal') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="goalName" class="form-label">Название цели <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="goalName" name="name" placeholder="Новый iPhone" required maxlength="100">
-          </div>
-
-          <div class="mb-3">
-            <label for="goalAmount" class="form-label">Целевая сумма <span class="text-danger">*</span></label>
-            <div class="input-group">
-              <input type="number" class="form-control" id="goalAmount" name="target_amount"
-                     placeholder="50000" step="0.01" min="0.01" required>
-              <span class="input-group-text">{{ currency_symbol }}</span>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label for="goalDate" class="form-label">Желаемая дата (необязательно)</label>
-            <input type="date" class="form-control" id="goalDate" name="target_date">
-          </div>
-
-          <div class="mb-3">
-            <label for="goalDescription" class="form-label">Описание (необязательно)</label>
-            <textarea class="form-control" id="goalDescription" name="description" rows="3" maxlength="500"
-                      placeholder="Зачем вам эта цель?"></textarea>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary">Создать цель</button>
-        </div>
-      </form>
 
 {% endblock %}
