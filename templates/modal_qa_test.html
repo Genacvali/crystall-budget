@@ -1,0 +1,372 @@
+{% extends "base.html" %}
+{% block title %}QA Modal System Test — CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="container-lg py-4">
+  <h1>🔍 QA Modal System Test</h1>
+  <p class="text-muted">Testing the unified modal system (Stage 2.4 implementation)</p>
+
+  <div class="row g-4">
+    
+    <!-- Settings Modals Test -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">🔧 Settings Modals</h5>
+        </div>
+        <div class="card-body">
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary" 
+                    data-modal-url="/modals/settings/profile"
+                    data-modal-title="Profile Settings" 
+                    data-modal-size="md">
+              <i class="bi bi-person me-1"></i>Profile Modal (requires auth)
+            </button>
+            
+            <button class="btn btn-outline-success" 
+                    data-modal-url="/modals/settings/password"
+                    data-modal-title="Password Settings" 
+                    data-modal-size="md">
+              <i class="bi bi-key me-1"></i>Password Modal (requires auth)
+            </button>
+            
+            <button class="btn btn-outline-info" 
+                    data-modal-url="/modals/settings/interface"
+                    data-modal-title="Interface Settings" 
+                    data-modal-size="md">
+              <i class="bi bi-palette me-1"></i>Interface Modal (requires auth)
+            </button>
+            
+            <button class="btn btn-outline-warning" 
+                    data-modal-url="/modals/settings/export"
+                    data-modal-title="Export Data" 
+                    data-modal-size="md">
+              <i class="bi bi-download me-1"></i>Export Modal (requires auth)
+            </button>
+            
+            <button class="btn btn-outline-danger" 
+                    data-modal-url="/modals/settings/delete-account"
+                    data-modal-title="Delete Account" 
+                    data-modal-size="md">
+              <i class="bi bi-person-x me-1"></i>Delete Account (requires auth)
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- Goals Modals Test -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">🎯 Goals Modals</h5>
+        </div>
+        <div class="card-body">
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary" 
+                    data-modal-url="/modals/goal/add"
+                    data-modal-title="Add Goal" 
+                    data-modal-size="md">
+              <i class="bi bi-plus me-1"></i>Add Goal (requires auth)
+            </button>
+            
+            <!-- Note: Edit/Topup require goal ID, so these will 404 but test error handling -->
+            <button class="btn btn-outline-secondary" 
+                    data-modal-url="/modals/goal/999/edit"
+                    data-modal-title="Edit Goal" 
+                    data-modal-size="md">
+              <i class="bi bi-pencil me-1"></i>Edit Goal (404 test)
+            </button>
+            
+            <button class="btn btn-outline-info" 
+                    data-modal-url="/modals/goal/999/topup"
+                    data-modal-title="Topup Goal" 
+                    data-modal-size="md">
+              <i class="bi bi-plus-circle me-1"></i>Topup Goal (404 test)
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal.confirm Tests -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">⚠️ Confirm Dialogs</h5>
+        </div>
+        <div class="card-body">
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-warning" onclick="testBasicConfirm()">
+              Basic Confirm Dialog
+            </button>
+            
+            <button class="btn btn-danger" onclick="testDangerousConfirm()">
+              Dangerous Action Confirm
+            </button>
+            
+            <button class="btn btn-info" onclick="testCustomConfirm()">
+              Custom Styled Confirm
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- Focus & Accessibility Tests -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">♿ Focus & A11y Tests</h5>
+        </div>
+        <div class="card-body">
+          
+          <p class="small text-muted">Test focus management and accessibility:</p>
+          
+          <div class="mb-3">
+            <input type="text" class="form-control mb-2" placeholder="Focus test input 1">
+            <input type="text" class="form-control mb-2" placeholder="Focus test input 2">
+          </div>
+          
+          <div class="d-grid gap-2">
+            <button class="btn btn-outline-primary" 
+                    data-modal-url="/modals/settings/profile"
+                    data-modal-title="Focus Test" 
+                    data-modal-size="md">
+              Open Modal → Test Focus Return
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- Mobile Tests -->
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">📱 Mobile & Responsive Tests</h5>
+        </div>
+        <div class="card-body">
+          
+          <div class="alert alert-info">
+            <strong>Mobile Test Instructions:</strong>
+            <ul class="mb-0 mt-2">
+              <li>Test on mobile device or narrow browser window (&lt; 768px)</li>
+              <li>Verify modals open in "sheet" mode from bottom</li>
+              <li>Check hit areas ≥ 44px for touch targets</li>
+              <li>Verify scrolling works correctly in modal body</li>
+              <li>Test backdrop dismissal on mobile</li>
+              <li>Check keyboard doesn't interfere with modal</li>
+            </ul>
+          </div>
+          
+          <div class="row g-2">
+            <div class="col-6 col-md-3">
+              <button class="btn btn-primary w-100" 
+                      data-modal-url="/modals/settings/interface"
+                      data-modal-title="Mobile Test" 
+                      data-modal-size="md">
+                Open Modal
+              </button>
+            </div>
+            <div class="col-6 col-md-3">
+              <button class="btn btn-success w-100" onclick="testMobileConfirm()">
+                Mobile Confirm
+              </button>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- Debug Panel -->
+    <div class="col-12">
+      <div class="card border-secondary">
+        <div class="card-header">
+          <h5 class="card-title mb-0">🐛 Debug Panel</h5>
+        </div>
+        <div class="card-body">
+          
+          <div class="row g-3">
+            <div class="col-md-6">
+              <h6>Logging Controls:</h6>
+              <div class="btn-group" role="group">
+                <button class="btn btn-outline-secondary btn-sm" onclick="enableDebug()">
+                  Enable Debug
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="disableDebug()">
+                  Disable Debug
+                </button>
+              </div>
+            </div>
+            
+            <div class="col-md-6">
+              <h6>Theme Toggle:</h6>
+              <label class="ff-switch mb-0" aria-label="Toggle theme" role="switch">
+                <input type="checkbox" id="debugThemeToggle" class="visually-hidden" 
+                       {{ 'checked' if session.get('theme') == 'dark' else '' }}
+                       onchange="toggleDebugTheme()"/>
+                <span class="ff-track d-inline-flex align-items-center justify-content-between">
+                  <i class="bi bi-sun-fill"></i>
+                  <i class="bi bi-moon-stars-fill"></i>
+                  <span class="ff-thumb"></span>
+                </span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="mt-3">
+            <h6>Event Log:</h6>
+            <div id="eventLog" class="border rounded p-2 bg-light" style="height: 150px; overflow-y: auto; font-family: monospace; font-size: 0.8rem;">
+              <div class="text-muted">Modal events will appear here...</div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/entries/settings.entry.js') }}"></script>
+<script>
+// QA Test Functions
+
+function testBasicConfirm() {
+  if (window.ModalManager) {
+    window.ModalManager.confirm({
+      title: 'Basic Confirmation',
+      message: 'Do you want to proceed with this action?',
+      confirmText: 'Yes',
+      cancelText: 'No'
+    }).then(() => {
+      logEvent('Basic confirm: USER CONFIRMED');
+    }).catch(() => {
+      logEvent('Basic confirm: USER CANCELLED');
+    });
+  } else {
+    alert('ModalManager not available - using fallback confirm');
+  }
+}
+
+function testDangerousConfirm() {
+  if (window.ModalManager) {
+    window.ModalManager.confirm({
+      title: 'Dangerous Action',
+      message: 'This action cannot be undone. Are you absolutely sure?',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      confirmClass: 'btn-danger'
+    }).then(() => {
+      logEvent('Dangerous confirm: USER CONFIRMED');
+    }).catch(() => {
+      logEvent('Dangerous confirm: USER CANCELLED');
+    });
+  } else {
+    alert('ModalManager not available');
+  }
+}
+
+function testCustomConfirm() {
+  if (window.ModalManager) {
+    window.ModalManager.confirm({
+      title: 'Custom Confirmation',
+      message: 'This is a custom styled confirmation dialog with different options.',
+      confirmText: 'Continue',
+      cancelText: 'Go Back',
+      confirmClass: 'btn-info'
+    }).then(() => {
+      logEvent('Custom confirm: USER CONFIRMED');
+    }).catch(() => {
+      logEvent('Custom confirm: USER CANCELLED');
+    });
+  }
+}
+
+function testMobileConfirm() {
+  testBasicConfirm(); // Same as basic but for mobile testing
+}
+
+function enableDebug() {
+  if (window.ModalManager) {
+    window.ModalManager.debug = true;
+    logEvent('Debug mode: ENABLED');
+  }
+}
+
+function disableDebug() {
+  if (window.ModalManager) {
+    window.ModalManager.debug = false;
+    logEvent('Debug mode: DISABLED');
+  }
+}
+
+function toggleDebugTheme() {
+  const toggle = document.getElementById('debugThemeToggle');
+  const theme = toggle.checked ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-bs-theme', theme);
+  logEvent(`Theme changed to: ${theme}`);
+  
+  // Save to server
+  fetch('/set-theme', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': window.getCSRFToken ? window.getCSRFToken() : ''
+    },
+    body: JSON.stringify({ theme: theme })
+  }).catch(error => {
+    logEvent(`Theme save error: ${error.message}`);
+  });
+}
+
+function logEvent(message) {
+  const log = document.getElementById('eventLog');
+  const timestamp = new Date().toLocaleTimeString();
+  const entry = document.createElement('div');
+  entry.innerHTML = `<span class="text-muted">[${timestamp}]</span> ${message}`;
+  log.appendChild(entry);
+  log.scrollTop = log.scrollHeight;
+}
+
+// Event Listeners for Modal Events
+document.addEventListener('DOMContentLoaded', function() {
+  logEvent('QA Test page loaded');
+  
+  // Listen for modal events
+  document.addEventListener('Modal:opened', function(e) {
+    logEvent(`Modal OPENED: ${e.detail.modalId || 'unknown'}`);
+  });
+  
+  document.addEventListener('Modal:closed', function(e) {
+    logEvent(`Modal CLOSED: ${e.detail.modalId || 'unknown'}`);
+  });
+  
+  document.addEventListener('Modal:loaded', function(e) {
+    logEvent(`Modal content LOADED: ${e.detail.url || 'unknown'}`);
+  });
+  
+  document.addEventListener('Modal:error', function(e) {
+    logEvent(`Modal ERROR: ${e.detail.error || 'unknown error'}`);
+  });
+  
+  // Check if ModalManager is available
+  if (window.ModalManager) {
+    logEvent('ModalManager: AVAILABLE');
+  } else {
+    logEvent('ModalManager: NOT AVAILABLE');
+  }
+});
+</script>
+{% endblock %}

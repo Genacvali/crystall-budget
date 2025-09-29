@@ -33,6 +33,11 @@ class BaseConfig:
     
     # Logging
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO')
+    
+    # Feature Flags
+    MODAL_SYSTEM_ENABLED = os.environ.get('MODAL_SYSTEM_ENABLED', 'true').lower() == 'true'
+    MODAL_SYSTEM_DEBUG = os.environ.get('MODAL_SYSTEM_DEBUG', 'false').lower() == 'true'
+    MODAL_SYSTEM_CANARY_PCT = int(os.environ.get('MODAL_SYSTEM_CANARY_PCT', '100'))
 
 
 class DevelopmentConfig(BaseConfig):

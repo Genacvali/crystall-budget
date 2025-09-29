@@ -4,6 +4,7 @@ from decimal import Decimal
 from flask import render_template, request, redirect, url_for, flash, session, jsonify
 from flask_login import login_required, current_user
 from app.core.time import YearMonth, parse_year_month
+from app.core.monitoring import monitor_modal_performance
 from .service import BudgetService, CurrencyService, DashboardService
 from .schemas import CategoryForm, ExpenseForm, IncomeForm, QuickExpenseForm, BudgetFilterForm
 from .models import Category, Expense, Income, IncomeSource
@@ -818,6 +819,7 @@ def delete_income_source(source_id):
 # Modal routes for expenses
 @budget_bp.route('/modals/expense/add')
 @login_required
+@monitor_modal_performance('expense_add')
 def expense_add_modal():
     """Return expense add modal content."""
     user_id = session['user_id']
@@ -838,6 +840,7 @@ def expense_add_modal():
 
 @budget_bp.route('/modals/expense/<int:expense_id>/edit')
 @login_required
+@monitor_modal_performance('expense_edit')
 def expense_edit_modal(expense_id):
     """Return expense edit modal content."""
     user_id = session['user_id']
@@ -852,6 +855,7 @@ def expense_edit_modal(expense_id):
 # Modal routes for income
 @budget_bp.route('/modals/income/add')
 @login_required
+@monitor_modal_performance('income_add')
 def income_add_modal():
     """Return income add modal content."""
     user_id = session['user_id']
@@ -870,6 +874,7 @@ def income_add_modal():
 
 @budget_bp.route('/modals/income/<int:income_id>/edit')
 @login_required
+@monitor_modal_performance('income_edit')
 def income_edit_modal(income_id):
     """Return income edit modal content."""
     user_id = session['user_id']

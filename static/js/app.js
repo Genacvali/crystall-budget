@@ -50,6 +50,19 @@
     return value;
   };
 
+  // Debounce утилита для оптимизации INP
+  const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
   // Инициализация при загрузке DOM
   document.addEventListener('DOMContentLoaded', () => {
     // Находим все поля ввода чисел
@@ -57,6 +70,7 @@
     
     numberInputs.forEach(input => {
       // Обработка при вводе - заменяем запятую на точку в реальном времени
+      // Immediate normalization for decimal separator (no debounce needed)
       input.addEventListener('input', (e) => {
         const originalValue = e.target.value;
         const normalizedValue = normalizeDecimal(originalValue);
@@ -68,7 +82,7 @@
           
           e.target.value = normalizedValue;
           
-          // Восстанавливаем позицию курсора
+          // Восстанавливаем позицию курсора  
           e.target.setSelectionRange(selectionStart, selectionEnd);
         }
       });
@@ -251,26 +265,7 @@ function showToast(message, type = 'info') {
   setTimeout(() => toast.remove(), 4000);
 }
 
-// === Глобальная функция для подтверждения удаления через модалку ===
-window.confirmDelete = function(message, onConfirm) {
-  const modal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
-  const messageEl = document.getElementById('confirmDeleteMessage');
-  const confirmBtn = document.getElementById('confirmDeleteBtn');
-  
-  messageEl.textContent = message;
-  
-  // Удаляем старые обработчики
-  const newConfirmBtn = confirmBtn.cloneNode(true);
-  confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-  
-  // Добавляем новый обработчик
-  newConfirmBtn.addEventListener('click', () => {
-    modal.hide();
-    onConfirm();
-  });
-  
-  modal.show();
-};
+// Legacy confirmDelete function removed - now using ModalManager.confirm
 
 // === Современный Drawer ===
 (() => {
@@ -311,6 +306,9 @@ window.confirmDelete = function(message, onConfirm) {
     const link = e.target.closest('a.cb-drawer-item');
     if (link) closeDrawer();
   });
+
+  // Закрытие drawer при открытии модалки (mutual exclusion)
+  document.addEventListener('modal:closeDrawer', closeDrawer);
 
   // Скрываем drawer изначально
   drawer.hidden = true;

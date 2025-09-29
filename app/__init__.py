@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, render_template
 from app.core.extensions import db, migrate, login_manager, csrf, cache
 from app.core.config import get_config
 from app.core.config import config_by_name
+from app.core.monitoring import monitor_modal_performance
 import os
 from typing import Optional
 
@@ -155,6 +156,7 @@ def create_app(config_name: Optional[str] = None):
     
     # Modal routes for goals
     @app.route('/modals/goal/add')
+    @monitor_modal_performance('goal_add')
     def goal_add_modal():
         """Return goal add modal content."""
         from flask_login import login_required, current_user
@@ -165,6 +167,7 @@ def create_app(config_name: Optional[str] = None):
                              currency_symbol='₽')
 
     @app.route('/modals/goal/<int:goal_id>/edit')
+    @monitor_modal_performance('goal_edit')
     def goal_edit_modal(goal_id):
         """Return goal edit modal content."""
         from flask_login import login_required, current_user
@@ -195,6 +198,172 @@ def create_app(config_name: Optional[str] = None):
         return render_template('components/modals/goal_topup.html', 
                              goal=goal,
                              currency_symbol='₽')
+    
+    # Modal routes for settings
+    @app.route('/modals/settings/profile')
+    def settings_profile_modal():
+        """Return profile settings modal content."""
+        from flask_login import current_user
+        from flask import session
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        from app.modules.auth.models import User
+        user = User.query.get(session['user_id'])
+        if not user:
+            return redirect(url_for('auth.logout'))
+        
+        return render_template('components/modals/settings_profile.html', 
+                             user=user)
+
+    @app.route('/modals/settings/password')
+    def settings_password_modal():
+        """Return password change modal content."""
+        from flask_login import current_user
+        from flask import session
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        from app.modules.auth.models import User
+        user = User.query.get(session['user_id'])
+        if not user:
+            return redirect(url_for('auth.logout'))
+        
+        return render_template('components/modals/settings_password.html', 
+                             user=user)
+
+    @app.route('/modals/settings/interface')
+    def settings_interface_modal():
+        """Return interface settings modal content."""
+        from flask_login import current_user
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        return render_template('components/modals/settings_interface.html')
+
+    @app.route('/modals/settings/export')
+    def settings_export_modal():
+        """Return data export modal content."""
+        from flask_login import current_user
+        from flask import session
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        # Get user statistics
+        user_id = session['user_id']
+        from app.core.extensions import db
+        from sqlalchemy import text
+        
+        stats = {}
+        try:
+            # Get counts for user data
+            result = db.session.execute(text("""
+                SELECT 
+                    (SELECT COUNT(*) FROM expenses WHERE user_id = :user_id) as expenses_count,
+                    (SELECT COUNT(*) FROM income WHERE user_id = :user_id) as income_count,
+                    (SELECT COUNT(*) FROM categories WHERE user_id = :user_id) as categories_count,
+                    (SELECT COUNT(*) FROM savings_goals WHERE user_id = :user_id) as goals_count
+            """), {'user_id': user_id}).fetchone()
+            
+            if result:
+                stats = {
+                    'expenses_count': result.expenses_count,
+                    'income_count': result.income_count, 
+                    'categories_count': result.categories_count,
+                    'goals_count': result.goals_count
+                }
+        except Exception:
+            stats = {'expenses_count': 0, 'income_count': 0, 'categories_count': 0, 'goals_count': 0}
+        
+        return render_template('components/modals/settings_export.html', 
+                             stats=stats)
+
+    @app.route('/modals/settings/import')
+    def settings_import_modal():
+        """Return data import modal content."""
+        from flask_login import current_user
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        return render_template('components/modals/settings_import.html')
+
+    @app.route('/modals/settings/clear-data')
+    def settings_clear_data_modal():
+        """Return clear data modal content."""
+        from flask_login import current_user
+        from flask import session
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        # Get user statistics
+        user_id = session['user_id']
+        from app.core.extensions import db
+        from sqlalchemy import text
+        
+        stats = {}
+        try:
+            result = db.session.execute(text("""
+                SELECT 
+                    (SELECT COUNT(*) FROM expenses WHERE user_id = :user_id) as expenses_count,
+                    (SELECT COUNT(*) FROM income WHERE user_id = :user_id) as income_count,
+                    (SELECT COUNT(*) FROM categories WHERE user_id = :user_id) as categories_count,
+                    (SELECT COUNT(*) FROM savings_goals WHERE user_id = :user_id) as goals_count
+            """), {'user_id': user_id}).fetchone()
+            
+            if result:
+                stats = {
+                    'expenses_count': result.expenses_count,
+                    'income_count': result.income_count,
+                    'categories_count': result.categories_count,
+                    'goals_count': result.goals_count
+                }
+        except Exception:
+            stats = {'expenses_count': 0, 'income_count': 0, 'categories_count': 0, 'goals_count': 0}
+        
+        return render_template('components/modals/settings_clear_data.html', 
+                             stats=stats)
+
+    @app.route('/modals/settings/delete-account')
+    def settings_delete_account_modal():
+        """Return delete account modal content."""
+        from flask_login import current_user
+        from flask import session
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        from app.modules.auth.models import User
+        user = User.query.get(session['user_id'])
+        if not user:
+            return redirect(url_for('auth.logout'))
+        
+        # Get user statistics
+        user_id = session['user_id']
+        from app.core.extensions import db
+        from sqlalchemy import text
+        
+        stats = {}
+        try:
+            result = db.session.execute(text("""
+                SELECT 
+                    (SELECT COUNT(*) FROM expenses WHERE user_id = :user_id) as expenses_count,
+                    (SELECT COUNT(*) FROM income WHERE user_id = :user_id) as income_count,
+                    (SELECT COUNT(*) FROM categories WHERE user_id = :user_id) as categories_count,
+                    (SELECT COUNT(*) FROM savings_goals WHERE user_id = :user_id) as goals_count
+            """), {'user_id': user_id}).fetchone()
+            
+            if result:
+                stats = {
+                    'expenses_count': result.expenses_count,
+                    'income_count': result.income_count,
+                    'categories_count': result.categories_count,
+                    'goals_count': result.goals_count
+                }
+        except Exception:
+            stats = {'expenses_count': 0, 'income_count': 0, 'categories_count': 0, 'goals_count': 0}
+        
+        return render_template('components/modals/settings_delete_account.html', 
+                             user=user,
+                             stats=stats)
     
     @app.route('/categories/update/<int:cat_id>', methods=['POST'])
     def categories_update_compat(cat_id):
@@ -230,6 +399,16 @@ def create_app(config_name: Optional[str] = None):
         """Serve favicon from static folder."""
         return redirect(url_for('static', filename='favicon.ico'))
     
+    @app.route('/modal-test')
+    def modal_test():
+        """Modal testing page for QA."""
+        return render_template('modal_test.html')
+    
+    @app.route('/qa-modal-test')
+    def qa_modal_test():
+        """QA testing page for unified modal system."""
+        return render_template('modal_qa_test.html')
+    
     @app.route('/healthz')
     def health_check():
         """Health check endpoint for monitoring."""
@@ -253,6 +432,64 @@ def create_app(config_name: Optional[str] = None):
         except Exception as e:
             return {'status': 'error', 'message': str(e)}, 500
     
+    @app.route('/monitoring/modal-system')
+    def monitoring_dashboard():
+        """Modal system monitoring dashboard."""
+        from flask_login import current_user
+        from app.core.monitoring import create_monitoring_dashboard_data, log_bundle_usage
+        
+        # Only accessible to authenticated users
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        # Log this bundle usage
+        log_bundle_usage()
+        
+        dashboard_data = create_monitoring_dashboard_data()
+        return render_template('monitoring/modal_dashboard.html', 
+                             data=dashboard_data)
+    
+    @app.route('/monitoring/modal-system/api')
+    def monitoring_api():
+        """JSON API for modal system monitoring."""
+        from flask_login import current_user
+        from flask import jsonify
+        from app.core.monitoring import create_monitoring_dashboard_data
+        
+        # Only accessible to authenticated users  
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Authentication required'}), 401
+            
+        return jsonify(create_monitoring_dashboard_data())
+    
+    @app.route('/api/telemetry/modal', methods=['POST'])
+    def modal_telemetry_api():
+        """API endpoint for modal telemetry collection."""
+        from flask_login import current_user
+        from flask import jsonify, request
+        from app.core.telemetry import ModalTelemetry
+        
+        # Only for authenticated users
+        if not current_user.is_authenticated:
+            return jsonify({'error': 'Authentication required'}), 401
+        
+        try:
+            data = request.get_json()
+            if not data or 'event_type' not in data or 'modal_name' not in data:
+                return jsonify({'error': 'Missing required fields'}), 400
+            
+            ModalTelemetry.record_modal_event(
+                event_type=data['event_type'],
+                modal_name=data['modal_name'],
+                data=data.get('data', {}),
+                user_id=session.get('user_id')
+            )
+            
+            return jsonify({'status': 'success'})
+            
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    
     # Import models for Alembic
     from app.modules.auth.models import User
     from app.modules.budget.models import Category, Expense, Income, CategoryRule, ExchangeRate, IncomeSource  
@@ -274,6 +511,24 @@ def create_app(config_name: Optional[str] = None):
     # Register template filters
     from app.core.filters import register_filters
     register_filters(app)
+    
+    # Register template context processors  
+    from app.core.features import modal_system_config
+    from app.core.bundles import bundle_config
+    from app.core.monitoring import log_bundle_usage
+    
+    @app.context_processor
+    def inject_feature_flags():
+        # Log bundle usage for monitoring
+        try:
+            log_bundle_usage()
+        except Exception:
+            pass  # Don't break page rendering for monitoring failures
+            
+        return {
+            'modal_system_config': modal_system_config,
+            'bundle_config': bundle_config
+        }
     
     # Initialize asset helpers
     from app.core.assets import init_asset_helpers

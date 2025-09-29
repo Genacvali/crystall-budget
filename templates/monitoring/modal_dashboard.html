@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block title %}Modal System Monitoring - CrystalBudget{% endblock %}
+
+{% block page_css %}
+<style>
+.monitoring-card {
+    border: 1px solid #e9ecef;
+    border-radius: 0.375rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    background-color: white;
+}
+
+.metric-value {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #495057;
+}
+
+.metric-label {
+    color: #6c757d;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.alert-good { color: #28a745; }
+.alert-warning { color: #ffc107; }
+.alert-danger { color: #dc3545; }
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.rollout-bar {
+    background-color: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.rollout-segment {
+    height: 20px;
+    display: inline-block;
+    position: relative;
+}
+
+.rollout-unified { background-color: #28a745; }
+.rollout-legacy { background-color: #6c757d; }
+
+.refresh-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-xl position-relative">
+    <button class="btn btn-outline-primary btn-sm refresh-btn" onclick="location.reload()">
+        <i class="bi bi-arrow-clockwise"></i> Обновить
+    </button>
+    
+    <h1 class="h3 mb-4">
+        <i class="bi bi-bar-chart"></i>
+        Мониторинг модальной системы
+    </h1>
+
+    <!-- Feature Flags Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="monitoring-card">
+                <h5 class="mb-3">
+                    <i class="bi bi-toggles"></i>
+                    Статус фича-флагов
+                </h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="metric-label">Modal System</div>
+                        <div class="metric-value {{ 'alert-good' if data.feature_flags.modal_system_enabled else 'alert-danger' }}">
+                            {{ 'Включен' if data.feature_flags.modal_system_enabled else 'Выключен' }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-label">Debug Mode</div>
+                        <div class="metric-value {{ 'alert-warning' if data.feature_flags.modal_system_debug else 'alert-good' }}">
+                            {{ 'Включен' if data.feature_flags.modal_system_debug else 'Выключен' }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-label">Canary %</div>
+                        <div class="metric-value">{{ data.feature_flags.canary_percentage }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Performance Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="monitoring-card text-center">
+                <div class="metric-label">Среднее время загрузки</div>
+                <div class="metric-value {{ 'alert-danger' if data.performance.average_load_time_ms > 500 else 'alert-warning' if data.performance.average_load_time_ms > 250 else 'alert-good' }}">
+                    {{ "%.0f"|format(data.performance.average_load_time_ms) }}ms
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="monitoring-card text-center">
+                <div class="metric-label">Всего загрузок</div>
+                <div class="metric-value">{{ data.performance.total_modal_loads }}</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="monitoring-card text-center">
+                <div class="metric-label">Ошибок</div>
+                <div class="metric-value {{ 'alert-danger' if data.performance.error_count > 0 else 'alert-good' }}">
+                    {{ data.performance.error_count }}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="monitoring-card text-center">
+                <div class="metric-label">Процент ошибок</div>
+                <div class="metric-value {{ 'alert-danger' if data.performance.error_rate_pct > 5 else 'alert-warning' if data.performance.error_rate_pct > 1 else 'alert-good' }}">
+                    {{ "%.1f"|format(data.performance.error_rate_pct) }}%
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rollout Status -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="monitoring-card">
+                <h5 class="mb-3">
+                    <i class="bi bi-pie-chart"></i>
+                    Статус деплоя
+                </h5>
+                
+                <div class="rollout-bar">
+                    {% set unified_width = data.rollout.unified_percentage %}
+                    {% set legacy_width = data.rollout.legacy_percentage %}
+                    
+                    <div class="rollout-segment rollout-unified" style="width: {{ unified_width }}%"></div>
+                    <div class="rollout-segment rollout-legacy" style="width: {{ legacy_width }}%"></div>
+                </div>
+                
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="w-3 h-3 rounded-circle me-2 rollout-unified" style="width: 12px; height: 12px;"></div>
+                            <span>Unified система: <strong>{{ "%.1f"|format(unified_width) }}%</strong></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <div class="w-3 h-3 rounded-circle me-2 rollout-legacy" style="width: 12px; height: 12px;"></div>
+                            <span>Legacy система: <strong>{{ "%.1f"|format(legacy_width) }}%</strong></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="metric-label">Всего запросов</div>
+                        <div class="metric-value">{{ data.rollout.total_requests }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bundle Distribution -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="monitoring-card">
+                <h6 class="mb-3">Загрузки бандлов</h6>
+                <div class="row">
+                    <div class="col-6 text-center">
+                        <div class="metric-label">Unified</div>
+                        <div class="metric-value alert-good">{{ data.bundle_distribution.unified }}</div>
+                    </div>
+                    <div class="col-6 text-center">
+                        <div class="metric-label">Legacy</div>
+                        <div class="metric-value alert-warning">{{ data.bundle_distribution.legacy }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="monitoring-card">
+                <h6 class="mb-3">Алерты производительности</h6>
+                <div class="alert {{ 'alert-warning' if data.alerts.slow_loads else 'alert-success' }} p-2 mb-2">
+                    <i class="bi bi-{{ 'exclamation-triangle' if data.alerts.slow_loads else 'check-circle' }}"></i>
+                    Медленные загрузки: {{ 'Обнаружены' if data.alerts.slow_loads else 'Нет' }}
+                </div>
+                <div class="alert {{ 'alert-danger' if data.alerts.high_error_rate else 'alert-success' }} p-2">
+                    <i class="bi bi-{{ 'exclamation-triangle' if data.alerts.high_error_rate else 'check-circle' }}"></i>
+                    Высокий процент ошибок: {{ 'Да' if data.alerts.high_error_rate else 'Нет' }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12">
+            <div class="monitoring-card">
+                <h6 class="mb-3">Быстрые действия</h6>
+                <div class="btn-group" role="group">
+                    <a href="/monitoring/modal-system/api" class="btn btn-outline-primary" target="_blank">
+                        <i class="bi bi-code"></i> JSON API
+                    </a>
+                    <a href="/qa-modal-test" class="btn btn-outline-secondary">
+                        <i class="bi bi-bug"></i> QA Testing
+                    </a>
+                    <a href="/modal-test" class="btn btn-outline-info">
+                        <i class="bi bi-play"></i> Modal Test
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-refresh every 30 seconds
+setTimeout(() => location.reload(), 30000);
+
+// Show current bundle being used
+document.addEventListener('DOMContentLoaded', function() {
+    const currentBundle = '{{ bundle_config().name }}';
+    console.log(`Current bundle: ${currentBundle}`);
+});
+</script>
+{% endblock %}

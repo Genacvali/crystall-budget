@@ -31,7 +31,8 @@
       "Bash(flask user-cli:*)",
       "Bash(flask dev-cli create-test-expenses:*)",
       "Bash(BUDGET_DB=\"sqlite:///budget.db\" flask db-cli init-db)",
-      "WebFetch(domain:docs.claude.com)"
+      "WebFetch(domain:docs.claude.com)",
+      "Bash(MODAL_SYSTEM_ENABLED=false PORT=5040 python -c \"\nfrom app import create_app\nfrom app.core.features import modal_system_config, is_modal_system_enabled\nfrom app.core.bundles import bundle_config, get_bundle_name\n\napp = create_app(''development'')\nwith app.app_context():\n    print(''=== Feature Flag Test (DISABLED) ==='')\n    print(f''Modal system enabled: {is_modal_system_enabled()}'')\n    print(f''Modal config: {modal_system_config()}'')\n    print()\n    print(''=== Bundle Test (LEGACY) ==='') \n    print(f''Bundle name: {get_bundle_name()}'')\n    print(f''Bundle config: {bundle_config()}'')\n\")"
     ],
     "deny": [],
     "ask": []

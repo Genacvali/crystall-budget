@@ -12,21 +12,20 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-icons/bootstrap-icons.css') }}">
   
-  <!-- Legacy styles (keep working) -->
-  <link rel="stylesheet" href="{{ versioned_static('css/clean-theme.css') }}">
-  <link rel="stylesheet" href="{{ versioned_static('css/app.css') }}">
-  <link rel="stylesheet" href="{{ versioned_static('css/accessibility.css') }}">
-  <link rel="stylesheet" href="{{ versioned_static('css/theme-ff-light.css') }}">
-  <link rel="stylesheet" href="{{ versioned_static('css/nav-ff.css') }}">
+  <!-- Bundle-based CSS loading ({{ bundle_config().name }} bundle) -->
+  {% set bundle = bundle_config() %}
+  {% for css_file in bundle.css %}
+    {% if css_file == 'css/components/modal.css' and bundle.modal_enabled %}
+      <!-- Unified Modal System - Non-blocking CSS load -->
+      <link rel="preload" href="{{ versioned_static(css_file) }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+      <noscript><link rel="stylesheet" href="{{ versioned_static(css_file) }}"></noscript>
+    {% else %}
+      <link rel="stylesheet" href="{{ versioned_static(css_file) }}">
+    {% endif %}
+  {% endfor %}
   
-  <!-- CrystalBudget Design Tokens (safe) -->
-  <link rel="stylesheet" href="{{ versioned_static('css/design-tokens.css') }}">
-
-  <!-- CrystalBudget Components (opt-in) -->
-  {% block cb_components %}
-    <!-- Modal System -->
-    <link rel="stylesheet" href="{{ versioned_static('css/components/modal.css') }}">
-  {% endblock %}
+  <!-- Page-specific components -->
+  {% block cb_components %}{% endblock %}
 
   <!-- Страничные стили при необходимости -->
   {% block page_css %}{% endblock %}
@@ -73,13 +72,25 @@
 <!-- Bootstrap JS -->
 <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
 
-<!-- Общий JavaScript -->
-<script src="{{ versioned_static('js/app.js') }}"></script>
-<script src="{{ versioned_static('js/accessibility.js') }}"></script>
-<script src="{{ versioned_static('js/nav-ff.js') }}" defer></script>
+<!-- Bundle-based JavaScript loading ({{ bundle.name }} bundle) -->
+{% for js_file in bundle.js %}
+  <script src="{{ versioned_static(js_file) }}" defer></script>
+{% endfor %}
 
-<!-- Modal System -->
-<script src="{{ versioned_static('js/modals.js') }}"></script>
+<!-- Bundle-specific configuration -->
+{% if bundle.modal_enabled %}
+<script>
+// Configure modal system based on feature flags
+document.addEventListener('DOMContentLoaded', function() {
+  if (window.ModalManager) {
+    window.ModalManager.debug = {{ 'true' if modal_system_config().debug else 'false' }};
+  }
+  
+  // Log bundle usage for monitoring
+  console.log('CrystalBudget: Using {{ bundle.name }} bundle');
+});
+</script>
+{% endif %}
 
 <!-- Страничный JavaScript при необходимости -->
 {% block page_js %}{% endblock %}

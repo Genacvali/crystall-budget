@@ -1,0 +1,266 @@
+<!-- Шаблон модальной формы очистки данных -->
+<!-- Используется для GET /modals/settings/clear-data -->
+
+<form method="POST" action="{{ url_for('settings_clear_data') }}" 
+      data-form="settings-clear-data" role="form" aria-label="Форма очистки данных" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row g-4">
+        <!-- Предупреждение -->
+        <div class="col-12">
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Опасное действие!</strong> Эта операция удалит выбранные данные без возможности восстановления.
+                Настоятельно рекомендуем создать резервную копию перед продолжением.
+            </div>
+        </div>
+
+        <!-- Что удалить -->
+        <div class="col-12">
+            <h6 class="mb-3 text-danger">
+                <i class="bi bi-trash me-2"></i>Данные для удаления
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-danger">
+                        <div class="card-body py-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="clear_expenses" id="clear_expenses">
+                                <label class="form-check-label" for="clear_expenses">
+                                    <i class="bi bi-wallet2 me-2 text-danger"></i>
+                                    <strong>Все расходы</strong>
+                                    <small class="d-block text-muted">{{ stats.expenses_count or 0 }} записей</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-warning">
+                        <div class="card-body py-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="clear_income" id="clear_income">
+                                <label class="form-check-label" for="clear_income">
+                                    <i class="bi bi-graph-up-arrow me-2 text-warning"></i>
+                                    <strong>Все доходы</strong>
+                                    <small class="d-block text-muted">{{ stats.income_count or 0 }} записей</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-info">
+                        <div class="card-body py-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="clear_categories" id="clear_categories">
+                                <label class="form-check-label" for="clear_categories">
+                                    <i class="bi bi-tags me-2 text-info"></i>
+                                    <strong>Категории</strong>
+                                    <small class="d-block text-muted">{{ stats.categories_count or 0 }} категорий</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-secondary">
+                        <div class="card-body py-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="clear_goals" id="clear_goals">
+                                <label class="form-check-label" for="clear_goals">
+                                    <i class="bi bi-bullseye me-2 text-secondary"></i>
+                                    <strong>Цели накоплений</strong>
+                                    <small class="d-block text-muted">{{ stats.goals_count or 0 }} целей</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Дополнительные опции -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-gear me-2"></i>Дополнительные параметры
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="create_backup" id="create_backup" checked>
+                        <label class="form-check-label" for="create_backup">
+                            <strong>Создать резервную копию</strong>
+                            <small class="d-block text-muted">Автоматически перед удалением</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="reset_categories" id="reset_categories">
+                        <label class="form-check-label" for="reset_categories">
+                            <strong>Сбросить настройки категорий</strong>
+                            <small class="d-block text-muted">Вернуть к стандартным</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Подтверждение -->
+        <div class="col-12">
+            <div class="card bg-danger bg-opacity-10 border-danger">
+                <div class="card-body">
+                    <h6 class="text-danger mb-3">
+                        <i class="bi bi-shield-exclamation me-2"></i>Подтверждение действия
+                    </h6>
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Введите <code>УДАЛИТЬ</code> для подтверждения:
+                        </label>
+                        <input type="text" class="form-control" name="confirmation" id="confirmation"
+                               placeholder="Введите УДАЛИТЬ" required pattern="УДАЛИТЬ"
+                               title="Введите точно слово УДАЛИТЬ">
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="understand_risks" id="understand_risks" required>
+                        <label class="form-check-label text-danger" for="understand_risks">
+                            <strong>Я понимаю, что эти данные будут удалены навсегда</strong>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Удаление данных…</span>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[data-form="settings-clear-data"]');
+  if (!form) return;
+
+  const confirmationInput = form.querySelector('#confirmation');
+  const checkboxes = form.querySelectorAll('input[type="checkbox"][name^="clear_"]');
+  const understandRisks = form.querySelector('#understand_risks');
+  const errBox = form.querySelector('#form-errors');
+  const errText = form.querySelector('#form-error-text');
+  const loading = form.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  // Auto-focus confirmation field
+  if (confirmationInput) {
+    setTimeout(() => confirmationInput.focus(), 100);
+  }
+
+  // Validate at least one data type is selected
+  function validateDataSelection() {
+    const isAnyChecked = Array.from(checkboxes).some(cb => cb.checked);
+    
+    checkboxes.forEach(cb => {
+      if (!isAnyChecked) {
+        cb.setCustomValidity('Выберите хотя бы один тип данных для удаления');
+      } else {
+        cb.setCustomValidity('');
+      }
+    });
+    
+    return isAnyChecked;
+  }
+
+  // Add validation listeners
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', validateDataSelection);
+  });
+
+  // Confirmation input validation
+  if (confirmationInput) {
+    confirmationInput.addEventListener('input', function() {
+      if (this.value === 'УДАЛИТЬ') {
+        this.classList.add('is-valid');
+        this.classList.remove('is-invalid');
+      } else {
+        this.classList.add('is-invalid');
+        this.classList.remove('is-valid');
+      }
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    // Validate data selection
+    if (!validateDataSelection()) {
+      e.preventDefault();
+      e.stopPropagation();
+      showError('Выберите хотя бы один тип данных для удаления');
+      return;
+    }
+
+    // Validate confirmation
+    if (confirmationInput && confirmationInput.value !== 'УДАЛИТЬ') {
+      e.preventDefault();
+      e.stopPropagation();
+      showError('Для подтверждения введите точно слово УДАЛИТЬ');
+      confirmationInput.focus();
+      return;
+    }
+
+    // Validate risks understanding
+    if (!understandRisks?.checked) {
+      e.preventDefault();
+      e.stopPropagation();
+      showError('Подтвердите, что понимаете риски');
+      return;
+    }
+
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // Final confirmation
+    const selectedData = Array.from(checkboxes)
+      .filter(cb => cb.checked)
+      .map(cb => cb.nextElementSibling.querySelector('strong').textContent)
+      .join(', ');
+
+    const confirmed = confirm(
+      `Вы действительно хотите удалить: ${selectedData}?\n\n` +
+      'Это действие НЕЛЬЗЯ отменить!\n\n' +
+      'Нажмите ОК только если уверены.'
+    );
+
+    if (!confirmed) {
+      e.preventDefault();
+      return;
+    }
+
+    // показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+
+  function showError(message) {
+    errText.textContent = message;
+    errBox.classList.remove('d-none');
+  }
+});
+</script>

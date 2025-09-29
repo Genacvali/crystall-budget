@@ -190,3 +190,144 @@ def set_theme():
         pass  # Continue even if DB update fails
     
     return jsonify({"ok": True})
+
+
+# Settings processing routes
+@auth_bp.route('/settings/interface', methods=['POST'])
+@login_required
+def settings_save_interface():
+    """Save interface settings."""
+    try:
+        user = User.query.get(session['user_id'])
+        if not user:
+            flash('Пользователь не найден', 'error')
+            return redirect(url_for('auth.logout'))
+        
+        # Get form data
+        theme = request.form.get('theme', 'light')
+        language = request.form.get('language', 'ru')  
+        density = request.form.get('density', 'normal')
+        
+        # Save theme to session and database
+        if theme in ['light', 'dark', 'auto']:
+            session['theme'] = theme
+            user.theme = theme
+        
+        # Save other preferences (would need user preferences table/fields)
+        # For now just save theme
+        db.session.commit()
+        
+        flash('Настройки интерфейса сохранены', 'success')
+        return redirect(url_for('settings'))
+        
+    except Exception as e:
+        current_app.logger.error(f"Error saving interface settings: {e}")
+        flash('Ошибка сохранения настроек', 'error')
+        return redirect(url_for('settings'))
+
+
+@auth_bp.route('/settings/export', methods=['POST'])
+@login_required  
+def settings_export_data():
+    """Export user data."""
+    try:
+        user_id = session['user_id']
+        export_format = request.form.get('format', 'json')
+        
+        # This is a placeholder - would need actual export implementation
+        flash('Экспорт данных в разработке', 'info')
+        return redirect(url_for('settings'))
+        
+    except Exception as e:
+        current_app.logger.error(f"Error exporting data: {e}")
+        flash('Ошибка экспорта данных', 'error')
+        return redirect(url_for('settings'))
+
+
+@auth_bp.route('/settings/import', methods=['POST'])
+@login_required
+def settings_import_data():
+    """Import user data."""
+    try:
+        # This is a placeholder - would need actual import implementation
+        flash('Импорт данных в разработке', 'info')
+        return redirect(url_for('settings'))
+        
+    except Exception as e:
+        current_app.logger.error(f"Error importing data: {e}")
+        flash('Ошибка импорта данных', 'error')
+        return redirect(url_for('settings'))
+
+
+@auth_bp.route('/settings/clear-data', methods=['POST'])
+@login_required
+def settings_clear_data():
+    """Clear user data."""
+    try:
+        user_id = session['user_id']
+        confirmation = request.form.get('confirmation', '')
+        
+        if confirmation != 'УДАЛИТЬ':
+            flash('Неверное подтверждение', 'error')
+            return redirect(url_for('settings'))
+        
+        # This is a placeholder - would need actual data clearing implementation
+        flash('Очистка данных в разработке', 'info')
+        return redirect(url_for('settings'))
+        
+    except Exception as e:
+        current_app.logger.error(f"Error clearing data: {e}")
+        flash('Ошибка очистки данных', 'error')
+        return redirect(url_for('settings'))
+
+
+@auth_bp.route('/settings/delete-account', methods=['POST'])
+@login_required
+def settings_delete_account():
+    """Delete user account."""
+    try:
+        user = User.query.get(session['user_id'])
+        if not user:
+            flash('Пользователь не найден', 'error')
+            return redirect(url_for('auth.logout'))
+        
+        # Validate confirmations
+        name_confirmation = request.form.get('name_confirmation', '')
+        deletion_confirmation = request.form.get('deletion_confirmation', '')
+        
+        if name_confirmation != user.name:
+            flash('Неверное подтверждение имени', 'error')
+            return redirect(url_for('settings'))
+            
+        if deletion_confirmation != 'УДАЛИТЬ АККАУНТ':
+            flash('Неверное подтверждение удаления', 'error')
+            return redirect(url_for('settings'))
+        
+        # For email users, check password
+        if user.auth_type == 'email':
+            password_confirmation = request.form.get('password_confirmation', '')
+            if not AuthService.verify_password(user, password_confirmation):
+                flash('Неверный пароль', 'error')
+                return redirect(url_for('settings'))
+        
+        # This is a placeholder - would need actual account deletion implementation
+        flash('Удаление аккаунта в разработке', 'info')
+        return redirect(url_for('settings'))
+        
+    except Exception as e:
+        current_app.logger.error(f"Error deleting account: {e}")
+        flash('Ошибка удаления аккаунта', 'error')
+        return redirect(url_for('settings'))
+
+
+# Add settings page route
+@auth_bp.route('/settings')
+@login_required
+def settings():
+    """Settings page."""
+    user = User.query.get(session['user_id'])
+    if not user:
+        flash('Пользователь не найден', 'error')
+        return redirect(url_for('auth.logout'))
+    
+    return render_template('settings.html', user=user)

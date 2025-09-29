@@ -16,6 +16,10 @@
       this.focusBeforeModal = null;
       this.scrollPosition = 0;
       this.debug = false; // Set to true for debugging
+      this.operationInProgress = false; // Stress test protection
+      this.operationQueue = []; // Operation queue for rapid calls
+      this.telemetryEnabled = true; // Enable telemetry collection
+      this.modalStartTime = null; // Track modal timing
       this.init();
     }
 
@@ -169,6 +173,59 @@
       }
     }
 
+    // Telemetry collection methods
+    sendTelemetry(eventType, modalName, data = {}) {
+      if (!this.telemetryEnabled) return;
+      
+      try {
+        const payload = {
+          event_type: eventType,
+          modal_name: modalName,
+          data: data
+        };
+        
+        fetch('/api/telemetry/modal', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': this.getCSRFToken()
+          },
+          body: JSON.stringify(payload)
+        }).catch(err => {
+          if (this.debug) {
+            console.warn('[CrystalBudget Modal] Telemetry failed:', err);
+          }
+        });
+      } catch (error) {
+        if (this.debug) {
+          console.warn('[CrystalBudget Modal] Telemetry error:', error);
+        }
+      }
+    }
+
+    recordModalOpen(modalName) {
+      this.modalStartTime = Date.now();
+      this.sendTelemetry('open', modalName);
+    }
+
+    recordModalClose(modalName) {
+      const duration = this.modalStartTime ? Date.now() - this.modalStartTime : 0;
+      this.sendTelemetry('close', modalName, { duration_ms: duration });
+      this.modalStartTime = null;
+    }
+
+    recordModalSubmit(modalName, success = true) {
+      const duration = this.modalStartTime ? Date.now() - this.modalStartTime : 0;
+      this.sendTelemetry('submit', modalName, { success, duration_ms: duration });
+    }
+
+    recordModalError(modalName, errorType, errorMessage = null) {
+      this.sendTelemetry('error', modalName, { 
+        error_type: errorType, 
+        error_message: errorMessage 
+      });
+    }
+
     showError(message) {
       // Show user-friendly error message
       const errorModal = this.createDynamicModal('modal-error');
@@ -194,10 +251,20 @@
     }
 
     show(modalId, options = {}) {
+      // Stress test protection: prevent rapid operations
+      if (this.operationInProgress) {
+        this.log('warn', `Modal operation already in progress, queuing: ${modalId}`);
+        this.operationQueue.push({ type: 'show', modalId, options });
+        return false;
+      }
+
+      this.operationInProgress = true;
       this.log('debug', `Opening modal: ${modalId}`, options);
       
       const modal = document.getElementById(modalId);
       if (!modal) {
+        this.operationInProgress = false;
+        this.processQueue(); // Process next in queue
         this.log('error', `Modal with id "${modalId}" not found`);
         console.error(`Modal with id "${modalId}" not found`);
         return false;
@@ -207,6 +274,13 @@
       if (this.activeModal) {
         this.log('debug', `Hiding existing modal: ${this.activeModal.id}`);
         this.hide();
+      }
+
+      // Close drawer if open (mutual exclusion for stable UX)
+      if (document.body.classList.contains('drawer-open')) {
+        this.log('debug', 'Closing drawer before opening modal');
+        const closeDrawerEvent = new CustomEvent('modal:closeDrawer');
+        document.dispatchEvent(closeDrawerEvent);
       }
 
       // Store focus
@@ -235,11 +309,20 @@
 
       this.activeModal = modal;
 
+      // Record telemetry
+      this.recordModalOpen(modalId);
+
       // Focus management
       this.focusModal(modal);
 
       // Emit custom event
       this.emit('Modal:opened', { modal, modalId, options });
+
+      // Operation completed - process queue
+      setTimeout(() => {
+        this.operationInProgress = false;
+        this.processQueue();
+      }, 100); // Small delay for smooth UX
 
       return true;
     }
@@ -294,6 +377,10 @@
       }
 
       const modalId = modal.id;
+      
+      // Record telemetry
+      this.recordModalClose(modalId);
+      
       this.activeModal = null;
       this.focusBeforeModal = null;
 
@@ -443,6 +530,7 @@
       modal.setAttribute('aria-hidden', 'true');
       modal.setAttribute('role', 'dialog');
       modal.setAttribute('aria-modal', 'true');
+      modal.setAttribute('aria-labelledby', modalId + '-title');
       
       modal.innerHTML = `
         <div class="cb-modal__dialog">
@@ -641,6 +729,23 @@
     closeAll() {
       if (this.activeModal) {
         this.hide();
+      }
+    }
+
+    // Process queued operations (stress test protection)
+    processQueue() {
+      if (this.operationQueue.length === 0 || this.operationInProgress) {
+        return;
+      }
+
+      const nextOperation = this.operationQueue.shift();
+      this.log('debug', `Processing queued operation: ${nextOperation.type}`, nextOperation);
+      
+      // Execute the queued operation
+      if (nextOperation.type === 'show') {
+        this.show(nextOperation.modalId, nextOperation.options);
+      } else if (nextOperation.type === 'hide') {
+        this.hide(nextOperation.modalId);
       }
     }
   }

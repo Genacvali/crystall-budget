@@ -328,32 +328,38 @@
       const catId = trigger.dataset.id;
       if (!catId) return;
 
-      if (typeof window.confirmDelete === 'function') {
-        window.confirmDelete(
-          'Удалить эту категорию? Все связанные расходы также будут удалены.',
-          async () => {
-            try {
-              const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-              const response = await fetch(`/categories/delete/${catId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `csrf_token=${encodeURIComponent(csrfToken)}`
-              });
-              if (response.ok) {
-                notify('Категория успешно удалена', 'success');
-                setTimeout(() => location.reload(), 1000);
-              } else {
-                throw new Error('Ошибка сервера');
-              }
-            } catch (err) {
-              console.error(err);
-              notify('Ошибка при удалении категории', 'danger');
+      // Use unified modal system for confirmation
+      if (window.ModalManager) {
+        window.ModalManager.confirm({
+          title: 'Удаление категории',
+          message: 'Удалить эту категорию? Все связанные расходы также будут удалены.',
+          confirmText: 'Удалить',
+          cancelText: 'Отмена',
+          confirmClass: 'btn-danger'
+        }).then(async () => {
+          try {
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const response = await fetch(`/categories/delete/${catId}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: `csrf_token=${encodeURIComponent(csrfToken)}`
+            });
+            if (response.ok) {
+              notify('Категория успешно удалена', 'success');
+              setTimeout(() => location.reload(), 1000);
+            } else {
+              throw new Error('Ошибка сервера');
             }
+          } catch (err) {
+            console.error(err);
+            notify('Ошибка при удалении категории', 'danger');
           }
-        );
+        }).catch(() => {
+          // User cancelled - no action needed
+        });
       } else {
-        // Fallback confirm
-        if (confirm('Удалить категорию?')) {
+        // Fallback to native confirm
+        if (confirm('Удалить категорию? Все связанные расходы также будут удалены.')) {
           try {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
             const response = await fetch(`/categories/delete/${catId}`, {

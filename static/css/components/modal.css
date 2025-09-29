@@ -87,6 +87,8 @@
   z-index: var(--cb-modal-backdrop-z-index);
   opacity: 0;
   transition: opacity 0.15s ease;
+  contain: layout style paint;
+  will-change: opacity;
 }
 
 .cb-modal__backdrop.cb-modal__backdrop--show {
@@ -99,13 +101,16 @@
   max-width: 500px;
   margin: 0 auto;
   pointer-events: none;
-  transform: scale(0.9);
+  transform: scale3d(0.9, 0.9, 1);
   transition: transform 0.15s ease;
+  contain: layout style;
+  will-change: transform;
 }
 
 .cb-modal--show .cb-modal__dialog {
   pointer-events: auto;
-  transform: scale(1);
+  transform: scale3d(1, 1, 1);
+  will-change: auto;
 }
 
 .cb-modal__content {
@@ -610,11 +615,13 @@
   
   .cb-modal:not(.cb-modal--sheet):not(.cb-modal--confirm) .cb-modal__dialog {
     margin: 0;
-    transform: translateY(100%);
+    transform: translate3d(0, 100%, 0);
+    will-change: transform;
   }
   
   .cb-modal:not(.cb-modal--sheet):not(.cb-modal--confirm).cb-modal--show .cb-modal__dialog {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
+    will-change: auto;
   }
   
   .cb-modal:not(.cb-modal--sheet):not(.cb-modal--confirm) .cb-modal__content {
@@ -844,18 +851,44 @@
 
 @keyframes cb-modal-slide-up {
   from {
-    transform: translateY(100%);
+    transform: translate3d(0, 100%, 0);
+    will-change: transform;
   }
   to {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
+    will-change: auto;
   }
 }
 
 @keyframes cb-modal-slide-down {
   from {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
+    will-change: auto;
   }
   to {
-    transform: translateY(100%);
+    transform: translate3d(0, 100%, 0);
+    will-change: transform;
   }
+}
+
+/* === Z-INDEX MATRIX: BOOTSTRAP COMPONENTS IN MODALS === */
+
+/* Dropdowns in modals should appear above modal content */
+.cb-modal .dropdown-menu {
+  z-index: calc(var(--cb-modal-content-z-index) + 20) !important;
+}
+
+/* Tooltips in modals should appear above everything */
+.tooltip {
+  z-index: calc(var(--cb-modal-content-z-index) + 30) !important;
+}
+
+/* Popovers in modals should appear above tooltips */  
+.popover {
+  z-index: calc(var(--cb-modal-content-z-index) + 35) !important;
+}
+
+/* Bootstrap modal backdrop should not conflict */
+.modal-backdrop {
+  z-index: calc(var(--cb-modal-backdrop-z-index) - 5) !important;
 }
