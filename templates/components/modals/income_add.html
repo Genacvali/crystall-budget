@@ -19,10 +19,12 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
                 <input type="text" class="form-control" name="amount" id="amount"
-                       inputmode="decimal" placeholder="0"
-                       pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required>
+                       inputmode="decimal" placeholder="50000.00"
+                       pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required
+                       autocomplete="off" tabindex="2">
+                <span class="input-group-text">₽</span>
             </div>
-            <div class="form-text">Запятая или точка, 2 знака после.</div>
+            <div class="form-text">Запятая или точка, 2 знака после. Например: 65000,00</div>
         </div>
 
         <div class="col-12">
@@ -30,8 +32,10 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
                 <input type="text" class="form-control" name="source_name" id="source_name"
-                       placeholder="Например, Зарплата" required>
+                       placeholder="💼 Например: Зарплата, Фриланс, Подработка" required
+                       tabindex="1" autofocus maxlength="100">
             </div>
+            <div class="form-text">Укажите источник поступления средств</div>
         </div>
     </div>
     
@@ -70,7 +74,46 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sourceInput && amount) {
     sourceInput.addEventListener('blur', function() {
       if (this.value.trim()) {
-        setTimeout(() => amount.focus(), 100);
+        setTimeout(() => {
+          amount.focus();
+          amount.select(); // Выделить весь текст для быстрой замены
+        }, 100);
+      }
+    });
+  }
+
+  // Быстрые клавиши для популярных сумм дохода
+  if (amount) {
+    amount.addEventListener('keydown', function(e) {
+      // Ctrl+1-5 для быстрых сумм дохода
+      if (e.ctrlKey && e.key >= '1' && e.key <= '5') {
+        e.preventDefault();
+        const quickAmounts = ['30000', '50000', '75000', '100000', '150000'];
+        this.value = quickAmounts[parseInt(e.key) - 1];
+        this.focus();
+      }
+    });
+    
+    // Автоматическое добавление .00 при потере фокуса
+    amount.addEventListener('blur', function() {
+      if (this.value && /^\d+$/.test(this.value)) {
+        this.value = this.value + '.00';
+      }
+    });
+  }
+
+  // Предложения для источников дохода
+  if (sourceInput) {
+    const commonSources = ['Зарплата', 'Фриланс', 'Подработка', 'Премия', 'Пособие', 'Дивиденды', 'Аренда', 'Продажа'];
+    
+    sourceInput.addEventListener('input', function() {
+      const value = this.value.toLowerCase();
+      // Простая автозаполнение
+      for (let source of commonSources) {
+        if (source.toLowerCase().startsWith(value) && value.length > 1) {
+          // Можно добавить логику автозаполнения, но пока оставим как есть
+          break;
+        }
       }
     });
   }

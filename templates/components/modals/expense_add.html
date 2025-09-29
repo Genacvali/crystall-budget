@@ -19,16 +19,18 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
                 <input type="text" class="form-control" name="amount" id="amount"
-                       inputmode="decimal" placeholder="0"
-                       pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required>
+                       inputmode="decimal" placeholder="100.00"
+                       pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required
+                       autocomplete="off" tabindex="2">
+                <span class="input-group-text">₽</span>
             </div>
-            <div class="form-text">Запятая или точка, 2 знака после.</div>
+            <div class="form-text">Запятая или точка, 2 знака после. Например: 150,50</div>
         </div>
 
         <div class="col-12">
             <label class="form-label">Категория <span class="text-danger">*</span></label>
-            <select class="form-select" name="category_id" id="category_id" required>
-                <option value="">Выберите категорию</option>
+            <select class="form-select" name="category_id" id="category_id" required tabindex="1" autofocus>
+                <option value="">🏷️ Выберите категорию</option>
                 {% for cat in categories %}
                 <option value="{{ cat.id }}">{{ cat.name }}</option>
                 {% endfor %}
@@ -37,7 +39,7 @@
 
         <div class="col-12">
             <label class="form-label">Комментарий</label>
-            <input type="text" class="form-control" name="note" placeholder="Необязательно">
+            <input type="text" class="form-control" name="note" placeholder="Что купили? (необязательно)" tabindex="3" maxlength="200">
         </div>
     </div>
     
@@ -77,7 +79,30 @@ document.addEventListener('DOMContentLoaded', () => {
   if (categorySelect && amountInput) {
     categorySelect.addEventListener('change', function() {
       if (this.value) {
-        setTimeout(() => amountInput.focus(), 100);
+        setTimeout(() => {
+          amountInput.focus();
+          amountInput.select(); // Выделить весь текст для быстрой замены
+        }, 100);
+      }
+    });
+  }
+
+  // Быстрые клавиши для популярных сумм
+  if (amountInput) {
+    amountInput.addEventListener('keydown', function(e) {
+      // Ctrl+1-5 для быстрых сумм
+      if (e.ctrlKey && e.key >= '1' && e.key <= '5') {
+        e.preventDefault();
+        const quickAmounts = ['100', '500', '1000', '1500', '2000'];
+        this.value = quickAmounts[parseInt(e.key) - 1];
+        this.focus();
+      }
+    });
+    
+    // Автоматическое добавление .00 при потере фокуса
+    amountInput.addEventListener('blur', function() {
+      if (this.value && /^\d+$/.test(this.value)) {
+        this.value = this.value + '.00';
       }
     });
   }
