@@ -1,0 +1,457 @@
+{#
+  CrystalBudget Modal Component
+  
+  Universal modal template for consistent UI across the application.
+  
+  Usage:
+    {% from 'components/_modal.html' import modal, modal_form, modal_confirm %}
+    
+    Basic modal:
+    {{ modal('my-modal', 'Title', 'Content here', size='lg') }}
+    
+    Form modal:
+    {{ modal_form('form-modal', 'Form Title', form_action='/submit', form_content, buttons) }}
+    
+    Confirm modal:
+    {{ modal_confirm('Are you sure?', 'delete-confirm') }}
+#}
+
+{#
+  Base modal macro
+  
+  Parameters:
+  - id: Modal ID (required)
+  - title: Modal title (required)
+  - content: Modal body content (required, can be HTML string or template block)
+  - size: Modal size ('sm', 'md', 'lg', 'xl', 'fullscreen') [default: 'md']
+  - type: Modal type ('default', 'form', 'confirm', 'sheet') [default: 'default']
+  - classes: Additional CSS classes
+  - buttons: Array of button objects [{text, class, action, type}]
+  - closable: Show close button [default: true]
+  - backdrop: Show backdrop [default: true]
+  - sticky_header: Make header sticky [default: false]
+  - sticky_footer: Make footer sticky [default: false]
+  - aria_label: Custom aria-label [default: title]
+#}
+{% macro modal(id, title, content, 
+               size='md', 
+               type='default', 
+               classes='', 
+               buttons=[], 
+               closable=true, 
+               backdrop=true,
+               sticky_header=false,
+               sticky_footer=false,
+               aria_label=None) %}
+
+<div id="{{ id }}" 
+     class="cb-modal{% if type != 'default' %} cb-modal--{{ type }}{% endif %}{% if size != 'md' %} cb-modal--{{ size }}{% endif %}{% if not backdrop %} cb-modal--no-backdrop{% endif %}{% if not closable %} cb-modal--no-close{% endif %}{{ ' ' + classes if classes }}"
+     role="dialog" 
+     aria-modal="true" 
+     aria-labelledby="{{ id }}-title"
+     aria-label="{{ aria_label or title }}"
+     aria-hidden="true">
+  
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      
+      {# Header #}
+      {% if title or closable %}
+      <div class="cb-modal__header{% if sticky_header %} cb-modal__header--sticky{% endif %}">
+        {% if title %}
+        <h5 class="cb-modal__title" id="{{ id }}-title">
+          {{ title | safe }}
+        </h5>
+        {% endif %}
+        
+        {% if closable %}
+        <button type="button" 
+                class="cb-modal__close" 
+                data-modal-close
+                aria-label="Закрыть модальное окно">
+        </button>
+        {% endif %}
+      </div>
+      {% endif %}
+      
+      {# Body #}
+      <div class="cb-modal__body">
+        {{ content | safe }}
+      </div>
+      
+      {# Footer #}
+      {% if buttons %}
+      <div class="cb-modal__footer{% if sticky_footer %} cb-modal__footer--sticky{% endif %}">
+        <div class="cb-modal__actions">
+          {% for button in buttons %}
+          <button type="{{ button.type or 'button' }}"
+                  class="cb-modal__btn cb-modal__btn--{{ button.class or 'outline' }}"
+                  {% if button.action %}{{ button.action | safe }}{% endif %}
+                  {% if button.disabled %}disabled{% endif %}>
+            {{ button.text | safe }}
+          </button>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+      
+    </div>
+  </div>
+</div>
+
+{% endmacro %}
+
+{#
+  Form modal macro
+  
+  Parameters:
+  - id: Modal ID (required)
+  - title: Modal title (required)
+  - form_action: Form action URL (required)
+  - form_content: Form body content (required)
+  - method: Form method [default: 'POST']
+  - size: Modal size [default: 'md']
+  - classes: Additional CSS classes
+  - enctype: Form encoding type
+  - submit_text: Submit button text [default: 'Сохранить']
+  - cancel_text: Cancel button text [default: 'Отмена']
+  - submit_class: Submit button class [default: 'primary']
+  - csrf_token: CSRF token for forms
+  - sticky_header: Make header sticky [default: false]
+  - sticky_footer: Make footer sticky [default: true]
+#}
+{% macro modal_form(id, title, form_action, form_content,
+                    method='POST',
+                    size='md',
+                    classes='',
+                    enctype=None,
+                    submit_text='Сохранить',
+                    cancel_text='Отмена',
+                    submit_class='primary',
+                    csrf_token=None,
+                    sticky_header=false,
+                    sticky_footer=true) %}
+
+<div id="{{ id }}" 
+     class="cb-modal cb-modal--form{% if size != 'md' %} cb-modal--{{ size }}{% endif %}{{ ' ' + classes if classes }}"
+     role="dialog" 
+     aria-modal="true" 
+     aria-labelledby="{{ id }}-title"
+     aria-label="{{ title }}"
+     aria-hidden="true">
+  
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      
+      {# Header #}
+      <div class="cb-modal__header{% if sticky_header %} cb-modal__header--sticky{% endif %}">
+        <h5 class="cb-modal__title" id="{{ id }}-title">
+          {{ title | safe }}
+        </h5>
+        <button type="button" 
+                class="cb-modal__close" 
+                data-modal-close
+                aria-label="Закрыть модальное окно">
+        </button>
+      </div>
+      
+      {# Form #}
+      <form method="{{ method }}" 
+            action="{{ form_action }}"
+            {% if enctype %}enctype="{{ enctype }}"{% endif %}
+            class="cb-modal__form">
+        
+        {% if csrf_token %}
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        {% endif %}
+        
+        {# Form Body #}
+        <div class="cb-modal__form-body">
+          {{ form_content | safe }}
+        </div>
+        
+        {# Form Footer #}
+        <div class="cb-modal__footer cb-modal__form-footer{% if sticky_footer %} cb-modal__footer--sticky{% endif %}">
+          <div class="cb-modal__actions">
+            <button type="button" 
+                    class="cb-modal__btn cb-modal__btn--outline" 
+                    data-modal-close>
+              {{ cancel_text }}
+            </button>
+            <button type="submit" 
+                    class="cb-modal__btn cb-modal__btn--{{ submit_class }}">
+              {{ submit_text | safe }}
+            </button>
+          </div>
+        </div>
+        
+      </form>
+      
+    </div>
+  </div>
+</div>
+
+{% endmacro %}
+
+{#
+  Confirm modal macro
+  
+  Parameters:
+  - message: Confirmation message (required)
+  - id: Modal ID [default: 'modal-confirm']
+  - title: Modal title [default: 'Подтверждение']
+  - confirm_text: Confirm button text [default: 'Да']
+  - cancel_text: Cancel button text [default: 'Отмена']
+  - type: Alert type ('warning', 'danger', 'info', 'success') [default: 'warning']
+  - icon: Custom icon HTML
+  - action: Confirm action (data attributes)
+#}
+{% macro modal_confirm(message, 
+                       id='modal-confirm',
+                       title='Подтверждение',
+                       confirm_text='Да',
+                       cancel_text='Отмена',
+                       type='warning',
+                       icon=None,
+                       action='') %}
+
+{% set icon_html = icon or confirm_icon(type) %}
+
+<div id="{{ id }}" 
+     class="cb-modal cb-modal--confirm"
+     role="dialog" 
+     aria-modal="true" 
+     aria-labelledby="{{ id }}-title"
+     aria-label="{{ title }}"
+     aria-hidden="true">
+  
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      
+      {# Header #}
+      <div class="cb-modal__header">
+        <h5 class="cb-modal__title" id="{{ id }}-title">
+          {{ title }}
+        </h5>
+        <button type="button" 
+                class="cb-modal__close" 
+                data-modal-close
+                aria-label="Закрыть">
+        </button>
+      </div>
+      
+      {# Body #}
+      <div class="cb-modal__body">
+        <div class="cb-modal__icon cb-modal__icon--{{ type }}">
+          {{ icon_html | safe }}
+        </div>
+        <p class="cb-modal__message">{{ message | safe }}</p>
+      </div>
+      
+      {# Footer #}
+      <div class="cb-modal__footer">
+        <div class="cb-modal__actions">
+          <button type="button" 
+                  class="cb-modal__btn cb-modal__btn--outline" 
+                  data-modal-close>
+            {{ cancel_text }}
+          </button>
+          <button type="button" 
+                  class="cb-modal__btn cb-modal__btn--{{ 'danger' if type == 'danger' else 'primary' }}"
+                  {{ action | safe }}>
+            {{ confirm_text }}
+          </button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+{% endmacro %}
+
+{#
+  Partial modal for AJAX loading
+  
+  Parameters:
+  - id: Modal ID (required)
+  - size: Modal size [default: 'md']
+  - classes: Additional CSS classes
+#}
+{% macro modal_partial(id, size='md', classes='') %}
+
+<div id="{{ id }}" 
+     class="cb-modal{% if size != 'md' %} cb-modal--{{ size }}{% endif %}{{ ' ' + classes if classes }}"
+     role="dialog" 
+     aria-modal="true" 
+     aria-hidden="true">
+  
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      <!-- Content will be loaded via AJAX -->
+      <div class="cb-modal__body cb-modal__body--loading">
+        <div class="cb-modal__loading">
+          <div class="cb-modal__spinner"></div>
+          <span>Загрузка...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endmacro %}
+
+{#
+  Modal trigger button
+  
+  Parameters:
+  - text: Button text (required)
+  - target: Target modal ID or URL (required)
+  - type: Trigger type ('modal', 'url') [default: 'modal']
+  - class: Button CSS class [default: 'btn btn-primary']
+  - icon: Icon HTML
+  - attributes: Additional attributes
+#}
+{% macro modal_trigger(text, target, 
+                       type='modal',
+                       class='btn btn-primary',
+                       icon='',
+                       attributes='') %}
+
+<button type="button" 
+        class="{{ class }}"
+        {% if type == 'modal' %}data-modal-open="{{ target }}"{% else %}data-modal-url="{{ target }}"{% endif %}
+        {{ attributes | safe }}>
+  {% if icon %}{{ icon | safe }}{% endif %}
+  {{ text }}
+</button>
+
+{% endmacro %}
+
+{#
+  Confirm trigger (button or link that shows confirmation)
+  
+  Parameters:
+  - text: Button/link text (required)
+  - message: Confirmation message (required)
+  - action: Action to perform after confirmation (URL or form submission)
+  - class: CSS class [default: 'btn btn-danger']
+  - icon: Icon HTML
+  - method: HTTP method for links [default: 'GET']
+#}
+{% macro confirm_trigger(text, message, action,
+                         class='btn btn-danger',
+                         icon='',
+                         method='GET') %}
+
+{% if action.startswith('http') or action.startswith('/') %}
+  <a href="{{ action }}"
+     class="{{ class }}"
+     data-confirm="{{ message }}"
+     {% if method != 'GET' %}data-method="{{ method }}"{% endif %}>
+    {% if icon %}{{ icon | safe }}{% endif %}
+    {{ text }}
+  </a>
+{% else %}
+  <button type="button"
+          class="{{ class }}"
+          data-confirm="{{ message }}"
+          data-confirm-action="{{ action }}">
+    {% if icon %}{{ icon | safe }}{% endif %}
+    {{ text }}
+  </button>
+{% endif %}
+
+{% endmacro %}
+
+{#
+  Helper function for confirm icons
+#}
+{% macro confirm_icon(type) %}
+  {% if type == 'warning' %}<i class="bi bi-exclamation-triangle"></i>
+  {% elif type == 'danger' %}<i class="bi bi-exclamation-octagon"></i>
+  {% elif type == 'info' %}<i class="bi bi-info-circle"></i>
+  {% elif type == 'success' %}<i class="bi bi-check-circle"></i>
+  {% else %}<i class="bi bi-exclamation-triangle"></i>
+  {% endif %}
+{% endmacro %}
+
+{#
+  Section block for form organization
+  
+  Parameters:
+  - title: Section title (required)
+  - content: Section content (required)
+  - border: Show bottom border [default: true]
+#}
+{% macro form_section(title, content, border=true) %}
+<div class="section-block{% if not border %} section-block--no-border{% endif %}">
+  <h6 class="section-title">{{ title }}</h6>
+  {{ content | safe }}
+</div>
+{% endmacro %}
+
+{#
+  Toggle button group for forms
+  
+  Parameters:
+  - name: Input name (required)
+  - options: Array of {value, label, checked} objects (required)
+  - size: Size ('sm', 'md', 'lg') [default: 'md']
+#}
+{% macro toggle_group(name, options, size='md') %}
+<div class="btn-toggle-group{% if size != 'md' %} btn-toggle-{{ size }}{% endif %}">
+  {% for option in options %}
+  <input type="radio" 
+         name="{{ name }}" 
+         id="{{ name }}_{{ option.value }}" 
+         value="{{ option.value }}" 
+         class="btn-check"
+         {% if option.checked %}checked{% endif %}>
+  <label for="{{ name }}_{{ option.value }}" class="btn btn-outline-primary">
+    {{ option.label }}
+  </label>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{#
+  Compact table for displaying data in modals
+  
+  Parameters:
+  - headers: Array of header strings (required)
+  - rows: Array of row arrays (required)
+  - actions: Include actions column [default: false]
+#}
+{% macro compact_table(headers, rows, actions=false) %}
+<div class="compact-table">
+  <div class="table-responsive">
+    <table class="table table-sm table-borderless mb-0">
+      <thead>
+        <tr class="text-muted">
+          {% for header in headers %}
+          <th class="fw-semibold">{{ header }}</th>
+          {% endfor %}
+          {% if actions %}
+          <th class="fw-semibold text-center" width="60">Действие</th>
+          {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+        <tr class="align-middle">
+          {% for cell in row %}
+          <td>{{ cell | safe }}</td>
+          {% endfor %}
+          {% if actions %}
+          <td class="text-center">
+            <!-- Action buttons here -->
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endmacro %}

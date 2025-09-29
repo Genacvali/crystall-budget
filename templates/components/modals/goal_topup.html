@@ -1,0 +1,127 @@
+<!-- Шаблон модальной формы пополнения цели -->
+<!-- Используется для GET /modals/goal/<id>/topup -->
+
+<form method="POST" action="{{ url_for('update_goal_progress', goal_id=goal.id) }}" 
+      data-form="goal-topup" role="form" aria-label="Форма пополнения цели накопления" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <!-- Информация о цели -->
+    <div class="goal-info mb-4">
+        <div class="row">
+            <div class="col-md-8">
+                <h6 class="mb-1">{{ goal.name }}</h6>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span><i class="bi bi-piggy-bank"></i> {{ goal.current_amount|format_amount }} {{ currency_symbol|default('₽') }}</span>
+                    <span><i class="bi bi-bullseye"></i> {{ goal.target_amount|format_amount }} {{ currency_symbol|default('₽') }}</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                {% set progress_percent = (goal.current_amount / goal.target_amount * 100) if goal.target_amount else 0 %}
+                {% set progress_percent = progress_percent|round(1) %}
+                {% set remaining = goal.target_amount - goal.current_amount if goal.target_amount > goal.current_amount else 0 %}
+                
+                <div class="text-center">
+                    <div class="text-muted small">Прогресс</div>
+                    <div class="fw-bold">{{ progress_percent }}%</div>
+                    {% if remaining > 0 %}
+                    <div class="text-muted small">Осталось: {{ remaining|format_amount }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="progress mt-2" style="height: 6px;">
+            {% set progress_width = 100 if progress_percent > 100 else progress_percent %}
+            <div class="progress-bar {% if goal.completed_at %}bg-success{% else %}bg-primary{% endif %}"
+                 role="progressbar" style="width: {{ progress_width }}%"></div>
+        </div>
+    </div>
+    
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-label">Сумма пополнения <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" name="amount" id="amount"
+                       inputmode="decimal" placeholder="1000"
+                       pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required>
+                <span class="input-group-text">{{ currency_symbol|default('₽') }}</span>
+            </div>
+            <div class="form-text">Сумма, которую вы добавляете к накоплениям.</div>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Комментарий</label>
+            <input type="text" class="form-control" name="note" id="note"
+                   placeholder="Откуда эти деньги? (необязательно)" maxlength="200">
+            <div class="form-text">Необязательно</div>
+        </div>
+    </div>
+    
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Пополнение цели…</span>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[data-form="goal-topup"]');
+  if (!form) return;
+
+  const amount = form.querySelector('input[name="amount"]');
+  const noteInput = form.querySelector('#note');
+  const errBox = form.querySelector('#form-errors');
+  const errText = form.querySelector('#form-error-text');
+  const loading = form.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  // Auto-focus amount field
+  if (amount) {
+    setTimeout(() => amount.focus(), 100);
+  }
+
+  // Auto-focus note after amount entry
+  if (amount && noteInput) {
+    amount.addEventListener('blur', function() {
+      if (this.value.trim()) {
+        setTimeout(() => noteInput.focus(), 100);
+      }
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    // нормализуем сумму
+    if (amount && amount.value) {
+      const v = amount.value.replace(',', '.').trim();
+      if (/^\d+(\.\d{1,2})?$/.test(v)) {
+        amount.value = (Math.round(parseFloat(v)*100)/100).toFixed(2);
+      }
+    }
+
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+});
+</script>

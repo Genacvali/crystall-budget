@@ -1,0 +1,137 @@
+<!-- Шаблон модальной формы редактирования профиля -->
+<!-- Используется для GET /modals/settings/profile -->
+
+<form method="POST" action="{{ url_for('auth.profile') }}" 
+      data-form="settings-profile" role="form" aria-label="Форма редактирования профиля" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-label">Имя <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-person" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" name="name" id="name"
+                       value="{{ user.name or '' }}" placeholder="Ваше имя" 
+                       required maxlength="100">
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label">Валюта</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-currency-exchange" aria-hidden="true"></i></span>
+                <select class="form-select" name="currency" id="currency">
+                    <option value="RUB" {{ 'selected' if user.currency == 'RUB' else '' }}>🇷🇺 Рубль (RUB)</option>
+                    <option value="USD" {{ 'selected' if user.currency == 'USD' else '' }}>🇺🇸 Доллар (USD)</option>
+                    <option value="EUR" {{ 'selected' if user.currency == 'EUR' else '' }}>🇪🇺 Евро (EUR)</option>
+                    <option value="KZT" {{ 'selected' if user.currency == 'KZT' else '' }}>🇰🇿 Тенге (KZT)</option>
+                    <option value="BYN" {{ 'selected' if user.currency == 'BYN' else '' }}>🇧🇾 Белорусский рубль (BYN)</option>
+                </select>
+            </div>
+            <div class="form-text">Основная валюта для отображения</div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label">Часовой пояс</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-clock" aria-hidden="true"></i></span>
+                <select class="form-select" name="timezone" id="timezone">
+                    <option value="Europe/Moscow" {{ 'selected' if user.timezone == 'Europe/Moscow' else '' }}>Москва (UTC+3)</option>
+                    <option value="Europe/Kiev" {{ 'selected' if user.timezone == 'Europe/Kiev' else '' }}>Киев (UTC+2)</option>
+                    <option value="Europe/Minsk" {{ 'selected' if user.timezone == 'Europe/Minsk' else '' }}>Минск (UTC+3)</option>
+                    <option value="Asia/Almaty" {{ 'selected' if user.timezone == 'Asia/Almaty' else '' }}>Алматы (UTC+6)</option>
+                    <option value="Asia/Tashkent" {{ 'selected' if user.timezone == 'Asia/Tashkent' else '' }}>Ташкент (UTC+5)</option>
+                    <option value="UTC" {{ 'selected' if user.timezone == 'UTC' else '' }}>UTC</option>
+                </select>
+            </div>
+            <div class="form-text">Для корректного отображения времени</div>
+        </div>
+
+        <!-- Информация об аккаунте -->
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body py-2">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <div class="text-muted small">Тип авторизации</div>
+                            <div class="fw-bold">
+                                {% if user.auth_type == 'telegram' %}
+                                    <i class="bi bi-telegram text-primary"></i> Telegram
+                                {% else %}
+                                    <i class="bi bi-envelope text-secondary"></i> Email
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-muted small">Регистрация</div>
+                            <div class="fw-bold">{{ user.created_at.strftime('%d.%m.%Y') if user.created_at else 'Неизвестно' }}</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="text-muted small">ID пользователя</div>
+                            <div class="fw-bold">#{{ user.id }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Сохранение профиля…</span>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[data-form="settings-profile"]');
+  if (!form) return;
+
+  const nameInput = form.querySelector('#name');
+  const currencySelect = form.querySelector('#currency');
+  const errBox = form.querySelector('#form-errors');
+  const errText = form.querySelector('#form-error-text');
+  const loading = form.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  // Auto-focus name field
+  if (nameInput) {
+    setTimeout(() => nameInput.focus(), 100);
+  }
+
+  // Auto-focus currency after name entry
+  if (nameInput && currencySelect) {
+    nameInput.addEventListener('blur', function() {
+      if (this.value.trim()) {
+        setTimeout(() => currencySelect.focus(), 100);
+      }
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+});
+</script>

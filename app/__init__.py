@@ -153,6 +153,49 @@ def create_app(config_name: Optional[str] = None):
         """Backward compatibility redirect for goal progress."""
         return redirect(url_for('goals.add_progress'))
     
+    # Modal routes for goals
+    @app.route('/modals/goal/add')
+    def goal_add_modal():
+        """Return goal add modal content."""
+        from flask_login import login_required, current_user
+        from flask import session
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        return render_template('components/modals/goal_add.html', 
+                             currency_symbol='₽')
+
+    @app.route('/modals/goal/<int:goal_id>/edit')
+    def goal_edit_modal(goal_id):
+        """Return goal edit modal content."""
+        from flask_login import login_required, current_user
+        from flask import session
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        user_id = session['user_id']
+        from app.modules.goals.models import SavingsGoal
+        goal = SavingsGoal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
+        
+        return render_template('components/modals/goal_edit.html', 
+                             goal=goal,
+                             currency_symbol='₽')
+
+    @app.route('/modals/goal/<int:goal_id>/topup')
+    def goal_topup_modal(goal_id):
+        """Return goal topup modal content."""
+        from flask_login import login_required, current_user
+        from flask import session
+        if not current_user.is_authenticated:
+            return redirect(url_for('auth.login'))
+        
+        user_id = session['user_id']
+        from app.modules.goals.models import SavingsGoal
+        goal = SavingsGoal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
+        
+        return render_template('components/modals/goal_topup.html', 
+                             goal=goal,
+                             currency_symbol='₽')
+    
     @app.route('/categories/update/<int:cat_id>', methods=['POST'])
     def categories_update_compat(cat_id):
         """Backward compatibility redirect for category update."""

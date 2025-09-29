@@ -23,7 +23,10 @@
   <link rel="stylesheet" href="{{ versioned_static('css/design-tokens.css') }}">
 
   <!-- CrystalBudget Components (opt-in) -->
-  {% block cb_components %}{% endblock %}
+  {% block cb_components %}
+    <!-- Modal System -->
+    <link rel="stylesheet" href="{{ versioned_static('css/components/modal.css') }}">
+  {% endblock %}
 
   <!-- Страничные стили при необходимости -->
   {% block page_css %}{% endblock %}
@@ -64,40 +67,8 @@
   </div>
 </main>
 
-<!-- Модальное окно подтверждения удаления -->
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" 
-     aria-labelledby="confirmDeleteModalLabel" 
-     aria-describedby="confirmDeleteMessage"
-     aria-hidden="true" 
-     role="dialog"
-     aria-modal="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="confirmDeleteModalLabel">
-          <i class="bi bi-exclamation-triangle text-warning me-2" aria-hidden="true"></i>
-          Подтверждение удаления
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть диалог"></button>
-      </div>
-      <div class="modal-body">
-        <p id="confirmDeleteMessage">Вы уверены, что хотите удалить этот элемент?</p>
-        <div class="alert alert-warning d-flex align-items-center" role="alert">
-          <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
-          <small>Это действие нельзя отменить</small>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Отменить удаление">
-          <i class="bi bi-x-lg me-1" aria-hidden="true"></i>Отмена
-        </button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn" aria-label="Подтвердить удаление">
-          <i class="bi bi-trash me-1" aria-hidden="true"></i>Удалить
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- Modal Container for Dynamic Modals -->
+<div id="cb-modal-container" aria-hidden="true"></div>
 
 <!-- Bootstrap JS -->
 <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
@@ -106,6 +77,9 @@
 <script src="{{ versioned_static('js/app.js') }}"></script>
 <script src="{{ versioned_static('js/accessibility.js') }}"></script>
 <script src="{{ versioned_static('js/nav-ff.js') }}" defer></script>
+
+<!-- Modal System -->
+<script src="{{ versioned_static('js/modals.js') }}"></script>
 
 <!-- Страничный JavaScript при необходимости -->
 {% block page_js %}{% endblock %}

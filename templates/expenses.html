@@ -8,7 +8,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <h2 class="h4 m-0"><i class="bi bi-wallet2 text-danger me-2"></i>Мои расходы</h2>
-    <button class="btn-hero icon-only" data-bs-toggle="collapse" data-bs-target="#addExpenseForm"
+    <button class="btn-hero icon-only" data-modal-url="{{ url_for('budget.expense_add_modal', month=month_data.month if month_data else None) }}"
+            data-modal-title="Добавить расход" data-modal-size="md"
             title="Добавить расход" aria-label="Добавить расход">
         <i class="bi bi-plus-lg"></i>
         <span class="visually-hidden">Добавить расход</span>
@@ -43,7 +44,6 @@
 </div>
 {% endif %}
 
-{% include 'components/forms/_add_expense_form.html' %}
 
 <!-- Мобильные карточки -->
 <div class="d-block d-md-none">

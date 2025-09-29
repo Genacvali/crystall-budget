@@ -1,0 +1,281 @@
+<!-- Шаблон модальной формы экспорта данных -->
+<!-- Используется для GET /modals/settings/export -->
+
+<form method="POST" action="{{ url_for('settings_export_data') }}" 
+      data-form="settings-export" role="form" aria-label="Форма экспорта данных" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row g-4">
+        <!-- Описание -->
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Экспорт данных</strong> позволяет скачать все ваши данные в удобном формате 
+                для резервного копирования или переноса в другие приложения.
+            </div>
+        </div>
+
+        <!-- Формат экспорта -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-file-earmark me-2"></i>Формат файла
+            </h6>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="format" value="json" id="format-json" checked>
+                    <label class="btn btn-outline-primary w-100 text-start" for="format-json">
+                        <i class="bi bi-filetype-json me-2"></i>
+                        <div>
+                            <div class="fw-semibold">JSON</div>
+                            <small class="text-muted">Полная структура</small>
+                        </div>
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="format" value="csv" id="format-csv">
+                    <label class="btn btn-outline-primary w-100 text-start" for="format-csv">
+                        <i class="bi bi-filetype-csv me-2"></i>
+                        <div>
+                            <div class="fw-semibold">CSV</div>
+                            <small class="text-muted">Для Excel</small>
+                        </div>
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="format" value="pdf" id="format-pdf">
+                    <label class="btn btn-outline-primary w-100 text-start" for="format-pdf">
+                        <i class="bi bi-filetype-pdf me-2"></i>
+                        <div>
+                            <div class="fw-semibold">PDF</div>
+                            <small class="text-muted">Отчёт</small>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Какие данные экспортировать -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-check2-square me-2"></i>Данные для экспорта
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="export_expenses" id="export_expenses" checked>
+                        <label class="form-check-label" for="export_expenses">
+                            <i class="bi bi-wallet2 me-2 text-primary"></i>
+                            <strong>Расходы</strong>
+                            <small class="d-block text-muted">Все записи о тратах</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="export_income" id="export_income" checked>
+                        <label class="form-check-label" for="export_income">
+                            <i class="bi bi-graph-up-arrow me-2 text-success"></i>
+                            <strong>Доходы</strong>
+                            <small class="d-block text-muted">История доходов</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="export_categories" id="export_categories" checked>
+                        <label class="form-check-label" for="export_categories">
+                            <i class="bi bi-tags me-2 text-info"></i>
+                            <strong>Категории</strong>
+                            <small class="d-block text-muted">Настройки категорий</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="export_goals" id="export_goals" checked>
+                        <label class="form-check-label" for="export_goals">
+                            <i class="bi bi-bullseye me-2 text-warning"></i>
+                            <strong>Цели накоплений</strong>
+                            <small class="d-block text-muted">Прогресс целей</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Период экспорта -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-calendar-range me-2"></i>Период
+            </h6>
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <input type="radio" class="btn-check" name="period" value="all" id="period-all" checked>
+                    <label class="btn btn-outline-secondary w-100" for="period-all">
+                        Всё время
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <input type="radio" class="btn-check" name="period" value="year" id="period-year">
+                    <label class="btn btn-outline-secondary w-100" for="period-year">
+                        Этот год
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <input type="radio" class="btn-check" name="period" value="month" id="period-month">
+                    <label class="btn btn-outline-secondary w-100" for="period-month">
+                        Этот месяц
+                    </label>
+                </div>
+                <div class="col-md-3">
+                    <input type="radio" class="btn-check" name="period" value="custom" id="period-custom">
+                    <label class="btn btn-outline-secondary w-100" for="period-custom">
+                        Выбрать
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Кастомный период -->
+            <div class="custom-period-fields mt-3 d-none">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label">От</label>
+                        <input type="date" class="form-control" name="date_from" id="date_from">
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">До</label>
+                        <input type="date" class="form-control" name="date_to" id="date_to">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Статистика данных -->
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="bi bi-bar-chart me-2"></i>Статистика ваших данных
+                    </h6>
+                    <div class="row text-center">
+                        <div class="col-3">
+                            <div class="text-muted small">Расходов</div>
+                            <div class="fw-bold">{{ stats.expenses_count or 0 }}</div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-muted small">Доходов</div>
+                            <div class="fw-bold">{{ stats.income_count or 0 }}</div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-muted small">Категорий</div>
+                            <div class="fw-bold">{{ stats.categories_count or 0 }}</div>
+                        </div>
+                        <div class="col-3">
+                            <div class="text-muted small">Целей</div>
+                            <div class="fw-bold">{{ stats.goals_count or 0 }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Дополнительные опции -->
+        <div class="col-12">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="include_deleted" id="include_deleted">
+                <label class="form-check-label" for="include_deleted">
+                    <strong>Включить удалённые записи</strong>
+                    <small class="d-block text-muted">Если такие имеются в базе данных</small>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Подготовка экспорта…</span>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[data-form="settings-export"]');
+  if (!form) return;
+
+  const periodInputs = form.querySelectorAll('input[name="period"]');
+  const customPeriodFields = form.querySelector('.custom-period-fields');
+  const dateFrom = form.querySelector('#date_from');
+  const dateTo = form.querySelector('#date_to');
+  const errBox = form.querySelector('#form-errors');
+  const errText = form.querySelector('#form-error-text');
+  const loading = form.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  // Show/hide custom period fields
+  periodInputs.forEach(input => {
+    input.addEventListener('change', () => {
+      if (input.value === 'custom' && input.checked) {
+        customPeriodFields?.classList.remove('d-none');
+        // Set default dates
+        if (dateFrom && !dateFrom.value) {
+          const oneYearAgo = new Date();
+          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+          dateFrom.value = oneYearAgo.toISOString().split('T')[0];
+        }
+        if (dateTo && !dateTo.value) {
+          dateTo.value = new Date().toISOString().split('T')[0];
+        }
+      } else {
+        customPeriodFields?.classList.add('d-none');
+      }
+    });
+  });
+
+  // Validate at least one data type is selected
+  function validateDataSelection() {
+    const checkboxes = form.querySelectorAll('input[name^="export_"]');
+    const isAnyChecked = Array.from(checkboxes).some(cb => cb.checked);
+    
+    checkboxes.forEach(cb => {
+      if (!isAnyChecked) {
+        cb.setCustomValidity('Выберите хотя бы один тип данных для экспорта');
+      } else {
+        cb.setCustomValidity('');
+      }
+    });
+  }
+
+  // Add validation listeners
+  form.querySelectorAll('input[name^="export_"]').forEach(checkbox => {
+    checkbox.addEventListener('change', validateDataSelection);
+  });
+
+  form.addEventListener('submit', (e) => {
+    validateDataSelection();
+    
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+});
+</script>

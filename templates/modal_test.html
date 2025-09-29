@@ -1,0 +1,369 @@
+{% extends "base.html" %}
+{% block title %}Modal System Test — CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="container-lg">
+  <h1>Modal System Test Page</h1>
+  <p class="text-muted">Test page for checking all modal functionality</p>
+
+  <div class="row g-4">
+    
+    <!-- Basic Tests -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Basic Modal Tests</h5>
+        </div>
+        <div class="card-body">
+          
+          <!-- Debug toggle -->
+          <div class="mb-3">
+            <button class="btn btn-outline-secondary btn-sm" onclick="Modal.debug(true)">
+              Enable Debug Logging
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="Modal.debug(false)">
+              Disable Debug Logging
+            </button>
+          </div>
+          
+          <!-- Simple modal -->
+          <button class="btn btn-primary mb-2" data-modal-open="#test-modal-simple">
+            Simple Modal
+          </button>
+          
+          <!-- AJAX modal -->
+          <button class="btn btn-success mb-2" data-modal-url="/test/modal/ajax" data-modal-target="modal-ajax">
+            AJAX Modal (will fail - for testing error handling)
+          </button>
+          
+          <!-- Confirm dialogs -->
+          <button class="btn btn-warning mb-2" data-confirm="Are you sure?" data-confirm-action="alert('Confirmed!')">
+            Confirm Dialog
+          </button>
+          
+          <!-- Size variants -->
+          <button class="btn btn-info mb-2" onclick="showModalSize('sm')">Small Modal</button>
+          <button class="btn btn-info mb-2" onclick="showModalSize('lg')">Large Modal</button>
+          <button class="btn btn-info mb-2" onclick="showModalSize('xl')">XL Modal</button>
+          
+          <!-- Theme toggle -->
+          <button class="btn btn-outline-primary mb-2" onclick="toggleTheme()">
+            Toggle Dark/Light Theme
+          </button>
+          
+        </div>
+      </div>
+    </div>
+    
+    <!-- Form Tests -->
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title mb-0">Form & Focus Tests</h5>
+        </div>
+        <div class="card-body">
+          
+          <!-- Form modal -->
+          <button class="btn btn-primary mb-2" data-modal-open="#test-modal-form">
+            Form Modal
+          </button>
+          
+          <!-- Validation test -->
+          <button class="btn btn-secondary mb-2" data-modal-open="#test-modal-validation">
+            Validation Test
+          </button>
+          
+          <!-- Nested elements -->
+          <button class="btn btn-info mb-2" data-modal-open="#test-modal-dropdown">
+            Dropdown Test
+          </button>
+          
+          <!-- Long content -->
+          <button class="btn btn-warning mb-2" data-modal-open="#test-modal-long">
+            Long Content (Sticky Headers)
+          </button>
+          
+          <!-- Focus test elements -->
+          <input type="text" class="form-control mb-2" placeholder="Focus test input 1">
+          <input type="text" class="form-control mb-2" placeholder="Focus test input 2">
+          <button class="btn btn-outline-secondary" data-modal-open="#test-modal-simple">
+            Open Modal (test focus return)
+          </button>
+          
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Test Modals -->
+
+<!-- Simple Modal -->
+<div id="test-modal-simple" class="cb-modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      <div class="cb-modal__header">
+        <h5 class="cb-modal__title">Simple Test Modal</h5>
+        <button type="button" class="cb-modal__close" data-modal-close></button>
+      </div>
+      <div class="cb-modal__body">
+        <p>This is a simple modal for testing basic functionality.</p>
+        <p>Test cases:</p>
+        <ul>
+          <li>✓ Open with button click</li>
+          <li>✓ Close with X button</li>
+          <li>✓ Close with ESC key</li>
+          <li>✓ Close with backdrop click</li>
+          <li>✓ Focus management</li>
+        </ul>
+      </div>
+      <div class="cb-modal__footer">
+        <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+          Close
+        </button>
+        <button type="button" class="cb-modal__btn cb-modal__btn--primary">
+          Primary Action
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Form Modal -->
+<div id="test-modal-form" class="cb-modal cb-modal--form" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      <div class="cb-modal__header cb-modal__header--sticky">
+        <h5 class="cb-modal__title">Form Test Modal</h5>
+        <button type="button" class="cb-modal__close" data-modal-close></button>
+      </div>
+      <form class="cb-modal__form" onsubmit="return false;">
+        <div class="cb-modal__form-body">
+          <div class="mb-3">
+            <label class="form-label">Text Input</label>
+            <input type="text" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Select</label>
+            <select class="form-select" required>
+              <option value="">Choose...</option>
+              <option value="1">Option 1</option>
+              <option value="2">Option 2</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="testSwitch">
+              <label class="form-check-label" for="testSwitch">
+                Test Switch
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="cb-modal__footer cb-modal__footer--sticky">
+          <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+            Cancel
+          </button>
+          <button type="submit" class="cb-modal__btn cb-modal__btn--primary">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Validation Modal -->
+<div id="test-modal-validation" class="cb-modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      <div class="cb-modal__header">
+        <h5 class="cb-modal__title">Validation Test</h5>
+        <button type="button" class="cb-modal__close" data-modal-close></button>
+      </div>
+      <form onsubmit="return testFormValidation(event);">
+        <div class="cb-modal__body">
+          <div class="mb-3">
+            <label class="form-label">Required field</label>
+            <input type="text" class="form-control" required>
+          </div>
+          <div class="mb-3" style="display: none;">
+            <label class="form-label">Hidden required (should not block)</label>
+            <input type="text" class="form-control" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" required>
+          </div>
+        </div>
+        <div class="cb-modal__footer">
+          <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+            Cancel
+          </button>
+          <button type="submit" class="cb-modal__btn cb-modal__btn--primary">
+            Submit (Test Validation)
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Dropdown Test Modal -->
+<div id="test-modal-dropdown" class="cb-modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      <div class="cb-modal__header">
+        <h5 class="cb-modal__title">Dropdown Z-Index Test</h5>
+        <button type="button" class="cb-modal__close" data-modal-close></button>
+      </div>
+      <div class="cb-modal__body">
+        <div class="dropdown mb-3">
+          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            Test Dropdown
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Action</a></li>
+            <li><a class="dropdown-item" href="#">Another action</a></li>
+            <li><a class="dropdown-item" href="#">Something else here</a></li>
+          </ul>
+        </div>
+        <p>The dropdown should appear above the modal backdrop and be fully functional.</p>
+      </div>
+      <div class="cb-modal__footer">
+        <button type="button" class="cb-modal__btn cb-modal__btn--primary" data-modal-close>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Long Content Modal -->
+<div id="test-modal-long" class="cb-modal cb-modal--lg" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="cb-modal__dialog">
+    <div class="cb-modal__content" tabindex="-1">
+      <div class="cb-modal__header cb-modal__header--sticky">
+        <h5 class="cb-modal__title">Long Content Test (Sticky Header)</h5>
+        <button type="button" class="cb-modal__close" data-modal-close></button>
+      </div>
+      <div class="cb-modal__body">
+        <p>This modal has a lot of content to test scrolling and sticky headers.</p>
+        {% for i in range(30) %}
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.</p>
+        {% endfor %}
+      </div>
+      <div class="cb-modal__footer cb-modal__footer--sticky">
+        <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close">
+          Cancel
+        </button>
+        <button type="button" class="cb-modal__btn cb-modal__btn--primary">
+          Sticky Footer Action
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block page_js %}
+<script>
+// Test functions
+function showModalSize(size) {
+  const modal = document.createElement('div');
+  modal.id = 'test-modal-' + size;
+  modal.className = `cb-modal cb-modal--${size}`;
+  modal.setAttribute('role', 'dialog');
+  modal.setAttribute('aria-modal', 'true');
+  modal.setAttribute('aria-hidden', 'true');
+  
+  modal.innerHTML = `
+    <div class="cb-modal__dialog">
+      <div class="cb-modal__content" tabindex="-1">
+        <div class="cb-modal__header">
+          <h5 class="cb-modal__title">${size.toUpperCase()} Modal</h5>
+          <button type="button" class="cb-modal__close" data-modal-close></button>
+        </div>
+        <div class="cb-modal__body">
+          <p>This is a <strong>${size}</strong> sized modal.</p>
+          <p>Test responsive behavior by resizing the window.</p>
+        </div>
+        <div class="cb-modal__footer">
+          <button type="button" class="cb-modal__btn cb-modal__btn--primary" data-modal-close>
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  Modal.show('test-modal-' + size);
+  
+  // Clean up after close
+  document.addEventListener('Modal:closed', function cleanup(e) {
+    if (e.detail.modalId === 'test-modal-' + size) {
+      modal.remove();
+      document.removeEventListener('Modal:closed', cleanup);
+    }
+  });
+}
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const currentTheme = html.getAttribute('data-bs-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-bs-theme', newTheme);
+}
+
+function testFormValidation(event) {
+  event.preventDefault();
+  
+  const form = event.target;
+  if (form.checkValidity()) {
+    alert('Form is valid! (In real app, this would submit)');
+    Modal.hide();
+  } else {
+    alert('Form has validation errors');
+  }
+  
+  return false;
+}
+
+// Test AJAX confirm
+function testConfirmAction() {
+  Modal.confirm('This is a test confirm dialog. Proceed?', function() {
+    alert('You confirmed the action!');
+  }, {
+    title: 'Test Confirmation',
+    confirmText: 'Yes, do it',
+    cancelText: 'No, cancel',
+    type: 'warning'
+  });
+}
+
+// Test focus management
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Modal test page loaded');
+  
+  // Add event listeners to test focus management
+  document.addEventListener('Modal:opened', function(e) {
+    console.log('Modal opened:', e.detail.modalId);
+  });
+  
+  document.addEventListener('Modal:closed', function(e) {
+    console.log('Modal closed:', e.detail.modalId);
+  });
+  
+  document.addEventListener('Modal:loaded', function(e) {
+    console.log('Modal content loaded:', e.detail.url);
+  });
+  
+  document.addEventListener('Modal:loadError', function(e) {
+    console.log('Modal load error:', e.detail.error);
+  });
+});
+</script>
+{% endblock %}

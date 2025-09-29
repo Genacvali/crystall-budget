@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block title %}Настройки — CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="container-xl py-4">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      
+      <!-- Заголовок -->
+      <div class="d-flex align-items-center mb-4">
+        <h1 class="h3 mb-0">
+          <i class="bi bi-gear text-primary me-2"></i>Настройки
+        </h1>
+      </div>
+
+      <!-- Flash сообщения -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Секции настроек -->
+      <div class="row g-4">
+        
+        <!-- Профиль -->
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-3">
+                  <i class="bi bi-person text-primary"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-1">Профиль</h5>
+                  <p class="card-text text-muted small mb-0">Имя, валюта, часовой пояс</p>
+                </div>
+              </div>
+              <div class="d-grid">
+                <button class="btn btn-outline-primary" 
+                        data-modal-url="{{ url_for('settings_profile_modal') }}"
+                        data-modal-title="Редактирование профиля" 
+                        data-modal-size="md">
+                  <i class="bi bi-pencil me-1"></i>Редактировать профиль
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Безопасность -->
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-success bg-opacity-10 rounded-circle p-2 me-3">
+                  <i class="bi bi-shield-check text-success"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-1">Безопасность</h5>
+                  <p class="card-text text-muted small mb-0">Пароль и авторизация</p>
+                </div>
+              </div>
+              <div class="d-grid">
+                {% if current_user.auth_type == 'email' %}
+                <button class="btn btn-outline-success"
+                        data-modal-url="{{ url_for('settings_password_modal') }}"
+                        data-modal-title="Изменение пароля" 
+                        data-modal-size="md">
+                  <i class="bi bi-key me-1"></i>Изменить пароль
+                </button>
+                {% else %}
+                <button class="btn btn-outline-secondary" disabled>
+                  <i class="bi bi-telegram me-1"></i>Telegram авторизация
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Интерфейс -->
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-info bg-opacity-10 rounded-circle p-2 me-3">
+                  <i class="bi bi-palette text-info"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-1">Интерфейс</h5>
+                  <p class="card-text text-muted small mb-0">Тема, язык, отображение</p>
+                </div>
+              </div>
+              
+              <!-- Быстрое переключение темы -->
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <span class="text-muted small">Тема:</span>
+                <label class="ff-switch mb-0" aria-label="Переключить тему" role="switch">
+                  <input type="checkbox" id="quickThemeToggle" class="visually-hidden" 
+                         {{ 'checked' if session.get('theme') == 'dark' else '' }}/>
+                  <span class="ff-track d-inline-flex align-items-center justify-content-between">
+                    <i class="bi bi-sun-fill" aria-hidden="true"></i>
+                    <i class="bi bi-moon-stars-fill" aria-hidden="true"></i>
+                    <span class="ff-thumb" aria-hidden="true"></span>
+                  </span>
+                </label>
+              </div>
+              
+              <div class="d-grid">
+                <button class="btn btn-outline-info"
+                        data-modal-url="{{ url_for('settings_interface_modal') }}"
+                        data-modal-title="Настройки интерфейса" 
+                        data-modal-size="md">
+                  <i class="bi bi-sliders me-1"></i>Дополнительные настройки
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Данные -->
+        <div class="col-md-6">
+          <div class="card h-100">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-warning bg-opacity-10 rounded-circle p-2 me-3">
+                  <i class="bi bi-database text-warning"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-1">Данные</h5>
+                  <p class="card-text text-muted small mb-0">Экспорт, импорт, резервные копии</p>
+                </div>
+              </div>
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-warning btn-sm"
+                        data-modal-url="{{ url_for('settings_export_modal') }}"
+                        data-modal-title="Экспорт данных" 
+                        data-modal-size="md">
+                  <i class="bi bi-download me-1"></i>Экспорт данных
+                </button>
+                <button class="btn btn-outline-warning btn-sm"
+                        data-modal-url="{{ url_for('settings_import_modal') }}"
+                        data-modal-title="Импорт данных" 
+                        data-modal-size="md">
+                  <i class="bi bi-upload me-1"></i>Импорт данных
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Опасные действия -->
+        <div class="col-12">
+          <div class="card border-danger">
+            <div class="card-body">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-danger bg-opacity-10 rounded-circle p-2 me-3">
+                  <i class="bi bi-exclamation-triangle text-danger"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-1 text-danger">Опасная зона</h5>
+                  <p class="card-text text-muted small mb-0">Необратимые действия с аккаунтом</p>
+                </div>
+              </div>
+              
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <button class="btn btn-outline-danger btn-sm w-100"
+                          data-modal-url="{{ url_for('settings_clear_data_modal') }}"
+                          data-modal-title="Очистка данных" 
+                          data-modal-size="md">
+                    <i class="bi bi-trash me-1"></i>Очистить все данные
+                  </button>
+                </div>
+                <div class="col-md-6">
+                  <button class="btn btn-danger btn-sm w-100"
+                          data-modal-url="{{ url_for('settings_delete_account_modal') }}"
+                          data-modal-title="Удаление аккаунта" 
+                          data-modal-size="md">
+                    <i class="bi bi-person-x me-1"></i>Удалить аккаунт
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/entries/settings.entry.js') }}"></script>
+{% endblock %}

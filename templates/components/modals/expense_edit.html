@@ -1,0 +1,106 @@
+<!-- Шаблон модальной формы редактирования расхода -->
+<!-- Используется для GET /modals/expense/<id>/edit -->
+
+<form method="POST" action="{{ url_for('budget.edit_expense', expense_id=expense.id) }}" 
+      data-form="expense-edit" role="form" aria-label="Форма редактирования расхода" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label class="form-label">Дата <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
+                <input type="date" class="form-control" name="date" value="{{ expense.date }}" required>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label">Сумма <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" name="amount" id="amount"
+                       inputmode="decimal" value="{{ expense.amount }}"
+                       pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required>
+            </div>
+            <div class="form-text">Запятая или точка, 2 знака после.</div>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Категория <span class="text-danger">*</span></label>
+            <select class="form-select" name="category_id" id="category_id" required>
+                <option value="">Выберите категорию</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if cat.id == expense.category_id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Комментарий</label>
+            <input type="text" class="form-control" name="note" value="{{ expense.note or '' }}" placeholder="Необязательно">
+        </div>
+    </div>
+    
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Сохранение изменений…</span>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[data-form="expense-edit"]');
+  if (!form) return;
+
+  const amount = form.querySelector('input[name="amount"]');
+  const categorySelect = form.querySelector('#category_id');
+  const amountInput = form.querySelector('#amount');
+  const errBox = form.querySelector('#form-errors');
+  const errText = form.querySelector('#form-error-text');
+  const loading = form.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  // Auto-focus amount input after category selection (only if amount is empty)
+  if (categorySelect && amountInput) {
+    categorySelect.addEventListener('change', function() {
+      if (this.value && !amountInput.value.trim()) {
+        setTimeout(() => amountInput.focus(), 100);
+      }
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    // нормализуем сумму
+    if (amount && amount.value) {
+      const v = amount.value.replace(',', '.').trim();
+      if (/^\d+(\.\d{1,2})?$/.test(v)) {
+        amount.value = (Math.round(parseFloat(v)*100)/100).toFixed(2);
+      }
+    }
+
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+});
+</script>

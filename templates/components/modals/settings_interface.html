@@ -1,0 +1,263 @@
+<!-- Шаблон модальной формы настроек интерфейса -->
+<!-- Используется для GET /modals/settings/interface -->
+
+<form method="POST" action="{{ url_for('settings_save_interface') }}" 
+      data-form="settings-interface" role="form" aria-label="Форма настроек интерфейса" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row g-4">
+        <!-- Тема -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-palette me-2"></i>Тема оформления
+            </h6>
+            <div class="row g-3">
+                <div class="col-6 col-md-4">
+                    <input type="radio" class="btn-check" name="theme" value="light" id="theme-light" 
+                           {{ 'checked' if not session.get('theme') or session.get('theme') == 'light' else '' }}>
+                    <label class="btn btn-outline-primary w-100 text-start" for="theme-light">
+                        <i class="bi bi-sun me-2"></i>
+                        <div>
+                            <div class="fw-semibold">Светлая</div>
+                            <small class="text-muted">Классический дизайн</small>
+                        </div>
+                    </label>
+                </div>
+                <div class="col-6 col-md-4">
+                    <input type="radio" class="btn-check" name="theme" value="dark" id="theme-dark"
+                           {{ 'checked' if session.get('theme') == 'dark' else '' }}>
+                    <label class="btn btn-outline-primary w-100 text-start" for="theme-dark">
+                        <i class="bi bi-moon-stars me-2"></i>
+                        <div>
+                            <div class="fw-semibold">Тёмная</div>
+                            <small class="text-muted">Для работы в темноте</small>
+                        </div>
+                    </label>
+                </div>
+                <div class="col-6 col-md-4">
+                    <input type="radio" class="btn-check" name="theme" value="auto" id="theme-auto">
+                    <label class="btn btn-outline-primary w-100 text-start" for="theme-auto">
+                        <i class="bi bi-circle-half me-2"></i>
+                        <div>
+                            <div class="fw-semibold">Авто</div>
+                            <small class="text-muted">По системе</small>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Язык интерфейса -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-translate me-2"></i>Язык интерфейса
+            </h6>
+            <div class="row g-2">
+                <div class="col-6 col-md-4">
+                    <input type="radio" class="btn-check" name="language" value="ru" id="lang-ru" checked>
+                    <label class="btn btn-outline-secondary w-100" for="lang-ru">
+                        🇷🇺 Русский
+                    </label>
+                </div>
+                <div class="col-6 col-md-4">
+                    <input type="radio" class="btn-check" name="language" value="en" id="lang-en" disabled>
+                    <label class="btn btn-outline-secondary w-100" for="lang-en">
+                        🇺🇸 English
+                        <small class="d-block text-muted">Скоро</small>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Плотность интерфейса -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-grid me-2"></i>Плотность интерфейса
+            </h6>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="density" value="compact" id="density-compact">
+                    <label class="btn btn-outline-secondary w-100 text-start" for="density-compact">
+                        <div class="fw-semibold">Компактная</div>
+                        <small class="text-muted">Больше данных</small>
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="density" value="normal" id="density-normal" checked>
+                    <label class="btn btn-outline-secondary w-100 text-start" for="density-normal">
+                        <div class="fw-semibold">Обычная</div>
+                        <small class="text-muted">Сбалансированно</small>
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="density" value="comfortable" id="density-comfortable">
+                    <label class="btn btn-outline-secondary w-100 text-start" for="density-comfortable">
+                        <div class="fw-semibold">Комфортная</div>
+                        <small class="text-muted">Больше пространства</small>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Дополнительные настройки -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-toggles me-2"></i>Дополнительные настройки
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="animations" id="animations" checked>
+                        <label class="form-check-label" for="animations">
+                            <div class="fw-semibold">Анимации</div>
+                            <small class="text-muted">Плавные переходы</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="sounds" id="sounds">
+                        <label class="form-check-label" for="sounds">
+                            <div class="fw-semibold">Звуки</div>
+                            <small class="text-muted">Уведомления</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="tooltips" id="tooltips" checked>
+                        <label class="form-check-label" for="tooltips">
+                            <div class="fw-semibold">Подсказки</div>
+                            <small class="text-muted">Всплывающие подсказки</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="keyboard_shortcuts" id="keyboard_shortcuts" checked>
+                        <label class="form-check-label" for="keyboard_shortcuts">
+                            <div class="fw-semibold">Горячие клавиши</div>
+                            <small class="text-muted">Быстрые действия</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Предварительный просмотр -->
+        <div class="col-12">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="bi bi-eye me-2"></i>Предварительный просмотр
+                    </h6>
+                    <div class="preview-area p-3 border rounded bg-white" data-theme-preview>
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <span class="fw-semibold">Пример карточки</span>
+                            <span class="badge bg-primary">Новое</span>
+                        </div>
+                        <p class="text-muted small mb-2">Так будет выглядеть интерфейс с выбранными настройками.</p>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary btn-sm">Основная кнопка</button>
+                            <button class="btn btn-outline-secondary btn-sm">Вторичная</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Сохранение настроек…</span>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[data-form="settings-interface"]');
+  if (!form) return;
+
+  const previewArea = form.querySelector('[data-theme-preview]');
+  const themeInputs = form.querySelectorAll('input[name="theme"]');
+  const densityInputs = form.querySelectorAll('input[name="density"]');
+  const errBox = form.querySelector('#form-errors');
+  const errText = form.querySelector('#form-error-text');
+  const loading = form.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  // Live preview updates
+  function updatePreview() {
+    const selectedTheme = form.querySelector('input[name="theme"]:checked')?.value || 'light';
+    const selectedDensity = form.querySelector('input[name="density"]:checked')?.value || 'normal';
+    
+    if (previewArea) {
+      // Apply theme to preview
+      previewArea.setAttribute('data-bs-theme', selectedTheme);
+      previewArea.className = previewArea.className.replace(/\s*preview-\w+/g, '');
+      previewArea.classList.add(`preview-${selectedDensity}`);
+    }
+  }
+
+  // Theme change listeners
+  themeInputs.forEach(input => {
+    input.addEventListener('change', () => {
+      updatePreview();
+      
+      // Apply theme immediately for live preview
+      const theme = input.value;
+      if (theme !== 'auto') {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+      } else {
+        // Auto theme - detect system preference
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');
+      }
+    });
+  });
+
+  // Density change listeners
+  densityInputs.forEach(input => {
+    input.addEventListener('change', updatePreview);
+  });
+
+  // Initial preview update
+  updatePreview();
+
+  form.addEventListener('submit', (e) => {
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+});
+</script>
+
+<style>
+.preview-compact { font-size: 0.875rem; }
+.preview-comfortable { padding: 1.25rem !important; font-size: 1.1rem; }
+.preview-area[data-bs-theme="dark"] { 
+  background-color: var(--bs-dark) !important; 
+  color: var(--bs-light) !important; 
+  border-color: var(--bs-secondary) !important;
+}
+</style>

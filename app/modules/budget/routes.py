@@ -813,3 +813,67 @@ def delete_income_source(source_id):
         flash('Ошибка при удалении источника дохода', 'error')
     
     return redirect(url_for('budget.categories'))
+
+
+# Modal routes for expenses
+@budget_bp.route('/modals/expense/add')
+@login_required
+def expense_add_modal():
+    """Return expense add modal content."""
+    user_id = session['user_id']
+    categories = BudgetService.get_user_categories(user_id)
+    
+    # Get month data for form action
+    ym_param = request.args.get('month')
+    try:
+        month_data = parse_year_month(ym_param) if ym_param else YearMonth.current()
+    except ValueError:
+        month_data = YearMonth.current()
+    
+    return render_template('components/modals/expense_add.html', 
+                         categories=categories,
+                         month_data=month_data,
+                         today=datetime.date.today().isoformat())
+
+
+@budget_bp.route('/modals/expense/<int:expense_id>/edit')
+@login_required
+def expense_edit_modal(expense_id):
+    """Return expense edit modal content."""
+    user_id = session['user_id']
+    expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first_or_404()
+    categories = BudgetService.get_user_categories(user_id)
+    
+    return render_template('components/modals/expense_edit.html', 
+                         expense=expense,
+                         categories=categories)
+
+
+# Modal routes for income
+@budget_bp.route('/modals/income/add')
+@login_required
+def income_add_modal():
+    """Return income add modal content."""
+    user_id = session['user_id']
+    
+    # Get month data for form action
+    ym_param = request.args.get('month')
+    try:
+        month_data = parse_year_month(ym_param) if ym_param else YearMonth.current()
+    except ValueError:
+        month_data = YearMonth.current()
+    
+    return render_template('components/modals/income_add.html', 
+                         month_data=month_data,
+                         today=datetime.date.today().isoformat())
+
+
+@budget_bp.route('/modals/income/<int:income_id>/edit')
+@login_required
+def income_edit_modal(income_id):
+    """Return income edit modal content."""
+    user_id = session['user_id']
+    income = Income.query.filter_by(id=income_id, user_id=user_id).first_or_404()
+    
+    return render_template('components/modals/income_edit.html', 
+                         income=income)

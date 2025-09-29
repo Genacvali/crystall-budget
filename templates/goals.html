@@ -8,7 +8,8 @@
   <h2 class="h4 m-0">
     <i class="bi bi-bullseye text-primary me-2"></i>Цели накоплений
   </h2>
-  <button class="btn-hero" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+  <button class="btn-hero" data-modal-url="{{ url_for('goal_add_modal') }}"
+          data-modal-title="Новая цель накопления" data-modal-size="md">
           <i class="bi bi-plus-lg"></i> Новая цель
         </button>
       </div>
@@ -79,16 +80,44 @@
                   </div>
                 {% endif %}
 
-                {% if not goal.completed_at %}
-                  <form method="POST" action="{{ url_for('update_goal_progress', goal_id=goal.id) }}" class="d-flex">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                    <input type="number" name="amount" class="form-control form-control-sm me-2"
-                           placeholder="Сумма" step="0.01" min="0.01" required>
-                    <button type="submit" class="btn btn-outline-primary btn-sm">
-                      <i class="bi bi-plus-lg"></i>
+                <!-- Действия с целью -->
+                <div class="d-flex justify-content-between align-items-center">
+                  {% if not goal.completed_at %}
+                  <button class="btn btn-outline-primary btn-sm"
+                          data-modal-url="{{ url_for('goal_topup_modal', goal_id=goal.id) }}"
+                          data-modal-title="Пополнить цель" data-modal-size="md">
+                    <i class="bi bi-plus-lg me-1"></i>Пополнить
+                  </button>
+                  {% else %}
+                  <div></div>
+                  {% endif %}
+                  
+                  <div class="dropdown">
+                    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                      <i class="bi bi-three-dots"></i>
                     </button>
-                  </form>
-                {% endif %}
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <button class="dropdown-item" 
+                                data-modal-url="{{ url_for('goal_edit_modal', goal_id=goal.id) }}"
+                                data-modal-title="Редактировать цель" data-modal-size="md">
+                          <i class="bi bi-pencil me-2"></i>Редактировать
+                        </button>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <form method="POST" action="{{ url_for('goals.delete_goal', goal_id=goal.id) }}" class="d-inline">
+                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                          <button type="submit" class="dropdown-item text-danger"
+                                  data-confirm-delete="Удалить цель '{{ goal.name }}'?\nВсе накопления будут потеряны.\n\nЭто действие нельзя отменить.">
+                            <i class="bi bi-trash me-2"></i>Удалить
+                          </button>
+                        </form>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
 
               </div>
             </div>
@@ -104,7 +133,8 @@
           </div>
           <h4 class="text-muted">Пока нет целей накоплений</h4>
           <p class="text-muted mb-4">Создайте свою первую цель и начните копить на мечту!</p>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGoalModal">
+          <button class="btn btn-primary" data-modal-url="{{ url_for('goal_add_modal') }}"
+                  data-modal-title="Новая цель накопления" data-modal-size="md">
             <i class="bi bi-plus-lg"></i> Создать цель
           </button>
         </div>
@@ -114,48 +144,9 @@
   </div>
 </div>
 
-<!-- Модалка: Новая цель -->
-<div class="modal fade" id="addGoalModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-bullseye me-2 text-primary"></i> Новая цель накопления</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
 
-      <form method="POST" action="{{ url_for('add_goal') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="goalName" class="form-label">Название цели <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="goalName" name="name" placeholder="Новый iPhone" required maxlength="100">
-          </div>
+{% endblock %}
 
-          <div class="mb-3">
-            <label for="goalAmount" class="form-label">Целевая сумма <span class="text-danger">*</span></label>
-            <div class="input-group">
-              <input type="number" class="form-control" id="goalAmount" name="target_amount"
-                     placeholder="50000" step="0.01" min="0.01" required>
-              <span class="input-group-text">{{ currency_symbol }}</span>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label for="goalDate" class="form-label">Желаемая дата (необязательно)</label>
-            <input type="date" class="form-control" id="goalDate" name="target_date">
-          </div>
-
-          <div class="mb-3">
-            <label for="goalDescription" class="form-label">Описание (необязательно)</label>
-            <textarea class="form-control" id="goalDescription" name="description" rows="3" maxlength="500"
-                      placeholder="Зачем вам эта цель?"></textarea>
-          </div>
-        </div>
-
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary">Создать цель</button>
-        </div>
-      </form>
-
+{% block scripts %}
+<script type="module" src="{{ url_for('static', filename='js/entries/goals.entry.js') }}"></script>
 {% endblock %}

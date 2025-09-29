@@ -1,0 +1,249 @@
+{% extends "base.html" %}
+{% block title %}Категории — CrystalBudget{% endblock %}
+
+{# Use new modal system #}
+{% block cb_components %}
+  {{ super() }}
+  <style>
+    /* Compact section styles for forms */
+    .section-block {
+      border-bottom: 1px solid var(--bs-border-color-translucent);
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .section-block:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--bs-secondary-color);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+    }
+    
+    /* Toggle button groups */
+    .btn-toggle-group {
+      display: flex;
+      border-radius: 0.5rem;
+      overflow: hidden;
+      border: 1px solid var(--bs-border-color);
+    }
+    
+    .btn-toggle-group .btn-check {
+      display: none;
+    }
+    
+    .btn-toggle-group .btn {
+      flex: 1;
+      border: none;
+      border-radius: 0;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      background: var(--bs-body-bg);
+      color: var(--bs-body-color);
+      border-right: 1px solid var(--bs-border-color);
+      transition: all 0.15s ease;
+    }
+    
+    .btn-toggle-group .btn:last-child {
+      border-right: none;
+    }
+    
+    .btn-toggle-group .btn-check:checked + .btn {
+      background: var(--bs-primary);
+      color: white;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <h2 class="h4 m-0"><i class="bi bi-dash-circle text-primary me-2"></i>Категории расходов</h2>
+  <button class="btn-hero icon-only" 
+          data-modal-url="{{ url_for('budget.category_add_modal') }}"
+          data-modal-target="modal-category-form"
+          title="Добавить категорию" 
+          aria-label="Добавить категорию">
+    <i class="bi bi-plus-lg"></i>
+    <span class="visually-hidden">Добавить категорию</span>
+  </button>
+</div>
+
+<!-- Навигация по месяцам -->
+{% if month_data %}
+<div class="period-filter">
+    <div class="period-info">
+        <i class="bi bi-calendar3 icon"></i>
+        <span class="label">Период:</span>
+        <strong class="value">{{ month_data.current_month_name }}</strong>
+        {% if not month_data.is_current_month %}
+            <span class="period-badge">Архив</span>
+        {% endif %}
+        {% if spent_by_category %}
+            <span class="period-badge">(траты учтены)</span>
+        {% endif %}
+    </div>
+    <div class="period-nav">
+        <a href="{{ url_for('budget.categories', month=month_data.prev_month) }}" 
+           class="period-btn" title="Предыдущий месяц">
+            <i class="bi bi-chevron-left"></i>
+        </a>
+        <a href="{{ url_for('budget.categories') }}" 
+           class="period-btn current" title="Текущий месяц">
+            <i class="bi bi-house"></i>
+        </a>
+        <a href="{{ url_for('budget.categories', month=month_data.next_month) }}" 
+           class="period-btn" title="Следующий месяц">
+            <i class="bi bi-chevron-right"></i>
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Категории трат -->
+{% if expense_categories %}
+<section class="ff-progress-card mb-4" aria-label="Категории расходов">
+  <div class="ff-header">
+    <i class="bi bi-dash-circle"></i>
+    Всего категорий: {{ expense_categories|length }}
+  </div>
+  <div class="ff-list">
+    {% for cat in expense_categories %}
+    <div class="category-row">
+      <!-- Левая колонка: название и тип -->
+      <div class="category-info">
+        <div class="category-name">{{ cat.name }}</div>
+        {% if cat.is_multi_source %}
+        <div class="category-meta">
+          <span class="badge-ghost">
+            <i class="bi bi-diagram-3 me-1"></i>Мультиисточник
+          </span>
+        </div>
+        {% else %}
+        <div class="category-meta">
+          {% set source_id = rules_map.get(cat.id) %}
+          {% if source_id %}
+            {% for source in income_sources %}
+              {% if source.id == source_id %}
+                <span class="badge-ghost">{{ source.name }}</span>
+              {% endif %}
+            {% endfor %}
+          {% else %}
+            <span class="text-muted">Источник не указан</span>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      
+      <!-- Центральная колонка: детали источников (для мультиисточника) -->
+      <div class="category-sources">
+        {% if cat.is_multi_source %}
+          {% set cat_sources = multi_source_links.get(cat.id, []) %}
+          {% if cat_sources and cat_sources|length > 0 %}
+            <div class="d-flex flex-wrap gap-1">
+              {% for source_info in cat_sources %}
+                <span class="badge-ghost" title="{{ source_info.percentage }}% от {{ source_info.source_name }}">
+                  {{ source_info.source_name }}: {{ source_info.percentage }}%
+                </span>
+              {% endfor %}
+            </div>
+          {% else %}
+            <span class="text-warning small">
+              <i class="bi bi-exclamation-triangle me-1"></i>Настройте источники
+            </span>
+          {% endif %}
+        {% endif %}
+      </div>
+      
+      <!-- Правая колонка: лимит и действия -->
+      <div class="category-limit">
+        <div class="limit-value">
+          {% if cat.limit_type == 'percent' %}
+            {% if cat.is_multi_source %}
+              <span class="limit-amount tabular-nums">Процентный</span>
+              <span class="limit-type">от источников</span>
+            {% else %}
+              <span class="limit-amount tabular-nums">{{ cat.value|format_amount }}%</span>
+              <span class="limit-type">от дохода</span>
+            {% endif %}
+          {% else %}
+            <span class="limit-amount tabular-nums">{{ cat.value|format_amount }} ₽</span>
+            <span class="limit-type">фикс</span>
+          {% endif %}
+        </div>
+        <div class="ff-iconbtn-group" role="group" aria-label="Действия">
+          {% if cat.is_multi_source %}
+            <button type="button" class="ff-iconbtn ff-iconbtn--config" 
+                    data-modal-url="{{ url_for('budget.category_sources_modal', cat_id=cat.id) }}"
+                    data-modal-target="modal-category-sources"
+                    aria-label="Настроить источники" title="Источники">
+              <i class="bi bi-diagram-3"></i>
+            </button>
+          {% endif %}
+          <button type="button" class="ff-iconbtn ff-iconbtn--edit" 
+                  data-modal-url="{{ url_for('budget.category_edit_modal', cat_id=cat.id) }}"
+                  data-modal-target="modal-category-form"
+                  aria-label="Редактировать категорию" title="Редактировать">
+            <i class="bi bi-pencil"></i>
+          </button>
+          <form method="POST" action="{{ url_for('budget.categories_delete', cat_id=cat.id) }}" class="d-inline">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="button" class="ff-iconbtn ff-iconbtn--delete" 
+                    data-confirm="Удалить категорию «{{ cat.name }}»? Это действие нельзя отменить."
+                    aria-label="Удалить категорию" title="Удалить">
+              <i class="bi bi-trash3"></i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</section>
+{% endif %}
+
+{% if not expense_categories %}
+<div class="text-center py-5">
+  <p class="text-muted mb-3">Категорий пока нет. Используйте кнопку "Добавить категорию" выше для создания первой категории.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block page_js %}
+<script>
+// Enable modal debugging for development
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  Modal.debug(true);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  if (window.bootstrap && window.bootstrap.Tooltip) {
+    const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }
+  
+  // Listen for modal events
+  document.addEventListener('Modal:loaded', function(e) {
+    console.log('Modal loaded:', e.detail);
+  });
+  
+  document.addEventListener('Modal:closed', function(e) {
+    console.log('Modal closed:', e.detail);
+    // Optionally reload page after successful form submission
+    // This would be better handled by the server response
+  });
+});
+</script>
+{% endblock %}

@@ -4,7 +4,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <h2 class="h4 m-0"><i class="bi bi-cash-coin text-success me-2"></i>Доходы и источники</h2>
-  <button class="btn-hero icon-only" type="button" data-bs-toggle="collapse" data-bs-target="#addIncomeForm" 
+  <button class="btn-hero icon-only" data-modal-url="{{ url_for('budget.income_add_modal', month=month_data.month if month_data else None) }}"
+          data-modal-title="Добавить доход" data-modal-size="md"
           title="Добавить доход" aria-label="Добавить доход">
     <i class="bi bi-plus-lg"></i>
     <span class="visually-hidden">Добавить доход</span>
@@ -39,51 +40,6 @@
 </div>
 {% endif %}
 
-<!-- Форма добавления дохода (по дням) -->
-<div class="collapse mb-3" id="addIncomeForm">
-  <form method="POST" action="{{ url_for('budget.income_add', month=month_data.month if month_data else None) }}" novalidate>
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    <div class="ff-progress-card">
-    <div class="row g-3 align-items-end">
-      <div class="col-6 col-md-3">
-        <label for="date" class="form-label">Дата</label>
-        <input type="date" id="date" name="date"
-               value="{{ today }}" class="form-control" required>
-      </div>
-
-      <div class="col-6 col-md-3">
-        <label for="amount" class="form-label">Сумма</label>
-        <input type="number" id="amount" name="amount"
-               inputmode="decimal" step="0.01" min="0.01"
-               class="form-control" placeholder="Сумма дохода" required>
-      </div>
-
-      <div class="col-12 col-md-4">
-        <label for="source_id" class="form-label">Источник</label>
-        <div class="input-group">
-          <select id="source_id" name="source_id" class="form-select">
-            <option value="">(не указан)</option>
-            {% for s in income_sources %}
-              <option value="{{ s.id }}" {% if s.is_default %}selected{% endif %}>{{ s.name }}</option>
-            {% endfor %}
-          </select>
-          <div data-bs-toggle="tooltip" data-bs-title="Добавить источник">
-            <button type="button" class="icon-btn icon-sm icon-success icon-faded" data-bs-toggle="modal" data-bs-target="#newSourceModal" aria-label="Добавить источник">
-              <i class="bi bi-plus"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-12 col-md-2 d-flex">
-        <button type="submit" class="btn btn-primary w-100">
-          <i class="bi bi-plus-lg me-1"></i>Добавить доход
-        </button>
-      </div>
-    </div>
-    </div>
-  </form>
-</div>
 
 <!-- Мобильные карточки -->
 <div class="d-block d-md-none">
@@ -114,14 +70,15 @@
       
       <!-- Правая колонка: действия -->
       <div class="income-actions">
-        <a href="{{ url_for('budget.edit_income', income_id=income.id) }}" 
-           class="action-btn" aria-label="Редактировать доход">
+        <button data-modal-url="{{ url_for('budget.income_edit_modal', income_id=income.id) }}"
+                data-modal-title="Редактировать доход" data-modal-size="md"
+                class="action-btn" aria-label="Редактировать доход">
           <i class="bi bi-pencil"></i>
-        </a>
+        </button>
         <form method="POST" action="{{ url_for('budget.delete_income', income_id=income.id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
           <button type="submit" class="action-btn action-btn-danger"
-                  onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')"
+                  data-confirm-delete="Удалить доход?\nДата: {{ income.date|format_date_with_day }}\nСумма: {{ income.amount|format_amount }}"
                   aria-label="Удалить доход">
             <i class="bi bi-trash"></i>
           </button>
@@ -166,14 +123,15 @@
         </td>
         <td class="text-end">
           <div class="d-inline-flex gap-2 justify-content-end">
-            <a href="{{ url_for('budget.edit_income', income_id=income.id) }}" 
-               class="action-btn" aria-label="Редактировать доход">
+            <button data-modal-url="{{ url_for('budget.income_edit_modal', income_id=income.id) }}"
+                    data-modal-title="Редактировать доход" data-modal-size="md"
+                    class="action-btn" aria-label="Редактировать доход">
               <i class="bi bi-pencil"></i>
-            </a>
+            </button>
             <form method="POST" action="{{ url_for('budget.delete_income', income_id=income.id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
               <button type="submit" class="action-btn action-btn-danger"
-                      onclick="return confirm('Удалить доход?\\nДата: {{ income.date|format_date_with_day }}\\nСумма: {{ income.amount|format_amount }}')"
+                      data-confirm-delete="Удалить доход?\nДата: {{ income.date|format_date_with_day }}\nСумма: {{ income.amount|format_amount }}"
                       aria-label="Удалить доход">
                 <i class="bi bi-trash"></i>
               </button>
@@ -192,70 +150,8 @@
 </div>
 {% endif %}
 
-<!-- Modal для добавления источника -->
-<div class="modal fade" id="newSourceModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Новый источник дохода</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form method="POST" action="{{ url_for('budget.sources_add') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label">Название источника</label>
-            <input type="text" class="form-control" name="name" placeholder="Зарплата, Аванс, Декретные..." required>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="is_default" value="1" id="isDefaultCheck">
-            <label class="form-check-label" for="isDefaultCheck">
-              Сделать источником по умолчанию
-            </label>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary">
-            <i class="bi bi-plus"></i> Добавить источник
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // Если дата не задана — подставляем сегодня
-  const dateInput = document.getElementById('date');
-  if (dateInput && !dateInput.value) {
-    const now = new Date();
-    dateInput.value = now.toISOString().slice(0, 10);
-  }
-
-  // После выбора источника — фокус в "Сумма"
-  const source = document.getElementById('source_id');
-  const amount = document.getElementById('amount');
-  if (source && amount) {
-    source.addEventListener('change', () => setTimeout(() => amount.focus(), 60));
-  }
-
-  // Нормализация суммы до двух знаков на blur
-  if (amount) {
-    amount.addEventListener('blur', () => {
-      const v = parseFloat(amount.value);
-      if (!isNaN(v) && v > 0) amount.value = v.toFixed(2);
-    });
-  }
-  
-  // Initialize Bootstrap tooltips
-  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-  const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
-  });
-});
-</script>
+<script type="module" src="{{ url_for('static', filename='js/entries/income.entry.js') }}"></script>
 {% endblock %}

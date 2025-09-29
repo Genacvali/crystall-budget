@@ -22,10 +22,11 @@
             <td>{{ expense.note or '—' }}</td>
             <td class="text-end">
                 <div class="d-inline-flex gap-2 justify-content-end">
-                    <a href="{{ url_for('budget.edit_expense', expense_id=expense.id) }}" 
-                       class="action-btn" aria-label="Редактировать расход">
+                    <button data-modal-url="{{ url_for('budget.expense_edit_modal', expense_id=expense.id) }}"
+                            data-modal-title="Редактировать расход" data-modal-size="md"
+                            class="action-btn" aria-label="Редактировать расход">
                         <i class="bi bi-pencil"></i>
-                    </a>
+                    </button>
                     <form method="POST" action="{{ url_for('budget.delete_expense', expense_id=expense.id) }}" class="d-inline">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                         <button type="submit" class="action-btn action-btn-danger"

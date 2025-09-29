@@ -1,0 +1,99 @@
+<!-- Шаблон модальной формы добавления дохода -->
+<!-- Используется для GET /modals/income/add -->
+
+<form method="POST" action="{{ url_for('budget.income') }}" 
+      data-form="income" role="form" aria-label="Форма добавления дохода" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label class="form-label">Дата <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-calendar-event" aria-hidden="true"></i></span>
+                <input type="date" class="form-control" name="date" value="{{ today }}" required>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+            <label class="form-label">Сумма <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-cash-coin" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" name="amount" id="amount"
+                       inputmode="decimal" placeholder="0"
+                       pattern="^\s*\d+([,\.]\d{1,2})?\s*$" required>
+            </div>
+            <div class="form-text">Запятая или точка, 2 знака после.</div>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label">Источник дохода <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-briefcase" aria-hidden="true"></i></span>
+                <input type="text" class="form-control" name="source_name" id="source_name"
+                       placeholder="Например, Зарплата" required>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Сохранение дохода…</span>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[data-form="income"]');
+  if (!form) return;
+
+  const amount = form.querySelector('input[name="amount"]');
+  const sourceInput = form.querySelector('#source_name');
+  const errBox = form.querySelector('#form-errors');
+  const errText = form.querySelector('#form-error-text');
+  const loading = form.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  // Auto-focus amount input after source name entry
+  if (sourceInput && amount) {
+    sourceInput.addEventListener('blur', function() {
+      if (this.value.trim()) {
+        setTimeout(() => amount.focus(), 100);
+      }
+    });
+  }
+
+  form.addEventListener('submit', (e) => {
+    // нормализуем сумму
+    if (amount && amount.value) {
+      const v = amount.value.replace(',', '.').trim();
+      if (/^\d+(\.\d{1,2})?$/.test(v)) {
+        amount.value = (Math.round(parseFloat(v)*100)/100).toFixed(2);
+      }
+    }
+
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+});
+</script>

@@ -19,10 +19,11 @@
         <!-- Правая колонка: действия -->
         <div class="expense-actions">
             <div class="ff-iconbtn-group">
-                <a href="{{ url_for('budget.edit_expense', expense_id=expense.id) }}" 
-                   class="ff-iconbtn ff-iconbtn--edit" aria-label="Изменить" title="Изменить">
+                <button data-modal-url="{{ url_for('budget.expense_edit_modal', expense_id=expense.id) }}"
+                        data-modal-title="Редактировать расход" data-modal-size="md"
+                        class="ff-iconbtn ff-iconbtn--edit" aria-label="Изменить" title="Изменить">
                     <i class="bi bi-pencil"></i>
-                </a>
+                </button>
                 <form method="POST" action="{{ url_for('budget.delete_expense', expense_id=expense.id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="ff-iconbtn ff-iconbtn--delete"

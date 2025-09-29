@@ -1,0 +1,147 @@
+{#
+  Add Category Modal Partial
+  Used for creating new expense categories
+#}
+{% from 'components/_modal.html' import form_section, toggle_group %}
+
+<div class="cb-modal__header cb-modal__header--sticky">
+  <h5 class="cb-modal__title">
+    <i class="bi bi-plus-circle text-primary me-2"></i>Новая категория
+  </h5>
+  <button type="button" class="cb-modal__close" data-modal-close></button>
+</div>
+
+<form method="POST" action="{{ url_for('budget.categories_add') }}" class="cb-modal__form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="category_type" value="expense">
+  
+  <div class="cb-modal__form-body">
+    
+    {{ form_section('Основное', '
+      <div class="row g-3">
+        <div class="col-lg-6">
+          <div class="mb-3">
+            <label class="form-label">Название</label>
+            <input type="text" name="name" class="form-control" placeholder="Например, Продукты" required>
+          </div>
+          
+          <div class="mb-3" id="limitTypeField">
+            <label class="form-label">Тип</label>
+            ' + toggle_group('limit_type', [
+              {'value': 'fixed', 'label': 'Фикс. сумма', 'checked': true},
+              {'value': 'percent', 'label': '% от дохода', 'checked': false}
+            ]) + '
+          </div>
+        </div>
+        
+        <div class="col-lg-6">
+          <div class="mb-3" id="valueField">
+            <label class="form-label">Значение</label>
+            <div class="input-group">
+              <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
+                     placeholder="15000" required id="valueInput">
+              <span class="input-group-text" id="valueSuffix">₽</span>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" name="multi_source" id="multiSourceSwitch">
+              <label class="form-check-label" for="multiSourceSwitch">
+                Несколько источников
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    ') }}
+    
+    {{ form_section('Источники', '
+      <div id="singleSourceField">
+        <div class="mb-3">
+          <label class="form-label">Источник дохода</label>
+          <select name="source_id" class="form-select">
+            <option value="">— Не привязан —</option>
+            ' + income_sources_options + '
+          </select>
+        </div>
+      </div>
+      
+      <div id="multiSourceConfig" style="display: none;">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Несколько источников:</strong> После создания категории вы сможете настроить распределение лимита между разными источниками дохода.
+        </div>
+      </div>
+    ') }}
+    
+  </div>
+  
+  <div class="cb-modal__footer cb-modal__footer--sticky">
+    <div class="cb-modal__actions">
+      <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+        Отмена
+      </button>
+      <button type="submit" class="cb-modal__btn cb-modal__btn--primary">
+        <i class="bi bi-plus me-1"></i>Создать
+      </button>
+    </div>
+  </div>
+</form>
+
+<script>
+// Category-specific modal logic
+document.addEventListener('DOMContentLoaded', function() {
+  const limitTypeRadios = document.querySelectorAll('input[name="limit_type"]');
+  const valueInput = document.getElementById('valueInput');
+  const valueSuffix = document.getElementById('valueSuffix');
+  const multiSourceSwitch = document.getElementById('multiSourceSwitch');
+  const singleSourceField = document.getElementById('singleSourceField');
+  const multiSourceConfig = document.getElementById('multiSourceConfig');
+  const limitTypeField = document.getElementById('limitTypeField');
+  const valueField = document.getElementById('valueField');
+
+  // Toggle between fixed/percent
+  limitTypeRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (valueSuffix) {
+        valueSuffix.textContent = this.value === 'percent' ? '%' : '₽';
+      }
+      if (valueInput) {
+        valueInput.placeholder = this.value === 'percent' ? '15.0' : '15000';
+        valueInput.step = this.value === 'percent' ? '0.1' : '0.01';
+        if (this.value === 'percent') {
+          valueInput.setAttribute('max', '100');
+        } else {
+          valueInput.removeAttribute('max');
+        }
+      }
+    });
+  });
+
+  // Toggle multi-source mode
+  multiSourceSwitch.addEventListener('change', function() {
+    const isMulti = this.checked;
+    
+    if (isMulti) {
+      singleSourceField.style.display = 'none';
+      multiSourceConfig.style.display = 'block';
+      limitTypeField.style.display = 'none';
+      valueField.style.display = 'none';
+      
+      // Disable validation for hidden fields
+      valueInput.removeAttribute('required');
+      valueInput.disabled = true;
+    } else {
+      singleSourceField.style.display = 'block';
+      multiSourceConfig.style.display = 'none';
+      limitTypeField.style.display = 'block';
+      valueField.style.display = 'block';
+      
+      // Re-enable validation
+      valueInput.setAttribute('required', 'required');
+      valueInput.disabled = false;
+    }
+  });
+});
+</script>

@@ -1,0 +1,370 @@
+<!-- Шаблон модальной формы импорта данных -->
+<!-- Используется для GET /modals/settings/import -->
+
+<form method="POST" action="{{ url_for('settings_import_data') }}" 
+      data-form="settings-import" role="form" aria-label="Форма импорта данных" 
+      enctype="multipart/form-data" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    
+    <div class="row g-4">
+        <!-- Описание -->
+        <div class="col-12">
+            <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Внимание!</strong> Импорт данных может изменить или добавить записи в вашу базу. 
+                Рекомендуем сначала создать резервную копию через экспорт.
+            </div>
+        </div>
+
+        <!-- Выбор файла -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-file-earmark-arrow-up me-2"></i>Файл для импорта
+            </h6>
+            <div class="upload-area border border-2 border-dashed rounded p-4 text-center">
+                <input type="file" class="form-control d-none" name="import_file" id="import_file" 
+                       accept=".json,.csv,.xlsx,.xls" required>
+                <label for="import_file" class="upload-label w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="cursor: pointer;">
+                    <i class="bi bi-cloud-upload display-4 text-muted mb-3"></i>
+                    <h6 class="mb-2">Выберите файл или перетащите сюда</h6>
+                    <p class="text-muted small mb-0">Поддерживаются: JSON, CSV, Excel (.xlsx, .xls)</p>
+                    <p class="text-muted small">Максимальный размер: 10 МБ</p>
+                </label>
+                
+                <!-- Информация о выбранном файле -->
+                <div class="file-info d-none mt-3">
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-file-earmark text-primary"></i>
+                        <span class="file-name fw-semibold"></span>
+                        <span class="file-size text-muted small"></span>
+                        <button type="button" class="btn btn-outline-danger btn-sm" id="remove-file">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Режим импорта -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-arrow-repeat me-2"></i>Режим импорта
+            </h6>
+            <div class="row g-2">
+                <div class="col-md-6">
+                    <input type="radio" class="btn-check" name="import_mode" value="add" id="mode-add" checked>
+                    <label class="btn btn-outline-success w-100 text-start" for="mode-add">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        <div>
+                            <div class="fw-semibold">Добавить</div>
+                            <small class="text-muted">Только новые записи</small>
+                        </div>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                    <input type="radio" class="btn-check" name="import_mode" value="replace" id="mode-replace">
+                    <label class="btn btn-outline-warning w-100 text-start" for="mode-replace">
+                        <i class="bi bi-arrow-clockwise me-2"></i>
+                        <div>
+                            <div class="fw-semibold">Заменить</div>
+                            <small class="text-muted">Перезаписать данные</small>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Настройки импорта -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-gear me-2"></i>Настройки импорта
+            </h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="skip_duplicates" id="skip_duplicates" checked>
+                        <label class="form-check-label" for="skip_duplicates">
+                            <strong>Пропускать дубликаты</strong>
+                            <small class="d-block text-muted">Не импортировать одинаковые записи</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="validate_data" id="validate_data" checked>
+                        <label class="form-check-label" for="validate_data">
+                            <strong>Проверять данные</strong>
+                            <small class="d-block text-muted">Валидация перед импортом</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="create_backup" id="create_backup" checked>
+                        <label class="form-check-label" for="create_backup">
+                            <strong>Создать резервную копию</strong>
+                            <small class="d-block text-muted">Перед импортом</small>
+                        </label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="dry_run" id="dry_run">
+                        <label class="form-check-label" for="dry_run">
+                            <strong>Тестовый прогон</strong>
+                            <small class="d-block text-muted">Проверить без импорта</small>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Обработка ошибок -->
+        <div class="col-12">
+            <h6 class="mb-3">
+                <i class="bi bi-exclamation-circle me-2"></i>При ошибках
+            </h6>
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="error_handling" value="stop" id="error-stop" checked>
+                    <label class="btn btn-outline-secondary w-100" for="error-stop">
+                        Остановить
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="error_handling" value="skip" id="error-skip">
+                    <label class="btn btn-outline-secondary w-100" for="error-skip">
+                        Пропустить
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input type="radio" class="btn-check" name="error_handling" value="ask" id="error-ask">
+                    <label class="btn btn-outline-secondary w-100" for="error-ask">
+                        Спросить
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Предварительный просмотр -->
+        <div class="col-12 file-preview d-none">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <h6 class="card-title mb-3">
+                        <i class="bi bi-eye me-2"></i>Предварительный просмотр
+                    </h6>
+                    <div class="preview-content">
+                        <div class="text-center text-muted">
+                            <i class="bi bi-hourglass-split"></i>
+                            Анализ файла...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+    
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Импорт данных…</span>
+    </div>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form[data-form="settings-import"]');
+  if (!form) return;
+
+  const fileInput = form.querySelector('#import_file');
+  const uploadArea = form.querySelector('.upload-area');
+  const fileInfo = form.querySelector('.file-info');
+  const fileName = form.querySelector('.file-name');
+  const fileSize = form.querySelector('.file-size');
+  const removeFileBtn = form.querySelector('#remove-file');
+  const filePreview = form.querySelector('.file-preview');
+  const previewContent = form.querySelector('.preview-content');
+  const errBox = form.querySelector('#form-errors');
+  const errText = form.querySelector('#form-error-text');
+  const loading = form.querySelector('#form-loading');
+
+  // отмечаем поля как "dirty" после первого ввода/blur
+  form.querySelectorAll('input, select, textarea').forEach(el => {
+    el.addEventListener('input', () => el.classList.add('dirty'));
+    el.addEventListener('blur',  () => el.classList.add('dirty'));
+  });
+
+  // File selection handling
+  fileInput.addEventListener('change', handleFileSelection);
+  removeFileBtn?.addEventListener('click', clearFileSelection);
+
+  // Drag and drop handling
+  uploadArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadArea.classList.add('border-primary');
+  });
+
+  uploadArea.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('border-primary');
+  });
+
+  uploadArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadArea.classList.remove('border-primary');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      handleFileSelection();
+    }
+  });
+
+  function handleFileSelection() {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      showError('Файл слишком большой. Максимальный размер: 10 МБ');
+      clearFileSelection();
+      return;
+    }
+
+    // Validate file type
+    const allowedTypes = ['.json', '.csv', '.xlsx', '.xls'];
+    const fileExtension = '.' + file.name.split('.').pop().toLowerCase();
+    if (!allowedTypes.includes(fileExtension)) {
+      showError('Неподдерживаемый формат файла');
+      clearFileSelection();
+      return;
+    }
+
+    // Show file info
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+    fileInfo.classList.remove('d-none');
+    uploadArea.querySelector('label').classList.add('d-none');
+
+    // Show preview for supported formats
+    if (fileExtension === '.json' || fileExtension === '.csv') {
+      previewFile(file);
+    }
+  }
+
+  function clearFileSelection() {
+    fileInput.value = '';
+    fileInfo.classList.add('d-none');
+    filePreview.classList.add('d-none');
+    uploadArea.querySelector('label').classList.remove('d-none');
+  }
+
+  function previewFile(file) {
+    filePreview.classList.remove('d-none');
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const content = e.target.result;
+      let preview = '';
+      
+      try {
+        if (file.name.endsWith('.json')) {
+          const data = JSON.parse(content);
+          const keys = Object.keys(data);
+          preview = `
+            <div class="row text-center">
+              <div class="col-12 mb-2">
+                <strong>Найдено разделов: ${keys.length}</strong>
+              </div>
+              ${keys.map(key => `
+                <div class="col-6 col-md-3">
+                  <div class="text-muted small">${key}</div>
+                  <div class="fw-bold">${Array.isArray(data[key]) ? data[key].length : 1}</div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        } else if (file.name.endsWith('.csv')) {
+          const lines = content.split('\n').filter(line => line.trim());
+          const headers = lines[0] ? lines[0].split(',').length : 0;
+          preview = `
+            <div class="row text-center">
+              <div class="col-4">
+                <div class="text-muted small">Строк</div>
+                <div class="fw-bold">${lines.length - 1}</div>
+              </div>
+              <div class="col-4">
+                <div class="text-muted small">Колонок</div>
+                <div class="fw-bold">${headers}</div>
+              </div>
+              <div class="col-4">
+                <div class="text-muted small">Формат</div>
+                <div class="fw-bold">CSV</div>
+              </div>
+            </div>
+          `;
+        }
+        
+        previewContent.innerHTML = preview;
+      } catch (error) {
+        previewContent.innerHTML = '<div class="text-danger">Ошибка чтения файла</div>';
+      }
+    };
+    
+    if (file.name.endsWith('.json') || file.name.endsWith('.csv')) {
+      reader.readAsText(file);
+    }
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Б';
+    const k = 1024;
+    const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  function showError(message) {
+    errText.textContent = message;
+    errBox.classList.remove('d-none');
+  }
+
+  form.addEventListener('submit', (e) => {
+    if (!fileInput.files[0]) {
+      e.preventDefault();
+      showError('Выберите файл для импорта');
+      return;
+    }
+
+    if (!form.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+      form.classList.add('was-validated');
+      return;
+    }
+
+    // показать лоадер и скрыть ошибку
+    loading?.classList.remove('d-none');
+    errBox?.classList.add('d-none');
+  });
+});
+</script>
+
+<style>
+.upload-area.border-primary {
+  border-color: var(--bs-primary) !important;
+  background-color: var(--bs-primary-bg-subtle);
+}
+
+.upload-area:hover {
+  border-color: var(--bs-secondary);
+  background-color: var(--bs-light);
+}
+</style>

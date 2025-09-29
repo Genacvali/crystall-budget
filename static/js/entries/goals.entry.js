@@ -1,4 +1,4 @@
-// Expenses page entry point
+// Goals page entry point
 import * as ui from '../modules/ui.js';
 import { initForms } from '../modules/forms.js';
 import { initSwipeCards } from '../modules/swipe.js';
@@ -21,16 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
     window.CBOffline.flushOutbox();
   }
   
-  // Auto-focus amount input after category selection
-  const categorySelect = document.getElementById('category_id');
-  const amountInput = document.getElementById('amount');
-  if (categorySelect && amountInput) {
-    categorySelect.addEventListener('change', function() {
-      if (this.value) {
-        setTimeout(() => amountInput.focus(), 100);
-      }
-    });
-  }
+  // Goals-specific logic
+  initGoalsPageLogic();
   
   // Initialize confirm delete buttons
   document.querySelectorAll('[data-confirm-delete]').forEach(btn => {
@@ -43,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
           title: 'Подтверждение удаления',
           message: confirmText,
           confirmText: 'Удалить',
-          cancelText: 'Отмена'
+          cancelText: 'Отмена',
+          confirmClass: 'btn-danger'
         }).then(() => {
           // User confirmed, submit the form
           const form = this.closest('form');
@@ -63,3 +56,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 });
+
+function initGoalsPageLogic() {
+  // Любая специфическая логика для страницы целей
+  // Например, анимации прогресс-баров, автофокус и т.д.
+  
+  // Initialize Bootstrap dropdowns
+  const dropdownTriggers = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+  dropdownTriggers.forEach(trigger => {
+    if (window.bootstrap) {
+      new bootstrap.Dropdown(trigger);
+    }
+  });
+}
