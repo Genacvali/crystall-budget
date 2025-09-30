@@ -93,12 +93,46 @@ def expenses():
 def add_expense():
     """Add new expense."""
     user_id = session['user_id']
+
+    # Handle modal form submission (simple fields, 'note' instead of 'description')
+    if request.method == 'POST' and 'date' in request.form and 'note' not in ExpenseForm.__dict__:
+        try:
+            from datetime import datetime
+            from decimal import Decimal
+
+            category_id = int(request.form.get('category_id', 0))
+            amount_str = request.form.get('amount', '').replace(',', '.')
+            note = request.form.get('note', '').strip()
+            date_str = request.form.get('date', '')
+
+            if not category_id or not amount_str or not date_str:
+                flash('Заполните все обязательные поля', 'error')
+                return redirect(url_for('budget.dashboard'))
+
+            amount = Decimal(amount_str)
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+            expense = BudgetService.add_expense(
+                user_id=user_id,
+                category_id=category_id,
+                amount=amount,
+                description=note,
+                date_val=date_obj,
+                currency='RUB'
+            )
+            flash('Расход добавлен', 'success')
+            return redirect(url_for('budget.dashboard'))
+        except Exception as e:
+            flash(f'Ошибка при добавлении расхода: {str(e)}', 'error')
+            return redirect(url_for('budget.dashboard'))
+
+    # Handle regular form submission
     form = ExpenseForm()
-    
+
     # Populate category choices
     categories = BudgetService.get_user_categories(user_id)
     form.category_id.choices = [(cat.id, cat.name) for cat in categories]
-    
+
     if form.validate_on_submit():
         expense = BudgetService.add_expense(
             user_id=user_id,
@@ -110,7 +144,7 @@ def add_expense():
         )
         flash('Расход добавлен', 'success')
         return redirect(url_for('budget.expenses'))
-    
+
     return render_template('budget/expense_form.html', form=form, title='Добавить расход')
 
 
@@ -120,11 +154,45 @@ def edit_expense(expense_id):
     """Edit expense."""
     user_id = session['user_id']
     expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first_or_404()
-    
+
+    # Handle modal form submission (simple fields, 'note' instead of 'description')
+    if request.method == 'POST' and 'note' in request.form:
+        try:
+            from datetime import datetime
+            from decimal import Decimal
+
+            category_id = int(request.form.get('category_id', 0))
+            amount_str = request.form.get('amount', '').replace(',', '.')
+            note = request.form.get('note', '').strip()
+            date_str = request.form.get('date', '')
+
+            if not category_id or not amount_str or not date_str:
+                flash('Заполните все обязательные поля', 'error')
+                return redirect(url_for('budget.expenses'))
+
+            amount = Decimal(amount_str)
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+            BudgetService.update_expense(
+                expense_id=expense_id,
+                user_id=user_id,
+                category_id=category_id,
+                amount=amount,
+                description=note,
+                date=date_obj,
+                currency='RUB'
+            )
+            flash('Расход обновлен', 'success')
+            return redirect(url_for('budget.expenses'))
+        except Exception as e:
+            flash(f'Ошибка при обновлении расхода: {str(e)}', 'error')
+            return redirect(url_for('budget.expenses'))
+
+    # Handle regular form submission
     form = ExpenseForm(obj=expense)
     categories = BudgetService.get_user_categories(user_id)
     form.category_id.choices = [(cat.id, cat.name) for cat in categories]
-    
+
     if form.validate_on_submit():
         BudgetService.update_expense(
             expense_id=expense_id,
@@ -137,7 +205,7 @@ def edit_expense(expense_id):
         )
         flash('Расход обновлен', 'success')
         return redirect(url_for('budget.expenses'))
-    
+
     return render_template('budget/expense_form.html', form=form, title='Редактировать расход')
 
 
@@ -367,8 +435,39 @@ def income():
 def add_income():
     """Add new income."""
     user_id = session['user_id']
+
+    # Handle modal form submission (simple date field)
+    if request.method == 'POST' and 'date' in request.form:
+        try:
+            from datetime import datetime
+            from decimal import Decimal
+
+            source_name = request.form.get('source_name', '').strip()
+            amount_str = request.form.get('amount', '').replace(',', '.')
+            date_str = request.form.get('date', '')
+
+            if not source_name or not amount_str or not date_str:
+                flash('Заполните все обязательные поля', 'error')
+                return redirect(url_for('budget.dashboard'))
+
+            amount = Decimal(amount_str)
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+            income = BudgetService.add_income(
+                user_id=user_id,
+                source_name=source_name,
+                amount=amount,
+                date=date_obj,
+                currency='RUB'
+            )
+            flash('Доход добавлен', 'success')
+            return redirect(url_for('budget.dashboard'))
+        except Exception as e:
+            flash(f'Ошибка при добавлении дохода: {str(e)}', 'error')
+            return redirect(url_for('budget.dashboard'))
+
+    # Handle regular form submission (year/month fields)
     form = IncomeForm()
-    
     if form.validate_on_submit():
         try:
             income = BudgetService.add_income(
@@ -383,7 +482,7 @@ def add_income():
             return redirect(url_for('budget.income'))
         except Exception as e:
             flash(f'Ошибка при добавлении дохода: {str(e)}', 'error')
-    
+
     return render_template('budget/income_form.html', form=form, title='Добавить доход')
 
 

@@ -1,8 +1,18 @@
 <!-- Шаблон модальной формы редактирования расхода -->
 <!-- Используется для GET /modals/expense/<id>/edit -->
 
-<form method="POST" action="{{ url_for('budget.edit_expense', expense_id=expense.id) }}" 
-      data-form="expense-edit" role="form" aria-label="Форма редактирования расхода" novalidate>
+<div class="cb-modal__header">
+    <h5 class="cb-modal__title">
+        <i class="bi bi-pencil me-2"></i>Редактировать расход
+    </h5>
+    <button type="button" class="cb-modal__close" data-modal-close aria-label="Закрыть">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+<div class="cb-modal__body">
+<form method="POST" action="{{ url_for('budget.edit_expense', expense_id=expense.id) }}"
+      data-form="expense-edit" role="form" aria-label="Форма редактирования расхода" novalidate id="expenseEditFormInner">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     
     <div class="row g-3">
@@ -54,6 +64,18 @@
         <span class="visually-hidden">Сохранение изменений…</span>
     </div>
 </form>
+</div>
+
+<div class="cb-modal__footer">
+    <div class="cb-modal__actions cb-modal__actions--full">
+        <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+            Отмена
+        </button>
+        <button type="submit" form="expenseEditFormInner" class="cb-modal__btn cb-modal__btn--primary">
+            <i class="bi bi-check-lg me-1"></i>Сохранить
+        </button>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {

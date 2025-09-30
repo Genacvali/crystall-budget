@@ -58,6 +58,7 @@ class Expense(db.Model):
     description = db.Column(db.Text)
     date = db.Column(db.Date, nullable=False, default=datetime.utcnow)
     currency = db.Column(db.String(3), default='RUB')
+    month = db.Column(db.String(7), nullable=False, default='2024-01')  # YYYY-MM format for legacy compatibility
     transaction_type = db.Column(db.String(20), default='expense')  # 'expense', 'carryover'
     carryover_from_month = db.Column(db.String(7), nullable=True)  # YYYY-MM format for carryover tracking
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

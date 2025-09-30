@@ -11,10 +11,10 @@
 </div>
 
 <div class="cb-modal__body">
-<form method="POST" action="{{ url_for('budget.expenses', month=month_data.month if month_data else None) }}"
+<form method="POST" action="{{ url_for('budget.add_expense') }}"
       data-form="expense" role="form" aria-label="Форма добавления расхода" novalidate id="expenseFormInner">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    
+
     <div class="row g-3">
         <div class="col-12 col-md-6">
             <label class="form-label">Дата <span class="text-danger">*</span></label>

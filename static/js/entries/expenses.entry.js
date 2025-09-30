@@ -9,10 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
   ui.initThemeToggle();
   ui.initSidebar();
   ui.initTooltips();
-  
+
+  // Initialize modals
+  if (window.ModalManager) {
+    window.ModalManager.init();
+  }
+
   // Initialize forms
   initForms();
-  
+
   // Initialize swipe cards for mobile
   initSwipeCards();
   

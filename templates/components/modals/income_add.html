@@ -11,10 +11,10 @@
 </div>
 
 <div class="cb-modal__body">
-<form method="POST" action="{{ url_for('budget.income') }}"
+<form method="POST" action="{{ url_for('budget.add_income') }}"
       data-form="income" role="form" aria-label="Форма добавления дохода" novalidate id="incomeFormInner">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    
+
     <div class="row g-3">
         <div class="col-12 col-md-6">
             <label class="form-label">Дата <span class="text-danger">*</span></label>

@@ -175,6 +175,7 @@ class BudgetService:
                 description=description,
                 date=date_val,
                 currency=currency,
+                month=month_string,
                 transaction_type=transaction_type,
                 carryover_from_month=carryover_from_month
             )
