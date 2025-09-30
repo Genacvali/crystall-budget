@@ -571,7 +571,7 @@
     } else {
       initializeMultiCategory();
     }
-
+ 
     // Also listen for modal shown event to re-initialize
     function setupModalListener() {
       const expenseModal = document.getElementById('expenseModal');
