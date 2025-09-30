@@ -1,0 +1,525 @@
+/*!
+ * CrystalBudget Modal Styles
+ * Beautiful, responsive modals for desktop and mobile
+ */
+
+/* ========================================================================
+   Modal Container
+   ======================================================================== */
+
+.cb-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.cb-modal--show {
+    display: flex !important;
+}
+
+/* Modal Backdrop */
+.cb-modal__backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: cbModalFadeIn 0.2s ease-out;
+    z-index: -1; /* Behind the dialog */
+}
+
+/* Modal Dialog */
+.cb-modal__dialog {
+    position: relative;
+    width: 100%;
+    max-width: 540px;
+    max-height: 90vh;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    animation: cbModalSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    overflow: hidden;
+    z-index: 1; /* Above backdrop */
+}
+
+/* ========================================================================
+   Mobile Responsive Design
+   ======================================================================== */
+
+@media (max-width: 576px) {
+    .cb-modal {
+        padding: 0;
+        align-items: flex-end;
+    }
+
+    .cb-modal__dialog {
+        max-width: 100%;
+        max-height: 90vh;
+        border-radius: 20px 20px 0 0;
+        animation: cbModalSlideUpMobile 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* Pull handle for mobile */
+    .cb-modal__header::before {
+        content: '';
+        position: absolute;
+        top: 8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 36px;
+        height: 4px;
+        background: #d1d5db;
+        border-radius: 2px;
+    }
+
+    .cb-modal__header {
+        padding-top: 1.5rem !important;
+    }
+}
+
+/* ========================================================================
+   Modal Header
+   ======================================================================== */
+
+.cb-modal__header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+    background: #ffffff;
+}
+
+.cb-modal__title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    line-height: 1.4;
+}
+
+.cb-modal__title i {
+    font-size: 1.125rem;
+}
+
+.cb-modal__close {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+}
+
+.cb-modal__close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.cb-modal__close:active {
+    background: #e5e7eb;
+}
+
+/* ========================================================================
+   Modal Body
+   ======================================================================== */
+
+.cb-modal__body {
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Custom scrollbar */
+.cb-modal__body::-webkit-scrollbar {
+    width: 8px;
+}
+
+.cb-modal__body::-webkit-scrollbar-track {
+    background: #f9fafb;
+    border-radius: 4px;
+}
+
+.cb-modal__body::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+}
+
+.cb-modal__body::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* ========================================================================
+   Modal Footer
+   ======================================================================== */
+
+.cb-modal__footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    flex-shrink: 0;
+    background: #ffffff;
+}
+
+.cb-modal__actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.cb-modal__actions--full {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+}
+
+.cb-modal__actions--center {
+    justify-content: center;
+}
+
+@media (max-width: 576px) {
+    .cb-modal__actions--full {
+        grid-template-columns: 1fr;
+    }
+
+    .cb-modal__actions--full button {
+        width: 100%;
+    }
+}
+
+/* ========================================================================
+   Modal Buttons
+   ======================================================================== */
+
+.cb-modal__btn {
+    padding: 0.625rem 1.5rem;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 0.9375rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    line-height: 1.5;
+    min-height: 44px; /* Touch-friendly */
+}
+
+.cb-modal__btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Primary Button */
+.cb-modal__btn--primary {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.cb-modal__btn--primary:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    transform: translateY(-1px);
+}
+
+.cb-modal__btn--primary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+/* Success Button */
+.cb-modal__btn--success {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.cb-modal__btn--success:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    transform: translateY(-1px);
+}
+
+.cb-modal__btn--success:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Danger Button */
+.cb-modal__btn--danger {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+.cb-modal__btn--danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    transform: translateY(-1px);
+}
+
+.cb-modal__btn--danger:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* Outline Button */
+.cb-modal__btn--outline {
+    background: transparent;
+    color: #6b7280;
+    border: 1.5px solid #d1d5db;
+}
+
+.cb-modal__btn--outline:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #9ca3af;
+    color: #374151;
+}
+
+.cb-modal__btn--outline:active:not(:disabled) {
+    background: #f3f4f6;
+}
+
+/* ========================================================================
+   Form Styles in Modals
+   ======================================================================== */
+
+.cb-modal__body .form-label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.cb-modal__body .form-control,
+.cb-modal__body .form-select {
+    border-radius: 10px;
+    border: 1.5px solid #d1d5db;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+}
+
+.cb-modal__body .form-control:focus,
+.cb-modal__body .form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
+
+.cb-modal__body .input-group {
+    margin-bottom: 0;
+}
+
+.cb-modal__body .input-group-text {
+    background: #f9fafb;
+    border: 1.5px solid #d1d5db;
+    color: #6b7280;
+    padding: 0.75rem 1rem;
+    font-size: 0.9375rem;
+}
+
+.cb-modal__body .input-group .form-control {
+    border-left: none;
+}
+
+.cb-modal__body .input-group .form-control:focus {
+    border-left: 1.5px solid #3b82f6;
+}
+
+.cb-modal__body .form-text {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin-top: 0.375rem;
+}
+
+/* ========================================================================
+   Loading Spinner
+   ======================================================================== */
+
+.loading-spinner {
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 3px solid #e5e7eb;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: cbModalSpin 0.8s linear infinite;
+    display: inline-block;
+}
+
+.cb-modal__btn .loading-spinner {
+    width: 1rem;
+    height: 1rem;
+    border-width: 2px;
+}
+
+/* ========================================================================
+   Modal Icon (for confirm dialogs)
+   ======================================================================== */
+
+.cb-modal__icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.cb-modal__icon--warning {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.cb-modal__icon--danger {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.cb-modal__icon--success {
+    background: #d1fae5;
+    color: #10b981;
+}
+
+.cb-modal__icon--info {
+    background: #dbeafe;
+    color: #3b82f6;
+}
+
+.cb-modal__message {
+    text-align: center;
+    color: #4b5563;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+}
+
+/* ========================================================================
+   Animations
+   ======================================================================== */
+
+@keyframes cbModalFadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes cbModalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes cbModalSlideUpMobile {
+    from {
+        opacity: 0;
+        transform: translateY(100%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes cbModalSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========================================================================
+   Dark Mode Support (optional)
+   ======================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    [data-theme="dark"] .cb-modal__dialog {
+        background: #1f2937;
+    }
+
+    [data-theme="dark"] .cb-modal__header,
+    [data-theme="dark"] .cb-modal__footer {
+        background: #1f2937;
+        border-color: #374151;
+    }
+
+    [data-theme="dark"] .cb-modal__title {
+        color: #f3f4f6;
+    }
+
+    [data-theme="dark"] .cb-modal__close {
+        color: #9ca3af;
+    }
+
+    [data-theme="dark"] .cb-modal__close:hover {
+        background: #374151;
+        color: #f3f4f6;
+    }
+
+    [data-theme="dark"] .cb-modal__body {
+        background: #1f2937;
+    }
+
+    [data-theme="dark"] .form-control,
+    [data-theme="dark"] .form-select {
+        background: #111827;
+        border-color: #374151;
+        color: #f3f4f6;
+    }
+
+    [data-theme="dark"] .input-group-text {
+        background: #111827;
+        border-color: #374151;
+        color: #9ca3af;
+    }
+}
+
+/* ========================================================================
+   Container for dynamic modals
+   ======================================================================== */
+
+#cb-modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 9998;
+}
+
+#cb-modal-container .cb-modal {
+    pointer-events: auto;
+}

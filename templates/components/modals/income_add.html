@@ -1,8 +1,18 @@
 <!-- Шаблон модальной формы добавления дохода -->
 <!-- Используется для GET /modals/income/add -->
 
-<form method="POST" action="{{ url_for('budget.income') }}" 
-      data-form="income" role="form" aria-label="Форма добавления дохода" novalidate>
+<div class="cb-modal__header">
+    <h5 class="cb-modal__title">
+        <i class="bi bi-arrow-up-circle me-2"></i>Добавить доход
+    </h5>
+    <button type="button" class="cb-modal__close" data-modal-close aria-label="Закрыть">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+<div class="cb-modal__body">
+<form method="POST" action="{{ url_for('budget.income') }}"
+      data-form="income" role="form" aria-label="Форма добавления дохода" novalidate id="incomeFormInner">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     
     <div class="row g-3">
@@ -52,6 +62,18 @@
         <span class="visually-hidden">Сохранение дохода…</span>
     </div>
 </form>
+</div>
+
+<div class="cb-modal__footer">
+    <div class="cb-modal__actions cb-modal__actions--full">
+        <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+            Отмена
+        </button>
+        <button type="submit" form="incomeFormInner" class="cb-modal__btn cb-modal__btn--success">
+            <i class="bi bi-check-lg me-1"></i>Добавить
+        </button>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {

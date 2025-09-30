@@ -12,6 +12,7 @@ STANDARD_BUNDLE = {
         'css/nav-ff.css',
         'css/design-tokens.css',
         'css/components/modal.css',
+        'css/modals.css',  # New unified modal styles
     ],
     'js': [
         'js/app.js',

@@ -5,7 +5,9 @@
       "Bash(python test_manual_scenarios.py:*)",
       "Bash(find:*)",
       "Bash(curl:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(pkill:*)",
+      "Read(//tmp/**)"
     ],
     "deny": [],
     "ask": []

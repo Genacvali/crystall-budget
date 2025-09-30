@@ -18,7 +18,7 @@
       this.debug = false; // Set to true for debugging
       this.operationInProgress = false; // Stress test protection
       this.operationQueue = []; // Operation queue for rapid calls
-      this.telemetryEnabled = true; // Enable telemetry collection
+      this.telemetryEnabled = false; // Disable telemetry by default to avoid errors
       this.modalStartTime = null; // Track modal timing
       this.init();
     }
@@ -299,8 +299,9 @@
       if (!modal.querySelector('.cb-modal__backdrop')) {
         const backdrop = document.createElement('div');
         backdrop.className = 'cb-modal__backdrop';
-        modal.appendChild(backdrop);
-        
+        // Insert backdrop as first child so it's behind content
+        modal.insertBefore(backdrop, modal.firstChild);
+
         // Animate backdrop
         requestAnimationFrame(() => {
           backdrop.classList.add('cb-modal__backdrop--show');
@@ -327,14 +328,15 @@
       return true;
     }
 
-    hide(modalId = null) {
-      const modal = modalId ? document.getElementById(modalId) : this.activeModal;
+    hide(modalIdParam = null) {
+      const modal = modalIdParam ? document.getElementById(modalIdParam) : this.activeModal;
       if (!modal || !modal.classList.contains('cb-modal--show')) {
-        this.log('debug', `Attempted to hide modal but it's not open: ${modalId || 'current'}`);
+        this.log('debug', `Attempted to hide modal but it's not open: ${modalIdParam || 'current'}`);
         return false;
       }
 
-      this.log('debug', `Hiding modal: ${modal.id}`);
+      const modalId = modal.id;
+      this.log('debug', `Hiding modal: ${modalId}`);
 
       // Remove focus trap
       this.removeFocusTrap(modal);
@@ -362,7 +364,7 @@
       if (this.focusBeforeModal) {
         try {
           // Check if the element is still in the DOM and can receive focus
-          if (document.body.contains(this.focusBeforeModal) && 
+          if (document.body.contains(this.focusBeforeModal) &&
               typeof this.focusBeforeModal.focus === 'function') {
             this.focusBeforeModal.focus();
           }
@@ -376,11 +378,9 @@
         }
       }
 
-      const modalId = modal.id;
-      
       // Record telemetry
       this.recordModalClose(modalId);
-      
+
       this.activeModal = null;
       this.focusBeforeModal = null;
 
@@ -768,6 +768,9 @@
     getActive: () => Modal.getActiveModal(),
     debug: (enabled = true) => { Modal.debug = enabled; }
   };
+
+  // Also expose ModalManager for backward compatibility
+  window.ModalManager = window.Modal;
 
   // Backward compatibility with common modal patterns
   window.openModal = window.Modal.show;

@@ -13,6 +13,7 @@ Environment=HTTPS_MODE=false
 Environment=TELEGRAM_BOT_TOKEN=test-token
 Environment=BUDGET_DB=sqlite:////opt/crystall-budget/instance/budget.db
 Environment=LOG_LEVEL=INFO
+Environment=MODAL_SYSTEM_ENABLED=true
 ExecStartPre=/bin/mkdir -p /opt/crystall-budget/instance
 ExecStart=/opt/crystall-budget/.venv/bin/python app.py
 Restart=always

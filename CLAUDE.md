@@ -136,6 +136,13 @@ The application is organized into focused modules:
 - **caching.py**: Cache management utilities
 - **money.py**: Currency handling and exchange rate utilities
 - **time.py**: Time zone and datetime utilities
+- **diagnostics.py**: Application diagnostics and debugging tools
+- **monitoring.py**: Modal system performance monitoring
+- **telemetry.py**: Event tracking and telemetry collection
+- **features.py**: Feature flag management for modal system
+- **bundles.py**: Bundle configuration for frontend assets
+- **assets.py**: Asset management helpers for templates
+- **screenshots.py**: Screenshot capture and comparison utilities
 
 #### Authentication Module (`app/modules/auth/`)
 - **models.py**: User model with Flask-Login integration
@@ -181,20 +188,24 @@ SQLAlchemy models with Alembic migrations:
 - **issue_comments**: Comments on reported issues
 
 ### Frontend Structure
-- **Templates**: 18+ HTML templates using Bootstrap 5 and Russian localization
-- **Components**: Reusable template components in `/templates/components/`
+- **Templates**: 76 HTML templates using Bootstrap 5 and Russian localization
+- **Components**: Reusable template components in `/templates/components/` including modals
 - **PWA**: Complete Progressive Web App with manifest, service worker, offline support
 - **Mobile-first**: Optimized for iOS Safari and Android with swipe gestures
-- **Static assets**: 
+- **Static assets**:
   - PWA files (manifest.json, manifest.webmanifest)
   - Service worker (sw.js) for offline functionality
-  - JavaScript modules in `/static/js/` with modular entry points:
-    - `app.js` - Main application logic
+  - JavaScript modules in `/static/js/`:
+    - `app.js` - Main application logic and initialization
+    - `modals.js` - Modal system for dynamic content loading
     - `dashboard-cats.js` - Dashboard category management
     - `progress_bars.js` - Progress bar animations
     - `offline.js` - Offline functionality
-    - `entries/` - Page-specific entry points (dashboard.entry.js, expenses.entry.js)
-    - `modules/` - Reusable modules (ui.js, forms.js, swipe.js)
+    - `accessibility.js` - Accessibility features
+    - `kanban.js` - Kanban board functionality
+    - `nav-ff.js` - Navigation and feature flags
+    - `entries/` - Page-specific entry points (dashboard.entry.js, expenses.entry.js, etc.)
+    - `modules/` - Reusable modules (ui.js, forms.js, swipe.js, etc.)
   - CSS files in `/static/css/` with responsive themes
   - Favicon and icons in `/static/icons/`
   - User avatars stored in `/static/avatars/`
@@ -202,14 +213,17 @@ SQLAlchemy models with Alembic migrations:
 ### Key Features
 - Fixed and percentage-based budget categories with automatic rollover
 - Multi-currency support with automatic exchange rate updates
-- Savings goals with progress tracking and completion notifications  
+- Savings goals with progress tracking and completion notifications
 - Family budget sharing via invitation codes
 - Comprehensive analytics with charts and period comparison
 - Mobile swipe actions for quick edit/delete operations
 - Automatic database schema migration system
 - Security features: CSP headers, HSTS, secure cookies, password hashing
 - CSRF protection with Flask-WTF integration
-- Template endpoint compatibility (non-blueprint structure)
+- Dynamic modal system for settings, goals, and forms
+- Health check endpoint (`/healthz`) for monitoring
+- Modal performance monitoring dashboard (`/monitoring/modal-system`)
+- Telemetry API for frontend event tracking (`/api/telemetry/modal`)
 
 ### Development vs Production Configuration
 - **Development**: Insecure default secret key with warning, HTTP cookies
@@ -258,10 +272,12 @@ SECRET_KEY="your-secure-secret-key"
 HTTPS_MODE="true"  # Enables secure cookies and HSTS headers
 TELEGRAM_BOT_TOKEN="your-telegram-bot-token"  # Required for Telegram authentication
 
-# Optional configuration  
-BUDGET_DB="/path/to/budget.db"  # Database location (default: ./budget.db)
+# Optional configuration
+BUDGET_DB="sqlite:////opt/crystall-budget/instance/budget.db"  # Database URI (SQLAlchemy format)
 LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 APP_CONFIG="testing"  # Configuration mode (development/production/testing)
+DIAGNOSTICS_ENABLED="false"  # Enable diagnostics mode
+MODAL_SYSTEM_ENABLED="true"  # Kill-switch for modal system (default: true)
 
 ```
 
@@ -272,8 +288,10 @@ APP_CONFIG="testing"  # Configuration mode (development/production/testing)
 - **Factory**: `app/__init__.py:create_app()` - Configures and returns Flask app with optional config name parameter
 - **Blueprint Registration**: All modules register as Flask blueprints (`auth`, `budget`, `goals`, `issues`, `api_v1`)
 - **Configuration**: Supports multiple configs via `APP_CONFIG` environment variable (development/production/testing)
-- **Backward Compatibility**: Legacy route endpoints are maintained for existing integrations
-- **Testing Support**: Special testing configuration with CSRF disabled and auto-authentication
+- **Backward Compatibility**: Legacy route endpoints are maintained for existing integrations at app root
+- **Testing Support**: Special testing configuration with CSRF disabled and auto-authentication via request loader
+- **Modal Routes**: Dynamic modal content endpoints registered at `/modals/*` for goals and settings
+- **Monitoring**: Built-in endpoints for health checks, modal performance monitoring, and telemetry collection
 
 #### Database Migrations
 - **Migration Directory**: `migrations/` - Alembic migration files
@@ -315,8 +333,10 @@ crystalbudget.service       # Systemd service file
 ```
 
 ### Service Files
-- `crystalbudget.service` - Main application systemd service (uses Gunicorn WSGI server)
+- `crystalbudget.service` - Main application systemd service (runs Flask dev server via app.py)
 - `admin_panel/admin-panel.service` - Admin panel systemd service
+
+Note: The main service currently runs Flask's development server. For production, consider switching to Gunicorn in the ExecStart line.
 
 ### Development Workflow
 
@@ -346,6 +366,15 @@ crystalbudget.service       # Systemd service file
 - **Smoke Tests**: Basic validation that app starts and core endpoints respond
 - **Screenshot Testing**: UI regression testing with visual comparisons
 - **Test Configuration**: Uses `TestingConfig` with CSRF disabled and auto-authentication
+- **Test Endpoints**: `/modal-test` and `/qa-modal-test` for manual UI testing
+
+#### Important Debugging Endpoints
+- `/healthz` - Health check endpoint (validates DB connection and migrations)
+- `/monitoring/modal-system` - Modal system performance dashboard (auth required)
+- `/monitoring/modal-system/api` - JSON API for modal metrics (auth required)
+- `/api/telemetry/modal` - POST endpoint for client-side telemetry collection
+- `/modal-test` - Modal system testing page
+- `/qa-modal-test` - QA testing page for unified modal system
 
 ### Service Installation
 ```bash
