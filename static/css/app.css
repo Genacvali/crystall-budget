@@ -2086,7 +2086,10 @@ input:checked + .theme-slider:before {
   padding: 12px 16px;
   display: flex;
   align-items: center;
+  gap: 8px;
   animation: flashSlideIn 0.3s ease-out;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .flash-container .alert:last-child {
@@ -2102,6 +2105,7 @@ input:checked + .theme-slider:before {
   margin-left: auto;
   margin-right: -8px;
   padding: 8px;
+  flex-shrink: 0;
 }
 
 /* Flash animation */

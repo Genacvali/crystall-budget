@@ -1,0 +1,141 @@
+<!-- Модальная форма настройки источников для мультиисточниковой категории -->
+
+<div class="cb-modal__header">
+    <h5 class="cb-modal__title">
+        <i class="bi bi-gear me-2"></i>Настройка источников: {{ category.name }}
+    </h5>
+    <button type="button" class="cb-modal__close" data-modal-close aria-label="Закрыть">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+<div class="cb-modal__body">
+    <div class="alert alert-info mb-3">
+        <i class="bi bi-info-circle me-2"></i>
+        <small>Настройте источники дохода для формирования лимита категории. Для процентных источников сумма должна быть 100%.</small>
+    </div>
+
+    <!-- Список существующих источников -->
+    <h6 class="mb-3">Текущие источники</h6>
+    <div class="mb-3">
+        {% if rules %}
+            {% for rule in rules %}
+            <div class="card border mb-2">
+                <div class="card-body py-2 px-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ rule.source_name }}</strong>
+                            <span class="text-muted ms-2">{{ rule.percentage }}{% if rule.is_fixed %}₽{% else %}%{% endif %}</span>
+                        </div>
+                        <form method="POST" action="{{ url_for('budget.delete_category_rule', rule_id=rule.id) }}" class="d-inline">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <input type="hidden" name="category_id" value="{{ category.id }}"/>
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-muted small mb-0">Источники не настроены</p>
+        {% endif %}
+    </div>
+
+    <!-- Форма добавления источника -->
+    <div class="card bg-light border-0">
+        <div class="card-body">
+            <h6 class="card-title mb-3">Добавить источник</h6>
+            <form method="POST" action="{{ url_for('budget.add_source_to_category', cat_id=category.id) }}" id="addSourceForm">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                <div class="row g-3">
+                    <div class="col-12 col-md-5">
+                        <label class="form-label small">Источник дохода</label>
+                        <select class="form-select" name="source_id" required>
+                            <option value="">Выберите источник...</option>
+                            {% for source in income_sources %}
+                            <option value="{{ source.id }}">{{ source.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-3">
+                        <label class="form-label small">Тип</label>
+                        <select class="form-select" name="limit_type" id="sourceTypeSelect">
+                            <option value="percent">%</option>
+                            <option value="fixed">₽</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label class="form-label small">Значение</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" name="value" id="sourceValueInput" placeholder="0" step="0.01" min="0.01" required>
+                            <span class="input-group-text" id="sourceValueSuffix">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">
+                    <i class="bi bi-plus-lg me-1"></i>Добавить источник
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="cb-modal__footer">
+    <div class="cb-modal__actions cb-modal__actions--center">
+        <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+            Закрыть
+        </button>
+    </div>
+</div>
+
+<script>
+// Update suffix when type changes
+const typeSelect = document.getElementById('sourceTypeSelect');
+const valueSuffix = document.getElementById('sourceValueSuffix');
+const valueInput = document.getElementById('sourceValueInput');
+
+if (typeSelect && valueSuffix && valueInput) {
+    typeSelect.addEventListener('change', function() {
+        if (this.value === 'percent') {
+            valueSuffix.textContent = '%';
+            valueInput.placeholder = '0';
+            valueInput.max = '100';
+        } else {
+            valueSuffix.textContent = '₽';
+            valueInput.placeholder = '0';
+            valueInput.max = '';
+        }
+    });
+}
+
+// Handle form submission
+const addSourceForm = document.getElementById('addSourceForm');
+if (addSourceForm) {
+    addSourceForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                // Reload page to show changes
+                window.location.reload();
+            } else {
+                alert('Ошибка при добавлении источника');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при добавлении источника');
+        });
+    });
+}
+</script>

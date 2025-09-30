@@ -117,13 +117,14 @@ class Income(db.Model):
 class CategoryRule(db.Model):
     """Category to income source mapping."""
     __tablename__ = 'category_rules'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id', ondelete='CASCADE'), nullable=False)
     source_name = db.Column(db.String(100), nullable=False)
     percentage = db.Column(db.Numeric(5, 2), default=100.0)  # For multi-source categories
+    is_fixed = db.Column(db.Boolean, default=False)  # True if percentage is fixed amount in rubles
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     __table_args__ = (db.UniqueConstraint('category_id', 'source_name'),)
     
     def __repr__(self):
@@ -189,7 +190,7 @@ class CategoryIncomeSource(db.Model):
     )
     
     # Relationships
-    category = db.relationship('Category', backref='income_source_links')
+    category = db.relationship('Category', backref=db.backref('income_source_links', cascade='all, delete-orphan'))
     source = db.relationship('IncomeSource', backref='category_links')
     
     def __repr__(self):

@@ -304,3 +304,29 @@ def create_income():
     except Exception as e:
         current_app.logger.error(f"Error saving income: {e}")
         return APIResponse.error("Failed to save income"), 500
+
+
+@api_v1_bp.route('/income-sources')
+@login_required
+def get_income_sources():
+    """Get income sources for current user."""
+    from app.modules.budget.models import IncomeSource
+    from app.core.extensions import db
+
+    user_id = session['user_id']
+
+    try:
+        sources = db.session.query(IncomeSource).filter_by(user_id=user_id).all()
+
+        return APIResponse.success({
+            'sources': [
+                {
+                    'id': str(source.id),
+                    'name': source.name
+                }
+                for source in sources
+            ]
+        })
+    except Exception as e:
+        current_app.logger.error(f"Error getting income sources: {e}")
+        return APIResponse.error("Failed to get income sources"), 500

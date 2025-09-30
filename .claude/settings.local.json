@@ -9,7 +9,14 @@
       "Bash(pkill:*)",
       "Read(//tmp/**)",
       "Bash(pgrep:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(grep:*)",
+      "Read(///**)",
+      "Bash(node:*)",
+      "Bash(flask db migrate:*)",
+      "Bash(flask db:*)",
+      "Bash(xargs -r kill -9)",
+      "Bash(awk:*)"
     ],
     "deny": [],
     "ask": []

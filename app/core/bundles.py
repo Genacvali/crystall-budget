@@ -58,7 +58,9 @@ def bundle_config():
     """Template helper for bundle information."""
     modal_enabled = is_modal_system_enabled()
     return {
+        'name': 'standard' if modal_enabled else 'fallback',
         'css': get_css_bundle(),
         'js': get_js_bundle(),
-        'modal_enabled': modal_enabled
+        'modal_enabled': modal_enabled,
+        'debug': True  # Enable debug for troubleshooting
     }

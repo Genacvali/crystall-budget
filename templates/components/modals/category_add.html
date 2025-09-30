@@ -1,0 +1,156 @@
+<!-- Шаблон модальной формы добавления категории -->
+<!-- Используется для GET /modals/category/add -->
+
+<div class="cb-modal__header">
+    <h5 class="cb-modal__title">
+        <i class="bi bi-plus-circle me-2"></i>Добавить категорию
+    </h5>
+    <button type="button" class="cb-modal__close" data-modal-close aria-label="Закрыть">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+<div class="cb-modal__body">
+<form method="POST" action="{{ url_for('budget.add_category') }}"
+      data-form="category-add" role="form" aria-label="Форма добавления категории" novalidate id="categoryAddFormInner">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input type="hidden" name="category_type" value="expense">
+
+    <div class="row g-3">
+        <div class="col-12">
+            <label class="form-label">Название <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" name="name" placeholder="Например, Продукты" required autofocus>
+        </div>
+
+        <!-- Тумблер для переключения типа источников -->
+        <div class="col-12">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="multi_source" id="multiSourceSwitchAdd">
+                <label class="form-check-label" for="multiSourceSwitchAdd">
+                    Несколько источников
+                </label>
+            </div>
+            <small class="text-muted">Лимит будет формироваться из нескольких источников дохода</small>
+        </div>
+
+        <!-- Поля для обычной категории (один источник) -->
+        <div id="singleSourceSection">
+            <div class="row g-3">
+                <div class="col-12">
+                    <label class="form-label">Источник дохода</label>
+                    <select class="form-select" name="source_id" id="singleSourceSelect">
+                        <option value="">Не привязан</option>
+                        {% for source in income_sources %}
+                        <option value="{{ source.id }}">{{ source.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <small class="text-muted">Можно не привязывать к источнику</small>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Тип лимита <span class="text-danger">*</span></label>
+                    <div class="btn-group w-100" role="group">
+                        <input type="radio" name="limit_type" id="fixedAdd" value="fixed" class="btn-check" checked>
+                        <label for="fixedAdd" class="btn btn-outline-primary">Фикс. сумма</label>
+                        <input type="radio" name="limit_type" id="percentAdd" value="percent" class="btn-check">
+                        <label for="percentAdd" class="btn btn-outline-primary">% от дохода</label>
+                    </div>
+                    <small class="text-muted" id="singleSourceHint">процент от всего дохода</small>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label">Значение <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="number" name="value" step="0.01" min="0.01" class="form-control"
+                               placeholder="15000" required id="singleValueInput">
+                        <span class="input-group-text" id="singleValueSuffix">₽</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Поля для мультиисточниковой категории -->
+        <div id="multiSourceSection" style="display: none;">
+            <div class="col-12">
+                <h6 class="mb-3">Источники для лимита</h6>
+
+                <!-- Форма добавления источника -->
+                <div class="card bg-light border-0 mb-3">
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-12 col-md-5">
+                                <label class="form-label small">Источник дохода</label>
+                                <select class="form-select form-select-sm" id="newSourceSelect">
+                                    <option value="">Выберите источник...</option>
+                                    {% for source in income_sources %}
+                                    <option value="{{ source.id }}" data-name="{{ source.name }}">{{ source.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <label class="form-label small">Тип</label>
+                                <div class="btn-group btn-group-sm w-100" role="group">
+                                    <input type="radio" name="new_source_type" id="newSourcePercent" value="percent" class="btn-check" checked>
+                                    <label for="newSourcePercent" class="btn btn-outline-primary">%</label>
+                                    <input type="radio" name="new_source_type" id="newSourceFixed" value="fixed" class="btn-check">
+                                    <label for="newSourceFixed" class="btn btn-outline-primary">₽</label>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-4">
+                                <label class="form-label small">Значение</label>
+                                <div class="input-group input-group-sm">
+                                    <input type="number" class="form-control" id="newSourceValue" placeholder="0" step="0.01" min="0.01">
+                                    <span class="input-group-text" id="newSourceSuffix">%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-primary mt-2 w-100 w-md-auto" id="addSourceBtn">
+                            <i class="bi bi-plus-lg me-1"></i>Добавить
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Список добавленных источников -->
+                <div id="sourcesList" class="mb-3">
+                    <p class="text-muted small mb-0">Добавьте источники</p>
+                </div>
+
+                <!-- Итого -->
+                <div id="sourcesTotal" class="alert alert-secondary" style="display: none;">
+                    <strong>Итого:</strong> <span id="totalPercent">0</span>%
+                    <span id="totalStatus" class="ms-2"></span>
+                </div>
+
+                <!-- Скрытое поле для передачи источников на сервер -->
+                <input type="hidden" name="sources_data" id="sourcesDataInput" value="[]">
+            </div>
+        </div>
+    </div>
+
+    <!-- Область для отображения общих ошибок формы -->
+    <div class="mt-3 d-none" role="alert" aria-live="assertive" aria-atomic="true" id="form-errors">
+        <div class="alert alert-danger">
+            <strong>Ошибка:</strong> <span id="form-error-text"></span>
+        </div>
+    </div>
+
+    <!-- Индикатор загрузки -->
+    <div class="mt-3 text-center d-none" id="form-loading" role="status" aria-live="polite">
+        <span class="loading-spinner" aria-hidden="true"></span>
+        <span class="visually-hidden">Создание категории…</span>
+    </div>
+</form>
+</div>
+
+<div class="cb-modal__footer">
+    <div class="cb-modal__actions cb-modal__actions--full">
+        <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+            Отмена
+        </button>
+        <button type="submit" form="categoryAddFormInner" class="cb-modal__btn cb-modal__btn--primary">
+            <i class="bi bi-plus-lg me-1"></i>Создать
+        </button>
+    </div>
+</div>
+
+<!-- Script logic moved to modals.js initCategoryAddForm() -->

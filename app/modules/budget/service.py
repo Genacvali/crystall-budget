@@ -474,17 +474,20 @@ class BudgetService:
             
         total_spent = Money.zero(currency)
         total_limits = Money.zero(currency)
-        
+
         for category in categories:
             spent_amount = spending_by_category.get(category.id, Decimal('0'))
             spent_money = Money(spent_amount, currency)
-            
+
             # Calculate limit
-            if category.limit_type == 'fixed':
+            if category.is_multi_source:
+                # Calculate limit from multiple sources
+                limit = BudgetService.calculate_multi_source_limit(user_id, category.id, year_month)
+            elif category.limit_type == 'fixed':
                 limit = Money(category.value, currency)
             else:  # percentage
                 limit = Money(total_income.amount * (category.value / 100), currency)
-            
+
             # Get carryover amounts for this category
             carryover_info = BudgetService.get_category_carryover_info(user_id, category.id, year_month)
             
@@ -518,7 +521,51 @@ class BudgetService:
             'total_remaining': total_remaining,
             'categories': category_summaries
         }
-    
+
+    @staticmethod
+    def calculate_multi_source_limit(user_id: int, category_id: int, year_month: YearMonth) -> Money:
+        """Calculate limit for multi-source category based on CategoryRule."""
+        from .models import CategoryRule, IncomeSource, Income
+
+        # Get currency
+        currency = 'RUB'
+        try:
+            currency = get_user_currency()
+        except RuntimeError:
+            pass
+
+        # Get all rules for this category
+        rules = (db.session.query(CategoryRule, IncomeSource)
+                .join(IncomeSource,
+                      db.and_(CategoryRule.source_name == IncomeSource.name,
+                             IncomeSource.user_id == user_id))
+                .filter(CategoryRule.category_id == category_id)
+                .all())
+
+        if not rules:
+            return Money.zero(currency)
+
+        total_limit = Decimal('0')
+
+        for rule, source in rules:
+            # Get income for this source in this month
+            income_record = Income.query.filter_by(
+                user_id=user_id,
+                source_name=source.name,
+                year=year_month.year,
+                month=year_month.month
+            ).first()
+
+            if income_record:
+                if rule.is_fixed:
+                    # Fixed amount
+                    total_limit += rule.percentage  # percentage field stores fixed amount
+                else:
+                    # Percentage of source income
+                    total_limit += income_record.amount * (rule.percentage / 100)
+
+        return Money(total_limit, currency)
+
     @staticmethod
     def get_multi_source_links(category_id: int):
         """Get multi-source links for a category."""

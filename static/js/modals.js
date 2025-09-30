@@ -316,6 +316,9 @@
       // Focus management
       this.focusModal(modal);
 
+      // Initialize modal behaviors (multi-source toggle, etc.)
+      this.initModalBehaviors(modal);
+
       // Emit custom event
       this.emit('Modal:opened', { modal, modalId, options });
 
@@ -434,6 +437,8 @@
       })
       .then(html => {
         this.setModalContent(modal, html);
+        // Initialize modal behaviors after content is loaded
+        this.initModalBehaviors(modal);
         this.emit('Modal:loaded', { modal, modalId, url });
         this.log('debug', `Modal content set for ${modalId}`);
       })
@@ -463,6 +468,14 @@
     // ==========================================================================
 
     confirm(message, onConfirm, options = {}) {
+      // Support both old format (message, onConfirm, options) and new format (single options object)
+      if (typeof message === 'object' && message !== null) {
+        // New format: confirm({ message: '...', title: '...', ... })
+        options = message;
+        message = options.message || 'Вы уверены?';
+        onConfirm = options.onConfirm || options.then;
+      }
+
       const {
         title = 'Подтверждение',
         confirmText = 'Да',
@@ -504,19 +517,31 @@
       modal.className = 'cb-modal cb-modal--confirm';
       this.setModalContent(modal, html);
 
-      // Handle confirm action
-      const confirmBtn = modal.querySelector('[data-confirm-action]');
-      if (confirmBtn) {
-        confirmBtn.addEventListener('click', () => {
-          this.hide();
-          if (typeof onConfirm === 'function') {
-            onConfirm();
-          }
-        }, { once: true });
-      }
+      // Return a Promise for new-style usage
+      const promise = new Promise((resolve, reject) => {
+        // Handle confirm action
+        const confirmBtn = modal.querySelector('[data-confirm-action]');
+        if (confirmBtn) {
+          confirmBtn.addEventListener('click', () => {
+            this.hide();
+            if (typeof onConfirm === 'function') {
+              onConfirm();
+            }
+            resolve();
+          }, { once: true });
+        }
+
+        // Handle cancel action
+        const cancelBtns = modal.querySelectorAll('[data-modal-close]');
+        cancelBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            reject();
+          }, { once: true });
+        });
+      });
 
       this.show(modalId);
-      return true;
+      return promise;
     }
 
     // ==========================================================================
@@ -708,6 +733,692 @@
     emit(eventName, detail = {}) {
       const event = new CustomEvent(eventName, { detail });
       document.dispatchEvent(event);
+    }
+
+    // ==========================================================================
+    // Modal Behaviors (Category Multi-Source Toggle, etc.)
+    // ==========================================================================
+
+    initModalBehaviors(modal) {
+      console.log('[ModalManager] initModalBehaviors called');
+
+      // Initialize category add form
+      this.initCategoryAddForm(modal);
+
+      // Initialize income forms
+      this.initIncomeAddForm(modal);
+      this.initIncomeEditForm(modal);
+    }
+
+    initCategoryAddForm(modal) {
+      const form = modal.querySelector('form[data-form="category-add"]');
+      if (!form) {
+        console.log('[CategoryAdd] Form not found in modal');
+        return;
+      }
+
+      console.log('[CategoryAdd] Initializing form');
+
+      // Elements
+      const multiSourceSwitch = form.querySelector('#multiSourceSwitchAdd');
+      const singleSourceSection = form.querySelector('#singleSourceSection');
+      const multiSourceSection = form.querySelector('#multiSourceSection');
+
+      if (!multiSourceSwitch || !singleSourceSection || !multiSourceSection) {
+        console.log('[CategoryAdd] Required elements not found:', {
+          multiSourceSwitch,
+          singleSourceSection,
+          multiSourceSection
+        });
+        return;
+      }
+
+      console.log('[CategoryAdd] All elements found, setting up...');
+
+      // Single source elements
+      const singleLimitTypeInputs = form.querySelectorAll('input[name="limit_type"]');
+      const singleValueInput = form.querySelector('#singleValueInput');
+      const singleValueSuffix = form.querySelector('#singleValueSuffix');
+      const singleSourceHint = form.querySelector('#singleSourceHint');
+
+      // Multi source elements
+      const newSourceSelect = form.querySelector('#newSourceSelect');
+      const newSourceTypeInputs = form.querySelectorAll('input[name="new_source_type"]');
+      const newSourceValue = form.querySelector('#newSourceValue');
+      const newSourceSuffix = form.querySelector('#newSourceSuffix');
+      const addSourceBtn = form.querySelector('#addSourceBtn');
+      const sourcesList = form.querySelector('#sourcesList');
+      const sourcesTotal = form.querySelector('#sourcesTotal');
+      const totalPercent = form.querySelector('#totalPercent');
+      const totalStatus = form.querySelector('#totalStatus');
+      const sourcesDataInput = form.querySelector('#sourcesDataInput');
+
+      let sources = [];
+
+      // Toggle mode
+      const toggleMode = () => {
+        const isMulti = multiSourceSwitch.checked;
+        console.log('[CategoryAdd] toggleMode, isMulti:', isMulti);
+
+        if (isMulti) {
+          singleSourceSection.style.display = 'none';
+          multiSourceSection.style.display = 'block';
+          singleValueInput.removeAttribute('required');
+          singleValueInput.disabled = true;
+        } else {
+          singleSourceSection.style.display = 'block';
+          multiSourceSection.style.display = 'none';
+          singleValueInput.setAttribute('required', 'required');
+          singleValueInput.disabled = false;
+        }
+      };
+
+      // Update single suffix
+      const updateSingleSuffix = () => {
+        const selected = Array.from(singleLimitTypeInputs).find(i => i.checked);
+        if (!selected) return;
+
+        if (selected.value === 'percent') {
+          singleValueSuffix.textContent = '%';
+          singleValueInput.placeholder = '15';
+          singleValueInput.max = '100';
+          singleValueInput.step = '0.1';
+          if (singleSourceHint) singleSourceHint.style.display = 'block';
+        } else {
+          singleValueSuffix.textContent = '₽';
+          singleValueInput.placeholder = '15000';
+          singleValueInput.max = '';
+          singleValueInput.step = '0.01';
+          if (singleSourceHint) singleSourceHint.style.display = 'none';
+        }
+      };
+
+      // Update new source suffix
+      const updateNewSourceSuffix = () => {
+        const selected = Array.from(newSourceTypeInputs).find(i => i.checked);
+        if (!selected) return;
+
+        if (selected.value === 'percent') {
+          newSourceSuffix.textContent = '%';
+          newSourceValue.placeholder = '0';
+          newSourceValue.max = '100';
+          newSourceValue.step = '0.1';
+        } else {
+          newSourceSuffix.textContent = '₽';
+          newSourceValue.placeholder = '0';
+          newSourceValue.max = '';
+          newSourceValue.step = '0.01';
+        }
+      };
+
+      // Add source
+      const addSource = () => {
+        const sourceId = newSourceSelect.value;
+        const sourceName = newSourceSelect.options[newSourceSelect.selectedIndex]?.text;
+        const type = Array.from(newSourceTypeInputs).find(i => i.checked)?.value || 'percent';
+        const value = parseFloat(newSourceValue.value);
+
+        if (!sourceId) {
+          alert('Выберите источник дохода');
+          return;
+        }
+
+        if (!value || value <= 0) {
+          alert('Укажите значение больше 0');
+          return;
+        }
+
+        if (type === 'percent' && value > 100) {
+          alert('Процент не может быть больше 100%');
+          return;
+        }
+
+        if (sources.find(s => s.id === sourceId)) {
+          alert('Этот источник уже добавлен');
+          return;
+        }
+
+        sources.push({ id: sourceId, name: sourceName, type, value });
+        renderSources();
+        updateTotal();
+        updateSourcesData();
+
+        newSourceSelect.value = '';
+        newSourceValue.value = '';
+        form.querySelector('#newSourcePercent').checked = true;
+        updateNewSourceSuffix();
+      };
+
+      // Remove source
+      const removeSource = (sourceId) => {
+        sources = sources.filter(s => s.id !== sourceId);
+        renderSources();
+        updateTotal();
+        updateSourcesData();
+      };
+
+      // Render sources
+      const renderSources = () => {
+        if (sources.length === 0) {
+          sourcesList.innerHTML = '<p class="text-muted small mb-0">Добавьте источники</p>';
+          return;
+        }
+
+        const escapeHtml = (text) => {
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        };
+
+        sourcesList.innerHTML = sources.map(source => `
+          <div class="card border mb-2">
+            <div class="card-body py-2 px-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>${escapeHtml(source.name)}</strong>
+                  <span class="text-muted ms-2">${source.value}${source.type === 'percent' ? '%' : '₽'}</span>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger" data-remove-source="${source.id}">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+        // Attach remove handlers
+        sourcesList.querySelectorAll('[data-remove-source]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            removeSource(btn.getAttribute('data-remove-source'));
+          });
+        });
+      };
+
+      // Update total
+      const updateTotal = () => {
+        const percentSources = sources.filter(s => s.type === 'percent');
+        if (percentSources.length === 0) {
+          sourcesTotal.style.display = 'none';
+          return;
+        }
+
+        const total = percentSources.reduce((sum, s) => sum + s.value, 0);
+        totalPercent.textContent = total.toFixed(1);
+        sourcesTotal.style.display = 'block';
+
+        if (total === 0) {
+          totalStatus.innerHTML = '<i class="bi bi-exclamation-circle text-secondary"></i> добавьте источники';
+        } else if (total > 0 && total <= 100) {
+          totalStatus.innerHTML = '<i class="bi bi-check-circle text-success"></i> корректно';
+        } else {
+          totalStatus.innerHTML = '<i class="bi bi-exclamation-triangle text-warning"></i> превышен лимит';
+        }
+      };
+
+      // Update hidden field
+      const updateSourcesData = () => {
+        sourcesDataInput.value = JSON.stringify(sources);
+      };
+
+      // Event listeners
+      multiSourceSwitch.addEventListener('change', toggleMode);
+
+      singleLimitTypeInputs.forEach(input => {
+        input.addEventListener('change', updateSingleSuffix);
+      });
+
+      newSourceTypeInputs.forEach(input => {
+        input.addEventListener('change', updateNewSourceSuffix);
+      });
+
+      if (addSourceBtn) {
+        addSourceBtn.addEventListener('click', addSource);
+      }
+
+      // Form validation
+      form.addEventListener('submit', (e) => {
+        if (multiSourceSwitch.checked) {
+          if (sources.length === 0) {
+            e.preventDefault();
+            alert('Добавьте хотя бы один источник');
+            return;
+          }
+
+          const percentTotal = sources.filter(s => s.type === 'percent').reduce((sum, s) => sum + s.value, 0);
+          if (percentTotal > 100) {
+            e.preventDefault();
+            alert('Сумма процентов не может превышать 100%');
+            return;
+          }
+        }
+
+        if (!form.checkValidity()) {
+          e.preventDefault();
+          e.stopPropagation();
+          form.classList.add('was-validated');
+        }
+      });
+
+      // Initialize
+      updateSingleSuffix();
+      updateNewSourceSuffix();
+      console.log('[CategoryAdd] Form initialized successfully');
+    }
+
+    initIncomeAddForm(modal) {
+      const form = modal.querySelector('form[data-form="income"]');
+      if (!form) return;
+
+      console.log('[IncomeAdd] Initializing income add form');
+
+      const amount = form.querySelector('input[name="amount"]');
+      const sourceInput = form.querySelector('#source_name');
+      const errBox = form.querySelector('#form-errors');
+      const loading = form.querySelector('#form-loading');
+
+      // Mark fields as "dirty" after first input/blur
+      form.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', () => el.classList.add('dirty'));
+        el.addEventListener('blur', () => el.classList.add('dirty'));
+      });
+
+      // Auto-focus amount input after source name entry
+      if (sourceInput && amount) {
+        sourceInput.addEventListener('blur', function() {
+          if (this.value.trim()) {
+            setTimeout(() => {
+              amount.focus();
+              amount.select();
+            }, 100);
+          }
+        });
+      }
+
+      // Quick shortcuts for popular income amounts
+      if (amount) {
+        amount.addEventListener('keydown', function(e) {
+          if (e.ctrlKey && e.key >= '1' && e.key <= '5') {
+            e.preventDefault();
+            const quickAmounts = ['30000', '50000', '75000', '100000', '150000'];
+            this.value = quickAmounts[parseInt(e.key) - 1];
+            this.focus();
+          }
+        });
+
+        // Auto-add .00 on blur
+        amount.addEventListener('blur', function() {
+          if (this.value && /^\d+$/.test(this.value)) {
+            this.value = this.value + '.00';
+          }
+        });
+      }
+
+      // Form submission
+      form.addEventListener('submit', (e) => {
+        // Normalize amount
+        if (amount && amount.value) {
+          const v = amount.value.replace(',', '.').trim();
+          if (/^\d+(\.\d{1,2})?$/.test(v)) {
+            amount.value = (Math.round(parseFloat(v) * 100) / 100).toFixed(2);
+          }
+        }
+
+        if (!form.checkValidity()) {
+          e.preventDefault();
+          e.stopPropagation();
+          form.classList.add('was-validated');
+          return;
+        }
+
+        loading?.classList.remove('d-none');
+        errBox?.classList.add('d-none');
+      });
+
+      console.log('[IncomeAdd] Form initialized successfully');
+    }
+
+    initIncomeEditForm(modal) {
+      const form = modal.querySelector('form[data-form="income-edit"]');
+      if (!form) return;
+
+      console.log('[IncomeEdit] Initializing income edit form');
+
+      const amount = form.querySelector('input[name="amount"]');
+      const sourceInput = form.querySelector('#source_name');
+      const errBox = form.querySelector('#form-errors');
+      const loading = form.querySelector('#form-loading');
+
+      // Mark fields as "dirty" after first input/blur
+      form.querySelectorAll('input, select, textarea').forEach(el => {
+        el.addEventListener('input', () => el.classList.add('dirty'));
+        el.addEventListener('blur', () => el.classList.add('dirty'));
+      });
+
+      // Auto-focus amount input after source name change (only if amount is empty)
+      if (sourceInput && amount) {
+        sourceInput.addEventListener('change', function() {
+          if (this.value && !amount.value.trim()) {
+            setTimeout(() => amount.focus(), 100);
+          }
+        });
+      }
+
+      // Form submission
+      form.addEventListener('submit', (e) => {
+        // Normalize amount
+        if (amount && amount.value) {
+          const v = amount.value.replace(',', '.').trim();
+          if (/^\d+(\.\d{1,2})?$/.test(v)) {
+            amount.value = (Math.round(parseFloat(v) * 100) / 100).toFixed(2);
+          }
+        }
+
+        if (!form.checkValidity()) {
+          e.preventDefault();
+          e.stopPropagation();
+          form.classList.add('was-validated');
+          return;
+        }
+
+        loading?.classList.remove('d-none');
+        errBox?.classList.add('d-none');
+      });
+
+      console.log('[IncomeEdit] Form initialized successfully');
+    }
+
+    initMultiSourceToggle(modal) {
+      const toggle = modal.querySelector('[data-role="multi-source-toggle"]');
+      console.log('[ModalManager] initMultiSourceToggle - toggle:', toggle);
+
+      if (!toggle) {
+        console.log('[ModalManager] No multi-source toggle found');
+        return;
+      }
+
+      const singleSourceSection = modal.querySelector('[data-role="single-source-section"]');
+      const multiSourceSection = modal.querySelector('[data-role="multi-source-section"]');
+      const limitTypeSection = modal.querySelector('[data-role="limit-type-section"]');
+      const valueSection = modal.querySelector('[data-role="value-section"]');
+
+      console.log('[ModalManager] Sections:', {
+        single: singleSourceSection,
+        multi: multiSourceSection,
+        limitType: limitTypeSection,
+        value: valueSection
+      });
+
+      if (!singleSourceSection || !multiSourceSection) {
+        console.log('[ModalManager] Missing required sections');
+        return;
+      }
+
+      // Remove old event listeners by cloning
+      const newToggle = toggle.cloneNode(true);
+      toggle.parentNode.replaceChild(newToggle, toggle);
+      console.log('[ModalManager] Toggle event listener attached');
+
+      newToggle.addEventListener('change', () => {
+        console.log('[ModalManager] Toggle changed to:', newToggle.checked);
+        this.toggleMultiSourceMode(
+          newToggle.checked,
+          singleSourceSection,
+          multiSourceSection,
+          limitTypeSection,
+          valueSection
+        );
+      });
+    }
+
+    toggleMultiSourceMode(isMulti, singleSection, multiSection, limitTypeSection, valueSection) {
+      if (isMulti) {
+        // Show multi-source, hide single-source
+        this.hideSection(singleSection);
+        if (limitTypeSection) this.hideSection(limitTypeSection);
+        if (valueSection) this.hideSection(valueSection);
+        this.showSection(multiSection);
+      } else {
+        // Show single-source, hide multi-source
+        this.hideSection(multiSection);
+        this.showSection(singleSection);
+        if (limitTypeSection) this.showSection(limitTypeSection);
+        if (valueSection) this.showSection(valueSection);
+      }
+    }
+
+    hideSection(section) {
+      if (!section) return;
+
+      // Disable and remove required from all inputs
+      section.querySelectorAll('input, select, textarea').forEach(input => {
+        input.disabled = true;
+        input.removeAttribute('required');
+      });
+
+      // Animate hide
+      section.style.opacity = '0';
+      section.style.maxHeight = '0';
+      section.style.overflow = 'hidden';
+      setTimeout(() => {
+        section.style.display = 'none';
+      }, 300);
+    }
+
+    showSection(section) {
+      if (!section) return;
+
+      // Show and animate
+      section.style.display = 'block';
+      section.style.overflow = 'hidden';
+      setTimeout(() => {
+        section.style.opacity = '1';
+        section.style.maxHeight = '1000px';
+
+        // Enable inputs and restore required
+        section.querySelectorAll('input, select, textarea').forEach(input => {
+          input.disabled = false;
+          if (input.dataset.required === 'true') {
+            input.setAttribute('required', 'required');
+          }
+        });
+      }, 10);
+    }
+
+    initLimitTypeToggle(modal) {
+      const limitTypeInputs = modal.querySelectorAll('[data-role="limit-type"]');
+      const valueSuffix = modal.querySelector('[data-role="value-suffix"]');
+      const valueInput = modal.querySelector('[data-role="value-input"]');
+
+      if (!limitTypeInputs.length || !valueSuffix || !valueInput) return;
+
+      limitTypeInputs.forEach(input => {
+        input.addEventListener('change', () => {
+          if (input.value === 'percent') {
+            valueSuffix.textContent = '%';
+            valueInput.placeholder = '15';
+            valueInput.max = '100';
+            valueInput.step = '0.1';
+          } else {
+            valueSuffix.textContent = '₽';
+            valueInput.placeholder = '15000';
+            valueInput.max = '';
+            valueInput.step = '0.01';
+          }
+        });
+      });
+    }
+
+    syncModalState(modal) {
+      // Sync multi-source toggle state on modal open
+      const toggle = modal.querySelector('[data-role="multi-source-toggle"]');
+      if (!toggle) return;
+
+      const singleSourceSection = modal.querySelector('[data-role="single-source-section"]');
+      const multiSourceSection = modal.querySelector('[data-role="multi-source-section"]');
+      const limitTypeSection = modal.querySelector('[data-role="limit-type-section"]');
+      const valueSection = modal.querySelector('[data-role="value-section"]');
+
+      if (singleSourceSection && multiSourceSection) {
+        // Set initial state without animation
+        if (toggle.checked) {
+          singleSourceSection.style.display = 'none';
+          if (limitTypeSection) limitTypeSection.style.display = 'none';
+          if (valueSection) valueSection.style.display = 'none';
+          multiSourceSection.style.display = 'block';
+          multiSourceSection.style.opacity = '1';
+          multiSourceSection.style.maxHeight = '1000px';
+        } else {
+          multiSourceSection.style.display = 'none';
+          singleSourceSection.style.display = 'block';
+          singleSourceSection.style.opacity = '1';
+          singleSourceSection.style.maxHeight = '1000px';
+          if (limitTypeSection) {
+            limitTypeSection.style.display = 'block';
+            limitTypeSection.style.opacity = '1';
+          }
+          if (valueSection) {
+            valueSection.style.display = 'block';
+            valueSection.style.opacity = '1';
+          }
+        }
+      }
+    }
+
+    initMultiSourceManagement(modal) {
+      const newSourceSelect = modal.querySelector('#newSourceSelect');
+      const newSourceType = modal.querySelector('#newSourceType');
+      const newSourceValue = modal.querySelector('#newSourceValue');
+      const newSourceSuffix = modal.querySelector('#newSourceSuffix');
+      const addSourceBtn = modal.querySelector('#addSourceBtn');
+      const sourcesList = modal.querySelector('#sourcesList');
+      const sourcesDataInput = modal.querySelector('#sourcesDataInput');
+
+      if (!newSourceSelect || !addSourceBtn || !sourcesList) return;
+
+      // Load income sources
+      this.loadIncomeSources(newSourceSelect);
+
+      // Array to store sources
+      let sources = [];
+
+      // Update suffix when type changes
+      if (newSourceType && newSourceSuffix) {
+        newSourceType.addEventListener('change', () => {
+          if (newSourceType.value === 'percent') {
+            newSourceSuffix.textContent = '%';
+            newSourceValue.placeholder = '0';
+            newSourceValue.max = '100';
+          } else {
+            newSourceSuffix.textContent = '₽';
+            newSourceValue.placeholder = '0';
+            newSourceValue.max = '';
+          }
+        });
+      }
+
+      // Add source button
+      addSourceBtn.addEventListener('click', () => {
+        const sourceId = newSourceSelect.value;
+        const sourceName = newSourceSelect.options[newSourceSelect.selectedIndex]?.text;
+        const type = newSourceType.value;
+        const value = parseFloat(newSourceValue.value);
+
+        if (!sourceId || !value || value <= 0) {
+          alert('Пожалуйста, выберите источник и укажите значение');
+          return;
+        }
+
+        // Check if source already added
+        if (sources.find(s => s.id === sourceId)) {
+          alert('Этот источник уже добавлен');
+          return;
+        }
+
+        // Add source
+        sources.push({
+          id: sourceId,
+          name: sourceName,
+          type: type,
+          value: value
+        });
+
+        // Update UI
+        this.renderSources(sourcesList, sources, () => {
+          // Remove callback
+          sources = sources.filter(s => s.id !== sourceId);
+          this.renderSources(sourcesList, sources, arguments.callee);
+          this.updateSourcesData(sourcesDataInput, sources);
+        });
+
+        // Update hidden input
+        this.updateSourcesData(sourcesDataInput, sources);
+
+        // Reset form
+        newSourceSelect.value = '';
+        newSourceValue.value = '';
+      });
+    }
+
+    loadIncomeSources(selectElement) {
+      // Load income sources from API
+      fetch('/api/v1/income-sources')
+        .then(response => response.json())
+        .then(data => {
+          selectElement.innerHTML = '<option value="">Выберите источник...</option>';
+          (data.sources || []).forEach(source => {
+            const option = document.createElement('option');
+            option.value = source.id;
+            option.textContent = source.name;
+            selectElement.appendChild(option);
+          });
+        })
+        .catch(error => {
+          console.error('Error loading income sources:', error);
+        });
+    }
+
+    renderSources(container, sources, removeCallback) {
+      container.innerHTML = '';
+
+      if (sources.length === 0) {
+        container.innerHTML = '<p class="text-muted small mb-0">Источники не добавлены</p>';
+        return;
+      }
+
+      const escapeHtml = (text) => {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      };
+
+      sources.forEach(source => {
+        const sourceCard = document.createElement('div');
+        sourceCard.className = 'card border mb-2';
+        sourceCard.innerHTML = `
+          <div class="card-body py-2 px-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <strong>${escapeHtml(source.name)}</strong>
+                <span class="text-muted ms-2">${source.value}${source.type === 'percent' ? '%' : '₽'}</span>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-danger" data-source-id="${source.id}">
+                <i class="bi bi-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Add remove handler
+        const removeBtn = sourceCard.querySelector('[data-source-id]');
+        removeBtn.addEventListener('click', () => removeCallback(source.id));
+
+        container.appendChild(sourceCard);
+      });
+    }
+
+    updateSourcesData(input, sources) {
+      if (!input) return;
+      input.value = JSON.stringify(sources);
     }
 
     // ==========================================================================

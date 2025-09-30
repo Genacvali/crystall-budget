@@ -254,6 +254,16 @@ def categories():
                          multi_source_links=multi_source_links)
 
 
+@budget_bp.route('/modals/category/add', methods=['GET'])
+@login_required
+def category_add_modal():
+    """Return category add modal content."""
+    user_id = session['user_id']
+    income_sources = IncomeSource.query.filter_by(user_id=user_id).all()
+    return render_template('components/modals/category_add.html',
+                         income_sources=income_sources)
+
+
 @budget_bp.route('/categories/add', methods=['GET', 'POST'])
 @login_required
 def add_category():
@@ -272,9 +282,10 @@ def add_category():
             return redirect(url_for('budget.categories'))
         
         try:
+            import json
             from app.core.extensions import db
             from app.modules.budget.models import CategoryRule
-            
+
             # Create category with multi-source flag
             category = BudgetService.create_category(
                 user_id=user_id,
@@ -282,30 +293,39 @@ def add_category():
                 limit_type=limit_type,
                 value=float(value) if not is_multi_source else 0
             )
-            
+
             # Set multi-source flag and process multi-source data
             if is_multi_source:
                 category.is_multi_source = True
                 db.session.flush()  # Flush to get category ID
-                
-                # Process multi-source data
-                multi_sources = request.form.getlist('multi_sources')
-                for source_id in multi_sources:
-                    percentage_key = f'source_percentage_{source_id}'
-                    percentage = request.form.get(percentage_key, '0')
-                    if percentage and float(percentage) > 0:
-                        # Find source to get its name
+
+                # Process multi-source data from JSON
+                sources_data_json = request.form.get('sources_data', '[]')
+                try:
+                    sources_data = json.loads(sources_data_json)
+                except (json.JSONDecodeError, TypeError):
+                    sources_data = []
+
+                for source_data in sources_data:
+                    source_id = source_data.get('id')
+                    source_name = source_data.get('name')
+                    source_type = source_data.get('type', 'percent')
+                    source_value = source_data.get('value', 0)
+
+                    if source_id and source_value > 0:
+                        # Verify source belongs to user
                         source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
                         if source:
                             cat_rule = CategoryRule(
                                 category_id=category.id,
                                 source_name=source.name,
-                                percentage=float(percentage)
+                                percentage=float(source_value),
+                                is_fixed=(source_type == 'fixed')
                             )
                             db.session.add(cat_rule)
-                
+
                 db.session.commit()
-            
+
             flash('Категория создана', 'success')
             return redirect(url_for('budget.categories'))
             
@@ -316,6 +336,43 @@ def add_category():
     # GET request - show form
     form = CategoryForm()
     return render_template('budget/category_form.html', form=form, title='Добавить категорию')
+
+
+@budget_bp.route('/modals/category/<int:category_id>/edit', methods=['GET'])
+@login_required
+def category_edit_modal(category_id):
+    """Return category edit modal content."""
+    from app.modules.budget.models import CategoryRule
+    user_id = session['user_id']
+    category = Category.query.filter_by(id=category_id, user_id=user_id).first_or_404()
+    income_sources = IncomeSource.query.filter_by(user_id=user_id).all()
+
+    # Get existing rules for multi-source categories
+    rules = CategoryRule.query.filter_by(category_id=category_id).all()
+    rules_map = {rule.source_name: rule for rule in rules}
+
+    return render_template('components/modals/category_edit.html',
+                         category=category,
+                         income_sources=income_sources,
+                         rules_map=rules_map)
+
+
+@budget_bp.route('/modals/category/<int:category_id>/sources', methods=['GET'])
+@login_required
+def category_sources_modal(category_id):
+    """Return category sources management modal content."""
+    from app.modules.budget.models import CategoryRule
+    user_id = session['user_id']
+    category = Category.query.filter_by(id=category_id, user_id=user_id).first_or_404()
+    income_sources = IncomeSource.query.filter_by(user_id=user_id).all()
+
+    # Get existing rules
+    rules = CategoryRule.query.filter_by(category_id=category_id).all()
+
+    return render_template('components/modals/category_sources.html',
+                         category=category,
+                         income_sources=income_sources,
+                         rules=rules)
 
 
 @budget_bp.route('/categories/edit/<int:category_id>', methods=['GET', 'POST'])
@@ -634,85 +691,90 @@ def toggle_multi_source(cat_id):
 @login_required
 def add_source_to_category(cat_id):
     """Add income source to multi-source category."""
+    from flask import jsonify
+    from app.modules.budget.models import CategoryRule
+
     user_id = session['user_id']
-    
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.accept_json
+
     try:
         from app.core.extensions import db
-        from app.modules.budget.models import CategoryIncomeSource
-        
+
         # Find category
         category = Category.query.filter_by(id=cat_id, user_id=user_id).first()
         if not category:
+            if is_ajax:
+                return jsonify({'success': False, 'error': 'Категория не найдена'}), 404
             flash('Категория не найдена', 'error')
             return redirect(url_for('budget.categories'))
-        
+
         source_id = request.form.get('source_id')
         limit_type = request.form.get('limit_type', 'percent')
-        
+        percentage_value = request.form.get('percentage', type=float)
+
         if not source_id:
+            if is_ajax:
+                return jsonify({'success': False, 'error': 'Выберите источник дохода'}), 400
             flash('Выберите источник дохода', 'error')
             return redirect(url_for('budget.categories'))
-        
+
         # Check if source exists and belongs to user
         source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
         if not source:
+            if is_ajax:
+                return jsonify({'success': False, 'error': 'Источник дохода не найден'}), 404
             flash('Источник дохода не найден', 'error')
             return redirect(url_for('budget.categories'))
-        
+
         # Check if this source is already added to category
-        existing = CategoryIncomeSource.query.filter_by(
-            category_id=cat_id, 
-            source_id=source_id
+        existing = CategoryRule.query.filter_by(
+            category_id=cat_id,
+            source_name=source.name
         ).first()
         if existing:
+            if is_ajax:
+                return jsonify({'success': False, 'error': f'Источник "{source.name}" уже добавлен к категории'}), 400
             flash(f'Источник "{source.name}" уже добавлен к категории', 'error')
             return redirect(url_for('budget.categories'))
-        
-        # Validate and get limit value based on type
-        if limit_type == 'percent':
-            percentage = request.form.get('percentage', type=float)
-            if not percentage or percentage <= 0 or percentage > 100:
-                flash('Укажите корректный процент (0.01-100)', 'error')
-                return redirect(url_for('budget.categories'))
-            
-            # Create CategoryIncomeSource with percentage
-            cat_source = CategoryIncomeSource(
-                user_id=user_id,
-                category_id=cat_id,
-                source_id=source_id,
-                limit_type='percent',
-                percentage=percentage,
-                fixed_amount=None
-            )
-            flash_msg = f'Источник "{source.name}" добавлен к категории с {percentage}%'
-            
-        else:  # fixed amount
-            fixed_amount = request.form.get('fixed_amount', type=float)
-            if not fixed_amount or fixed_amount <= 0:
-                flash('Укажите корректную сумму (больше 0)', 'error')
-                return redirect(url_for('budget.categories'))
-            
-            # Create CategoryIncomeSource with fixed amount
-            cat_source = CategoryIncomeSource(
-                user_id=user_id,
-                category_id=cat_id,
-                source_id=source_id,
-                limit_type='fixed',
-                percentage=None,
-                fixed_amount=fixed_amount
-            )
-            flash_msg = f'Источник "{source.name}" добавлен к категории с {fixed_amount} ₽'
-        
-        db.session.add(cat_source)
+
+        # Validate percentage value
+        if not percentage_value or percentage_value <= 0:
+            if is_ajax:
+                return jsonify({'success': False, 'error': 'Укажите корректное значение (больше 0)'}), 400
+            flash('Укажите корректное значение (больше 0)', 'error')
+            return redirect(url_for('budget.categories'))
+
+        if limit_type == 'percent' and percentage_value > 100:
+            if is_ajax:
+                return jsonify({'success': False, 'error': 'Процент не может быть больше 100'}), 400
+            flash('Процент не может быть больше 100', 'error')
+            return redirect(url_for('budget.categories'))
+
+        # Create CategoryRule
+        cat_rule = CategoryRule(
+            category_id=cat_id,
+            source_name=source.name,
+            percentage=percentage_value,
+            is_fixed=(limit_type == 'fixed')
+        )
+
+        db.session.add(cat_rule)
         db.session.commit()
-        
+
+        flash_msg = f'Источник "{source.name}" добавлен к категории'
+        if is_ajax:
+            return jsonify({'success': True, 'message': flash_msg})
+
         flash(flash_msg, 'success')
-        
+
     except Exception as e:
         from app.core.extensions import db
         db.session.rollback()
-        flash(f'Ошибка при добавлении источника: {str(e)}', 'error')
-    
+        error_msg = f'Ошибка при добавлении источника: {str(e)}'
+        if is_ajax:
+            return jsonify({'success': False, 'error': error_msg}), 500
+        flash(error_msg, 'error')
+
     return redirect(url_for('budget.categories'))
 
 
@@ -971,6 +1033,28 @@ def income_add_modal():
                          today=datetime.date.today().isoformat())
 
 
+@budget_bp.route('/category-rules/<int:rule_id>/delete', methods=['POST'])
+@login_required
+def delete_category_rule(rule_id):
+    """Delete a category rule."""
+    from app.modules.budget.models import CategoryRule
+    from app.core.extensions import db
+
+    user_id = session['user_id']
+    category_id = request.form.get('category_id')
+
+    rule = CategoryRule.query.filter_by(id=rule_id).first_or_404()
+
+    # Verify category belongs to user
+    category = Category.query.filter_by(id=rule.category_id, user_id=user_id).first_or_404()
+
+    db.session.delete(rule)
+    db.session.commit()
+
+    flash('Источник удален', 'success')
+    return redirect(url_for('budget.categories'))
+
+
 @budget_bp.route('/modals/income/<int:income_id>/edit')
 @login_required
 @monitor_modal_performance('income_edit')
@@ -978,6 +1062,6 @@ def income_edit_modal(income_id):
     """Return income edit modal content."""
     user_id = session['user_id']
     income = Income.query.filter_by(id=income_id, user_id=user_id).first_or_404()
-    
-    return render_template('components/modals/income_edit.html', 
+
+    return render_template('components/modals/income_edit.html',
                          income=income)

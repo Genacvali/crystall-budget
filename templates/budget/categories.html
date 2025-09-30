@@ -5,7 +5,10 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <h2 class="h4 m-0"><i class="bi bi-dash-circle text-primary me-2"></i>Категории расходов</h2>
-  <button type="button" id="openAddCategoryBtn" class="btn-hero icon-only" data-modal-url="{{ url_for('budget.add_category') }}"
+  <button type="button" class="btn-hero icon-only"
+          data-modal-url="{{ url_for('budget.category_add_modal') }}"
+          data-modal-title="Добавить категорию"
+          data-modal-size="md"
           title="Добавить категорию" aria-label="Добавить категорию">
     <i class="bi bi-plus-lg"></i>
     <span class="visually-hidden">Добавить категорию</span>
@@ -27,198 +30,21 @@
         {% endif %}
     </div>
     <div class="period-nav">
-        <a href="{{ url_for('budget.categories', month=month_data.prev_month) }}" 
+        <a href="{{ url_for('budget.categories', month=month_data.prev_month) }}"
            class="period-btn" title="Предыдущий месяц">
             <i class="bi bi-chevron-left"></i>
         </a>
-        <a href="{{ url_for('budget.categories') }}" 
+        <a href="{{ url_for('budget.categories') }}"
            class="period-btn current" title="Текущий месяц">
             <i class="bi bi-house"></i>
         </a>
-        <a href="{{ url_for('budget.categories', month=month_data.next_month) }}" 
+        <a href="{{ url_for('budget.categories', month=month_data.next_month) }}"
            class="period-btn" title="Следующий месяц">
             <i class="bi bi-chevron-right"></i>
         </a>
     </div>
 </div>
 {% endif %}
-
-<!-- Модальное окно добавления категории -->
-<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header sticky-top bg-body border-bottom">
-        <h5 class="modal-title" id="addCategoryModalLabel">
-          <i class="bi bi-plus-circle text-primary me-2"></i>Новая категория
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      </div>
-      <form method="POST" action="{{ url_for('budget.add_category') }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="modal-body">
-          <input type="hidden" name="category_type" value="expense">
-          
-          <!-- Основное -->
-          <div class="section-block mb-4">
-            <h6 class="section-title">Основное</h6>
-            
-            <div class="row g-3">
-              <div class="col-lg-6">
-                <div class="mb-3">
-                  <label class="form-label">Название</label>
-                  <input type="text" name="name" class="form-control" placeholder="Например, Продукты" required>
-                </div>
-                
-                <div class="mb-3" id="limitTypeField">
-                  <label class="form-label">Тип</label>
-                  <div class="btn-toggle-group">
-                    <input type="radio" name="limit_type" id="fixedAdd" value="fixed" class="btn-check" checked>
-                    <label for="fixedAdd" class="btn btn-outline-primary">Фикс. сумма</label>
-                    <input type="radio" name="limit_type" id="percentAdd" value="percent" class="btn-check">
-                    <label for="percentAdd" class="btn btn-outline-primary">% от дохода</label>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="col-lg-6">
-                <div class="mb-3" id="addValueField">
-                  <label class="form-label">Значение</label>
-                  <div class="input-group">
-                    <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
-                           placeholder="15000" required id="valueInput">
-                    <span class="input-group-text" id="valueSuffix">₽</span>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" name="multi_source" id="addMultiSourceSwitch"
-                           onchange="toggleNewCategorySourceField(this.checked)">
-                    <label class="form-check-label" for="addMultiSourceSwitch">
-                      Несколько источников
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Источники -->
-          <div class="section-block mb-4" id="sourceSection">
-            <h6 class="section-title">Источники</h6>
-            
-            <div id="singleSourceField">
-              <div class="mb-3">
-                <label class="form-label">Источник дохода</label>
-                <select name="source_id" class="form-select">
-                  <option value="">— Не привязан —</option>
-                  {% for source in income_sources %}
-                    <option value="{{ source.id }}">{{ source.name }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-            
-            <div id="multiSourceConfig" style="display: none;">
-              <div class="compact-sources-table mb-3">
-                <div class="table-responsive">
-                  <table class="table table-sm table-borderless mb-0">
-                    <thead>
-                      <tr class="text-muted">
-                        <th>Источник</th>
-                        <th>Тип</th>
-                        <th class="text-end">Значение</th>
-                        <th width="40"></th>
-                      </tr>
-                    </thead>
-                    <tbody id="multiSourceList">
-                      <!-- Динамически добавляемые строки -->
-                    </tbody>
-                    <tfoot>
-                      <tr class="border-top">
-                        <td colspan="2" class="fw-bold">Итого:</td>
-                        <td class="text-end fw-bold" id="totalDisplay">0%</td>
-                        <td class="text-center" id="totalStatus">
-                          <i class="bi bi-info-circle text-muted"></i>
-                        </td>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-              
-              <!-- Контейнер для старой логики (для совместимости) -->
-              <div id="sourcesList" style="display: none;"></div>
-              
-              <!-- Добавление источника -->
-              <div class="border-top pt-3">
-                <div class="row g-2">
-                  <div class="col-md-5">
-                    <select id="newSourceSelect" class="form-select form-select-sm">
-                      <option value="">— Выберите источник —</option>
-                      {% for source in income_sources %}
-                        <option value="{{ source.id }}">{{ source.name }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="btn-toggle-group btn-toggle-sm">
-                      <input type="radio" name="new_limit_type" id="newPercent" value="percent" class="btn-check" checked>
-                      <label for="newPercent" class="btn btn-outline-secondary">%</label>
-                      <input type="radio" name="new_limit_type" id="newFixed" value="fixed" class="btn-check">
-                      <label for="newFixed" class="btn btn-outline-secondary">₽</label>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="input-group input-group-sm">
-                      <input type="number" id="newSourceValue" class="form-control" placeholder="15.0" step="0.1" min="0.1"
-                             aria-label="Значение лимита для источника">
-                      <span class="input-group-text" id="newSourceSuffix">%</span>
-                    </div>
-                  </div>
-                  <div class="col-md-1">
-                    <button type="button" class="btn btn-primary btn-sm w-100" data-action="add-multi-source">
-                      <i class="bi bi-plus"></i>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Справка -->
-          <div class="section-block" id="helpSection">
-            <div class="accordion">
-              <div class="accordion-item border-0">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed py-2 px-0 bg-transparent shadow-none" type="button" 
-                          data-bs-toggle="collapse" data-bs-target="#helpCollapse">
-                    <small class="text-muted fw-bold">Справка</small>
-                  </button>
-                </h2>
-                <div id="helpCollapse" class="accordion-collapse collapse">
-                  <div class="accordion-body px-0 py-2">
-                    <small class="text-muted">
-                      <strong>Обычная:</strong> Лимит из одного источника (ЗП: 50 000 ₽ или ЗП: 15%).<br>
-                      <strong>Несколько источников:</strong> Лимит как сумма частей (ЗП: 70% + Аванс: 5 000 ₽).
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="modal-footer sticky-bottom bg-body border-top">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary px-4">
-            <i class="bi bi-plus me-1"></i>Создать
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
 
 <!-- Категории трат -->
 {% if expense_categories %}
@@ -292,13 +118,26 @@
           {% endif %}
         </div>
         <div class="ff-iconbtn-group" role="group" aria-label="Действия">
-          <button type="button" class="ff-iconbtn ff-iconbtn--edit" data-bs-toggle="modal" data-bs-target="#editModal{{ cat.id }}" 
+          {% if cat.is_multi_source %}
+          <button type="button" class="ff-iconbtn ff-iconbtn--primary"
+                  data-modal-url="{{ url_for('budget.category_sources_modal', category_id=cat.id) }}"
+                  data-modal-title="Настройка источников"
+                  data-modal-size="md"
+                  aria-label="Настройка источников" title="Настройка источников">
+            <i class="bi bi-gear"></i>
+          </button>
+          {% endif %}
+          <button type="button" class="ff-iconbtn ff-iconbtn--edit"
+                  data-modal-url="{{ url_for('budget.category_edit_modal', category_id=cat.id) }}"
+                  data-modal-title="Редактировать категорию"
+                  data-modal-size="md"
                   aria-label="Редактировать категорию" title="Редактировать">
             <i class="bi bi-pencil"></i>
           </button>
           <form method="POST" action="{{ url_for('budget.delete_category', category_id=cat.id) }}" class="d-inline">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button type="submit" class="ff-iconbtn ff-iconbtn--delete" onclick="return confirm('Удалить категорию «{{ cat.name }}»?')" 
+            <button type="submit" class="ff-iconbtn ff-iconbtn--delete"
+                    data-confirm-delete="Удалить категорию «{{ cat.name }}»? Все расходы в этой категории также будут удалены."
                     aria-label="Удалить категорию" title="Удалить">
               <i class="bi bi-trash3"></i>
             </button>
@@ -317,425 +156,6 @@
   <p class="text-muted mb-3">Категорий пока нет. Используйте кнопку "Добавить категорию" выше для создания первой категории.</p>
 </div>
 {% endif %}
-
-
-<!-- Модальные окна для редактирования категорий -->
-{% for cat in expense_categories %}
-<div class="modal fade" id="editModal{{ cat.id }}" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
-    <div class="modal-content">
-      <div class="modal-header sticky-top bg-body border-bottom">
-        <div class="d-flex align-items-center gap-2">
-          <i class="bi bi-pencil-square text-primary"></i>
-          <h5 class="modal-title m-0">{{ cat.name }}</h5>
-        </div>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      </div>
-      <form method="POST" action="{{ url_for('budget.edit_category', category_id=cat.id) }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <input type="hidden" name="is_multi_source" value="{{ '1' if cat.is_multi_source else '0' }}">
-        <div class="modal-body">
-          <!-- Основное -->
-          <div class="section-block mb-4">
-            <h6 class="section-title">Основное</h6>
-            
-            <div class="row g-3">
-              <div class="col-lg-6">
-                <div class="mb-3">
-                  <label class="form-label">Название</label>
-                  <input type="text" name="name" class="form-control" value="{{ cat.name }}" required>
-                </div>
-                
-                <div class="mb-3" id="editLimitTypeField{{ cat.id }}" {% if cat.is_multi_source %}style="display: none;"{% endif %}>
-                  <label class="form-label">Тип</label>
-                  <div class="btn-toggle-group">
-                    <input type="radio" name="limit_type" id="fixed{{ cat.id }}" value="fixed" class="btn-check" {% if cat.limit_type == 'fixed' %}checked{% endif %}>
-                    <label for="fixed{{ cat.id }}" class="btn btn-outline-primary">Фикс. сумма</label>
-                    <input type="radio" name="limit_type" id="percent{{ cat.id }}" value="percent" class="btn-check" {% if cat.limit_type == 'percent' %}checked{% endif %}>
-                    <label for="percent{{ cat.id }}" class="btn btn-outline-primary">% от дохода</label>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="col-lg-6">
-                <div class="mb-3" id="editValueField{{ cat.id }}" {% if cat.is_multi_source %}style="display: none;"{% endif %}>
-                  <label class="form-label">Значение</label>
-                  <div class="input-group">
-                    <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
-                           value="{{ cat.value }}" {% if not cat.is_multi_source %}required{% endif %} 
-                           {% if cat.is_multi_source %}disabled{% endif %}
-                           id="editValueInput{{ cat.id }}">
-                    <span class="input-group-text" id="editValueSuffix{{ cat.id }}">
-                      {% if cat.limit_type == 'percent' %}%{% else %}₽{% endif %}
-                    </span>
-                  </div>
-                </div>
-                
-                <div class="mb-3">
-                  <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="multiSourceSwitch{{ cat.id }}" 
-                           {% if cat.is_multi_source %}checked{% endif %}
-                           data-category-id="{{ cat.id }}" onchange="toggleMultiSourceMode(this.dataset.categoryId, this.checked)">
-                    <label class="form-check-label" for="multiSourceSwitch{{ cat.id }}">
-                      Несколько источников
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Источники -->
-          <div class="section-block mb-4" id="sourceSection{{ cat.id }}">
-            <h6 class="section-title">Источники</h6>
-            
-            <div id="singleSourceDiv{{ cat.id }}" {% if cat.is_multi_source %}style="display: none;"{% endif %}>
-              <div class="mb-3">
-                <label class="form-label">Источник дохода</label>
-                <select name="source_id" class="form-select">
-                  <option value="">— Не привязан —</option>
-                  {% for source in income_sources %}
-                    <option value="{{ source.id }}" 
-                            {% if rules_map.get(cat.id) == source.id %}selected{% endif %}>
-                      {{ source.name }}
-                    </option>
-                  {% endfor %}
-                </select>
-              </div>
-            </div>
-
-            <div id="multiSourceInfo{{ cat.id }}" {% if not cat.is_multi_source %}style="display: none;"{% endif %}>
-            
-            {% set cat_sources = multi_source_links.get(cat.id, []) %}
-            {% if cat_sources %}
-            <div class="compact-sources-table mb-3">
-              <div class="table-responsive">
-                <table class="table table-sm table-borderless">
-                  <thead>
-                    <tr class="text-muted">
-                      <th class="fw-semibold">Источник</th>
-                      <th class="fw-semibold text-end">Лимит</th>
-                      <th class="fw-semibold text-center" width="60">Действие</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {% for source_info in cat_sources %}
-                    <tr class="align-middle">
-                      <td>
-                        <div class="fw-semibold text-body">{{ source_info.source_name }}</div>
-                      </td>
-                      <td class="text-end">
-                        <form method="POST" action="{{ url_for('budget.update_source_percentage', cat_id=cat.id) }}" class="d-inline">
-                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                          <input type="hidden" name="source_id" value="{{ source_info.source_id }}">
-                          <div class="input-group input-group-sm" style="width: 100px; margin-left: auto;">
-                            <input type="number" name="percentage" value="{{ source_info.percentage }}" 
-                                   min="0.01" max="100" step="0.01" class="form-control text-end tabular-nums" 
-                                   onchange="this.form.submit()" aria-label="Процент от источника {{ source_info.source_name }}">
-                            <span class="input-group-text">%</span>
-                          </div>
-                        </form>
-                      </td>
-                      <td class="text-center">
-                        <form method="POST" action="{{ url_for('budget.remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
-                          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                          <button type="submit" class="btn btn-link btn-sm text-danger p-1"
-                                  onclick="return confirm('Убрать источник {{ source_info.source_name }} из категории?')" 
-                                  title="Удалить" aria-label="Удалить источник {{ source_info.source_name }}">
-                            <i class="bi bi-trash3"></i>
-                          </button>
-                        </form>
-                      </td>
-                    </tr>
-                    {% endfor %}
-                  </tbody>
-                  <tfoot>
-                    <tr class="border-top">
-                      <td class="fw-bold">Итого:</td>
-                      <td class="text-end">
-                        {% set total_percent = cat_sources | sum(attribute='percentage') %}
-                        <span class="fw-bold tabular-nums">{{ "%.1f"|format(total_percent) }}%</span>
-                      </td>
-                      <td class="text-center">
-                        {% if total_percent > 100 %}
-                          <i class="bi bi-exclamation-triangle text-warning" title="Превышен лимит 100%"></i>
-                        {% elif total_percent == 0 %}
-                          <i class="bi bi-info-circle text-muted" title="Добавьте источники"></i>
-                        {% else %}
-                          <i class="bi bi-check-circle text-success" title="Корректно"></i>
-                        {% endif %}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-            {% endif %}
-            
-            <!-- Добавление источника inline -->
-            <div class="border-top pt-3">
-              <form method="POST" action="{{ url_for('budget.add_source_to_category', cat_id=cat.id) }}" 
-                    class="ajax-add-source-form" data-category-id="{{ cat.id }}">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                <div class="row g-2">
-                  <div class="col-md-5">
-                    <select name="source_id" class="form-select form-select-sm" required>
-                      <option value="">— Выберите источник —</option>
-                      {% for source in income_sources %}
-                        {% set already_added = false %}
-                        {% for source_info in cat_sources %}
-                          {% if source_info.source_id == source.id %}
-                            {% set already_added = true %}
-                          {% endif %}
-                        {% endfor %}
-                        {% if not already_added %}
-                          <option value="{{ source.id }}">{{ source.name }}</option>
-                        {% endif %}
-                      {% endfor %}
-                    </select>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="btn-toggle-group btn-toggle-sm">
-                      <input type="radio" name="limit_type" id="editPercent{{ cat.id }}" value="percent" class="btn-check" checked>
-                      <label for="editPercent{{ cat.id }}" class="btn btn-outline-secondary">%</label>
-                      <input type="radio" name="limit_type" id="editFixed{{ cat.id }}" value="fixed" class="btn-check">
-                      <label for="editFixed{{ cat.id }}" class="btn btn-outline-secondary">₽</label>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="input-group input-group-sm">
-                      <input type="number" name="percentage" class="form-control percentage-input" 
-                             placeholder="15.0" step="0.1" min="0.1" required 
-                             aria-label="Процент от источника">
-                      <span class="input-group-text percentage-symbol">%</span>
-                      <input type="number" name="fixed_amount" class="form-control fixed-input"
-                             placeholder="5000" step="0.01" min="0.01" style="display: none;"
-                             aria-label="Фиксированная сумма от источника">
-                      <span class="input-group-text fixed-symbol" style="display: none;">₽</span>
-                     </div>
-                  </div>
-                  <div class="col-md-1">
-                    <button type="button" class="btn btn-primary btn-sm w-100 ajax-add-source-btn">
-                      <i class="bi bi-plus"></i>
-                    </button>
-                  </div>
-                </div>
-              </form>
-            </div>
-            </div>
-          </div>
-          
-          <!-- Справка -->
-          <div class="section-block">
-            <div class="accordion">
-              <div class="accordion-item border-0">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed py-2 px-0 bg-transparent shadow-none" type="button" 
-                          data-bs-toggle="collapse" data-bs-target="#helpCollapse{{ cat.id }}">
-                    <small class="text-muted fw-bold">Справка</small>
-                  </button>
-                </h2>
-                <div id="helpCollapse{{ cat.id }}" class="accordion-collapse collapse">
-                  <div class="accordion-body px-0 py-2">
-                    <small class="text-muted">
-                      <strong>Обычная:</strong> Лимит из одного источника (ЗП: 50 000 ₽ или ЗП: 15%).<br>
-                      <strong>Несколько источников:</strong> Лимит как сумма частей (ЗП: 70% + Аванс: 5 000 ₽).
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer sticky-bottom bg-body border-top">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
-          <button type="submit" class="btn btn-primary px-4">
-            <i class="bi bi-check me-1"></i>Сохранить
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-{% endfor %}
-
-<!-- Модальные окна для управления многоисточниковыми категориями -->
-{% for cat in expense_categories %}
-{% if cat.is_multi_source %}
-<div class="modal fade" id="multiSourceModal{{ cat.id }}" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable modal-sources">
-    <div class="modal-content">
-      <div class="modal-header sources-header">
-        <div class="header-content">
-          <i class="bi bi-diagram-3 header-icon"></i>
-          <h5 class="modal-title">Настройка источников</h5>
-        </div>
-        <button type="button" class="btn-close sources-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
-      </div>
-      <div class="modal-body">
-        
-        <!-- Текущие источники -->
-        {% set cat_sources = multi_source_links.get(cat.id, []) %}
-        {% if cat_sources %}
-        <div class="mb-4">
-          <h6 class="mb-3">
-            <i class="bi bi-list-ul me-2"></i>Текущие источники:
-          </h6>
-          <div class="income-sources-list">
-            {% for source_info in cat_sources %}
-            <div class="income-source-item">
-              <div class="source-info">
-                <div class="source-title">{{ source_info.source_name }}</div>
-                <div class="source-meta">Источник дохода</div>
-              </div>
-              
-              <div class="source-amount">
-                <form method="POST" action="{{ url_for('budget.update_source_percentage', cat_id=cat.id) }}" class="d-inline">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                  <input type="hidden" name="source_id" value="{{ source_info.source_id }}">
-                  <div class="percentage-input">
-                    <input type="number" name="percentage" value="{{ source_info.percentage }}" 
-                           min="0.01" max="100" step="0.01" class="percentage-field tabular-nums" 
-                           onchange="this.form.submit()" aria-label="Изменить процент источника {{ source_info.source_name }}">
-                    <span class="percentage-symbol">%</span>
-                  </div>
-                </form>
-              </div>
-              
-              <div class="source-actions">
-                <form method="POST" action="{{ url_for('budget.remove_source_from_category', cat_id=cat.id, source_id=source_info.source_id) }}" class="d-inline">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                  <button type="submit" class="action-btn action-btn--delete"
-                          onclick="return confirm('Убрать источник {{ source_info.source_name }} из категории?')" 
-                          title="Удалить" aria-label="Удалить источник {{ source_info.source_name }}">
-                    <i class="bi bi-trash3"></i>
-                  </button>
-                </form>
-              </div>
-            </div>
-            {% endfor %}
-            
-            <!-- Итоговая строка -->
-            <div class="income-source-total">
-              <div class="source-info">
-                <div class="source-title">Общий процент:</div>
-              </div>
-              
-              <div class="source-amount">
-                {% set total_percent = cat_sources | sum(attribute='percentage') %}
-                <span class="total-amount tabular-nums">{{ "%.1f"|format(total_percent) }}%</span>
-              </div>
-              
-              <div class="source-status">
-                {% if total_percent > 100 %}
-                  <small class="text-warning">
-                    <i class="bi bi-exclamation-triangle"></i>
-                    Превышен лимит 100%
-                  </small>
-                {% elif total_percent == 0 %}
-                  <small class="text-muted">
-                    <i class="bi bi-info-circle"></i>
-                    Добавьте источники
-                  </small>
-                {% else %}
-                  <small class="text-success">
-                    <i class="bi bi-check-circle"></i>
-                    Корректно
-                  </small>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-
-        <!-- Добавить новый источник -->
-        <div class="border-top pt-4">
-          <h6 class="mb-3">
-            <i class="bi bi-plus-circle me-2"></i>Добавить источник:
-          </h6>
-          <form method="POST" action="{{ url_for('budget.add_source_to_category', cat_id=cat.id) }}"
-                class="ajax-add-source-form" data-category-id="{{ cat.id }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <div class="row g-3 align-items-end">
-              <div class="col-md-6">
-                <label class="form-label">Источник дохода</label>
-                <select name="source_id" class="form-select" required>
-                  <option value="">— Выберите источник —</option>
-                  {% for source in income_sources %}
-                    <!-- Показываем только источники, которые еще не добавлены -->
-                    {% set already_added = false %}
-                    {% for source_info in cat_sources %}
-                      {% if source_info.source_id == source.id %}
-                        {% set already_added = true %}
-                      {% endif %}
-                    {% endfor %}
-                    {% if not already_added %}
-                      <option value="{{ source.id }}">{{ source.name }}</option>
-                    {% endif %}
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Тип лимита</label>
-                <select name="limit_type" class="form-select" onchange="toggleLimitInputs(this)" required>
-                  <option value="percent">Процент</option>
-                  <option value="fixed">Фикс. сумма</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label class="form-label">Значение</label>
-                <div class="input-group">
-                  <input type="number" name="percentage" class="form-control percentage-input" 
-                         min="0.01" max="100" step="0.01" placeholder="15.0" required
-                         aria-label="Процент от выбранного источника">
-                  <span class="input-group-text percentage-symbol">%</span>
-                  <input type="number" name="fixed_amount" class="form-control fixed-input" 
-                         min="0.01" step="0.01" placeholder="5000" required style="display: none;"
-                         aria-label="Фиксированная сумма от выбранного источника">
-                  <span class="input-group-text fixed-symbol" style="display: none;">₽</span>
-                </div>
-              </div>
-              <div class="col-md-2">
-                <div data-bs-toggle="tooltip" data-bs-title="Добавить">
-                  <button type="button" class="btn btn-success btn-sm w-100 ajax-add-source-btn">
-                    <i class="bi bi-plus"></i> <span class="btn-text">Добавить</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </form>
-        </div>
-
-        {% if not cat_sources %}
-        <div class="alert alert-info mt-3">
-          <i class="bi bi-info-circle me-2"></i>
-          <strong>Совет:</strong> Добавьте источники дохода с лимитами для этой категории. 
-          Например: ЗП - 70%, Аванс - 15000₽, Подработка - 25%.
-        </div>
-        {% endif %}
-
-      </div>
-      <div class="modal-footer sources-footer">
-        <div class="footer-actions">
-          <button type="button" class="btn btn-secondary cb-btn" data-bs-dismiss="modal">
-            <i class="bi bi-x me-1"></i>Закрыть
-          </button>
-          <form method="POST" action="{{ url_for('budget.toggle_multi_source', cat_id=cat.id) }}" class="d-inline">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button type="submit" class="btn btn-warning cb-btn" 
-                    onclick="return confirm('Отключить многоисточниковый режим? Все связи будут удалены.')"
-                    aria-label="Отключить многоисточниковый режим">
-              <i class="bi bi-toggle-off me-1"></i>Отключить режим
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-{% endif %}
-{% endfor %}
 
 {% endblock %}
 
@@ -1543,6 +963,42 @@
 
 {% block page_js %}
 <script>
+// Инициализация модальной системы
+document.addEventListener('DOMContentLoaded', () => {
+  // ModalManager уже инициализирован автоматически, не нужно вызывать init()
+
+  // Initialize confirm delete buttons
+  document.querySelectorAll('[data-confirm-delete]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      const confirmText = this.getAttribute('data-confirm-delete');
+
+      if (window.ModalManager) {
+        window.ModalManager.confirm({
+          title: 'Подтверждение удаления',
+          message: confirmText,
+          confirmText: 'Удалить',
+          cancelText: 'Отмена'
+        }).then(() => {
+          // User confirmed, submit the form
+          const form = this.closest('form');
+          if (form) {
+            form.submit();
+          }
+        });
+      } else {
+        // Fallback to native confirm
+        if (confirm(confirmText)) {
+          const form = this.closest('form');
+          if (form) {
+            form.submit();
+          }
+        }
+      }
+    });
+  });
+});
+
 // Переключение полей в форме создания категории
 function toggleNewCategorySourceField(enabled) {
   try {
@@ -1957,12 +1413,7 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Настройка переключателей для модалок
-  setupLimitTypeToggle('addCategoryModal');
-  
-  // Настройка переключателей для всех модалок редактирования
-  document.querySelectorAll('[id^="editModal"]').forEach(modal => {
-    setupLimitTypeToggle(modal.id);
-  });
+  // Модалки теперь загружаются динамически, setupLimitTypeToggle вызывается в самих модалках
   
   // Настройка переключателей для многоисточников в модалке создания
   const newLimitTypeRadios = document.querySelectorAll('input[name="new_limit_type"]');

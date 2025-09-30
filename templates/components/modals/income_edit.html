@@ -1,8 +1,18 @@
 <!-- Шаблон модальной формы редактирования дохода -->
 <!-- Используется для GET /modals/income/<id>/edit -->
 
-<form method="POST" action="{{ url_for('budget.edit_income', income_id=income.id) }}" 
-      data-form="income-edit" role="form" aria-label="Форма редактирования дохода" novalidate>
+<div class="cb-modal__header">
+    <h5 class="cb-modal__title">
+        <i class="bi bi-pencil me-2"></i>Редактировать доход
+    </h5>
+    <button type="button" class="cb-modal__close" data-modal-close aria-label="Закрыть">
+        <i class="bi bi-x-lg"></i>
+    </button>
+</div>
+
+<div class="cb-modal__body">
+<form method="POST" action="{{ url_for('budget.edit_income', income_id=income.id) }}"
+      data-form="income-edit" role="form" aria-label="Форма редактирования дохода" novalidate id="incomeEditFormInner">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     
     <div class="row g-3">
@@ -49,52 +59,17 @@
         <span class="visually-hidden">Сохранение изменений…</span>
     </div>
 </form>
+</div>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  const form = document.querySelector('form[data-form="income-edit"]');
-  if (!form) return;
+<div class="cb-modal__footer">
+    <div class="cb-modal__actions cb-modal__actions--full">
+        <button type="button" class="cb-modal__btn cb-modal__btn--outline" data-modal-close>
+            Отмена
+        </button>
+        <button type="submit" form="incomeEditFormInner" class="cb-modal__btn cb-modal__btn--success">
+            <i class="bi bi-check-lg me-1"></i>Сохранить
+        </button>
+    </div>
+</div>
 
-  const amount = form.querySelector('input[name="amount"]');
-  const sourceInput = form.querySelector('#source_name');
-  const errBox = form.querySelector('#form-errors');
-  const errText = form.querySelector('#form-error-text');
-  const loading = form.querySelector('#form-loading');
-
-  // отмечаем поля как "dirty" после первого ввода/blur
-  form.querySelectorAll('input, select, textarea').forEach(el => {
-    el.addEventListener('input', () => el.classList.add('dirty'));
-    el.addEventListener('blur',  () => el.classList.add('dirty'));
-  });
-
-  // Auto-focus amount input after source name change (only if amount is empty)
-  if (sourceInput && amount) {
-    sourceInput.addEventListener('change', function() {
-      if (this.value && !amount.value.trim()) {
-        setTimeout(() => amount.focus(), 100);
-      }
-    });
-  }
-
-  form.addEventListener('submit', (e) => {
-    // нормализуем сумму
-    if (amount && amount.value) {
-      const v = amount.value.replace(',', '.').trim();
-      if (/^\d+(\.\d{1,2})?$/.test(v)) {
-        amount.value = (Math.round(parseFloat(v)*100)/100).toFixed(2);
-      }
-    }
-
-    if (!form.checkValidity()) {
-      e.preventDefault();
-      e.stopPropagation();
-      form.classList.add('was-validated');
-      return;
-    }
-
-    // показать лоадер и скрыть ошибку
-    loading?.classList.remove('d-none');
-    errBox?.classList.add('d-none');
-  });
-});
-</script>
+<!-- Script logic moved to modals.js initIncomeEditForm() -->
