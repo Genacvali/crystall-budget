@@ -18,8 +18,8 @@ class YearMonth(NamedTuple):
     
     @classmethod
     def current(cls) -> 'YearMonth':
-        """Get current year-month."""
-        now = datetime.utcnow()
+        """Get current year-month using server's local time."""
+        now = datetime.now()  # Use local server time instead of UTC
         return cls(now.year, now.month)
     
     @classmethod

@@ -77,6 +77,9 @@
   <script src="{{ versioned_static(js_file) }}" defer></script>
 {% endfor %}
 
+<!-- Category Edit Module (for modal toggle functionality) -->
+<script src="{{ url_for('static', filename='js/modules/category-edit.js') }}" defer></script>
+
 <!-- Bundle-specific configuration -->
 {% if bundle.modal_enabled %}
 <script>

@@ -1,7 +1,7 @@
 """Budget module routes."""
 import datetime
 from decimal import Decimal
-from flask import render_template, request, redirect, url_for, flash, session, jsonify
+from flask import render_template, request, redirect, url_for, flash, session, jsonify, make_response
 from flask_login import login_required, current_user
 from app.core.time import YearMonth, parse_year_month
 from app.core.monitoring import monitor_modal_performance
@@ -31,12 +31,22 @@ def dashboard():
         year_month = YearMonth.current()
     
     # Check if we need to process carryovers for month transitions
-    current_month = YearMonth.current()
-    if ym_param and year_month != current_month:
-        # User is navigating to a different month
-        # Check if carryovers need to be created for the target month
+    # Create carryover for any viewed month if it doesn't exist yet
+    from app.modules.budget.models import Expense
+
+    # Check if carryovers already exist for this month
+    existing_carryovers = Expense.query.filter(
+        Expense.user_id == user_id,
+        Expense.date >= year_month.to_date(),
+        Expense.date <= year_month.last_day(),
+        Expense.transaction_type == 'carryover'
+    ).count()
+
+    if existing_carryovers == 0 and year_month > YearMonth(2025, 9):
+        # No carryovers exist yet, create them from previous month
+        # Only create if not the first tracked month
         prev_month = year_month.prev_month()
-        BudgetService.process_month_carryovers(user_id, prev_month, year_month)
+        DashboardService.process_month_carryovers(user_id, prev_month, year_month)
     
     # Get budget snapshot for the month
     snapshot = BudgetService.calculate_month_snapshot(user_id, year_month)
@@ -48,16 +58,24 @@ def dashboard():
     quick_form = QuickExpenseForm()
     categories = BudgetService.get_user_categories(user_id)
     income_sources = BudgetService.get_user_income_sources(user_id)
-    
-    return render_template('budget/dashboard.html', 
-                         snapshot=snapshot, 
+
+    # Build multi_source_links for dashboard display
+    multi_source_links = {}
+    for category in categories:
+        if category.is_multi_source:
+            multi_links = BudgetService.get_multi_source_links(category.id)
+            multi_source_links[category.id] = multi_links
+
+    return render_template('budget/dashboard.html',
+                         snapshot=snapshot,
                          budget_data=snapshot['categories'],
                          income_tiles=income_tiles,
                          quick_form=quick_form,
                          categories=categories,
                          income_sources=income_sources,
+                         multi_source_links=multi_source_links,
                          current_month=year_month,
-                         today=datetime.date.today().isoformat())
+                         today=year_month.to_date().isoformat())
 
 
 @budget_bp.route('/expenses')
@@ -80,12 +98,17 @@ def expenses():
     # Filter form
     filter_form = BudgetFilterForm(categories=categories)
     filter_form.year_month.data = str(year_month)
-    
+
+    # Get selected date (first day of month by default)
+    selected_date = year_month.to_date().isoformat()
+
     return render_template('budget/expenses.html',
                          expenses=expenses_list,
                          categories=categories,
                          filter_form=filter_form,
-                         current_month=year_month)
+                         current_month=year_month,
+                         selected_date=selected_date,
+                         today=selected_date)
 
 
 @budget_bp.route('/expenses/add', methods=['GET', 'POST'])
@@ -246,12 +269,13 @@ def categories():
             if single_rule:
                 rules_map[category.id] = single_rule.id
     
-    return render_template('budget/categories.html', 
+    return render_template('budget/categories.html',
                          categories=categories_list,
                          expense_categories=categories_list,  # Template expects this name
                          income_sources=income_sources,
                          rules_map=rules_map,
-                         multi_source_links=multi_source_links)
+                         multi_source_links=multi_source_links,
+                         today=datetime.date.today().isoformat())
 
 
 @budget_bp.route('/modals/category/add', methods=['GET'])
@@ -369,10 +393,17 @@ def category_sources_modal(category_id):
     # Get existing rules
     rules = CategoryRule.query.filter_by(category_id=category_id).all()
 
-    return render_template('components/modals/category_sources.html',
+    response = make_response(render_template('components/modals/category_sources.html',
                          category=category,
                          income_sources=income_sources,
-                         rules=rules)
+                         rules=rules))
+
+    # Prevent browser caching of modal content to ensure fresh data
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
+    return response
 
 
 @budget_bp.route('/categories/edit/<int:category_id>', methods=['GET', 'POST'])
@@ -381,40 +412,55 @@ def edit_category(category_id):
     """Edit category."""
     user_id = session['user_id']
     category = Category.query.filter_by(id=category_id, user_id=user_id).first_or_404()
-    
+
+    # Check if AJAX request
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
     if request.method == 'POST':
         try:
             from app.core.extensions import db
-            
+
             # Get form data
             name = request.form.get('name', '').strip()
             limit_type = request.form.get('limit_type', 'fixed')
             value = request.form.get('value', '0')
             is_multi_source = request.form.get('is_multi_source') == '1'
-            
+
             if not name:
+                if is_ajax:
+                    return jsonify({'success': False, 'error': 'Введите название категории'})
                 flash('Введите название категории', 'error')
                 return redirect(url_for('budget.categories'))
-            
+
             # Update basic category info
             category.name = name
             category.limit_type = limit_type
             category.is_multi_source = is_multi_source
-            
+
             # Update value only if not multi-source
             if not is_multi_source:
                 category.value = float(value) if value else 0
             else:
                 category.value = 0
-            
+
             db.session.commit()
+
+            if is_ajax:
+                return jsonify({
+                    'success': True,
+                    'message': 'Категория обновлена',
+                    'category_id': category.id
+                })
+
             flash('Категория обновлена', 'success')
             return redirect(url_for('budget.categories'))
-            
+
         except Exception as e:
+            if is_ajax:
+                return jsonify({'success': False, 'error': f'Ошибка при обновлении категории: {str(e)}'})
             flash(f'Ошибка при обновлении категории: {str(e)}', 'error')
             return redirect(url_for('budget.categories'))
-    
+
     # GET request - redirect to categories (no separate form page)
     return redirect(url_for('budget.categories'))
 
@@ -447,8 +493,7 @@ def income():
         
         if source_name and amount and date_input:
             try:
-                from datetime import datetime
-                date_obj = datetime.strptime(date_input, '%Y-%m-%d').date()
+                date_obj = datetime.datetime.strptime(date_input, '%Y-%m-%d').date()
                 income = BudgetService.add_income(
                     user_id=user_id,
                     source_name=source_name,
@@ -480,11 +525,16 @@ def income():
     
     income_list = BudgetService.get_income_for_month(user_id, year_month)
     total_income = BudgetService.get_total_income_for_month(user_id, year_month)
-    
+
+    # Get selected date (first day of month by default)
+    selected_date = year_month.to_date().isoformat()
+
     return render_template('budget/income.html',
                          income_list=income_list,
                          total_income=total_income,
-                         current_month=year_month)
+                         current_month=year_month,
+                         selected_date=selected_date,
+                         today=selected_date)
 
 
 @budget_bp.route('/income/add', methods=['GET', 'POST'])
@@ -695,7 +745,13 @@ def add_source_to_category(cat_id):
     from app.modules.budget.models import CategoryRule
 
     user_id = session['user_id']
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.accept_mimetypes.accept_json
+
+    # Check if request is AJAX (from fetch/XMLHttpRequest)
+    is_ajax = (
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest' or
+        'application/json' in request.headers.get('Accept', '') or
+        request.args.get('format') == 'json'
+    )
 
     try:
         from app.core.extensions import db
@@ -710,7 +766,7 @@ def add_source_to_category(cat_id):
 
         source_id = request.form.get('source_id')
         limit_type = request.form.get('limit_type', 'percent')
-        percentage_value = request.form.get('percentage', type=float)
+        percentage_value = request.form.get('value', type=float)
 
         if not source_id:
             if is_ajax:
@@ -761,11 +817,16 @@ def add_source_to_category(cat_id):
         db.session.add(cat_rule)
         db.session.commit()
 
+        # Invalidate cache
+        from app.core.caching import CacheManager
+        CacheManager.invalidate_budget_cache(user_id)
+
         flash_msg = f'Источник "{source.name}" добавлен к категории'
         if is_ajax:
             return jsonify({'success': True, 'message': flash_msg})
 
         flash(flash_msg, 'success')
+        return redirect(url_for('budget.categories'))
 
     except Exception as e:
         from app.core.extensions import db
@@ -773,9 +834,9 @@ def add_source_to_category(cat_id):
         error_msg = f'Ошибка при добавлении источника: {str(e)}'
         if is_ajax:
             return jsonify({'success': False, 'error': error_msg}), 500
-        flash(error_msg, 'error')
 
-    return redirect(url_for('budget.categories'))
+        flash(error_msg, 'error')
+        return redirect(url_for('budget.categories'))
 
 
 @budget_bp.route('/categories/<int:cat_id>/update-source-percentage', methods=['POST'])
@@ -993,10 +1054,10 @@ def expense_add_modal():
     except ValueError:
         month_data = YearMonth.current()
     
-    return render_template('components/modals/expense_add.html', 
+    return render_template('components/modals/expense_add.html',
                          categories=categories,
                          month_data=month_data,
-                         today=datetime.date.today().isoformat())
+                         today=month_data.to_date().isoformat())
 
 
 @budget_bp.route('/modals/expense/<int:expense_id>/edit')
@@ -1028,9 +1089,9 @@ def income_add_modal():
     except ValueError:
         month_data = YearMonth.current()
     
-    return render_template('components/modals/income_add.html', 
+    return render_template('components/modals/income_add.html',
                          month_data=month_data,
-                         today=datetime.date.today().isoformat())
+                         today=month_data.to_date().isoformat())
 
 
 @budget_bp.route('/category-rules/<int:rule_id>/delete', methods=['POST'])
@@ -1043,13 +1104,31 @@ def delete_category_rule(rule_id):
     user_id = session['user_id']
     category_id = request.form.get('category_id')
 
+    # Check if request is AJAX
+    is_ajax = (
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest' or
+        'application/json' in request.headers.get('Accept', '')
+    )
+
     rule = CategoryRule.query.filter_by(id=rule_id).first_or_404()
 
     # Verify category belongs to user
     category = Category.query.filter_by(id=rule.category_id, user_id=user_id).first_or_404()
 
+    source_name = rule.source_name
     db.session.delete(rule)
     db.session.commit()
+
+    # Invalidate cache
+    from app.core.caching import CacheManager
+    CacheManager.invalidate_budget_cache(user_id)
+
+    if is_ajax:
+        return jsonify({
+            'success': True,
+            'message': f'Источник "{source_name}" удален',
+            'category_id': category.id
+        })
 
     flash('Источник удален', 'success')
     return redirect(url_for('budget.categories'))

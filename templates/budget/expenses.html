@@ -25,10 +25,9 @@
   <div class="card-body ff-filters">
     <div class="row g-2 align-items-center">
       <div class="col-12 col-md-4">
-        <div class="input-group" role="group" aria-label="Фильтр по месяцу">
-          <span class="input-group-text"><i class="bi bi-calendar-week" aria-hidden="true"></i></span>
-          <input type="month" class="form-control" value="2025-09" aria-label="Выберите месяц">
-        </div>
+        <input type="date" class="form-control" id="expenseDateFilter"
+               value="{{ selected_date or today }}"
+               aria-label="Выберите дату" style="cursor: pointer;">
       </div>
       <div class="col-12 col-md-4">
         <div class="input-group" role="group" aria-label="Поиск по комментарию">

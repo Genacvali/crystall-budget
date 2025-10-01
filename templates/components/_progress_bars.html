@@ -67,18 +67,33 @@
         <div class="ff-left">
           <div class="cat-title ff-title">{{ category.name }}</div>
           <div class="cat-meta ff-meta">
-            {% if category.limit_type == 'percent' %}
+            {% if category.is_multi_source %}
+              {% set cat_sources = multi_source_links.get(category.id, []) %}
+              {% if cat_sources and cat_sources|length > 0 %}
+                Мультиисточник
+                <br><small class="text-muted">
+                  {% for source_info in cat_sources %}
+                    {{ source_info.source_name }}: {{ source_info.percentage }}%
+                    {% if not loop.last %}, {% endif %}
+                  {% endfor %}
+                </small>
+              {% else %}
+                <span class="text-warning">Мультиисточник (не настроен)</span>
+              {% endif %}
+            {% elif category.limit_type == 'percent' %}
               Процент {{ category.value }}%
             {% else %}
               Фикс <span class="limit">{{ base_limit|format_amount }}</span> ₽
             {% endif %}
             {% if carryover_info.has_carryover %}
               <br><small class="carryover-info text-muted">
+                Остаток из
                 {% for detail in carryover_info.details %}
+                  {{ detail.from_month }}
                   {% if detail.type == 'remaining' %}
-                    <span class="text-success">+{{ detail.amount|format_amount }} ₽</span> из {{ detail.from_month }}
+                    <span class="text-success">+{{ detail.amount|format_amount }} ₽</span>
                   {% else %}
-                    <span class="text-danger">-{{ detail.amount|format_amount }} ₽</span> из {{ detail.from_month }}
+                    <span class="text-danger">{{ detail.amount|format_amount }} ₽</span>
                   {% endif %}
                   {% if not loop.last %}, {% endif %}
                 {% endfor %}
@@ -91,12 +106,22 @@
           <div class="ff-row">
             <strong class="spent">{{ spent|format_amount }}</strong> ₽
             <span class="slash">/</span>
-            <span class="cat-right"><span class="limit muted mono">{{ avail_limit|format_amount }}</span> ₽</span>
+            <span class="cat-right">
+              <span class="limit muted mono">{{ avail_limit|format_amount }}</span> ₽
+              {% if carryover_info.has_carryover %}
+                <sup><i class="bi bi-arrow-left-right text-muted" title="Учтен перенос остатка"></i></sup>
+              {% endif %}
+            </span>
           </div>
           <div class="ff-track" role="meter" aria-valuemin="0" aria-valuenow="{{ progress|round }}" aria-valuemax="100">
             <div class="ff-bar" style="width: {{ bar_width }}%; --bar-color: {% if avail_limit < 0 %}var(--danger){% elif progress_raw >= 100 %}var(--bad){% elif progress_raw >= 85 %}var(--warn){% elif progress_raw >= 50 %}var(--caution){% else %}var(--ok){% endif %}"></div>
           </div>
-          <div class="ff-meta">Остаток: <span class="rest {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">{{ rest|format_amount }}</span> ₽</div>
+          <div class="ff-meta">
+            Остаток: <span class="rest {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">{{ rest|format_amount }}</span> ₽
+            {% if carryover_info.has_carryover %}
+              <small class="text-muted"> · с учетом переноса</small>
+            {% endif %}
+          </div>
         </div>
 
       </article>

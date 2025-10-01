@@ -199,9 +199,10 @@ class BudgetService:
         query = Expense.query.filter(
             Expense.user_id == user_id,
             Expense.date >= start_date,
-            Expense.date <= end_date
+            Expense.date <= end_date,
+            Expense.transaction_type == 'expense'  # Only real expenses, not carryover
         )
-        
+
         # Optional category filter
         if category_id:
             query = query.filter(Expense.category_id == category_id)
@@ -369,7 +370,10 @@ class BudgetService:
         income = Income.query.filter_by(id=income_id, user_id=user_id).first()
         if not income:
             return False
-        
+
+        # Store source name to check if we need to delete the source
+        source_name = income.source_name
+
         # Use date field if available, fallback to year/month for backward compatibility
         if income.date:
             year_month = YearMonth.from_date(income.date)
@@ -378,14 +382,37 @@ class BudgetService:
         else:
             # If we can't determine the date, skip cache invalidation
             year_month = None
-        
+
         db.session.delete(income)
         db.session.commit()
-        
+
+        # Check if this was the last income with this source
+        remaining_incomes = Income.query.filter_by(
+            user_id=user_id,
+            source_name=source_name
+        ).count()
+
+        if remaining_incomes == 0:
+            # Delete the income source if no other incomes use it
+            from .models import IncomeSource, CategoryRule
+            source = IncomeSource.query.filter_by(
+                user_id=user_id,
+                name=source_name
+            ).first()
+
+            if source:
+                # Delete related category rules
+                CategoryRule.query.filter_by(source_name=source_name).delete()
+
+                # Delete the source
+                db.session.delete(source)
+                db.session.commit()
+                current_app.logger.info(f'Auto-deleted income source "{source_name}" (no more incomes using it)')
+
         # Invalidate cache if we have date info
         if year_month:
             CacheManager.invalidate_budget_cache(user_id, year_month)
-        
+
         current_app.logger.info(f'Deleted income {income_id} for user {user_id}')
         return True
     
@@ -446,7 +473,8 @@ class BudgetService:
         ).filter(
             Expense.user_id == user_id,
             Expense.date >= start_date,
-            Expense.date <= end_date
+            Expense.date <= end_date,
+            Expense.transaction_type == 'expense'  # Only real expenses
         ).group_by(Expense.category_id).all()
         
         # Return as dict for O(1) lookup
@@ -682,49 +710,23 @@ class DashboardService:
     
     @staticmethod
     def get_income_tiles(user_id: int, year_month: YearMonth) -> List[Dict]:
-        """Get dashboard tiles grouped by income sources."""
+        """Get dashboard tiles grouped by income sources with debt/surplus tracking."""
+        from .models import CategoryRule
+
         # Get all income for the month
         incomes = BudgetService.get_income_for_month(user_id, year_month)
-        
-        # Get all expenses for the month
-        expenses = BudgetService.get_expenses_for_month(user_id, year_month)
-        
-        # Get categories and calculate limits
+
+        # Get categories and spending
         categories = BudgetService.get_user_categories(user_id)
         spending_by_category = BudgetService.get_category_spending_summary(user_id, year_month)
-        
-        # Get total income for percentage-based limits
-        total_income = BudgetService.get_total_income_for_month(user_id, year_month)
-        
+
         # Get currency
         currency = 'RUB'
         try:
             currency = get_user_currency()
         except RuntimeError:
             pass
-        
-        # Calculate total expenses
-        total_expenses = Money.zero(currency)
-        for expense in expenses:
-            total_expenses += Money(expense.amount, currency)
-        
-        # Calculate total limits and spent
-        total_limits = Money.zero(currency)
-        total_spent = Money.zero(currency)
-        
-        for category in categories:
-            spent_amount = spending_by_category.get(category.id, Decimal('0'))
-            spent_money = Money(spent_amount, currency)
-            
-            # Calculate limit
-            if category.limit_type == 'fixed':
-                limit = Money(category.value, currency)
-            else:  # percentage
-                limit = Money(total_income.amount * (category.value / 100), currency)
-            
-            total_limits += limit
-            total_spent += spent_money
-        
+
         # Group incomes by source
         income_by_source = {}
         for income in incomes:
@@ -732,30 +734,102 @@ class DashboardService:
             if source not in income_by_source:
                 income_by_source[source] = Money.zero(currency)
             income_by_source[source] += Money(income.amount, currency)
-        
-        # Create tiles
+
+        # Create tiles for each source
         tiles = []
         for source_name, income_amount in income_by_source.items():
-            # For simplicity, distribute expenses proportionally to income
-            if total_income.amount > 0:
-                expense_share = total_expenses * (income_amount.amount / total_income.amount)
-            else:
-                expense_share = Money.zero(currency)
-            
-            # Calculate remaining after limits (same for all sources - total remaining)
-            remaining_after_limits = total_limits - total_spent
-            
-            # Calculate balance
-            balance = income_amount - expense_share
-            
+            # Calculate limits and spending for categories linked to this source
+            source_limits = Money.zero(currency)
+            source_spent = Money.zero(currency)
+            source_debt = Money.zero(currency)  # Accumulated debt for this source
+
+            for category in categories:
+                spent_amount = spending_by_category.get(category.id, Decimal('0'))
+                spent_money = Money(spent_amount, currency)
+
+                # Calculate this source's contribution to the category limit
+                category_limit_from_source = Money.zero(currency)
+
+                if category.is_multi_source:
+                    # Get rule for this specific source
+                    rule = CategoryRule.query.filter_by(
+                        category_id=category.id,
+                        source_name=source_name
+                    ).first()
+
+                    if rule:
+                        # This source contributes to this multi-source category
+                        if rule.is_fixed:
+                            category_limit_from_source = Money(rule.percentage, currency)  # 'percentage' stores fixed amount
+                        else:
+                            category_limit_from_source = Money(income_amount.amount * (rule.percentage / 100), currency)
+
+                        # Calculate this source's share of spending (proportional to its limit contribution)
+                        if category_limit_from_source.amount > 0:
+                            # Get total limit for this category from all sources
+                            total_category_limit = BudgetService.calculate_multi_source_limit(user_id, category.id, year_month)
+
+                            if total_category_limit.amount > 0:
+                                # Proportional share of spending
+                                source_share_ratio = category_limit_from_source.amount / total_category_limit.amount
+                                source_spent += spent_money * source_share_ratio
+
+                else:
+                    # Single-source category: check if it's linked to this source
+                    single_rule = BudgetService.get_category_single_source(category.id)
+                    if single_rule and single_rule.name == source_name:
+                        # This category is linked to this source
+                        if category.limit_type == 'fixed':
+                            category_limit_from_source = Money(category.value, currency)
+                        else:  # percentage
+                            category_limit_from_source = Money(income_amount.amount * (category.value / 100), currency)
+
+                        source_spent += spent_money
+
+                source_limits += category_limit_from_source
+
+                # Calculate debt/surplus for this category from this source
+                # Get carryover info to see if there's debt
+                carryover_info = BudgetService.get_category_carryover_info(user_id, category.id, year_month)
+                if carryover_info['has_carryover']:
+                    for detail in carryover_info['details']:
+                        if detail['type'] == 'overspent':  # This is debt
+                            # Attribute debt proportionally to this source
+                            if category.is_multi_source:
+                                rule = CategoryRule.query.filter_by(
+                                    category_id=category.id,
+                                    source_name=source_name
+                                ).first()
+                                if rule:
+                                    # Proportional debt based on this source's contribution
+                                    total_cat_limit = BudgetService.calculate_multi_source_limit(user_id, category.id, year_month)
+                                    if total_cat_limit.amount > 0:
+                                        if rule.is_fixed:
+                                            source_limit_contrib = rule.percentage
+                                        else:
+                                            source_limit_contrib = income_amount.amount * (rule.percentage / 100)
+                                        debt_ratio = source_limit_contrib / total_cat_limit.amount
+                                        source_debt += Money(abs(detail['amount']) * debt_ratio, currency)
+                            else:
+                                # Single source - full debt attribution
+                                single_rule = BudgetService.get_category_single_source(category.id)
+                                if single_rule and single_rule.name == source_name:
+                                    source_debt += Money(abs(detail['amount']), currency)
+
+            # Calculate remaining and balance
+            remaining = source_limits - source_spent
+            balance = income_amount - source_spent
+
             tiles.append({
                 'title': source_name,
                 'income': income_amount,
-                'expense': expense_share,
-                'after_limits': remaining_after_limits,
+                'limits': source_limits,
+                'spent': source_spent,
+                'remaining': remaining,
+                'debt': source_debt,
                 'balance': balance
             })
-        
+
         return tiles
     
     @staticmethod
@@ -783,15 +857,22 @@ class DashboardService:
         return True
     
     @staticmethod
-    def create_carryover(user_id: int, category_id: int, amount: Decimal, 
+    def create_carryover(user_id: int, category_id: int, amount: Decimal,
                         from_month: YearMonth, to_month: YearMonth, currency: str = 'RUB') -> Expense:
-        """Create a carryover pseudo-transaction."""
-        carryover_description = f"Перенос с {from_month.to_string()}"
-        
+        """Create a carryover pseudo-transaction.
+
+        Args:
+            amount: Positive for surplus (remaining), negative for debt (overspent)
+        """
+        if amount > 0:
+            carryover_description = f"Остаток с {from_month.to_string()}"
+        else:
+            carryover_description = f"Долг с {from_month.to_string()}"
+
         return BudgetService.add_expense(
             user_id=user_id,
             category_id=category_id,
-            amount=amount,
+            amount=amount,  # Keep the sign: positive = surplus, negative = debt
             description=carryover_description,
             date_val=to_month.to_date(),
             currency=currency,
@@ -801,25 +882,38 @@ class DashboardService:
     
     @staticmethod
     def calculate_category_carryover(user_id: int, category_id: int, year_month: YearMonth) -> Decimal:
-        """Calculate carryover amount for a category in given month."""
+        """Calculate carryover amount for a category in given month.
+
+        Returns:
+            Positive value = remaining (surplus to carry forward)
+            Negative value = overspent (debt to carry forward)
+        """
         categories = BudgetService.get_user_categories(user_id)
         category = next((c for c in categories if c.id == category_id), None)
         if not category:
             return Decimal('0')
-            
-        # Get total income for percentage-based limits
-        total_income = BudgetService.get_total_income_for_month(user_id, year_month)
-        
-        # Calculate limit
-        if category.limit_type == 'fixed':
-            limit = Money(category.value, 'RUB')  # TODO: user currency
+
+        # Get currency
+        currency = 'RUB'
+        try:
+            currency = get_user_currency()
+        except RuntimeError:
+            pass
+
+        # Calculate limit based on category type
+        if category.is_multi_source:
+            # Calculate limit from multiple sources
+            limit = BudgetService.calculate_multi_source_limit(user_id, category.id, year_month)
+        elif category.limit_type == 'fixed':
+            limit = Money(category.value, currency)
         else:  # percentage
-            limit = Money(total_income.amount * (category.value / 100), 'RUB')
-        
+            total_income = BudgetService.get_total_income_for_month(user_id, year_month)
+            limit = Money(total_income.amount * (category.value / 100), currency)
+
         # Get spending summary (excluding carryovers to avoid double counting)
         start_date = year_month.to_date()
         end_date = year_month.last_day()
-        
+
         total_spent = db.session.query(func.sum(Expense.amount)).filter(
             Expense.user_id == user_id,
             Expense.category_id == category_id,
@@ -827,31 +921,65 @@ class DashboardService:
             Expense.date <= end_date,
             Expense.transaction_type == 'expense'  # Exclude carryovers
         ).scalar() or Decimal('0')
-        
+
+        # Get existing carryover for this month to include it in balance calculation
+        carryover_info = BudgetService.get_category_carryover_info(user_id, category_id, year_month)
+        existing_carryover = carryover_info['amount']
+
         # Calculate balance: positive = remaining, negative = overspent
-        balance = limit.amount - total_spent
+        # effective_limit = base_limit + existing_carryover
+        effective_limit = limit.amount + existing_carryover
+        balance = effective_limit - total_spent
+
         return balance
     
     @staticmethod
     def process_month_carryovers(user_id: int, from_month: YearMonth, to_month: YearMonth):
-        """Process carryovers when switching from one month to another."""
+        """Process carryovers when switching from one month to another.
+
+        Creates carryover transactions for each category:
+        - Positive amount = surplus (remaining budget)
+        - Negative amount = debt (overspent budget)
+        """
         categories = BudgetService.get_user_categories(user_id)
-        
+
         # First, remove any existing carryovers for the target month
-        BudgetService.clear_carryovers_for_month(user_id, to_month)
-        
+        DashboardService.clear_carryovers_for_month(user_id, to_month)
+
         for category in categories:
-            balance = BudgetService.calculate_category_carryover(user_id, category.id, from_month)
-            
-            if balance != 0:  # Only create carryover if there's a balance
-                BudgetService.create_carryover(
-                    user_id=user_id,
-                    category_id=category.id,
-                    amount=abs(balance),  # Store as positive amount
-                    from_month=from_month,
-                    to_month=to_month
-                )
-                
+            # Check if category was actually used in from_month (had expenses or existing carryover)
+            start_date = from_month.to_date()
+            end_date = from_month.last_day()
+
+            had_expenses = db.session.query(Expense).filter(
+                Expense.user_id == user_id,
+                Expense.category_id == category.id,
+                Expense.date >= start_date,
+                Expense.date <= end_date,
+                Expense.transaction_type == 'expense'
+            ).count() > 0
+
+            had_carryover = db.session.query(Expense).filter(
+                Expense.user_id == user_id,
+                Expense.category_id == category.id,
+                Expense.date >= start_date,
+                Expense.date <= end_date,
+                Expense.transaction_type == 'carryover'
+            ).count() > 0
+
+            # Only process carryover if category was used
+            if had_expenses or had_carryover:
+                balance = DashboardService.calculate_category_carryover(user_id, category.id, from_month)
+
+                if balance != 0:  # Only create carryover if there's a balance (surplus or debt)
+                    DashboardService.create_carryover(
+                        user_id=user_id,
+                        category_id=category.id,
+                        amount=balance,  # Keep the sign: positive = surplus, negative = debt
+                        from_month=from_month,
+                        to_month=to_month
+                    )
+
         current_app.logger.info(f'Processed carryovers from {from_month} to {to_month} for user {user_id}')
     
     @staticmethod

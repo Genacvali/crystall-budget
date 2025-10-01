@@ -118,15 +118,6 @@
           {% endif %}
         </div>
         <div class="ff-iconbtn-group" role="group" aria-label="Действия">
-          {% if cat.is_multi_source %}
-          <button type="button" class="ff-iconbtn ff-iconbtn--primary"
-                  data-modal-url="{{ url_for('budget.category_sources_modal', category_id=cat.id) }}"
-                  data-modal-title="Настройка источников"
-                  data-modal-size="md"
-                  aria-label="Настройка источников" title="Настройка источников">
-            <i class="bi bi-gear"></i>
-          </button>
-          {% endif %}
           <button type="button" class="ff-iconbtn ff-iconbtn--edit"
                   data-modal-url="{{ url_for('budget.category_edit_modal', category_id=cat.id) }}"
                   data-modal-title="Редактировать категорию"

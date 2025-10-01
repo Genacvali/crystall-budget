@@ -41,7 +41,8 @@ class Category(db.Model):
         total = db.session.query(func.sum(Expense.amount)).filter(
             Expense.category_id == self.id,
             Expense.date >= start_date,
-            Expense.date <= end_date
+            Expense.date <= end_date,
+            Expense.transaction_type == 'expense'  # Only real expenses
         ).scalar() or Decimal('0')
         
         return Money(total, 'RUB')  # TODO: use user's currency

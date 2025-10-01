@@ -115,27 +115,146 @@ if (typeSelect && valueSuffix && valueInput) {
 // Handle form submission
 const addSourceForm = document.getElementById('addSourceForm');
 if (addSourceForm) {
+    let isSubmitting = false;
+
     addSourceForm.addEventListener('submit', function(e) {
         e.preventDefault();
+
+        // Prevent double submission
+        if (isSubmitting) {
+            return;
+        }
+        isSubmitting = true;
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Добавление...';
 
         const formData = new FormData(this);
 
         fetch(this.action, {
             method: 'POST',
-            body: formData
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
         })
-        .then(response => {
-            if (response.ok) {
-                // Reload page to show changes
-                window.location.reload();
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload modal content without closing
+                const categoryId = '{{ category.id }}';
+                const modalUrl = `/budget/modals/category/${categoryId}/sources`;
+
+                fetch(modalUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Replace modal content
+                    const modalContent = document.querySelector('.cb-modal--show .cb-modal__content');
+                    if (modalContent) {
+                        modalContent.innerHTML = html;
+
+                        // Re-run scripts in the new content
+                        const scripts = modalContent.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = oldScript.textContent;
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error reloading modal:', error);
+                    alert('Ошибка при обновлении списка');
+                });
             } else {
-                alert('Ошибка при добавлении источника');
+                // Show error message
+                alert(data.error || 'Ошибка при добавлении источника');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                isSubmitting = false;
             }
         })
         .catch(error => {
             console.error('Error:', error);
             alert('Ошибка при добавлении источника');
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            isSubmitting = false;
         });
     });
 }
+
+// Handle delete forms
+document.querySelectorAll('form[action*="delete"]').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const btn = this.querySelector('button[type="submit"]');
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload modal content without closing
+                const categoryId = '{{ category.id }}';
+                const modalUrl = `/budget/modals/category/${categoryId}/sources`;
+
+                fetch(modalUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.text())
+                .then(html => {
+                    // Replace modal content
+                    const modalContent = document.querySelector('.cb-modal--show .cb-modal__content');
+                    if (modalContent) {
+                        modalContent.innerHTML = html;
+
+                        // Re-run scripts in the new content
+                        const scripts = modalContent.querySelectorAll('script');
+                        scripts.forEach(oldScript => {
+                            const newScript = document.createElement('script');
+                            newScript.textContent = oldScript.textContent;
+                            oldScript.parentNode.replaceChild(newScript, oldScript);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error reloading modal:', error);
+                    alert('Ошибка при обновлении списка');
+                });
+            } else {
+                alert(data.error || 'Ошибка при удалении источника');
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при удалении источника');
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        });
+    });
+});
 </script>

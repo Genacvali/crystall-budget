@@ -37,11 +37,11 @@
     </div>
 
     <div class="ff-actions">
-      <button type="button" class="ff-action ff-expense" data-modal-url="{{ url_for('budget.expense_add_modal') }}" aria-label="Добавить расход">
+      <button type="button" class="ff-action ff-expense" data-modal-url="{{ url_for('budget.expense_add_modal', month=current_month) }}" aria-label="Добавить расход">
         <span class="ff-badge"><i class="bi bi-wallet2"></i></span>
         Расход
       </button>
-      <button type="button" class="ff-action ff-income" data-modal-url="{{ url_for('budget.income_add_modal') }}" aria-label="Добавить доход">
+      <button type="button" class="ff-action ff-income" data-modal-url="{{ url_for('budget.income_add_modal', month=current_month) }}" aria-label="Добавить доход">
         <span class="ff-badge"><i class="bi bi-arrow-up-circle"></i></span>
         Доход
       </button>

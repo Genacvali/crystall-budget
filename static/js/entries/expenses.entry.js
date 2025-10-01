@@ -20,12 +20,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize swipe cards for mobile
   initSwipeCards();
-  
+
   // Auto-flush outbox on page load
   if (window.CBOffline) {
     window.CBOffline.flushOutbox();
   }
-  
+
+  // Date filter navigation
+  const dateFilter = document.getElementById('expenseDateFilter');
+  if (dateFilter) {
+    dateFilter.addEventListener('change', function() {
+      const selectedDate = this.value; // YYYY-MM-DD format
+      if (selectedDate) {
+        // Extract year-month from date
+        const yearMonth = selectedDate.slice(0, 7);
+        const url = new URL(window.location);
+        url.searchParams.set('ym', yearMonth);
+        // Force reload to prevent caching
+        window.location.replace(url.toString());
+      }
+    });
+  }
+
   // Auto-focus amount input after category selection
   const categorySelect = document.getElementById('category_id');
   const amountInput = document.getElementById('amount');

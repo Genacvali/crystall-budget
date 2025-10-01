@@ -16,7 +16,8 @@
       "Bash(flask db migrate:*)",
       "Bash(flask db:*)",
       "Bash(xargs -r kill -9)",
-      "Bash(awk:*)"
+      "Bash(awk:*)",
+      "Bash(echo \"BUDGET_DB env: $BUDGET_DB\")"
     ],
     "deny": [],
     "ask": []

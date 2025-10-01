@@ -57,6 +57,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initIncomePageLogic() {
+  // Date filter navigation
+  const dateFilter = document.getElementById('incomeDateFilter');
+  if (dateFilter) {
+    dateFilter.addEventListener('change', function() {
+      const selectedDate = this.value; // YYYY-MM-DD format
+      if (selectedDate) {
+        // Extract year-month from date
+        const yearMonth = selectedDate.slice(0, 7);
+        const url = new URL(window.location);
+        url.searchParams.set('ym', yearMonth);
+        // Force reload to prevent caching
+        window.location.replace(url.toString());
+      }
+    });
+  }
+
   // Если дата не задана — подставляем сегодня
   const dateInput = document.getElementById('date');
   if (dateInput && !dateInput.value) {
@@ -78,7 +94,7 @@ function initIncomePageLogic() {
       if (!isNaN(v) && v > 0) amount.value = v.toFixed(2);
     });
   }
-  
+
   // Focus management for form fields
   const sourceNameInput = document.getElementById('source_name');
   const amountInput = document.getElementById('amount');
