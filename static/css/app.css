@@ -33,6 +33,16 @@
 .saving .saving-dots { display: inline; }
 .input-group-text { min-width: 2.25rem; justify-content: center; }
 
+/* Убираем стрелочки у input type="number" */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 /* ===== Стили аватаров ===== */
 .avatar-circle {
   width: 48px;

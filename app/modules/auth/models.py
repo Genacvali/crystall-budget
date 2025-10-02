@@ -27,11 +27,20 @@ class User(UserMixin, db.Model):
     # User preferences
     auth_type = db.Column(db.String(20), nullable=False, default='email')
     theme = db.Column(db.String(20), default='light')
-    currency = db.Column(db.String(3), default='RUB')
     timezone = db.Column(db.String(50), default='UTC')
     locale = db.Column(db.String(10), default='ru')
     default_currency = db.Column(db.String(3), default='RUB')
     avatar_path = db.Column(db.String(255), nullable=True)
+
+    @property
+    def currency(self):
+        """Alias for default_currency for backward compatibility."""
+        return self.default_currency
+
+    @currency.setter
+    def currency(self, value):
+        """Set default_currency via currency property."""
+        self.default_currency = value
     
     # Timestamps
     created_at = db.Column(db.DateTime, default=datetime.utcnow)

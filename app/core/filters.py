@@ -122,3 +122,8 @@ def register_filters(app: Flask):
     app.jinja_env.filters['format_date_with_day'] = format_date_with_day
     app.jinja_env.filters['format_month_ru'] = format_month_ru
     app.jinja_env.filters['format_month_with_day'] = format_month_with_day
+
+    # Add built-in Python functions to Jinja2 globals
+    app.jinja_env.globals['abs'] = abs
+    app.jinja_env.globals['min'] = min
+    app.jinja_env.globals['max'] = max

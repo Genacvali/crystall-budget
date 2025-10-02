@@ -17,7 +17,16 @@
       "Bash(flask db:*)",
       "Bash(xargs -r kill -9)",
       "Bash(awk:*)",
-      "Bash(echo \"BUDGET_DB env: $BUDGET_DB\")"
+      "Bash(echo \"BUDGET_DB env: $BUDGET_DB\")",
+      "Bash(chmod:*)",
+      "Bash(./test_currency_manual.sh:*)",
+      "Bash(cat:*)",
+      "Bash(BUDGET_DB=\"sqlite:////opt/crystall-budget/instance/budget.db\" MODAL_SYSTEM_ENABLED=true PORT=5030 python app.py)",
+      "Bash(timeout 3 curl -s http://localhost:5030/auth/login)",
+      "Bash(lsof:*)",
+      "Bash(kill:*)",
+      "Bash(FLASK_ENV=development BUDGET_DB=\"sqlite:////opt/crystall-budget/instance/budget.db\" MODAL_SYSTEM_ENABLED=true PORT=5030 python app.py)",
+      "Bash(fuser:*)"
     ],
     "deny": [],
     "ask": []

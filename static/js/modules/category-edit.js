@@ -30,19 +30,24 @@
   });
 
   // Handle form submissions with event delegation
+  // Use capture phase to intercept before other handlers
   document.addEventListener('submit', function(e) {
     // Handle add source form
     if (e.target && e.target.id === 'addSourceFormEdit') {
       e.preventDefault();
+      e.stopImmediatePropagation(); // Prevent other handlers from running
       handleAddSourceSubmit(e.target);
+      return;
     }
 
     // Handle delete source forms
     if (e.target && e.target.classList.contains('delete-rule-form')) {
       e.preventDefault();
+      e.stopImmediatePropagation(); // Prevent other handlers from running
       handleDeleteSourceSubmit(e.target);
+      return;
     }
-  });
+  }, true); // Use capture phase
 
   function handleMultiSourceToggle(switchElement) {
     const isMulti = switchElement.checked;
@@ -124,6 +129,13 @@
         console.log('[CategoryEdit] Source added successfully, reloading modal');
         // Extract category ID from form action URL
         const categoryId = form.action.match(/\/category\/(\d+)\//)[1];
+        // Clear form
+        form.reset();
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+        form.dataset.submitting = 'false';
+        // Reload modal content to show updated list
         reloadModalContent(categoryId);
       } else {
         alert(data.error || 'Ошибка при добавлении источника');
@@ -182,17 +194,34 @@
     console.log('[CategoryEdit] Reloading modal content for category', categoryId);
     const modalUrl = `/budget/modals/category/${categoryId}/edit`;
 
+    // Find the modal and prevent any close events during reload
+    const modal = document.querySelector('.cb-modal--show');
+    if (modal) {
+      modal.dataset.reloading = 'true';
+    }
+
     fetch(modalUrl, {
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
       }
     })
-    .then(response => response.text())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.text();
+    })
     .then(html => {
       const modalContent = document.querySelector('.cb-modal--show .cb-modal__content');
       if (modalContent) {
+        // Save scroll position
+        const scrollPos = modalContent.scrollTop;
+
         modalContent.innerHTML = html;
         console.log('[CategoryEdit] Modal content reloaded');
+
+        // Restore scroll position
+        modalContent.scrollTop = scrollPos;
 
         // Re-run scripts in the new content
         const scripts = modalContent.querySelectorAll('script');
@@ -202,10 +231,20 @@
           oldScript.parentNode.replaceChild(newScript, oldScript);
         });
       }
+
+      // Remove reloading flag
+      if (modal) {
+        modal.dataset.reloading = 'false';
+      }
     })
     .catch(error => {
       console.error('[CategoryEdit] Error reloading modal:', error);
-      alert('Ошибка при обновлении списка');
+      alert('Ошибка при обновлении списка источников');
+
+      // Remove reloading flag
+      if (modal) {
+        modal.dataset.reloading = 'false';
+      }
     });
   }
 

@@ -39,12 +39,12 @@
                 <div class="col-12">
                     <label class="form-label">Источник дохода</label>
                     <select class="form-select" name="source_id" id="singleSourceSelect">
-                        <option value="">Не привязан</option>
+                        <option value="">Все источники (весь доход)</option>
                         {% for source in income_sources %}
                         <option value="{{ source.id }}">{{ source.name }}</option>
                         {% endfor %}
                     </select>
-                    <small class="text-muted">Можно не привязывать к источнику</small>
+                    <small class="text-muted">Можно выбрать конкретный источник или использовать весь доход</small>
                 </div>
 
                 <div class="col-12 col-md-6">
@@ -61,7 +61,7 @@
                 <div class="col-12 col-md-6">
                     <label class="form-label">Значение <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <input type="number" name="value" step="0.01" min="0.01" class="form-control"
+                        <input type="number" name="value" step="0.01" min="0.01" max="999999" class="form-control"
                                placeholder="15000" required id="singleValueInput">
                         <span class="input-group-text" id="singleValueSuffix">₽</span>
                     </div>
@@ -152,5 +152,47 @@
         </button>
     </div>
 </div>
+
+<script>
+// Handle limit type change for single source categories
+(function() {
+  const limitTypeInputs = document.querySelectorAll('input[name="limit_type"]');
+  const valueSuffix = document.getElementById('singleValueSuffix');
+  const valueInput = document.getElementById('singleValueInput');
+
+  if (limitTypeInputs.length > 0 && valueSuffix && valueInput) {
+    // Function to update constraints
+    function updateConstraints(isPercent) {
+      valueSuffix.textContent = isPercent ? '%' : '₽';
+
+      // Update input constraints for percent vs fixed
+      if (isPercent) {
+        valueInput.setAttribute('max', '100');
+        valueInput.setAttribute('step', 'any');
+        valueInput.setAttribute('min', '0');
+        valueInput.setAttribute('placeholder', '10');
+      } else {
+        valueInput.setAttribute('max', '999999');
+        valueInput.setAttribute('step', '0.01');
+        valueInput.setAttribute('min', '0.01');
+        valueInput.setAttribute('placeholder', '15000');
+      }
+    }
+
+    // Initialize on load
+    const checkedInput = document.querySelector('input[name="limit_type"]:checked');
+    if (checkedInput) {
+      updateConstraints(checkedInput.value === 'percent');
+    }
+
+    // Listen for changes
+    limitTypeInputs.forEach(input => {
+      input.addEventListener('change', function() {
+        updateConstraints(this.value === 'percent');
+      });
+    });
+  }
+})();
+</script>
 
 <!-- Script logic moved to modals.js initCategoryAddForm() -->

@@ -620,17 +620,17 @@ class BudgetService:
             for rule, income_source in rules
         ]
     
-    @staticmethod 
+    @staticmethod
     def get_category_single_source(category_id: int):
-        """Get single income source for a category."""
-        from .models import CategoryRule, IncomeSource
-        
-        rule = (db.session.query(CategoryRule, IncomeSource)
-                .join(IncomeSource, CategoryRule.source_name == IncomeSource.name)
-                .filter(CategoryRule.category_id == category_id)
+        """Get single income source link for a category."""
+        from .models import CategoryIncomeSource, IncomeSource
+
+        link = (db.session.query(CategoryIncomeSource)
+                .join(IncomeSource, CategoryIncomeSource.source_id == IncomeSource.id)
+                .filter(CategoryIncomeSource.category_id == category_id)
                 .first())
-        
-        return rule[1] if rule else None
+
+        return link if link else None
 
     @staticmethod
     def get_category_carryover_info(user_id: int, category_id: int, year_month: YearMonth) -> Dict:
@@ -776,15 +776,19 @@ class DashboardService:
 
                 else:
                     # Single-source category: check if it's linked to this source
-                    single_rule = BudgetService.get_category_single_source(category.id)
-                    if single_rule and single_rule.name == source_name:
-                        # This category is linked to this source
-                        if category.limit_type == 'fixed':
-                            category_limit_from_source = Money(category.value, currency)
-                        else:  # percentage
-                            category_limit_from_source = Money(income_amount.amount * (category.value / 100), currency)
+                    single_link = BudgetService.get_category_single_source(category.id)
+                    if single_link:
+                        # Get the IncomeSource to compare with source_name
+                        from .models import IncomeSource
+                        income_source = IncomeSource.query.get(single_link.source_id)
+                        if income_source and income_source.name == source_name:
+                            # This category is linked to this source
+                            if category.limit_type == 'fixed':
+                                category_limit_from_source = Money(category.value, currency)
+                            else:  # percentage
+                                category_limit_from_source = Money(income_amount.amount * (category.value / 100), currency)
 
-                        source_spent += spent_money
+                            source_spent += spent_money
 
                 source_limits += category_limit_from_source
 
@@ -812,9 +816,12 @@ class DashboardService:
                                         source_debt += Money(abs(detail['amount']) * debt_ratio, currency)
                             else:
                                 # Single source - full debt attribution
-                                single_rule = BudgetService.get_category_single_source(category.id)
-                                if single_rule and single_rule.name == source_name:
-                                    source_debt += Money(abs(detail['amount']), currency)
+                                single_link = BudgetService.get_category_single_source(category.id)
+                                if single_link:
+                                    from .models import IncomeSource
+                                    income_source = IncomeSource.query.get(single_link.source_id)
+                                    if income_source and income_source.name == source_name:
+                                        source_debt += Money(abs(detail['amount']), currency)
 
             # Calculate remaining and balance
             remaining = source_limits - source_spent

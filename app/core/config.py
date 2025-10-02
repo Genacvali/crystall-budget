@@ -43,6 +43,7 @@ class DevelopmentConfig(BaseConfig):
     """Development configuration."""
     DEBUG = True
     TESTING = False
+    TEMPLATES_AUTO_RELOAD = True
 
 
 class ProductionConfig(BaseConfig):

@@ -1,7 +1,7 @@
 <!-- Шаблон модальной формы редактирования профиля -->
 <!-- Используется для GET /modals/settings/profile -->
 
-<form method="POST" action="{{ url_for('auth.profile') }}" 
+<form method="POST" action="{{ url_for('auth.settings_save_profile') }}"
       data-form="settings-profile" role="form" aria-label="Форма редактирования профиля" novalidate>
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     
@@ -21,11 +21,11 @@
             <div class="input-group">
                 <span class="input-group-text"><i class="bi bi-currency-exchange" aria-hidden="true"></i></span>
                 <select class="form-select" name="currency" id="currency">
-                    <option value="RUB" {{ 'selected' if user.currency == 'RUB' else '' }}>🇷🇺 Рубль (RUB)</option>
-                    <option value="USD" {{ 'selected' if user.currency == 'USD' else '' }}>🇺🇸 Доллар (USD)</option>
-                    <option value="EUR" {{ 'selected' if user.currency == 'EUR' else '' }}>🇪🇺 Евро (EUR)</option>
-                    <option value="KZT" {{ 'selected' if user.currency == 'KZT' else '' }}>🇰🇿 Тенге (KZT)</option>
-                    <option value="BYN" {{ 'selected' if user.currency == 'BYN' else '' }}>🇧🇾 Белорусский рубль (BYN)</option>
+                    <option value="RUB" {{ 'selected' if user.default_currency == 'RUB' else '' }}>🇷🇺 Рубль (RUB)</option>
+                    <option value="USD" {{ 'selected' if user.default_currency == 'USD' else '' }}>🇺🇸 Доллар (USD)</option>
+                    <option value="EUR" {{ 'selected' if user.default_currency == 'EUR' else '' }}>🇪🇺 Евро (EUR)</option>
+                    <option value="KZT" {{ 'selected' if user.default_currency == 'KZT' else '' }}>🇰🇿 Тенге (KZT)</option>
+                    <option value="BYN" {{ 'selected' if user.default_currency == 'BYN' else '' }}>🇧🇾 Белорусский рубль (BYN)</option>
                 </select>
             </div>
             <div class="form-text">Основная валюта для отображения</div>

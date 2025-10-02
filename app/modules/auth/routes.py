@@ -193,6 +193,53 @@ def set_theme():
 
 
 # Settings processing routes
+@auth_bp.route('/settings/profile', methods=['POST'])
+@login_required
+def settings_save_profile():
+    """Save profile settings from modal."""
+    try:
+        user = User.query.get(session['user_id'])
+        if not user:
+            flash('Пользователь не найден', 'error')
+            return redirect(url_for('auth.logout'))
+
+        # Get form data
+        name = request.form.get('name', '').strip()
+        currency = request.form.get('currency', 'RUB')
+        timezone = request.form.get('timezone', 'UTC')
+
+        # Validate name
+        if not name or len(name) < 2:
+            flash('Имя должно быть не менее 2 символов', 'error')
+            return redirect(url_for('auth.settings'))
+
+        # Validate currency
+        allowed_currencies = ['RUB', 'USD', 'EUR', 'KZT', 'BYN', 'AMD', 'GEL']
+        if currency not in allowed_currencies:
+            currency = 'RUB'
+
+        # Update user data
+        user.name = name
+        user.default_currency = currency
+        user.timezone = timezone
+
+        db.session.commit()
+
+        # Update session
+        session['user_name'] = name
+        session['currency'] = currency
+
+        current_app.logger.info(f'Profile updated for user ID: {user.id} - currency: {currency}')
+        flash('Профиль успешно обновлен', 'success')
+        return redirect(url_for('auth.settings'))
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error saving profile settings: {e}")
+        flash('Ошибка сохранения профиля', 'error')
+        return redirect(url_for('auth.settings'))
+
+
 @auth_bp.route('/settings/interface', methods=['POST'])
 @login_required
 def settings_save_interface():
@@ -202,28 +249,28 @@ def settings_save_interface():
         if not user:
             flash('Пользователь не найден', 'error')
             return redirect(url_for('auth.logout'))
-        
+
         # Get form data
         theme = request.form.get('theme', 'light')
-        language = request.form.get('language', 'ru')  
+        language = request.form.get('language', 'ru')
         density = request.form.get('density', 'normal')
-        
+
         # Save theme to session and database
         if theme in ['light', 'dark', 'auto']:
             session['theme'] = theme
             user.theme = theme
-        
+
         # Save other preferences (would need user preferences table/fields)
         # For now just save theme
         db.session.commit()
-        
+
         flash('Настройки интерфейса сохранены', 'success')
-        return redirect(url_for('settings'))
-        
+        return redirect(url_for('auth.settings'))
+
     except Exception as e:
         current_app.logger.error(f"Error saving interface settings: {e}")
         flash('Ошибка сохранения настроек', 'error')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
 
 
 @auth_bp.route('/settings/export', methods=['POST'])
@@ -236,12 +283,12 @@ def settings_export_data():
         
         # This is a placeholder - would need actual export implementation
         flash('Экспорт данных в разработке', 'info')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
         
     except Exception as e:
         current_app.logger.error(f"Error exporting data: {e}")
         flash('Ошибка экспорта данных', 'error')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
 
 
 @auth_bp.route('/settings/import', methods=['POST'])
@@ -251,12 +298,12 @@ def settings_import_data():
     try:
         # This is a placeholder - would need actual import implementation
         flash('Импорт данных в разработке', 'info')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
         
     except Exception as e:
         current_app.logger.error(f"Error importing data: {e}")
         flash('Ошибка импорта данных', 'error')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
 
 
 @auth_bp.route('/settings/clear-data', methods=['POST'])
@@ -269,16 +316,16 @@ def settings_clear_data():
         
         if confirmation != 'УДАЛИТЬ':
             flash('Неверное подтверждение', 'error')
-            return redirect(url_for('settings'))
+            return redirect(url_for('auth.settings'))
         
         # This is a placeholder - would need actual data clearing implementation
         flash('Очистка данных в разработке', 'info')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
         
     except Exception as e:
         current_app.logger.error(f"Error clearing data: {e}")
         flash('Ошибка очистки данных', 'error')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
 
 
 @auth_bp.route('/settings/delete-account', methods=['POST'])
@@ -297,27 +344,27 @@ def settings_delete_account():
         
         if name_confirmation != user.name:
             flash('Неверное подтверждение имени', 'error')
-            return redirect(url_for('settings'))
+            return redirect(url_for('auth.settings'))
             
         if deletion_confirmation != 'УДАЛИТЬ АККАУНТ':
             flash('Неверное подтверждение удаления', 'error')
-            return redirect(url_for('settings'))
+            return redirect(url_for('auth.settings'))
         
         # For email users, check password
         if user.auth_type == 'email':
             password_confirmation = request.form.get('password_confirmation', '')
             if not AuthService.verify_password(user, password_confirmation):
                 flash('Неверный пароль', 'error')
-                return redirect(url_for('settings'))
+                return redirect(url_for('auth.settings'))
         
         # This is a placeholder - would need actual account deletion implementation
         flash('Удаление аккаунта в разработке', 'info')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
         
     except Exception as e:
         current_app.logger.error(f"Error deleting account: {e}")
         flash('Ошибка удаления аккаунта', 'error')
-        return redirect(url_for('settings'))
+        return redirect(url_for('auth.settings'))
 
 
 # Add settings page route

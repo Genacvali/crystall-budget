@@ -264,10 +264,10 @@ def categories():
             multi_links = BudgetService.get_multi_source_links(category.id)
             multi_source_links[category.id] = multi_links
         else:
-            # Get single source rule for this category  
+            # Get single source rule for this category
             single_rule = BudgetService.get_category_single_source(category.id)
             if single_rule:
-                rules_map[category.id] = single_rule.id
+                rules_map[category.id] = single_rule.source_id
     
     return render_template('budget/categories.html',
                          categories=categories_list,
@@ -300,15 +300,16 @@ def add_category():
         limit_type = request.form.get('limit_type', 'fixed')
         value = request.form.get('value', '0')
         is_multi_source = request.form.get('multi_source') == 'on'
-        
+        source_id = request.form.get('source_id')
+
         if not name:
             flash('Введите название категории', 'error')
             return redirect(url_for('budget.categories'))
-        
+
         try:
             import json
             from app.core.extensions import db
-            from app.modules.budget.models import CategoryRule
+            from app.modules.budget.models import CategoryRule, CategoryIncomeSource
 
             # Create category with multi-source flag
             category = BudgetService.create_category(
@@ -318,10 +319,12 @@ def add_category():
                 value=float(value) if not is_multi_source else 0
             )
 
+            # Flush to get category ID before adding links
+            db.session.flush()
+
             # Set multi-source flag and process multi-source data
             if is_multi_source:
                 category.is_multi_source = True
-                db.session.flush()  # Flush to get category ID
 
                 # Process multi-source data from JSON
                 sources_data_json = request.form.get('sources_data', '[]')
@@ -331,14 +334,14 @@ def add_category():
                     sources_data = []
 
                 for source_data in sources_data:
-                    source_id = source_data.get('id')
+                    source_id_multi = source_data.get('id')
                     source_name = source_data.get('name')
                     source_type = source_data.get('type', 'percent')
                     source_value = source_data.get('value', 0)
 
-                    if source_id and source_value > 0:
+                    if source_id_multi and source_value > 0:
                         # Verify source belongs to user
-                        source = IncomeSource.query.filter_by(id=source_id, user_id=user_id).first()
+                        source = IncomeSource.query.filter_by(id=source_id_multi, user_id=user_id).first()
                         if source:
                             cat_rule = CategoryRule(
                                 category_id=category.id,
@@ -347,8 +350,20 @@ def add_category():
                                 is_fixed=(source_type == 'fixed')
                             )
                             db.session.add(cat_rule)
+            else:
+                # Single source category - add link if source selected
+                if source_id:
+                    link = CategoryIncomeSource(
+                        user_id=user_id,
+                        category_id=category.id,
+                        source_id=int(source_id),
+                        limit_type=limit_type,
+                        percentage=float(value) if limit_type == 'percent' else 100.0,
+                        fixed_amount=float(value) if limit_type == 'fixed' else None
+                    )
+                    db.session.add(link)
 
-                db.session.commit()
+            db.session.commit()
 
             flash('Категория создана', 'success')
             return redirect(url_for('budget.categories'))
@@ -366,7 +381,7 @@ def add_category():
 @login_required
 def category_edit_modal(category_id):
     """Return category edit modal content."""
-    from app.modules.budget.models import CategoryRule
+    from app.modules.budget.models import CategoryRule, CategoryIncomeSource
     user_id = session['user_id']
     category = Category.query.filter_by(id=category_id, user_id=user_id).first_or_404()
     income_sources = IncomeSource.query.filter_by(user_id=user_id).all()
@@ -374,6 +389,10 @@ def category_edit_modal(category_id):
     # Get existing rules for multi-source categories
     rules = CategoryRule.query.filter_by(category_id=category_id).all()
     rules_map = {rule.source_name: rule for rule in rules}
+
+    # Get current source_id for single-source categories
+    current_source_link = CategoryIncomeSource.query.filter_by(category_id=category_id).first()
+    category.source_id = current_source_link.source_id if current_source_link else None
 
     return render_template('components/modals/category_edit.html',
                          category=category,
@@ -419,12 +438,14 @@ def edit_category(category_id):
     if request.method == 'POST':
         try:
             from app.core.extensions import db
+            from app.modules.budget.models import CategoryIncomeSource
 
             # Get form data
             name = request.form.get('name', '').strip()
             limit_type = request.form.get('limit_type', 'fixed')
             value = request.form.get('value', '0')
             is_multi_source = request.form.get('is_multi_source') == '1'
+            source_id = request.form.get('source_id')
 
             if not name:
                 if is_ajax:
@@ -437,9 +458,25 @@ def edit_category(category_id):
             category.limit_type = limit_type
             category.is_multi_source = is_multi_source
 
-            # Update value only if not multi-source
+            # Update value and source for non-multi-source categories
             if not is_multi_source:
                 category.value = float(value) if value else 0
+
+                # Update source link - remove all existing and create one
+                if source_id:
+                    # Remove existing links
+                    CategoryIncomeSource.query.filter_by(category_id=category.id).delete()
+
+                    # Create new link
+                    link = CategoryIncomeSource(
+                        user_id=user_id,
+                        category_id=category.id,
+                        source_id=int(source_id),
+                        limit_type=limit_type,
+                        percentage=float(value) if limit_type == 'percent' else 100.0,
+                        fixed_amount=float(value) if limit_type == 'fixed' else None
+                    )
+                    db.session.add(link)
             else:
                 category.value = 0
 
