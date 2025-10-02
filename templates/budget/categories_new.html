@@ -174,7 +174,7 @@
               <span class="limit-type">от дохода</span>
             {% endif %}
           {% else %}
-            <span class="limit-amount tabular-nums">{{ cat.value|format_amount }} ₽</span>
+            <span class="limit-amount tabular-nums">{{ cat.value|format_amount }} {{ currency_symbol }}</span>
             <span class="limit-type">фикс</span>
           {% endif %}
         </div>

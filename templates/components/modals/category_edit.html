@@ -73,7 +73,7 @@
                                class="form-control"
                                value="{{ category.value }}" id="valueInputEdit{{ category.id }}" required>
                         <span class="input-group-text" id="valueSuffixEdit{{ category.id }}">
-                            {% if category.limit_type == 'percent' %}%{% else %}₽{% endif %}
+                            {% if category.limit_type == 'percent' %}%{% else %}{{ currency_symbol }}{% endif %}
                         </span>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <strong>{{ source.name }}</strong>
-                                        <span class="text-muted ms-2">{{ rule.percentage }}{% if rule.is_fixed %}₽{% else %}%{% endif %}</span>
+                                        <span class="text-muted ms-2">{{ rule.percentage }}{% if rule.is_fixed %}{{ currency_symbol }}{% else %}%{% endif %}</span>
                                     </div>
                                     <form method="POST" action="{{ url_for('budget.delete_category_rule', rule_id=rule.id) }}" class="d-inline delete-rule-form">
                                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
@@ -137,7 +137,7 @@
                             <label class="form-label small">Тип</label>
                             <select class="form-select" name="limit_type" id="sourceTypeSelectEdit">
                                 <option value="percent">%</option>
-                                <option value="fixed">₽</option>
+                                <option value="fixed">{{ currency_symbol }}</option>
                             </select>
                         </div>
                         <div class="col-12 col-md-4">

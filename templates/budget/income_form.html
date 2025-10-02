@@ -30,7 +30,7 @@
                             {{ form.amount.label(class="form-label") }}
                             <div class="input-group">
                                 {{ form.amount(class="form-control" + (" is-invalid" if form.amount.errors else ""), step="0.01", min="0") }}
-                                <span class="input-group-text">₽</span>
+                                <span class="input-group-text">{{ currency_symbol }}</span>
                             </div>
                             {% if form.amount.errors %}
                                 <div class="invalid-feedback">

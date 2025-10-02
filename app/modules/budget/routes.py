@@ -102,13 +102,16 @@ def expenses():
     # Get selected date (first day of month by default)
     selected_date = year_month.to_date().isoformat()
 
+    # Today's date for calendar default
+    today = datetime.date.today().isoformat()
+
     return render_template('budget/expenses.html',
                          expenses=expenses_list,
                          categories=categories,
                          filter_form=filter_form,
                          current_month=year_month,
                          selected_date=selected_date,
-                         today=selected_date)
+                         today=today)
 
 
 @budget_bp.route('/expenses/add', methods=['GET', 'POST'])

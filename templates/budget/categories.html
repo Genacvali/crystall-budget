@@ -113,7 +113,7 @@
               <span class="limit-type">от дохода</span>
             {% endif %}
           {% else %}
-            <span class="limit-amount tabular-nums">{{ cat.value|format_amount }} ₽</span>
+            <span class="limit-amount tabular-nums">{{ cat.value|format_amount }} {{ currency_symbol }}</span>
             <span class="limit-type">фикс</span>
           {% endif %}
         </div>
@@ -1226,7 +1226,7 @@ function setupLimitTypeToggle(modalId) {
       radio.addEventListener('change', function() {
         try {
           if (valueSuffix) {
-            valueSuffix.textContent = this.value === 'percent' ? '%' : '₽';
+            valueSuffix.textContent = this.value === 'percent' ? '%' : '{{ currency_symbol }}';
           }
           if (valueInput) {
             valueInput.placeholder = this.value === 'percent' ? '15.0' : '15000';
@@ -1317,7 +1317,7 @@ function addMultiSource() {
     const sourceId = selectedOption.value;
     const limitType = [...typeRadios].find(r => r.checked)?.value || 'percent';
     const value = parseFloat(valueInput.value);
-    const suffix = limitType === 'percent' ? '%' : '₽';
+    const suffix = limitType === 'percent' ? '%' : '{{ currency_symbol }}';
     
     // Проверка на дубликаты
     if (list.querySelector(`tr[data-source-id="${sourceId}"]`)) {
@@ -1414,7 +1414,7 @@ document.addEventListener('DOMContentLoaded', function() {
   newLimitTypeRadios.forEach(radio => {
     radio.addEventListener('change', function() {
       if (newSourceSuffix) {
-        newSourceSuffix.textContent = this.value === 'percent' ? '%' : '₽';
+        newSourceSuffix.textContent = this.value === 'percent' ? '%' : '{{ currency_symbol }}';
       }
       if (newSourceValue) {
         newSourceValue.placeholder = this.value === 'percent' ? '15.0' : '5000';

@@ -10,22 +10,22 @@
       <div class="income-rows">
         <div class="income-row">
           <div class="income-k" data-compact-text="Приход">Пришло</div>
-          <div class="income-v">{{ source_data.income | format_amount }}<span class="income-rub">₽</span></div>
+          <div class="income-v">{{ source_data.income | format_amount }}<span class="income-rub">{{ currency_symbol }}</span></div>
         </div>
         <div class="income-row">
           <div class="income-k" data-compact-text="Трата">Ушло</div>
-          <div class="income-v">{{ source_data.spent | format_amount }}<span class="income-rub">₽</span></div>
+          <div class="income-v">{{ source_data.spent | format_amount }}<span class="income-rub">{{ currency_symbol }}</span></div>
         </div>
         <div class="income-row">
           <div class="income-k" data-compact-text="Ост. от лимита">Остается после лимитов</div>
           <div class="income-v {{ 'pos' if source_data.remaining_limits > 0 else ('neg' if source_data.remaining_limits < 0 else '') }}">
-            {{ source_data.remaining_limits | format_amount }}<span class="income-rub">₽</span>
+            {{ source_data.remaining_limits | format_amount }}<span class="income-rub">{{ currency_symbol }}</span>
           </div>
         </div>
         <div class="income-row total">
           <div class="income-k" data-compact-text="Остаток">Остаток</div>
           <div class="income-v {{ 'pos' if balance > 0 else ('neg' if balance < 0 else '') }}">
-            {{ balance | format_amount }}<span class="income-rub">₽</span>
+            {{ balance | format_amount }}<span class="income-rub">{{ currency_symbol }}</span>
           </div>
         </div>
       </div>

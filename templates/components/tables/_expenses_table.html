@@ -15,7 +15,10 @@
     </thead>
     <tbody>
         {% for expense in expenses %}
-        <tr>
+        <tr data-expense-id="{{ expense.id }}"
+            data-expense-date="{{ expense.date }}"
+            data-expense-amount="{{ expense.amount }}"
+            data-expense-category="{{ expense.category_name }}">
             <td class="amount negative tabular-nums fw-bold">{{ expense.amount|format_amount }} {{ currency_symbol|default('₽') }}</td>
             <td>{{ expense.date|format_date_with_day }}</td>
             <td><span class="badge-ghost">{{ expense.category_name }}</span></td>

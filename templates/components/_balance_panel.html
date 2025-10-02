@@ -7,29 +7,29 @@
 <div class="hero mb-3">
   <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
     <div>
-      <h1>{{ balance | format_amount }} ₽</h1>
+      <h1>{{ balance | format_amount }} {{ currency_symbol }}</h1>
       <div class="meta">
         <!-- Десктопная версия - строчка -->
         <div class="d-none d-md-block">
-          Доход: {{ total_income | format_amount }} ₽ ·
-          Потрачено: {{ total_spent | format_amount }} ₽ ·
-          Лимиты: {{ total_limits | format_amount }} ₽
+          Доход: {{ total_income | format_amount }} {{ currency_symbol }} ·
+          Потрачено: {{ total_spent | format_amount }} {{ currency_symbol }} ·
+          Лимиты: {{ total_limits | format_amount }} {{ currency_symbol }}
         </div>
         <!-- Мобильная версия - список -->
         <div class="d-md-none hero-stats">
           <div class="hero-stat">
             <i class="bi bi-arrow-up-circle" aria-hidden="true"></i>
-            <strong>{{ total_income | format_amount }} ₽</strong>
+            <strong>{{ total_income | format_amount }} {{ currency_symbol }}</strong>
             <span>доход</span>
           </div>
           <div class="hero-stat">
             <i class="bi bi-wallet2" aria-hidden="true"></i>
-            <strong>{{ total_spent | format_amount }} ₽</strong>
+            <strong>{{ total_spent | format_amount }} {{ currency_symbol }}</strong>
             <span>потрачено</span>
           </div>
           <div class="hero-stat">
             <i class="bi bi-bullseye" aria-hidden="true"></i>
-            <strong>{{ total_limits | format_amount }} ₽</strong>
+            <strong>{{ total_limits | format_amount }} {{ currency_symbol }}</strong>
             <span>лимиты</span>
           </div>
         </div>

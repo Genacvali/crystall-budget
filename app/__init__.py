@@ -524,10 +524,43 @@ def create_app(config_name: Optional[str] = None):
             log_bundle_usage()
         except Exception:
             pass  # Don't break page rendering for monitoring failures
-            
+
         return {
             'modal_system_config': modal_system_config,
             'bundle_config': bundle_config
+        }
+
+    @app.context_processor
+    def inject_user_currency():
+        """Inject user currency into template context."""
+        from flask import session
+        from flask_login import current_user
+
+        # Get currency from session or user object
+        currency = session.get('currency', 'RUB')
+
+        # If logged in, try to get from current_user
+        if current_user and current_user.is_authenticated:
+            try:
+                if hasattr(current_user, 'default_currency') and current_user.default_currency:
+                    currency = current_user.default_currency
+            except:
+                pass
+
+        # Currency symbol mapping
+        currency_symbols = {
+            'RUB': '₽',
+            'USD': '$',
+            'EUR': '€',
+            'KZT': '₸',
+            'BYN': 'Br',
+            'AMD': '֏',
+            'GEL': '₾'
+        }
+
+        return {
+            'user_currency': currency,
+            'currency_symbol': currency_symbols.get(currency, currency)
         }
     
     # Initialize asset helpers

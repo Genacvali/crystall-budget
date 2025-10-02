@@ -83,7 +83,7 @@
             {% elif category.limit_type == 'percent' %}
               Процент {{ category.value }}%
             {% else %}
-              Фикс <span class="limit">{{ base_limit|format_amount }}</span> ₽
+              Фикс <span class="limit">{{ base_limit|format_amount }}</span> {{ currency_symbol }}
             {% endif %}
             {% if carryover_info.has_carryover %}
               <br><small class="carryover-info text-muted">
@@ -91,9 +91,9 @@
                 {% for detail in carryover_info.details %}
                   {{ detail.from_month }}
                   {% if detail.type == 'remaining' %}
-                    <span class="text-success">+{{ detail.amount|format_amount }} ₽</span>
+                    <span class="text-success">+{{ detail.amount|format_amount }} {{ currency_symbol }}</span>
                   {% else %}
-                    <span class="text-danger">{{ detail.amount|format_amount }} ₽</span>
+                    <span class="text-danger">{{ detail.amount|format_amount }} {{ currency_symbol }}</span>
                   {% endif %}
                   {% if not loop.last %}, {% endif %}
                 {% endfor %}
@@ -104,10 +104,10 @@
 
         <div class="ff-middle">
           <div class="ff-row">
-            <strong class="spent">{{ spent|format_amount }}</strong> ₽
+            <strong class="spent">{{ spent|format_amount }}</strong> {{ currency_symbol }}
             <span class="slash">/</span>
             <span class="cat-right">
-              <span class="limit muted mono">{{ avail_limit|format_amount }}</span> ₽
+              <span class="limit muted mono">{{ avail_limit|format_amount }}</span> {{ currency_symbol }}
               {% if carryover_info.has_carryover %}
                 <sup><i class="bi bi-arrow-left-right text-muted" title="Учтен перенос остатка"></i></sup>
               {% endif %}
@@ -117,7 +117,7 @@
             <div class="ff-bar" style="width: {{ bar_width }}%; --bar-color: {% if avail_limit < 0 %}var(--danger){% elif progress_raw >= 100 %}var(--bad){% elif progress_raw >= 85 %}var(--warn){% elif progress_raw >= 50 %}var(--caution){% else %}var(--ok){% endif %}"></div>
           </div>
           <div class="ff-meta">
-            Остаток: <span class="rest {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">{{ rest|format_amount }}</span> ₽
+            Остаток: <span class="rest {% if rest < 0 %}text-danger{% elif rest > 0 %}text-success{% endif %}">{{ rest|format_amount }}</span> {{ currency_symbol }}
             {% if carryover_info.has_carryover %}
               <small class="text-muted"> · с учетом переноса</small>
             {% endif %}

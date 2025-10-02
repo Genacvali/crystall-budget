@@ -41,7 +41,7 @@
               <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
                      value="' + (category.value|string) + '" ' + ('required' if not category.is_multi_source else 'disabled') + ' id="valueInput">
               <span class="input-group-text" id="valueSuffix">
-                ' + ('%' if category.limit_type == 'percent' else '₽') + '
+                ' + ('%' if category.limit_type == 'percent' else currency_symbol) + '
               </span>
             </div>
           </div>
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
   limitTypeRadios.forEach(radio => {
     radio.addEventListener('change', function() {
       if (valueSuffix) {
-        valueSuffix.textContent = this.value === 'percent' ? '%' : '₽';
+        valueSuffix.textContent = this.value === 'percent' ? '%' : '{{ currency_symbol }}';
       }
       if (valueInput) {
         valueInput.placeholder = this.value === 'percent' ? '15.0' : '15000';

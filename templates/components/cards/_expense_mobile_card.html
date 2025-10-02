@@ -1,4 +1,8 @@
-<div class="expense-card">
+<div class="expense-card"
+     data-expense-id="{{ expense.id }}"
+     data-expense-date="{{ expense.date }}"
+     data-expense-amount="{{ expense.amount }}"
+     data-expense-category="{{ expense.category_name }}">
     <div class="expense-row">
         <!-- Левая колонка: сумма и дата (72-88px) -->
         <div class="expense-amount">
@@ -11,8 +15,8 @@
             <div class="expense-category">
                 <span class="badge-ghost">{{ expense.category_name }}</span>
             </div>
-            {% if expense.note %}
-            <div class="expense-note">{{ expense.note }}</div>
+            {% if expense.description %}
+            <div class="expense-note">{{ expense.description }}</div>
             {% endif %}
         </div>
         
@@ -27,7 +31,7 @@
                 <form method="POST" action="{{ url_for('budget.delete_expense', expense_id=expense.id) }}" class="d-inline">
                     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
                     <button type="submit" class="ff-iconbtn ff-iconbtn--delete"
-                            data-confirm-delete="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.note %}\nЗаметка: {{ expense.note }}{% endif %}"
+                            data-confirm-delete="Удалить расход?\nДата: {{ expense.date|format_date_with_day }}\nКатегория: {{ expense.category_name }}\nСумма: {{ expense.amount|format_amount }}{% if expense.description %}\nЗаметка: {{ expense.description }}{% endif %}"
                             aria-label="Удалить" title="Удалить">
                         <i class="bi bi-trash3"></i>
                     </button>

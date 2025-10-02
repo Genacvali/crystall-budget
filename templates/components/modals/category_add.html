@@ -63,7 +63,7 @@
                     <div class="input-group">
                         <input type="number" name="value" step="0.01" min="0.01" max="999999" class="form-control"
                                placeholder="15000" required id="singleValueInput">
-                        <span class="input-group-text" id="singleValueSuffix">₽</span>
+                        <span class="input-group-text" id="singleValueSuffix">{{ currency_symbol }}</span>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                                     <input type="radio" name="new_source_type" id="newSourcePercent" value="percent" class="btn-check" checked>
                                     <label for="newSourcePercent" class="btn btn-outline-primary">%</label>
                                     <input type="radio" name="new_source_type" id="newSourceFixed" value="fixed" class="btn-check">
-                                    <label for="newSourceFixed" class="btn btn-outline-primary">₽</label>
+                                    <label for="newSourceFixed" class="btn btn-outline-primary">{{ currency_symbol }}</label>
                                 </div>
                             </div>
                             <div class="col-6 col-md-4">
@@ -163,7 +163,7 @@
   if (limitTypeInputs.length > 0 && valueSuffix && valueInput) {
     // Function to update constraints
     function updateConstraints(isPercent) {
-      valueSuffix.textContent = isPercent ? '%' : '₽';
+      valueSuffix.textContent = isPercent ? '%' : '{{ currency_symbol }}';
 
       // Update input constraints for percent vs fixed
       if (isPercent) {

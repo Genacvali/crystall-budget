@@ -40,7 +40,7 @@
             <div class="input-group">
               <input type="number" name="value" step="0.01" min="0.01" class="form-control" 
                      placeholder="15000" required id="valueInput">
-              <span class="input-group-text" id="valueSuffix">₽</span>
+              <span class="input-group-text" id="valueSuffix">{{ currency_symbol }}</span>
             </div>
           </div>
           
@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
   limitTypeRadios.forEach(radio => {
     radio.addEventListener('change', function() {
       if (valueSuffix) {
-        valueSuffix.textContent = this.value === 'percent' ? '%' : '₽';
+        valueSuffix.textContent = this.value === 'percent' ? '%' : '{{ currency_symbol }}';
       }
       if (valueInput) {
         valueInput.placeholder = this.value === 'percent' ? '15.0' : '15000';
