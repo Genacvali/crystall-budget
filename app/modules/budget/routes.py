@@ -75,7 +75,7 @@ def dashboard():
                          income_sources=income_sources,
                          multi_source_links=multi_source_links,
                          current_month=year_month,
-                         today=year_month.to_date().isoformat())
+                         today=datetime.date.today().isoformat())
 
 
 @budget_bp.route('/expenses')
@@ -569,12 +569,15 @@ def income():
     # Get selected date (first day of month by default)
     selected_date = year_month.to_date().isoformat()
 
+    # Today's date for calendar default
+    today = datetime.date.today().isoformat()
+
     return render_template('budget/income.html',
                          income_list=income_list,
                          total_income=total_income,
                          current_month=year_month,
                          selected_date=selected_date,
-                         today=selected_date)
+                         today=today)
 
 
 @budget_bp.route('/income/add', methods=['GET', 'POST'])
@@ -1097,7 +1100,7 @@ def expense_add_modal():
     return render_template('components/modals/expense_add.html',
                          categories=categories,
                          month_data=month_data,
-                         today=month_data.to_date().isoformat())
+                         today=datetime.date.today().isoformat())
 
 
 @budget_bp.route('/modals/expense/<int:expense_id>/edit')
@@ -1131,7 +1134,7 @@ def income_add_modal():
     
     return render_template('components/modals/income_add.html',
                          month_data=month_data,
-                         today=month_data.to_date().isoformat())
+                         today=datetime.date.today().isoformat())
 
 
 @budget_bp.route('/category-rules/<int:rule_id>/delete', methods=['POST'])

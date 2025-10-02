@@ -17,11 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
   ui.initSidebar();
   ui.initTooltips();
 
-  // Initialize modals
-  if (window.ModalManager) {
-    window.ModalManager.init();
-  }
-
   // Initialize forms
   initForms();
 
