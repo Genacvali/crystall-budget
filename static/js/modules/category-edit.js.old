@@ -6,8 +6,6 @@
 (function() {
   'use strict';
 
-  // Visible test to confirm script is loading
-  console.warn('=== CATEGORY EDIT MODULE LOADING ===');
   console.log('[CategoryEdit Module] SCRIPT FILE EXECUTING NOW');
 
   // Wait for DOM to be ready
@@ -27,13 +25,6 @@
       console.log('[CategoryEdit] Switch clicked!', e.target.checked);
       handleMultiSourceToggle(e.target);
     }
-
-    // Handle add source button click
-    if (e.target && e.target.id === 'addSourceButton') {
-      console.log('[CategoryEdit] Add source button clicked');
-      e.preventDefault();
-      handleAddSourceButtonClick();
-    }
   });
 
   document.addEventListener('change', function(e) {
@@ -48,8 +39,20 @@
     }
   });
 
-  // Handle delete source form submissions
+  // Handle form submissions with event delegation
+  // Use capture phase to intercept before other handlers
   document.addEventListener('submit', function(e) {
+    console.log('[CategoryEdit] Submit event detected, form id:', e.target.id, 'form classList:', e.target.classList);
+
+    // Handle add source form
+    if (e.target && e.target.id === 'addSourceFormEdit') {
+      console.log('[CategoryEdit] Add source form detected, preventing default');
+      e.preventDefault();
+      e.stopImmediatePropagation(); // Prevent other handlers from running
+      handleAddSourceSubmit(e.target);
+      return;
+    }
+
     // Handle delete source forms
     if (e.target && e.target.classList.contains('delete-rule-form')) {
       console.log('[CategoryEdit] Delete source form detected, preventing default');
@@ -78,94 +81,18 @@
 
     if (isMulti) {
       console.log('[CategoryEdit] Switching to multi-source mode');
-      if (singleSourceFields) {
-        singleSourceFields.style.display = 'none';
-
-        // Disable ALL inputs in single source section to prevent validation
-        const allInputs = singleSourceFields.querySelectorAll('input, select, textarea');
-        allInputs.forEach(input => {
-          input.disabled = true;
-          input.removeAttribute('required');
-        });
-        console.log('[CategoryEdit] Disabled', allInputs.length, 'inputs in single source section');
-      }
-
-      if (multiSourceFields) {
-        multiSourceFields.style.display = 'block';
-
-        // Remove required from add source inputs (they're not part of main form submission)
-        const addSourceSelect = multiSourceFields.querySelector('#addSourceSelect');
-        const sourceValueInput = multiSourceFields.querySelector('#sourceValueInputEdit');
-        if (addSourceSelect) {
-          addSourceSelect.removeAttribute('required');
-          console.log('[CategoryEdit] Removed required from addSourceSelect');
-        }
-        if (sourceValueInput) {
-          sourceValueInput.removeAttribute('required');
-          console.log('[CategoryEdit] Removed required from sourceValueInput');
-        }
-      }
-
+      if (singleSourceFields) singleSourceFields.style.display = 'none';
+      if (multiSourceFields) multiSourceFields.style.display = 'block';
       if (isMultiSourceHidden) isMultiSourceHidden.value = '1';
-
-      if (valueInput) {
-        console.log('[CategoryEdit] Before changes - required:', valueInput.hasAttribute('required'), 'disabled:', valueInput.disabled);
-        valueInput.removeAttribute('required');
-        valueInput.disabled = true;
-        console.log('[CategoryEdit] After changes - required:', valueInput.hasAttribute('required'), 'disabled:', valueInput.disabled);
-      }
+      if (valueInput) valueInput.removeAttribute('required');
     } else {
       console.log('[CategoryEdit] Switching to single-source mode');
-      if (singleSourceFields) {
-        singleSourceFields.style.display = 'block';
-
-        // Re-enable ALL inputs in single source section
-        const allInputs = singleSourceFields.querySelectorAll('input, select, textarea');
-        allInputs.forEach(input => {
-          input.disabled = false;
-          // Restore required attribute for value input
-          if (input.name === 'value') {
-            input.setAttribute('required', 'required');
-          }
-        });
-        console.log('[CategoryEdit] Re-enabled', allInputs.length, 'inputs in single source section');
-      }
-
+      if (singleSourceFields) singleSourceFields.style.display = 'block';
       if (multiSourceFields) multiSourceFields.style.display = 'none';
       if (isMultiSourceHidden) isMultiSourceHidden.value = '0';
+      if (valueInput) valueInput.setAttribute('required', 'required');
     }
   }
-
-  // Initialize multi-source state when modal is shown
-  function initializeMultiSourceState() {
-    const multiSourceSwitch = document.getElementById('multiSourceSwitch');
-    if (multiSourceSwitch) {
-      console.log('[CategoryEdit] Initializing multi-source state on load:', multiSourceSwitch.checked);
-      handleMultiSourceToggle(multiSourceSwitch);
-    }
-  }
-
-  // Listen for modal content changes (when modal is loaded or reloaded)
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      if (mutation.type === 'childList') {
-        const addedNodes = Array.from(mutation.addedNodes);
-        addedNodes.forEach(function(node) {
-          if (node.nodeType === 1 && node.querySelector && node.querySelector('#multiSourceSwitch')) {
-            console.log('[CategoryEdit] Modal content changed, re-initializing');
-            setTimeout(initializeMultiSourceState, 100); // Small delay to let DOM settle
-          }
-        });
-      }
-    });
-  });
-
-  // Observe modal container for changes
-  const modalContainer = document.querySelector('.cb-modal__content') || document.body;
-  observer.observe(modalContainer, { childList: true, subtree: true });
-
-  // Also initialize on page load
-  initializeMultiSourceState();
 
   function handleLimitTypeChange(input) {
     const modal = input.closest('.cb-modal__content') || document;
@@ -185,69 +112,24 @@
     }
   }
 
-  function handleAddSourceButtonClick() {
-    console.log('[CategoryEdit] Add source button clicked - gathering form data');
-
-    const sourceSelect = document.getElementById('addSourceSelect');
-    const typeSelect = document.getElementById('sourceTypeSelectEdit');
-    const valueInput = document.getElementById('sourceValueInputEdit');
-    const submitBtn = document.getElementById('addSourceButton');
-
-    if (!sourceSelect || !typeSelect || !valueInput || !submitBtn) {
-      console.error('[CategoryEdit] Could not find all required fields');
-      return;
-    }
-
-    // Validate
-    if (!sourceSelect.value) {
-      alert('Выберите источник дохода');
-      return;
-    }
-
-    if (!valueInput.value || parseFloat(valueInput.value) <= 0) {
-      alert('Укажите корректное значение (больше 0)');
-      return;
-    }
+  function handleAddSourceSubmit(form) {
+    console.log('[CategoryEdit] Add source form submitted');
 
     // Check if already submitting
-    if (submitBtn.dataset.submitting === 'true') {
+    if (form.dataset.submitting === 'true') {
       console.log('[CategoryEdit] Already submitting, ignoring');
       return;
     }
-    submitBtn.dataset.submitting = 'true';
+    form.dataset.submitting = 'true';
 
+    const submitBtn = form.querySelector('button[type="submit"]');
     const originalBtnText = submitBtn.innerHTML;
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Добавление...';
 
-    // Get category ID from modal
-    const modal = submitBtn.closest('.cb-modal__content');
-    const categoryEditForm = modal ? modal.querySelector('#categoryEditFormInner') : null;
-    if (!categoryEditForm) {
-      console.error('[CategoryEdit] Could not find category edit form');
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalBtnText;
-      submitBtn.dataset.submitting = 'false';
-      return;
-    }
+    const formData = new FormData(form);
 
-    // Extract category ID from form action
-    const categoryId = categoryEditForm.action.match(/\/categories\/edit\/(\d+)/)[1];
-    const actionUrl = `/categories/${categoryId}/add-source`;
-
-    // Get CSRF token
-    const csrfToken = categoryEditForm.querySelector('input[name="csrf_token"]').value;
-
-    // Prepare form data
-    const formData = new FormData();
-    formData.append('csrf_token', csrfToken);
-    formData.append('source_id', sourceSelect.value);
-    formData.append('limit_type', typeSelect.value);
-    formData.append('value', valueInput.value);
-
-    console.log('[CategoryEdit] Sending request to:', actionUrl);
-
-    fetch(actionUrl, {
+    fetch(form.action, {
       method: 'POST',
       body: formData,
       headers: {
@@ -259,21 +141,21 @@
     .then(data => {
       if (data.success) {
         console.log('[CategoryEdit] Source added successfully, reloading modal');
-        // Clear inputs
-        sourceSelect.value = '';
-        valueInput.value = '';
-        typeSelect.value = 'percent';
+        // Extract category ID from form action URL
+        const categoryId = form.action.match(/\/category\/(\d+)\//)[1];
+        // Clear form
+        form.reset();
         // Reset button state
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
-        submitBtn.dataset.submitting = 'false';
+        form.dataset.submitting = 'false';
         // Reload modal content to show updated list
         reloadModalContent(categoryId);
       } else {
         alert(data.error || 'Ошибка при добавлении источника');
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalBtnText;
-        submitBtn.dataset.submitting = 'false';
+        form.dataset.submitting = 'false';
       }
     })
     .catch(error => {
@@ -281,7 +163,7 @@
       alert('Ошибка при добавлении источника');
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalBtnText;
-      submitBtn.dataset.submitting = 'false';
+      form.dataset.submitting = 'false';
     });
   }
 
@@ -324,7 +206,7 @@
 
   function reloadModalContent(categoryId) {
     console.log('[CategoryEdit] Reloading modal content for category', categoryId);
-    const modalUrl = `/modals/category/${categoryId}/edit`;
+    const modalUrl = `/budget/modals/category/${categoryId}/edit`;
 
     // Find the modal and prevent any close events during reload
     const modal = document.querySelector('.cb-modal--show');

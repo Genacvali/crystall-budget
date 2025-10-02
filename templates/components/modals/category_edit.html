@@ -122,37 +122,35 @@
             <div class="card bg-light border-0">
                 <div class="card-body">
                     <h6 class="card-title mb-3">Добавить источник</h6>
-                    <form id="addSourceFormEdit" action="{{ url_for('budget.add_source_to_category', cat_id=category.id) }}" method="POST">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-                        <div class="row g-3">
-                            <div class="col-12 col-md-5">
-                                <label class="form-label small">Источник дохода</label>
-                                <select class="form-select" name="source_id" required>
-                                    <option value="">Выберите источник...</option>
-                                    {% for source in income_sources %}
-                                    <option value="{{ source.id }}">{{ source.name }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-3">
-                                <label class="form-label small">Тип</label>
-                                <select class="form-select" name="limit_type" id="sourceTypeSelectEdit">
-                                    <option value="percent">%</option>
-                                    <option value="fixed">₽</option>
-                                </select>
-                            </div>
-                            <div class="col-12 col-md-4">
-                                <label class="form-label small">Значение</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" name="value" id="sourceValueInputEdit" placeholder="0" step="0.01" min="0.01" required>
-                                    <span class="input-group-text" id="sourceValueSuffixEdit">%</span>
-                                </div>
+                    <!-- Inputs for add source (form is outside main form, see bottom of template) -->
+                    <div class="row g-3">
+                        <div class="col-12 col-md-5">
+                            <label class="form-label small">Источник дохода</label>
+                            <select class="form-select" name="source_id" id="addSourceSelect" required>
+                                <option value="">Выберите источник...</option>
+                                {% for source in income_sources %}
+                                <option value="{{ source.id }}">{{ source.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label small">Тип</label>
+                            <select class="form-select" name="limit_type" id="sourceTypeSelectEdit">
+                                <option value="percent">%</option>
+                                <option value="fixed">₽</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label class="form-label small">Значение</label>
+                            <div class="input-group">
+                                <input type="number" class="form-control" name="value" id="sourceValueInputEdit" placeholder="0" step="0.01" min="0.01" required>
+                                <span class="input-group-text" id="sourceValueSuffixEdit">%</span>
                             </div>
                         </div>
-                        <button type="submit" class="btn btn-primary mt-3">
-                            <i class="bi bi-plus-lg me-1"></i>Добавить источник
-                        </button>
-                    </form>
+                    </div>
+                    <button type="button" class="btn btn-primary mt-3" id="addSourceButton">
+                        <i class="bi bi-plus-lg me-1"></i>Добавить источник
+                    </button>
                 </div>
             </div>
         </div>
@@ -187,108 +185,20 @@
 <script>
 // Initialize immediately when script runs
 (function() {
-  console.log('[CategoryEdit] Script running');
+  console.log('[CategoryEdit Template] Script running');
 
   // Check if this is the edit form (not add form)
   const form = document.querySelector('form[data-form="category-edit"]');
   if (!form) {
-    console.log('[CategoryEdit] Not an edit form, skipping');
+    console.log('[CategoryEdit Template] Not an edit form, skipping');
     return;
-  }
-
-  // Find elements
-  const multiSourceSwitch = document.getElementById('multiSourceSwitch');
-  const singleSourceFields = document.getElementById('singleSourceFields');
-  const multiSourceFields = document.getElementById('multiSourceFields');
-  const isMultiSourceHidden = document.getElementById('isMultiSourceHidden');
-
-  console.log('[CategoryEdit] Elements found:', {
-    multiSourceSwitch,
-    singleSourceFields,
-    multiSourceFields,
-    isMultiSourceHidden
-  });
-
-  // Attach toggle handler directly
-  if (multiSourceSwitch) {
-    console.log('[CategoryEdit] Attaching click handler to switch');
-
-    multiSourceSwitch.addEventListener('click', function(e) {
-      console.log('[CategoryEdit] Switch clicked!', this.checked);
-
-      const isMulti = this.checked;
-      const valueInput = document.querySelector('[id^="valueInputEdit"]');
-
-      if (isMulti) {
-        console.log('[CategoryEdit] Showing multi-source fields');
-        if (singleSourceFields) singleSourceFields.style.display = 'none';
-        if (multiSourceFields) multiSourceFields.style.display = 'block';
-        if (isMultiSourceHidden) isMultiSourceHidden.value = '1';
-        if (valueInput) valueInput.removeAttribute('required');
-      } else {
-        console.log('[CategoryEdit] Showing single-source fields');
-        if (singleSourceFields) singleSourceFields.style.display = 'block';
-        if (multiSourceFields) multiSourceFields.style.display = 'none';
-        if (isMultiSourceHidden) isMultiSourceHidden.value = '0';
-        if (valueInput) valueInput.setAttribute('required', 'required');
-      }
-    });
-  } else {
-    console.error('[CategoryEdit] multiSourceSwitch NOT FOUND!');
-  }
-
-  // Handle limit type change
-  const limitTypeInputs = document.querySelectorAll('input[name="limit_type"]');
-  const valueSuffix = document.querySelector('[id^="valueSuffixEdit"]');
-  const valueInput = document.querySelector('[id^="valueInputEdit"]');
-
-  if (limitTypeInputs.length > 0 && valueSuffix && valueInput) {
-    // Function to update constraints
-    function updateConstraints(isPercent) {
-      valueSuffix.textContent = isPercent ? '%' : '₽';
-
-      // Update input constraints for percent vs fixed
-      if (isPercent) {
-        valueInput.setAttribute('max', '100');
-        valueInput.setAttribute('step', 'any');
-        valueInput.setAttribute('min', '0');
-        valueInput.setAttribute('placeholder', '10');
-      } else {
-        valueInput.setAttribute('max', '999999');
-        valueInput.setAttribute('step', '0.01');
-        valueInput.setAttribute('min', '0.01');
-        valueInput.setAttribute('placeholder', '15000');
-      }
-    }
-
-    // Initialize on load
-    const checkedInput = document.querySelector('input[name="limit_type"]:checked');
-    if (checkedInput) {
-      updateConstraints(checkedInput.value === 'percent');
-    }
-
-    // Listen for changes
-    limitTypeInputs.forEach(input => {
-      input.addEventListener('change', function() {
-        updateConstraints(this.value === 'percent');
-      });
-    });
-  }
-
-  // Handle source type change in add source form
-  const sourceTypeSelectEdit = document.getElementById('sourceTypeSelectEdit');
-  const sourceValueSuffixEdit = document.getElementById('sourceValueSuffixEdit');
-
-  if (sourceTypeSelectEdit && sourceValueSuffixEdit) {
-    sourceTypeSelectEdit.addEventListener('change', function() {
-      sourceValueSuffixEdit.textContent = this.value === 'percent' ? '%' : '₽';
-    });
   }
 
   const errBox = form.querySelector('#form-errors');
   const loading = form.querySelector('#form-loading');
 
-  // Note: Add/delete source forms are now handled by category-edit.js module
+  // Note: Multi-source toggle, limit type changes, and source management
+  // are all handled by the external category-edit.js module
 
   // Отмечаем поля как "dirty" после первого ввода/blur
   form.querySelectorAll('input, select, textarea').forEach(el => {
@@ -298,12 +208,28 @@
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
+    console.log('[CategoryEdit] Main form submit handler called');
 
     if (!form.checkValidity()) {
       e.stopPropagation();
       form.classList.add('was-validated');
+      console.error('[CategoryEdit] Form validation failed');
+
+      // Find which fields are invalid
+      const invalidFields = form.querySelectorAll(':invalid');
+      console.error('[CategoryEdit] Invalid fields:', Array.from(invalidFields).map(f => ({
+        name: f.name,
+        id: f.id,
+        type: f.type,
+        required: f.hasAttribute('required'),
+        disabled: f.disabled,
+        value: f.value,
+        validationMessage: f.validationMessage
+      })));
       return;
     }
+
+    console.log('[CategoryEdit] Form is valid, submitting...');
 
     // Показать лоадер и скрыть ошибку
     loading?.classList.remove('d-none');
@@ -319,11 +245,13 @@
       }
     })
     .then(response => {
+      console.log('[CategoryEdit] Response received:', response.status, response.redirected);
       if (response.redirected) {
         // Закрыть модалку и перезагрузить страницу для отображения обновленных данных
         const modal = document.querySelector('.cb-modal--show');
         if (modal && window.ModalManager) {
-          window.ModalManager.close(modal.id);
+          console.log('[CategoryEdit] Closing modal with id:', modal.id);
+          window.ModalManager.hide(); // Use hide() instead of close()
         }
         window.location.reload();
       } else {
@@ -331,14 +259,20 @@
       }
     })
     .then(data => {
+      console.log('[CategoryEdit] Response data:', data);
       if (data && data.success) {
         // Закрыть модалку и перезагрузить страницу
+        console.log('[CategoryEdit] Success! Closing modal and reloading...');
         const modal = document.querySelector('.cb-modal--show');
         if (modal && window.ModalManager) {
-          window.ModalManager.close(modal.id);
+          console.log('[CategoryEdit] Modal found:', modal, 'ModalManager:', window.ModalManager);
+          window.ModalManager.hide(); // Use hide() instead of close()
+        } else {
+          console.error('[CategoryEdit] Modal or ModalManager not found!');
         }
         window.location.reload();
       } else if (data && data.error) {
+        console.error('[CategoryEdit] Error from server:', data.error);
         loading?.classList.add('d-none');
         errBox?.classList.remove('d-none');
         const errorText = errBox?.querySelector('#form-error-text');
@@ -346,7 +280,7 @@
       }
     })
     .catch(error => {
-      console.error('Error submitting form:', error);
+      console.error('[CategoryEdit] Error submitting form:', error);
       loading?.classList.add('d-none');
       errBox?.classList.remove('d-none');
       const errorText = errBox?.querySelector('#form-error-text');
