@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function initExpensesSorting() {
   const sortButtons = document.querySelectorAll('.dropdown-menu .dropdown-item');
-  const sortToggleBtn = document.querySelector('[data-bs-toggle="dropdown"]');
+  const sortToggleBtn = document.querySelector('.btn[data-bs-toggle="dropdown"][aria-label="Сортировка"]');
   const expensesList = document.querySelector('.expenses-list, #expensesList, [data-expenses-container]');
 
   if (!sortButtons.length) {

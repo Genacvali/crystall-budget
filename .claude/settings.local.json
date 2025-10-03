@@ -30,7 +30,9 @@
       "Bash(netstat:*)",
       "Bash(ss:*)",
       "Bash(sudo journalctl:*)",
-      "Bash(sudo systemctl:*)"
+      "Bash(sudo systemctl:*)",
+      "Bash(timeout:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": [],
     "ask": []
