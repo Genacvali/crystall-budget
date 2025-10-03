@@ -78,13 +78,21 @@ class SavingsGoal(db.Model):
 class SharedBudget(db.Model):
     """Shared family budget model."""
     __tablename__ = 'shared_budgets'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text)
-    owner_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
-    invitation_code = db.Column(db.String(10), unique=True, nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    invite_code = db.Column(db.String(10), unique=True, nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    # Aliases for compatibility
+    @property
+    def owner_id(self):
+        return self.creator_id
+
+    @property
+    def invitation_code(self):
+        return self.invite_code
     
     # Relationships
     members = db.relationship('SharedBudgetMember', backref='budget', cascade='all, delete-orphan')
@@ -97,7 +105,6 @@ class SharedBudget(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'description': self.description,
             'owner_id': self.owner_id,
             'invitation_code': self.invitation_code,
             'created_at': self.created_at.isoformat(),

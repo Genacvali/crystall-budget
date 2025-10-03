@@ -32,6 +32,9 @@ class User(UserMixin, db.Model):
     default_currency = db.Column(db.String(3), default='RUB')
     avatar_path = db.Column(db.String(255), nullable=True)
 
+    # Family sharing
+    shared_budget_id = db.Column(db.Integer, db.ForeignKey('shared_budgets.id', ondelete='SET NULL'), nullable=True)
+
     @property
     def currency(self):
         """Alias for default_currency for backward compatibility."""
@@ -60,6 +63,23 @@ class User(UserMixin, db.Model):
     def is_telegram_user(self):
         """Check if user uses Telegram authentication."""
         return self.auth_type == 'telegram' and self.telegram_id is not None
+
+    @property
+    def has_family_access(self):
+        """Check if user is part of a family budget."""
+        return self.shared_budget_id is not None
+
+    def get_family_members(self):
+        """Get all family members (users with same shared_budget_id)."""
+        if not self.has_family_access:
+            return []
+        return User.query.filter_by(shared_budget_id=self.shared_budget_id).all()
+
+    def get_family_member_ids(self):
+        """Get all family member user IDs."""
+        if not self.has_family_access:
+            return [self.id]
+        return [u.id for u in self.get_family_members()]
     
     @property
     def display_name(self):

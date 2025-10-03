@@ -10,19 +10,20 @@ from app.core.time import YearMonth
 class Category(db.Model):
     """Budget category model."""
     __tablename__ = 'categories'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    shared_budget_id = db.Column(db.Integer, db.ForeignKey('shared_budgets.id', ondelete='CASCADE'), nullable=True)
     name = db.Column(db.String(100), nullable=False)
     limit_type = db.Column(db.String(20), nullable=False)  # 'fixed' or 'percent'
     value = db.Column(db.Numeric(10, 2), nullable=False)
     is_multi_source = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    
+
     # Relationships
     expenses = db.relationship('Expense', backref='category', cascade='all, delete-orphan')
     rules = db.relationship('CategoryRule', backref='category', cascade='all, delete-orphan')
-    
+
     __table_args__ = (db.UniqueConstraint('user_id', 'name'),)
     
     def __repr__(self):
@@ -51,9 +52,10 @@ class Category(db.Model):
 class Expense(db.Model):
     """Expense model."""
     __tablename__ = 'expenses'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    shared_budget_id = db.Column(db.Integer, db.ForeignKey('shared_budgets.id', ondelete='CASCADE'), nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     description = db.Column(db.Text)
@@ -81,6 +83,62 @@ class Expense(db.Model):
     def is_expense(self):
         """Check if this is a regular expense."""
         return self.transaction_type == 'expense'
+
+    @property
+    def is_shared(self):
+        """Check if this expense belongs to a shared budget."""
+        return self.shared_budget_id is not None
+
+    def belongs_to_user(self, user_id: int) -> bool:
+        """Check if user has access to this expense."""
+        if self.user_id == user_id:
+            return True
+
+        # Check if user is member of shared budget
+        if self.shared_budget_id:
+            from app.modules.goals.models import SharedBudgetMember
+            member = SharedBudgetMember.query.filter_by(
+                budget_id=self.shared_budget_id,
+                user_id=user_id
+            ).first()
+            return member is not None
+
+        return False
+
+    def can_edit(self, user_id: int) -> bool:
+        """Check if user can edit this expense."""
+        if self.user_id == user_id:
+            return True
+
+        # Check if user has edit permission in shared budget
+        if self.shared_budget_id:
+            from app.modules.goals.models import SharedBudgetMember
+            member = SharedBudgetMember.query.filter_by(
+                budget_id=self.shared_budget_id,
+                user_id=user_id
+            ).first()
+            # Owner and members can edit, viewers cannot
+            return member and member.role in ['owner', 'member']
+
+        return False
+
+    def to_dict(self):
+        """Convert expense to dictionary for API responses."""
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'shared_budget_id': self.shared_budget_id,
+            'category_id': self.category_id,
+            'category_name': self.category.name if self.category else None,
+            'amount': float(self.amount),
+            'description': self.description,
+            'date': self.date.isoformat() if self.date else None,
+            'currency': self.currency,
+            'transaction_type': self.transaction_type,
+            'is_shared': self.is_shared,
+            'is_carryover': self.is_carryover,
+            'created_at': self.created_at.isoformat() if self.created_at else None
+        }
 
 
 class Income(db.Model):

@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+{% block title %}Семейный доступ — CrystalBudget{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <h1 class="h4 d-flex align-items-center gap-2 m-0">
+    <i class="bi bi-people-fill" aria-hidden="true"></i>
+    Семейный доступ
+  </h1>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+{% if family_info %}
+<!-- User is in a family -->
+<div class="card cb-card shadow-sm mb-3">
+  <div class="card-body">
+    <h2 class="h5 mb-3">
+      <i class="bi bi-house-heart"></i> {{ family_info.budget.name }}
+    </h2>
+
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Код приглашения:</label>
+        <div class="input-group">
+          <input type="text" class="form-control font-monospace"
+                 value="{{ family_info.invitation_code }}"
+                 readonly id="inviteCode">
+          <button class="btn btn-outline-secondary" type="button"
+                  onclick="copyInviteCode()" title="Копировать">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <small class="text-muted">
+          Поделитесь этим кодом с членами семьи для присоединения
+        </small>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label class="form-label fw-semibold">Ваша роль:</label>
+        <div>
+          {% if family_info.is_owner %}
+            <span class="badge bg-primary">
+              <i class="bi bi-star-fill"></i> Владелец
+            </span>
+          {% else %}
+            <span class="badge bg-secondary">
+              <i class="bi bi-person-fill"></i> Участник
+            </span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <h3 class="h6 mb-3">
+        <i class="bi bi-people"></i> Участники ({{ family_info.member_count }})
+      </h3>
+      <div class="row">
+        {% for member in family_info.members %}
+        <div class="col-md-6 mb-2">
+          <div class="d-flex align-items-center gap-2">
+            <div class="avatar-circle bg-primary text-white" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+              <i class="bi bi-person"></i>
+            </div>
+            <div>
+              <div>{{ member.display_name }}</div>
+              <small class="text-muted">
+                {% if family_info.budget.owner_id == member.id %}
+                  <i class="bi bi-star-fill text-warning"></i> Владелец
+                {% else %}
+                  Участник
+                {% endif %}
+              </small>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Как это работает:</strong>
+      <ul class="mb-0 mt-2">
+        <li>Все члены семьи видят расходы и категории друг друга</li>
+        <li>Каждый может добавлять, редактировать и удалять расходы</li>
+        <li>Доходы остаются личными и не отображаются другим</li>
+        <li>Dashboard показывает объединённые данные всей семьи</li>
+      </ul>
+    </div>
+
+    <div class="mt-3">
+      <form method="POST" action="{{ url_for('auth.leave_family') }}"
+            onsubmit="return confirm('Вы уверены, что хотите покинуть семейный доступ? Ваши расходы и категории останутся, но станут видны только вам.');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+        <button type="submit" class="btn btn-outline-danger">
+          <i class="bi bi-box-arrow-right"></i> Покинуть семейный доступ
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<!-- User is not in a family -->
+<div class="row">
+  <!-- Create Family -->
+  <div class="col-md-6 mb-3">
+    <div class="card cb-card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">
+          <i class="bi bi-plus-circle"></i> Создать семейный доступ
+        </h2>
+        <p class="text-muted">
+          Создайте семейный бюджет и пригласите членов семьи.
+          Все участники будут видеть общие расходы и категории.
+        </p>
+
+        <form method="POST" action="{{ url_for('auth.create_family_access') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <div class="mb-3">
+            <label for="familyName" class="form-label">Название (необязательно)</label>
+            <input type="text" class="form-control" id="familyName" name="name"
+                   placeholder="Семейный бюджет" maxlength="200">
+            <small class="text-muted">Если не указано, будет сгенерировано автоматически</small>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-house-heart"></i> Создать семейный доступ
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Join Family -->
+  <div class="col-md-6 mb-3">
+    <div class="card cb-card shadow-sm h-100">
+      <div class="card-body">
+        <h2 class="h5 mb-3">
+          <i class="bi bi-box-arrow-in-right"></i> Присоединиться к семье
+        </h2>
+        <p class="text-muted">
+          Введите код приглашения, который вам предоставил создатель семейного бюджета.
+        </p>
+
+        <form method="POST" action="{{ url_for('auth.join_family') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <div class="mb-3">
+            <label for="invitationCode" class="form-label">Код приглашения</label>
+            <input type="text" class="form-control font-monospace text-uppercase"
+                   id="invitationCode" name="invitation_code"
+                   placeholder="Например: ABC12DEF"
+                   required maxlength="50">
+          </div>
+          <button type="submit" class="btn btn-success w-100">
+            <i class="bi bi-check-circle"></i> Присоединиться
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card cb-card shadow-sm">
+  <div class="card-body">
+    <h2 class="h5 mb-3">
+      <i class="bi bi-question-circle"></i> Что такое семейный доступ?
+    </h2>
+    <p>
+      Семейный доступ позволяет вам и членам вашей семьи совместно вести бюджет.
+      Все участники будут видеть:
+    </p>
+    <ul>
+      <li><strong>Общие расходы</strong> — все расходы всех участников</li>
+      <li><strong>Общие категории</strong> — категории всех участников</li>
+      <li><strong>Общий dashboard</strong> — объединённая статистика</li>
+    </ul>
+    <p class="mb-0">
+      <strong>Важно:</strong> Доходы остаются личными и видны только вам.
+    </p>
+  </div>
+</div>
+{% endif %}
+
+<script>
+function copyInviteCode() {
+  const input = document.getElementById('inviteCode');
+  input.select();
+  navigator.clipboard.writeText(input.value).then(function() {
+    const button = input.nextElementSibling;
+    const originalHtml = button.innerHTML;
+    button.innerHTML = '<i class="bi bi-check"></i>';
+    button.classList.add('btn-success');
+    button.classList.remove('btn-outline-secondary');
+
+    setTimeout(() => {
+      button.innerHTML = originalHtml;
+      button.classList.remove('btn-success');
+      button.classList.add('btn-outline-secondary');
+    }, 2000);
+  });
+}
+</script>
+{% endblock %}

@@ -132,25 +132,25 @@
 
             <!-- Confirm Password Field -->
             <div class="ff-input-group">
-              <label for="confirm_password" class="form-label">Подтвердите пароль</label>
+              <label for="password_confirm" class="form-label">Подтвердите пароль</label>
               <div class="ff-input-wrapper">
                 <i class="bi bi-shield-lock ff-input-icon" aria-hidden="true"></i>
-                <input 
-                  type="password" 
-                  class="ff-input" 
-                  id="confirm_password" 
-                  name="confirm_password" 
+                <input
+                  type="password"
+                  class="ff-input"
+                  id="password_confirm"
+                  name="password_confirm" 
                   required 
                   autocomplete="new-password"
                   aria-describedby="confirm-password-help"
                   minlength="8"
                 >
-                <button 
-                  type="button" 
-                  class="ff-password-toggle" 
+                <button
+                  type="button"
+                  class="ff-password-toggle"
                   aria-label="Показать пароль"
                   title="Показать пароль"
-                  onclick="togglePassword('confirm_password', this)"
+                  onclick="togglePassword('password_confirm', this)"
                 >
                   <i class="bi bi-eye" aria-hidden="true"></i>
                 </button>
@@ -236,7 +236,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const nameInput = document.getElementById('name');
   const emailInput = document.getElementById('email');
   const passwordInput = document.getElementById('password');
-  const confirmPasswordInput = document.getElementById('confirm_password');
+  const confirmPasswordInput = document.getElementById('password_confirm');
   const termsInput = document.getElementById('terms');
   const confirmPasswordError = document.getElementById('confirm-password-error');
   

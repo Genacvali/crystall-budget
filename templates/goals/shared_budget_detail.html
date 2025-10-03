@@ -76,9 +76,14 @@
 
 <!-- Recent Expenses -->
 <div class="ff-progress-card">
-    <div class="ff-header">
-        <i class="bi bi-list-ul"></i>
-        Общие расходы за текущий месяц
+    <div class="ff-header d-flex justify-content-between align-items-center">
+        <div>
+            <i class="bi bi-list-ul"></i>
+            Общие расходы за текущий месяц
+        </div>
+        <a href="{{ url_for('budget.shared_expenses', budget_id=budget.id) }}" class="btn btn-primary btn-sm">
+            <i class="bi bi-wallet2"></i> Управление расходами
+        </a>
     </div>
                     {% if recent_expenses %}
                         <div class="table-responsive">

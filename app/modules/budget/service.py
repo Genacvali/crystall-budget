@@ -13,11 +13,32 @@ from .models import Category, Expense, Income, CategoryRule, ExchangeRate, Incom
 
 class BudgetService:
     """Budget business logic service."""
+
+    @staticmethod
+    def _get_family_user_ids(user_id: int) -> List[int]:
+        """Get all user IDs in the family (including self).
+
+        If user has family access, returns all family member IDs.
+        Otherwise, returns just the user's ID.
+        """
+        from app.modules.auth.models import User
+        user = User.query.get(user_id)
+        if user and user.has_family_access:
+            return user.get_family_member_ids()
+        return [user_id]
+
+    @staticmethod
+    def _invalidate_family_cache(user_id: int):
+        """Invalidate cache for user and all family members."""
+        family_ids = BudgetService._get_family_user_ids(user_id)
+        for uid in family_ids:
+            CacheManager.invalidate_budget_cache(uid)
     
     @staticmethod
     def get_user_categories(user_id: int) -> List[Category]:
-        """Get all categories for user."""
-        return Category.query.filter_by(user_id=user_id).order_by(Category.name).all()
+        """Get all categories for user and their family members."""
+        family_ids = BudgetService._get_family_user_ids(user_id)
+        return Category.query.filter(Category.user_id.in_(family_ids)).order_by(Category.name).all()
     
     @staticmethod
     def get_user_income_sources(user_id: int) -> List[IncomeSource]:
@@ -35,10 +56,10 @@ class BudgetService:
         )
         db.session.add(category)
         db.session.commit()
-        
-        # Invalidate cache
-        CacheManager.invalidate_budget_cache(user_id)
-        
+
+        # Invalidate cache for all family members
+        BudgetService._invalidate_family_cache(user_id)
+
         current_app.logger.info(f'Created category {name} for user {user_id}')
         return category
     
@@ -48,16 +69,16 @@ class BudgetService:
         category = Category.query.filter_by(id=category_id, user_id=user_id).first()
         if not category:
             return None
-        
+
         for key, value in kwargs.items():
             if hasattr(category, key):
                 setattr(category, key, value)
-        
+
         db.session.commit()
-        
-        # Invalidate cache
-        CacheManager.invalidate_budget_cache(user_id)
-        
+
+        # Invalidate cache for all family members
+        BudgetService._invalidate_family_cache(user_id)
+
         current_app.logger.info(f'Updated category {category_id} for user {user_id}')
         return category
     
@@ -67,20 +88,21 @@ class BudgetService:
         category = Category.query.filter_by(id=category_id, user_id=user_id).first()
         if not category:
             return False
-        
+
         db.session.delete(category)
         db.session.commit()
-        
-        # Invalidate cache
-        CacheManager.invalidate_budget_cache(user_id)
-        
+
+        # Invalidate cache for all family members
+        BudgetService._invalidate_family_cache(user_id)
+
         current_app.logger.info(f'Deleted category {category_id} for user {user_id}')
         return True
     
     @staticmethod
     def add_expense(user_id: int, category_id: int, amount: Decimal,
                    description: str = None, date_val: date = None, currency: str = None,
-                   transaction_type: str = 'expense', carryover_from_month: str = None) -> Expense:
+                   transaction_type: str = 'expense', carryover_from_month: str = None,
+                   shared_budget_id: int = None) -> Expense:
         """Add new expense with backward-compatibility for legacy schemas.
 
         Some existing SQLite databases still have a NOT NULL 'month' column on the 'expenses' table
@@ -128,6 +150,7 @@ class BudgetService:
             'currency': currency,
             'transaction_type': transaction_type,
             'carryover_from_month': carryover_from_month,
+            'shared_budget_id': shared_budget_id,
             'created_at': datetime.utcnow(),
             'month': month_string,  # only used if column exists
         }
@@ -135,7 +158,7 @@ class BudgetService:
         # Determine which columns we will insert (intersection with actual table)
         preferred_order = [
             'user_id', 'category_id', 'amount', 'description', 'date', 'currency',
-            'transaction_type', 'carryover_from_month', 'created_at', 'month'
+            'transaction_type', 'carryover_from_month', 'shared_budget_id', 'created_at', 'month'
         ]
         insert_cols = [c for c in preferred_order if c in columns]
         insert_params = {c: base_values[c] for c in insert_cols}
@@ -177,6 +200,7 @@ class BudgetService:
                 currency=currency,
                 month=month_string,
                 transaction_type=transaction_type,
+                shared_budget_id=shared_budget_id,
                 carryover_from_month=carryover_from_month
             )
             db.session.add(expense)
@@ -189,15 +213,17 @@ class BudgetService:
         return expense
     
     @staticmethod
-    def get_expenses_for_month(user_id: int, year_month: YearMonth, 
+    def get_expenses_for_month(user_id: int, year_month: YearMonth,
                              limit: Optional[int] = None, offset: int = 0,
                              category_id: Optional[int] = None) -> List[Expense]:
-        """Get expenses for user in given month with optional pagination and filtering."""
+        """Get expenses for user and their family in given month with optional pagination and filtering."""
         start_date = year_month.to_date()
         end_date = year_month.last_day()
-        
+
+        family_ids = BudgetService._get_family_user_ids(user_id)
+
         query = Expense.query.filter(
-            Expense.user_id == user_id,
+            Expense.user_id.in_(family_ids),
             Expense.date >= start_date,
             Expense.date <= end_date,
             Expense.transaction_type == 'expense'  # Only real expenses, not carryover
@@ -206,58 +232,15 @@ class BudgetService:
         # Optional category filter
         if category_id:
             query = query.filter(Expense.category_id == category_id)
-        
+
         query = query.order_by(Expense.date.desc())
-        
+
         # Optional pagination
         if limit:
             query = query.offset(offset).limit(limit)
-        
+
         return query.all()
     
-    @staticmethod
-    def update_expense(expense_id: int, user_id: int, **kwargs) -> Optional[Expense]:
-        """Update expense."""
-        expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
-        if not expense:
-            return None
-        
-        old_date = expense.date
-        
-        for key, value in kwargs.items():
-            if hasattr(expense, key):
-                setattr(expense, key, value)
-        
-        db.session.commit()
-        
-        # Invalidate cache for both old and new months
-        old_year_month = YearMonth.from_date(old_date)
-        CacheManager.invalidate_budget_cache(user_id, old_year_month)
-        
-        if expense.date != old_date:
-            new_year_month = YearMonth.from_date(expense.date)
-            CacheManager.invalidate_budget_cache(user_id, new_year_month)
-        
-        current_app.logger.info(f'Updated expense {expense_id} for user {user_id}')
-        return expense
-    
-    @staticmethod
-    def delete_expense(expense_id: int, user_id: int) -> bool:
-        """Delete expense."""
-        expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
-        if not expense:
-            return False
-        
-        year_month = YearMonth.from_date(expense.date)
-        
-        db.session.delete(expense)
-        db.session.commit()
-        
-        # Invalidate cache
-        CacheManager.invalidate_budget_cache(user_id, year_month)
-        
-        current_app.logger.info(f'Deleted expense {expense_id} for user {user_id}')
-        return True
     
     @staticmethod
     def add_income(user_id: int, source_name: str, amount: Decimal, 
@@ -462,21 +445,23 @@ class BudgetService:
     
     @staticmethod
     def get_category_spending_summary(user_id: int, year_month: YearMonth) -> Dict[int, Decimal]:
-        """Get category spending summary with SQL GROUP BY."""
+        """Get category spending summary for user and family with SQL GROUP BY."""
         start_date = year_month.to_date()
         end_date = year_month.last_day()
-        
+
+        family_ids = BudgetService._get_family_user_ids(user_id)
+
         # SQL aggregate query - much faster than Python grouping
         spending_data = db.session.query(
             Expense.category_id,
             func.sum(Expense.amount).label('total_amount')
         ).filter(
-            Expense.user_id == user_id,
+            Expense.user_id.in_(family_ids),
             Expense.date >= start_date,
             Expense.date <= end_date,
             Expense.transaction_type == 'expense'  # Only real expenses
         ).group_by(Expense.category_id).all()
-        
+
         # Return as dict for O(1) lookup
         return {cat_id: total for cat_id, total in spending_data}
     
@@ -1034,3 +1019,128 @@ class DashboardService:
         
         current_app.logger.info(f'Deleted income source {source.name} for user {user_id}')
         return True
+
+    # === Shared Budget Methods ===
+
+    @staticmethod
+    def get_shared_budget_expenses(shared_budget_id: int, user_id: int,
+                                   year_month: YearMonth = None) -> List[Expense]:
+        """Get expenses for shared budget (if user has access)."""
+        from app.modules.goals.models import SharedBudgetMember
+
+        # Check if user is member
+        member = SharedBudgetMember.query.filter_by(
+            budget_id=shared_budget_id,
+            user_id=user_id
+        ).first()
+
+        if not member:
+            return []
+
+        query = Expense.query.filter_by(shared_budget_id=shared_budget_id)
+
+        if year_month:
+            start_date = year_month.to_date()
+            end_date = year_month.last_day()
+            query = query.filter(
+                Expense.date >= start_date,
+                Expense.date <= end_date
+            )
+
+        return query.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
+
+    @staticmethod
+    def get_user_accessible_expenses(user_id: int, year_month: YearMonth = None,
+                                    shared_budget_id: int = None) -> List[Expense]:
+        """Get all expenses accessible to user (personal + shared budgets)."""
+        if shared_budget_id:
+            # Get only expenses from specific shared budget
+            return BudgetService.get_shared_budget_expenses(shared_budget_id, user_id, year_month)
+
+        # Get personal expenses
+        query = Expense.query.filter_by(user_id=user_id, shared_budget_id=None)
+
+        if year_month:
+            start_date = year_month.to_date()
+            end_date = year_month.last_day()
+            query = query.filter(
+                Expense.date >= start_date,
+                Expense.date <= end_date
+            )
+
+        return query.order_by(Expense.date.desc(), Expense.created_at.desc()).all()
+
+    @staticmethod
+    def update_expense(expense_id: int, user_id: int, **kwargs) -> Optional[Expense]:
+        """Update expense (with permission check)."""
+        expense = Expense.query.get(expense_id)
+        if not expense:
+            return None
+
+        # Check if user can edit this expense
+        if not expense.can_edit(user_id):
+            return None
+
+        # Update allowed fields
+        allowed_fields = ["amount", "description", "date", "category_id", "currency"]
+        for key, value in kwargs.items():
+            if key in allowed_fields and hasattr(expense, key):
+                setattr(expense, key, value)
+
+        db.session.commit()
+
+        # Invalidate cache for all relevant users
+        CacheManager.invalidate_budget_cache(expense.user_id)
+        if expense.shared_budget_id:
+            from app.modules.goals.models import SharedBudgetMember
+            members = SharedBudgetMember.query.filter_by(budget_id=expense.shared_budget_id).all()
+            for member in members:
+                CacheManager.invalidate_budget_cache(member.user_id)
+
+        current_app.logger.info(f"Updated expense {expense_id} by user {user_id}")
+        return expense
+
+    @staticmethod
+    def delete_expense(expense_id: int, user_id: int) -> bool:
+        """Delete expense (with permission check)."""
+        expense = Expense.query.get(expense_id)
+        if not expense:
+            return False
+
+        # Check if user can edit this expense
+        if not expense.can_edit(user_id):
+            return False
+
+        shared_budget_id = expense.shared_budget_id
+        expense_user_id = expense.user_id
+
+        db.session.delete(expense)
+        db.session.commit()
+
+        # Invalidate cache for all relevant users
+        CacheManager.invalidate_budget_cache(expense_user_id)
+        if shared_budget_id:
+            from app.modules.goals.models import SharedBudgetMember
+            members = SharedBudgetMember.query.filter_by(budget_id=shared_budget_id).all()
+            for member in members:
+                CacheManager.invalidate_budget_cache(member.user_id)
+
+        current_app.logger.info(f"Deleted expense {expense_id} by user {user_id}")
+        return True
+
+    @staticmethod
+    def get_shared_budget_categories(shared_budget_id: int, user_id: int) -> List[Category]:
+        """Get categories for shared budget (if user has access)."""
+        from app.modules.goals.models import SharedBudgetMember
+
+        # Check if user is member
+        member = SharedBudgetMember.query.filter_by(
+            budget_id=shared_budget_id,
+            user_id=user_id
+        ).first()
+
+        if not member:
+            return []
+
+        return Category.query.filter_by(shared_budget_id=shared_budget_id).order_by(Category.name).all()
+

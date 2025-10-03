@@ -1187,3 +1187,156 @@ def income_edit_modal(income_id):
 
     return render_template('components/modals/income_edit.html',
                          income=income)
+
+# === Shared Budget Routes ===
+
+@budget_bp.route('/shared/<int:budget_id>/expenses')
+@login_required
+def shared_expenses(budget_id):
+    """Список расходов семейного бюджета."""
+    user_id = session['user_id']
+    
+    # Получить семейный бюджет и проверить доступ
+    from app.modules.goals.models import SharedBudget, SharedBudgetMember
+    member = SharedBudgetMember.query.filter_by(
+        budget_id=budget_id,
+        user_id=user_id
+    ).first()
+    
+    if not member:
+        flash('Нет доступа к этому бюджету', 'error')
+        return redirect(url_for('goals.shared_budgets'))
+    
+    budget = SharedBudget.query.get_or_404(budget_id)
+    
+    # Получить месяц
+    ym_param = request.args.get('ym')
+    try:
+        year_month = parse_year_month(ym_param) if ym_param else YearMonth.current()
+    except ValueError:
+        year_month = YearMonth.current()
+    
+    # Получить расходы
+    expenses = BudgetService.get_shared_budget_expenses(budget_id, user_id, year_month)
+    
+    # Получить категории
+    categories = BudgetService.get_shared_budget_categories(budget_id, user_id)
+    
+    # Получить участников для отображения имен
+    from app.modules.auth.models import User
+    members = SharedBudgetMember.query.filter_by(budget_id=budget_id).all()
+    member_users = {m.user_id: User.query.get(m.user_id) for m in members}
+    
+    return render_template('budget/shared_expenses.html',
+                         budget=budget,
+                         expenses=expenses,
+                         categories=categories,
+                         year_month=year_month,
+                         user_role=member.role,
+                         member_users=member_users)
+
+
+@budget_bp.route('/shared/<int:budget_id>/expenses/add', methods=['POST'])
+@login_required
+def add_shared_expense(budget_id):
+    """Добавить расход в семейный бюджет."""
+    user_id = session['user_id']
+    
+    # Проверить права (member или owner)
+    from app.modules.goals.models import SharedBudgetMember
+    member = SharedBudgetMember.query.filter_by(
+        budget_id=budget_id,
+        user_id=user_id
+    ).first()
+    
+    if not member or member.role == 'viewer':
+        flash('Нет прав на добавление расходов', 'error')
+        return redirect(url_for('budget.shared_expenses', budget_id=budget_id))
+    
+    try:
+        category_id = int(request.form.get('category_id'))
+        amount = Decimal(request.form.get('amount'))
+        description = request.form.get('description', '')
+        date_str = request.form.get('date')
+        
+        date_obj = datetime.strptime(date_str, '%Y-%m-%d').date() if date_str else None
+        
+        BudgetService.add_expense(
+            user_id=user_id,
+            category_id=category_id,
+            amount=amount,
+            description=description,
+            date_val=date_obj,
+            shared_budget_id=budget_id
+        )
+        flash('Расход добавлен', 'success')
+    except Exception as e:
+        flash(f'Ошибка при добавлении расхода: {str(e)}', 'error')
+    
+    return redirect(url_for('budget.shared_expenses', budget_id=budget_id))
+
+
+@budget_bp.route('/set-active-budget', methods=['POST'])
+@login_required
+def set_active_budget():
+    """Переключить активный бюджет (личный/семейный)."""
+    budget_id = request.form.get('budget_id')
+    
+    if budget_id == 'personal' or budget_id == '':
+        session['active_budget'] = None
+        flash('Переключено на личный бюджет', 'info')
+    else:
+        # Проверить что пользователь имеет доступ к бюджету
+        from app.modules.goals.models import SharedBudgetMember
+        member = SharedBudgetMember.query.filter_by(
+            budget_id=int(budget_id),
+            user_id=session['user_id']
+        ).first()
+        
+        if member:
+            session['active_budget'] = int(budget_id)
+            flash('Переключено на семейный бюджет', 'info')
+        else:
+            flash('Нет доступа к этому бюджету', 'error')
+    
+    return redirect(url_for('budget.dashboard'))
+
+
+@budget_bp.route('/shared/<int:budget_id>/categories/add', methods=['POST'])
+@login_required
+def add_shared_category(budget_id):
+    """Добавить категорию в семейный бюджет."""
+    user_id = session['user_id']
+    
+    # Проверить права (только owner)
+    from app.modules.goals.models import SharedBudgetMember
+    member = SharedBudgetMember.query.filter_by(
+        budget_id=budget_id,
+        user_id=user_id
+    ).first()
+    
+    if not member or member.role != 'owner':
+        flash('Только владелец может добавлять категории', 'error')
+        return redirect(url_for('budget.shared_expenses', budget_id=budget_id))
+    
+    try:
+        name = request.form.get('name')
+        limit_type = request.form.get('limit_type')
+        value = Decimal(request.form.get('value'))
+        
+        category = Category(
+            user_id=user_id,
+            shared_budget_id=budget_id,
+            name=name,
+            limit_type=limit_type,
+            value=value
+        )
+        from app.core.extensions import db
+        db.session.add(category)
+        db.session.commit()
+        
+        flash('Категория добавлена', 'success')
+    except Exception as e:
+        flash(f'Ошибка при добавлении категории: {str(e)}', 'error')
+    
+    return redirect(url_for('budget.shared_expenses', budget_id=budget_id))

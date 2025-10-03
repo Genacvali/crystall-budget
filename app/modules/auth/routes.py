@@ -376,5 +376,87 @@ def settings():
     if not user:
         flash('Пользователь не найден', 'error')
         return redirect(url_for('auth.logout'))
-    
+
     return render_template('settings.html', user=user)
+
+
+# Family access routes
+@auth_bp.route('/profile/family')
+@login_required
+def family_settings():
+    """Family access settings page."""
+    from .family_service import FamilyService
+
+    user_id = session['user_id']
+    family_info = FamilyService.get_family_info(user_id)
+
+    return render_template('auth/family_settings.html', family_info=family_info)
+
+
+@auth_bp.route('/profile/family/create', methods=['POST'])
+@login_required
+def create_family_access():
+    """Create family access."""
+    from .family_service import FamilyService
+
+    user_id = session['user_id']
+    name = request.form.get('name', '').strip()
+
+    try:
+        shared_budget = FamilyService.create_family_access(user_id, name)
+        flash(f'Семейный доступ создан! Код приглашения: {shared_budget.invitation_code}', 'success')
+    except ValueError as e:
+        flash(str(e), 'error')
+    except Exception as e:
+        current_app.logger.error(f"Error creating family access: {e}")
+        flash('Ошибка при создании семейного доступа', 'error')
+
+    return redirect(url_for('auth.family_settings'))
+
+
+@auth_bp.route('/profile/family/join', methods=['POST'])
+@login_required
+def join_family():
+    """Join family by invitation code."""
+    from .family_service import FamilyService
+
+    user_id = session['user_id']
+    invitation_code = request.form.get('invitation_code', '').strip().upper()
+
+    if not invitation_code:
+        flash('Введите код приглашения', 'error')
+        return redirect(url_for('auth.family_settings'))
+
+    try:
+        shared_budget = FamilyService.join_family(user_id, invitation_code)
+        if shared_budget:
+            flash(f'Вы присоединились к семье "{shared_budget.name}"!', 'success')
+        else:
+            flash('Неверный код приглашения', 'error')
+    except ValueError as e:
+        flash(str(e), 'error')
+    except Exception as e:
+        current_app.logger.error(f"Error joining family: {e}")
+        flash('Ошибка при присоединении к семье', 'error')
+
+    return redirect(url_for('auth.family_settings'))
+
+
+@auth_bp.route('/profile/family/leave', methods=['POST'])
+@login_required
+def leave_family():
+    """Leave family access."""
+    from .family_service import FamilyService
+
+    user_id = session['user_id']
+
+    try:
+        if FamilyService.leave_family(user_id):
+            flash('Вы покинули семейный доступ', 'info')
+        else:
+            flash('Вы не состоите в семейном доступе', 'error')
+    except Exception as e:
+        current_app.logger.error(f"Error leaving family: {e}")
+        flash('Ошибка при выходе из семейного доступа', 'error')
+
+    return redirect(url_for('auth.family_settings'))

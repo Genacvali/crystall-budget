@@ -28,7 +28,9 @@
       "Bash(FLASK_ENV=development BUDGET_DB=\"sqlite:////opt/crystall-budget/instance/budget.db\" MODAL_SYSTEM_ENABLED=true PORT=5030 python app.py)",
       "Bash(fuser:*)",
       "Bash(netstat:*)",
-      "Bash(ss:*)"
+      "Bash(ss:*)",
+      "Bash(sudo journalctl:*)",
+      "Bash(sudo systemctl:*)"
     ],
     "deny": [],
     "ask": []
