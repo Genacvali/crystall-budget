@@ -53,3 +53,6 @@ admin_panel/admin_panel.pid
 DESIGN_SYSTEM_MIGRATION.md
 DESIGN_SYSTEM_STABILIZED.md
 SWIPE_ACTIONS_IMPLEMENTATION.md
+instance/budget.db_old
+instance/sync_sqlite_v2.py
+instance/sync_sqlite.py
