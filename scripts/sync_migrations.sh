@@ -28,7 +28,14 @@ source .venv/bin/activate
 
 # Check database path
 if [ -z "$BUDGET_DB" ]; then
-    export BUDGET_DB="sqlite:////var/lib/crystalbudget/budget.db"
+    SERVICE_DB=$(systemctl show crystalbudget -p Environment 2>/dev/null | grep -o 'BUDGET_DB=[^[:space:]]*' | cut -d= -f2-)
+    if [ -n "$SERVICE_DB" ]; then
+        export BUDGET_DB="$SERVICE_DB"
+        echo "Using database from systemd service: $BUDGET_DB"
+    else
+        export BUDGET_DB="sqlite:////opt/crystall-budget/instance/budget.db"
+        echo "Using default database: $BUDGET_DB"
+    fi
 fi
 DB_FILE=$(echo "$BUDGET_DB" | sed 's|sqlite:///||')
 

@@ -36,9 +36,17 @@ echo ""
 
 # Step 2: Check database path
 echo -e "${YELLOW}[2/7]${NC} Checking database configuration..."
+
+# Try to get BUDGET_DB from systemd service
 if [ -z "$BUDGET_DB" ]; then
-    export BUDGET_DB="sqlite:////opt/crystall-budget/instance/budget.db"
-    echo "Using default database: $BUDGET_DB"
+    SERVICE_DB=$(systemctl show crystalbudget -p Environment 2>/dev/null | grep -o 'BUDGET_DB=[^[:space:]]*' | cut -d= -f2-)
+    if [ -n "$SERVICE_DB" ]; then
+        export BUDGET_DB="$SERVICE_DB"
+        echo "Using database from systemd service: $BUDGET_DB"
+    else
+        export BUDGET_DB="sqlite:////opt/crystall-budget/instance/budget.db"
+        echo "Using default database: $BUDGET_DB"
+    fi
 else
     echo "Using configured database: $BUDGET_DB"
 fi

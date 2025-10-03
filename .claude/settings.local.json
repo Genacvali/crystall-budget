@@ -32,7 +32,10 @@
       "Bash(sudo journalctl:*)",
       "Bash(sudo systemctl:*)",
       "Bash(timeout:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(export BUDGET_DB=\"sqlite:////var/lib/crystalbudget/budget.db\")",
+      "Bash(python3:*)",
+      "Read(//var/**)"
     ],
     "deny": [],
     "ask": []
