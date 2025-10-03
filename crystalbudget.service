@@ -25,11 +25,9 @@ SyslogIdentifier=crystalbudget
 # Безопасность
 NoNewPrivileges=yes
 PrivateTmp=yes
-ProtectSystem=strict
+ProtectSystem=full
 ProtectHome=yes
 ReadWritePaths=/opt/crystall-budget
-ReadWritePaths=/opt/crystall-budget/instance
-ReadWritePaths=/opt/crystall-budget/static/avatars
 
 # Ограничения ресурсов
 LimitNOFILE=1024

@@ -56,3 +56,4 @@ SWIPE_ACTIONS_IMPLEMENTATION.md
 instance/budget.db_old
 instance/sync_sqlite_v2.py
 instance/sync_sqlite.py
+crystalbudget.service
