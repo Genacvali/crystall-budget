@@ -321,6 +321,7 @@ APP_CONFIG="testing"  # Configuration mode (development/production/testing)
 DIAGNOSTICS_ENABLED="false"  # Enable diagnostics mode
 MODAL_SYSTEM_ENABLED="true"  # Kill-switch for modal system (default: true)
 TELEGRAM_LOGIN_ENABLED="false"  # Enable/disable Telegram login widget (default: true, set to false if domain not configured in @BotFather)
+TELEGRAM_BOT_NAME="crystalbudget_bot"  # Telegram bot username (default: crystalbudget_bot, use different bot for dev/preprod)
 
 ```
 

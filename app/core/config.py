@@ -27,6 +27,7 @@ class BaseConfig:
     
     # Telegram
     TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+    TELEGRAM_BOT_NAME = os.environ.get('TELEGRAM_BOT_NAME', 'crystalbudget_bot')
     TELEGRAM_LOGIN_ENABLED = os.environ.get('TELEGRAM_LOGIN_ENABLED', 'true').lower() == 'true'
 
     # Diagnostics
