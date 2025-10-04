@@ -14,7 +14,10 @@ class BaseConfig:
         'pool_recycle': -1,
         'pool_pre_ping': True
     }
-    
+
+    # CSRF Protection
+    WTF_CSRF_ENABLED = True
+
     # Session configuration
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     SESSION_COOKIE_SECURE = False
