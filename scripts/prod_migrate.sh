@@ -5,7 +5,8 @@
 set -e
 
 # Configuration
-PROD_PATH="/opt/crystall-budget"
+PROD_PATH="/opt/crystalbudget/crystall-budget"
+DB_PATH="/var/lib/crystalbudget/budget.db"
 SERVICE_NAME="crystalbudget"
 
 # Colors for output
@@ -100,9 +101,9 @@ else
     echo -e "${YELLOW}Attempting to restore from backup...${NC}"
 
     # Find latest backup
-    LATEST_BACKUP=$(ls -t backups/budget_backup_*.db 2>/dev/null | head -1)
+    LATEST_BACKUP=$(ls -t /var/lib/crystalbudget/backups/budget_backup_*.db 2>/dev/null | head -1)
     if [ -n "$LATEST_BACKUP" ]; then
-        cp "$LATEST_BACKUP" instance/budget.db
+        cp "$LATEST_BACKUP" "$DB_PATH"
         echo -e "${GREEN}✅ Database restored from backup${NC}"
     else
         echo -e "${RED}❌ No backup found! Manual recovery required.${NC}"
@@ -149,6 +150,6 @@ echo "3. Check database: flask db current"
 echo ""
 echo -e "${YELLOW}If something went wrong:${NC}"
 echo "1. Stop service: sudo systemctl stop $SERVICE_NAME"
-echo "2. Restore backup: cp backups/budget_backup_*.db instance/budget.db"
+echo "2. Restore backup: cp /var/lib/crystalbudget/backups/budget_backup_*.db $DB_PATH"
 echo "3. Downgrade: flask db downgrade -1"
 echo "4. Start service: sudo systemctl start $SERVICE_NAME"

@@ -137,9 +137,10 @@ chmod +x scripts/*.sh
 Скрипты используют следующие переменные:
 
 ```bash
-PROD_PATH="/opt/crystall-budget"  # Путь к проекту
-SERVICE_NAME="crystalbudget"       # Имя systemd сервиса
-BUDGET_DB="..."                    # URI базы данных
+PROD_PATH="/opt/crystalbudget/crystall-budget"  # Путь к проекту
+SERVICE_NAME="crystalbudget"                    # Имя systemd сервиса
+DB_PATH="/var/lib/crystalbudget/budget.db"      # Путь к БД
+BACKUP_DIR="/var/lib/crystalbudget/backups"     # Директория бэкапов
 ```
 
 ### Логирование
@@ -174,13 +175,13 @@ pip install -r requirements.txt
 Проверь переменную `BUDGET_DB` и путь к базе:
 ```bash
 echo $BUDGET_DB
-ls -la instance/budget.db
+ls -la /var/lib/crystalbudget/budget.db
 ```
 
 ### Миграция зависла
 ```bash
 # Проверь блокировки
-lsof instance/budget.db
+lsof /var/lib/crystalbudget/budget.db
 
 # Останови сервис
 sudo systemctl stop crystalbudget

@@ -57,7 +57,7 @@ git push
 
 ```bash
 # На проде
-cd /opt/crystall-budget
+cd /opt/crystalbudget/crystall-budget
 git pull
 ./scripts/prod_migrate.sh  # Все сделает автоматически:
                             # - бэкап

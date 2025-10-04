@@ -5,7 +5,8 @@
 set -e
 
 # Configuration
-PROD_PATH="/opt/crystall-budget"
+PROD_PATH="/opt/crystalbudget/crystall-budget"
+DB_PATH="/var/lib/crystalbudget/budget.db"
 
 # Colors for output
 RED='\033[0;31m'

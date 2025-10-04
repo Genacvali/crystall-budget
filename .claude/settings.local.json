@@ -37,7 +37,10 @@
       "Bash(python3:*)",
       "Read(//var/**)",
       "Bash(sudo sqlite3:*)",
-      "Bash(export BUDGET_DB=\"sqlite:///test_migrations.db\")"
+      "Bash(export BUDGET_DB=\"sqlite:///test_migrations.db\")",
+      "Bash(sudo mkdir:*)",
+      "Bash(sudo chown:*)",
+      "Read(//opt/**)"
     ],
     "deny": [],
     "ask": []

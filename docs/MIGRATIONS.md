@@ -65,7 +65,7 @@ python app.py
 # На проде
 
 # 1. Сделать бэкап БД
-cp /opt/crystall-budget/instance/budget.db /opt/crystall-budget/instance/budget_backup_$(date +%Y%m%d_%H%M%S).db
+cp /var/lib/crystalbudget/budget.db /var/lib/crystalbudget/backups/budget_backup_$(date +%Y%m%d_%H%M%S).db
 
 # 2. Создать baseline миграцию (пустую)
 flask db revision -m "baseline production schema"
@@ -136,7 +136,7 @@ flask db downgrade -1
 flask db downgrade <revision_id>
 
 # 3. Восстановить из бэкапа если нужно
-cp /opt/crystall-budget/instance/budget_backup_XXXXXXXX.db /opt/crystall-budget/instance/budget.db
+cp /var/lib/crystalbudget/backups/budget_backup_XXXXXXXX.db /var/lib/crystalbudget/budget.db
 
 # 4. Запустить приложение
 sudo systemctl start crystalbudget

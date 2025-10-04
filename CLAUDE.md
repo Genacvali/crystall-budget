@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Paths
+
+**Production Configuration:**
+- Project directory: `/opt/crystalbudget/crystall-budget`
+- Database: `/var/lib/crystalbudget/budget.db`
+- Backups: `/var/lib/crystalbudget/backups/`
+- Service name: `crystalbudget`
+- Port: `5030`
+
 ## Development Commands
 
 ### Environment Setup
@@ -304,7 +313,7 @@ HTTPS_MODE="true"  # Enables secure cookies and HSTS headers
 TELEGRAM_BOT_TOKEN="your-telegram-bot-token"  # Required for Telegram authentication
 
 # Optional configuration
-BUDGET_DB="sqlite:////opt/crystall-budget/instance/budget.db"  # Database URI (SQLAlchemy format)
+BUDGET_DB="sqlite:////var/lib/crystalbudget/budget.db"  # Database URI (SQLAlchemy format)
 LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
 APP_CONFIG="testing"  # Configuration mode (development/production/testing)
 DIAGNOSTICS_ENABLED="false"  # Enable diagnostics mode

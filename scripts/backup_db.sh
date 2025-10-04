@@ -4,9 +4,9 @@
 set -e
 
 # Configuration
-PROD_PATH="/opt/crystall-budget"
-DB_PATH="${PROD_PATH}/instance/budget.db"
-BACKUP_DIR="${PROD_PATH}/backups"
+PROD_PATH="/opt/crystalbudget/crystall-budget"
+DB_PATH="/var/lib/crystalbudget/budget.db"
+BACKUP_DIR="/var/lib/crystalbudget/backups"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="${BACKUP_DIR}/budget_backup_${TIMESTAMP}.db"
 
