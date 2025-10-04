@@ -182,7 +182,7 @@ def create_app(config_name: Optional[str] = None):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.modules.goals.models import SavingsGoal
         goal = SavingsGoal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
         
@@ -198,7 +198,7 @@ def create_app(config_name: Optional[str] = None):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.modules.goals.models import SavingsGoal
         goal = SavingsGoal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
         
@@ -216,7 +216,7 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         from app.modules.auth.models import User
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             return redirect(url_for('auth.logout'))
         
@@ -232,7 +232,7 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         from app.modules.auth.models import User
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             return redirect(url_for('auth.logout'))
         
@@ -257,7 +257,7 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         # Get user statistics
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.core.extensions import db
         from sqlalchemy import text
         
@@ -303,7 +303,7 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         # Get user statistics
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.core.extensions import db
         from sqlalchemy import text
         
@@ -339,12 +339,12 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         from app.modules.auth.models import User
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             return redirect(url_for('auth.logout'))
         
         # Get user statistics
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.core.extensions import db
         from sqlalchemy import text
         

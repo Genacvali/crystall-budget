@@ -128,7 +128,7 @@ def telegram_auth():
 @login_required
 def profile():
     """User profile page."""
-    user = User.query.get(session['user_id'])
+    user = User.query.get(current_user.id)
     if not user:
         flash('Пользователь не найден', 'error')
         return redirect(url_for('auth.logout'))
@@ -154,7 +154,7 @@ def profile():
 @login_required
 def change_password():
     """Change password page."""
-    user = User.query.get(session['user_id'])
+    user = User.query.get(current_user.id)
     if not user or user.is_telegram_user:
         flash('Изменение пароля недоступно для Telegram пользователей', 'error')
         return redirect(url_for('auth.profile'))
@@ -181,7 +181,7 @@ def set_theme():
     
     # Save to database if user exists
     try:
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if user:
             # Update user theme (assumes theme column exists via migration)
             user.theme = theme
@@ -198,7 +198,7 @@ def set_theme():
 def settings_save_profile():
     """Save profile settings from modal."""
     try:
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             flash('Пользователь не найден', 'error')
             return redirect(url_for('auth.logout'))
@@ -245,7 +245,7 @@ def settings_save_profile():
 def settings_save_interface():
     """Save interface settings."""
     try:
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             flash('Пользователь не найден', 'error')
             return redirect(url_for('auth.logout'))
@@ -278,7 +278,7 @@ def settings_save_interface():
 def settings_export_data():
     """Export user data."""
     try:
-        user_id = session['user_id']
+        user_id = current_user.id
         export_format = request.form.get('format', 'json')
         
         # This is a placeholder - would need actual export implementation
@@ -311,7 +311,7 @@ def settings_import_data():
 def settings_clear_data():
     """Clear user data."""
     try:
-        user_id = session['user_id']
+        user_id = current_user.id
         confirmation = request.form.get('confirmation', '')
         
         if confirmation != 'УДАЛИТЬ':
@@ -333,7 +333,7 @@ def settings_clear_data():
 def settings_delete_account():
     """Delete user account."""
     try:
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             flash('Пользователь не найден', 'error')
             return redirect(url_for('auth.logout'))
@@ -372,7 +372,7 @@ def settings_delete_account():
 @login_required
 def settings():
     """Settings page."""
-    user = User.query.get(session['user_id'])
+    user = User.query.get(current_user.id)
     if not user:
         flash('Пользователь не найден', 'error')
         return redirect(url_for('auth.logout'))
@@ -387,7 +387,7 @@ def family_settings():
     """Family access settings page."""
     from .family_service import FamilyService
 
-    user_id = session['user_id']
+    user_id = current_user.id
     family_info = FamilyService.get_family_info(user_id)
 
     return render_template('auth/family_settings.html', family_info=family_info)
@@ -399,7 +399,7 @@ def create_family_access():
     """Create family access."""
     from .family_service import FamilyService
 
-    user_id = session['user_id']
+    user_id = current_user.id
     name = request.form.get('name', '').strip()
 
     try:
@@ -420,7 +420,7 @@ def join_family():
     """Join family by invitation code."""
     from .family_service import FamilyService
 
-    user_id = session['user_id']
+    user_id = current_user.id
     invitation_code = request.form.get('invitation_code', '').strip().upper()
 
     if not invitation_code:
@@ -448,7 +448,7 @@ def leave_family():
     """Leave family access."""
     from .family_service import FamilyService
 
-    user_id = session['user_id']
+    user_id = current_user.id
 
     try:
         if FamilyService.leave_family(user_id):

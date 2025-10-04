@@ -21,7 +21,7 @@ def design_system_test():
 @login_required
 def dashboard():
     """Main dashboard page."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Get current month from query param or use current
     ym_param = request.args.get('ym')
@@ -82,7 +82,7 @@ def dashboard():
 @login_required
 def expenses():
     """Expenses list page."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Get month filter
     ym_param = request.args.get('ym')
@@ -118,7 +118,7 @@ def expenses():
 @login_required
 def add_expense():
     """Add new expense."""
-    user_id = session['user_id']
+    user_id = current_user.id
 
     # Handle modal form submission (simple fields, 'note' instead of 'description')
     if request.method == 'POST' and 'date' in request.form and 'note' not in ExpenseForm.__dict__:
@@ -178,7 +178,7 @@ def add_expense():
 @login_required
 def edit_expense(expense_id):
     """Edit expense."""
-    user_id = session['user_id']
+    user_id = current_user.id
     expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first_or_404()
 
     # Handle modal form submission (simple fields, 'note' instead of 'description')
@@ -239,7 +239,7 @@ def edit_expense(expense_id):
 @login_required
 def delete_expense(expense_id):
     """Delete expense."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     if BudgetService.delete_expense(expense_id, user_id):
         flash('Расход удален', 'success')
@@ -253,7 +253,7 @@ def delete_expense(expense_id):
 @login_required
 def categories():
     """Categories management page."""
-    user_id = session['user_id']
+    user_id = current_user.id
     categories_list = BudgetService.get_user_categories(user_id)
     income_sources = BudgetService.get_user_income_sources(user_id)
     
@@ -285,7 +285,7 @@ def categories():
 @login_required
 def category_add_modal():
     """Return category add modal content."""
-    user_id = session['user_id']
+    user_id = current_user.id
     income_sources = IncomeSource.query.filter_by(user_id=user_id).all()
     return render_template('components/modals/category_add.html',
                          income_sources=income_sources)
@@ -295,7 +295,7 @@ def category_add_modal():
 @login_required
 def add_category():
     """Add new category."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     if request.method == 'POST':
         # Handle modal form data
@@ -385,7 +385,7 @@ def add_category():
 def category_edit_modal(category_id):
     """Return category edit modal content."""
     from app.modules.budget.models import CategoryRule, CategoryIncomeSource
-    user_id = session['user_id']
+    user_id = current_user.id
     category = Category.query.filter_by(id=category_id, user_id=user_id).first_or_404()
     income_sources = IncomeSource.query.filter_by(user_id=user_id).all()
 
@@ -408,7 +408,7 @@ def category_edit_modal(category_id):
 def category_sources_modal(category_id):
     """Return category sources management modal content."""
     from app.modules.budget.models import CategoryRule
-    user_id = session['user_id']
+    user_id = current_user.id
     category = Category.query.filter_by(id=category_id, user_id=user_id).first_or_404()
     income_sources = IncomeSource.query.filter_by(user_id=user_id).all()
 
@@ -432,7 +432,7 @@ def category_sources_modal(category_id):
 @login_required
 def edit_category(category_id):
     """Edit category."""
-    user_id = session['user_id']
+    user_id = current_user.id
     category = Category.query.filter_by(id=category_id, user_id=user_id).first_or_404()
 
     # Check if AJAX request
@@ -509,7 +509,7 @@ def edit_category(category_id):
 @login_required
 def delete_category(category_id):
     """Delete category."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     if BudgetService.delete_category(category_id, user_id):
         flash('Категория удалена', 'success')
@@ -523,7 +523,7 @@ def delete_category(category_id):
 @login_required
 def income():
     """Income management page."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Handle POST request (add income)
     if request.method == 'POST':
@@ -584,7 +584,7 @@ def income():
 @login_required
 def add_income():
     """Add new income."""
-    user_id = session['user_id']
+    user_id = current_user.id
 
     # Handle modal form submission (simple date field)
     if request.method == 'POST' and 'date' in request.form:
@@ -640,7 +640,7 @@ def add_income():
 @login_required
 def quick_expense():
     """Quick expense from dashboard."""
-    user_id = session['user_id']
+    user_id = current_user.id
     form = QuickExpenseForm()
     
     if form.validate_on_submit():
@@ -665,7 +665,7 @@ def quick_expense():
 def sources_add():
     """Add new income source."""
     from app.core.extensions import db
-    user_id = session['user_id']
+    user_id = current_user.id
     name = (request.form.get('name') or '').strip()
     is_default = 1 if request.form.get('is_default') == '1' else 0
     
@@ -698,7 +698,7 @@ def sources_add():
 @login_required
 def edit_income(income_id):
     """Edit income."""
-    user_id = session['user_id']
+    user_id = current_user.id
     income = Income.query.filter_by(id=income_id, user_id=user_id).first_or_404()
     
     if request.method == 'POST':
@@ -740,7 +740,7 @@ def edit_income(income_id):
 @login_required
 def delete_income(income_id):
     """Delete income."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     if BudgetService.delete_income(income_id, user_id):
         flash('Доход удален', 'success')
@@ -754,7 +754,7 @@ def delete_income(income_id):
 @login_required
 def toggle_multi_source(cat_id):
     """Toggle multi-source mode for category."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         # Find category
@@ -787,7 +787,7 @@ def add_source_to_category(cat_id):
     from flask import jsonify
     from app.modules.budget.models import CategoryRule
 
-    user_id = session['user_id']
+    user_id = current_user.id
 
     # Check if request is AJAX (from fetch/XMLHttpRequest)
     is_ajax = (
@@ -886,7 +886,7 @@ def add_source_to_category(cat_id):
 @login_required
 def update_source_percentage(cat_id):
     """Update percentage for income source in multi-source category."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         from app.core.extensions import db
@@ -942,7 +942,7 @@ def update_source_percentage(cat_id):
 @login_required
 def remove_source_from_category(cat_id, source_id):
     """Remove income source from multi-source category."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         from app.core.extensions import db
@@ -992,7 +992,7 @@ def add_income_source():
     from flask import current_app
     from sqlalchemy import func
     
-    user_id = session['user_id']
+    user_id = current_user.id
     name = request.form.get('name', '').strip()
     
     if not name:
@@ -1030,7 +1030,7 @@ def delete_income_source(source_id):
     from app.core.extensions import db
     from flask import current_app
     
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         # Find the source to delete
@@ -1087,7 +1087,7 @@ def delete_income_source(source_id):
 @monitor_modal_performance('expense_add')
 def expense_add_modal():
     """Return expense add modal content."""
-    user_id = session['user_id']
+    user_id = current_user.id
     categories = BudgetService.get_user_categories(user_id)
     
     # Get month data for form action
@@ -1108,7 +1108,7 @@ def expense_add_modal():
 @monitor_modal_performance('expense_edit')
 def expense_edit_modal(expense_id):
     """Return expense edit modal content."""
-    user_id = session['user_id']
+    user_id = current_user.id
     expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first_or_404()
     categories = BudgetService.get_user_categories(user_id)
     
@@ -1123,7 +1123,7 @@ def expense_edit_modal(expense_id):
 @monitor_modal_performance('income_add')
 def income_add_modal():
     """Return income add modal content."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Get month data for form action
     ym_param = request.args.get('month')
@@ -1144,7 +1144,7 @@ def delete_category_rule(rule_id):
     from app.modules.budget.models import CategoryRule
     from app.core.extensions import db
 
-    user_id = session['user_id']
+    user_id = current_user.id
     category_id = request.form.get('category_id')
 
     # Check if request is AJAX
@@ -1182,7 +1182,7 @@ def delete_category_rule(rule_id):
 @monitor_modal_performance('income_edit')
 def income_edit_modal(income_id):
     """Return income edit modal content."""
-    user_id = session['user_id']
+    user_id = current_user.id
     income = Income.query.filter_by(id=income_id, user_id=user_id).first_or_404()
 
     return render_template('components/modals/income_edit.html',
@@ -1194,7 +1194,7 @@ def income_edit_modal(income_id):
 @login_required
 def shared_expenses(budget_id):
     """Список расходов семейного бюджета."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Получить семейный бюджет и проверить доступ
     from app.modules.goals.models import SharedBudget, SharedBudgetMember
@@ -1240,7 +1240,7 @@ def shared_expenses(budget_id):
 @login_required
 def add_shared_expense(budget_id):
     """Добавить расход в семейный бюджет."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Проверить права (member или owner)
     from app.modules.goals.models import SharedBudgetMember
@@ -1290,7 +1290,7 @@ def set_active_budget():
         from app.modules.goals.models import SharedBudgetMember
         member = SharedBudgetMember.query.filter_by(
             budget_id=int(budget_id),
-            user_id=session['user_id']
+            user_id=current_user.id
         ).first()
         
         if member:
@@ -1306,7 +1306,7 @@ def set_active_budget():
 @login_required
 def add_shared_category(budget_id):
     """Добавить категорию в семейный бюджет."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Проверить права (только owner)
     from app.modules.goals.models import SharedBudgetMember

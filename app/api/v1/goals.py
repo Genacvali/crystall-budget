@@ -11,7 +11,7 @@ from . import api_v1_bp
 @login_required
 def get_goals():
     """Get savings goals for user."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         goals = GoalsService.get_user_goals(user_id)
@@ -47,7 +47,7 @@ def get_goals():
 @login_required
 def create_goal():
     """Create new savings goal."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -83,7 +83,7 @@ def create_goal():
 @login_required
 def update_goal(goal_id):
     """Update savings goal."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -119,7 +119,7 @@ def update_goal(goal_id):
 @login_required
 def delete_goal(goal_id):
     """Delete savings goal."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         success = GoalsService.delete_goal(goal_id, user_id)
@@ -138,7 +138,7 @@ def delete_goal(goal_id):
 @login_required
 def add_goal_progress(goal_id):
     """Add progress to savings goal."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -180,7 +180,7 @@ def add_goal_progress(goal_id):
 @login_required
 def get_shared_budgets():
     """Get shared budgets for user."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         budgets = SharedBudgetService.get_user_shared_budgets(user_id)
@@ -206,7 +206,7 @@ def get_shared_budgets():
 @login_required
 def create_shared_budget():
     """Create new shared budget."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -249,7 +249,7 @@ def create_shared_budget():
 @login_required
 def join_shared_budget():
     """Join shared budget by invitation code."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -287,7 +287,7 @@ def join_shared_budget():
 @login_required
 def get_shared_budget_detail(budget_id):
     """Get shared budget details."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         summary = SharedBudgetService.get_budget_summary(budget_id, user_id)
