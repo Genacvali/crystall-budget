@@ -19,7 +19,12 @@ def create_app(config_name: Optional[str] = None):
     # Set template and static folders relative to project root
     template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
     static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
-    logs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'logs'))
+
+    # Use LOG_DIR env var or fallback to /var/lib/crystalbudget/logs for production
+    # This ensures logs work with systemd ProtectSystem=strict
+    logs_dir = os.getenv('LOG_DIR', '/var/lib/crystalbudget/logs')
+    if config_name == 'development':
+        logs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'logs'))
     
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     

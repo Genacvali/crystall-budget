@@ -15,15 +15,22 @@ class ScreenshotManager:
     
     def __init__(self, screenshots_dir: str = 'static/screenshots'):
         self.screenshots_dir = Path(screenshots_dir)
-        self.screenshots_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Subdirectories
-        (self.screenshots_dir / 'before').mkdir(exist_ok=True)
-        (self.screenshots_dir / 'after').mkdir(exist_ok=True)
-        (self.screenshots_dir / 'diffs').mkdir(exist_ok=True)
-        
-        self.metadata_file = self.screenshots_dir / 'metadata.json'
-        self.load_metadata()
+        try:
+            self.screenshots_dir.mkdir(parents=True, exist_ok=True)
+
+            # Subdirectories
+            (self.screenshots_dir / 'before').mkdir(exist_ok=True)
+            (self.screenshots_dir / 'after').mkdir(exist_ok=True)
+            (self.screenshots_dir / 'diffs').mkdir(exist_ok=True)
+
+            self.metadata_file = self.screenshots_dir / 'metadata.json'
+            self.load_metadata()
+        except (PermissionError, OSError) as e:
+            # In production with ProtectSystem=strict, screenshot dir may not be writable
+            # This is OK as screenshots are only used in development/testing
+            self.screenshots_dir = None
+            self.metadata_file = None
+            self.metadata = {'screenshots': [], 'comparisons': []}
     
     def load_metadata(self):
         """Load screenshot metadata."""
@@ -35,15 +42,20 @@ class ScreenshotManager:
     
     def save_metadata(self):
         """Save screenshot metadata."""
+        if self.metadata_file is None:
+            return  # Screenshots disabled (read-only filesystem)
         with open(self.metadata_file, 'w') as f:
             json.dump(self.metadata, f, indent=2, default=str)
     
-    def take_screenshot(self, url: str, name: str, viewport: Dict = None, 
+    def take_screenshot(self, url: str, name: str, viewport: Dict = None,
                        screenshot_type: str = 'after') -> Optional[str]:
         """Take screenshot using playwright or browser automation."""
+        if self.screenshots_dir is None:
+            return None  # Screenshots disabled (read-only filesystem)
+
         if viewport is None:
             viewport = {'width': 1200, 'height': 800}
-        
+
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"{name}_{timestamp}.png"
         filepath = self.screenshots_dir / screenshot_type / filename
@@ -155,16 +167,19 @@ class ScreenshotManager:
         
         return str(filepath)
     
-    def compare_screenshots(self, before_path: str, after_path: str, 
+    def compare_screenshots(self, before_path: str, after_path: str,
                           threshold: float = 0.1) -> Optional[Dict]:
         """Compare two screenshots and generate diff image."""
+        if self.screenshots_dir is None:
+            return None  # Screenshots disabled (read-only filesystem)
+
         try:
             from PIL import Image, ImageChops, ImageStat
             import numpy as np
         except ImportError:
             current_app.logger.warning("PIL not available for screenshot comparison")
             return None
-        
+
         try:
             # Load images
             before_img = Image.open(before_path)
@@ -305,8 +320,11 @@ class ScreenshotManager:
     
     def cleanup_old_screenshots(self, days: int = 30):
         """Remove screenshots older than specified days."""
+        if self.screenshots_dir is None:
+            return  # Screenshots disabled (read-only filesystem)
+
         cutoff = datetime.now().timestamp() - (days * 24 * 3600)
-        
+
         cleaned_count = 0
         for screenshot_type in ['before', 'after', 'diffs']:
             type_dir = self.screenshots_dir / screenshot_type
