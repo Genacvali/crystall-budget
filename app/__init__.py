@@ -19,7 +19,12 @@ def create_app(config_name: Optional[str] = None):
     # Set template and static folders relative to project root
     template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'templates'))
     static_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'static'))
-    logs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'logs'))
+
+    # Use LOG_DIR env var or fallback to /var/lib/crystalbudget/logs for production
+    # This ensures logs work with systemd ProtectSystem=strict
+    logs_dir = os.getenv('LOG_DIR', '/var/lib/crystalbudget/logs')
+    if config_name == 'development':
+        logs_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'logs'))
     
     app = Flask(__name__, template_folder=template_dir, static_folder=static_dir)
     
@@ -28,39 +33,45 @@ def create_app(config_name: Optional[str] = None):
     
     # Setup logging to files
     if not app.debug and not app.testing:
-        # Create logs directory if it doesn't exist
-        if not os.path.exists(logs_dir):
-            os.makedirs(logs_dir)
-        
-        # Main application log
-        file_handler = RotatingFileHandler(
-            os.path.join(logs_dir, 'crystalbudget.log'),
-            maxBytes=10240000,  # 10MB
-            backupCount=10
-        )
-        file_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-        ))
-        file_handler.setLevel(logging.INFO)
-        app.logger.addHandler(file_handler)
-        
-        # Error log
-        error_handler = RotatingFileHandler(
-            os.path.join(logs_dir, 'errors.log'),
-            maxBytes=10240000,
-            backupCount=5
-        )
-        error_handler.setFormatter(logging.Formatter(
-            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-        ))
-        error_handler.setLevel(logging.ERROR)
-        app.logger.addHandler(error_handler)
-        
-        # Set log level from config
-        log_level = app.config.get('LOG_LEVEL', 'INFO')
-        app.logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-        
-        app.logger.info(f'CrystalBudget startup - Config: {config_name}')
+        try:
+            # Create logs directory if it doesn't exist
+            if not os.path.exists(logs_dir):
+                os.makedirs(logs_dir)
+
+            # Main application log
+            file_handler = RotatingFileHandler(
+                os.path.join(logs_dir, 'crystalbudget.log'),
+                maxBytes=10240000,  # 10MB
+                backupCount=10
+            )
+            file_handler.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+            ))
+            file_handler.setLevel(logging.INFO)
+            app.logger.addHandler(file_handler)
+
+            # Error log
+            error_handler = RotatingFileHandler(
+                os.path.join(logs_dir, 'errors.log'),
+                maxBytes=10240000,
+                backupCount=5
+            )
+            error_handler.setFormatter(logging.Formatter(
+                '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+            ))
+            error_handler.setLevel(logging.ERROR)
+            app.logger.addHandler(error_handler)
+
+            # Set log level from config
+            log_level = app.config.get('LOG_LEVEL', 'INFO')
+            app.logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
+
+            app.logger.info(f'CrystalBudget startup - Config: {config_name}')
+        except (PermissionError, OSError) as e:
+            # File logging disabled due to read-only filesystem (systemd ProtectSystem=strict)
+            # Fall back to console logging only
+            app.logger.warning(f'File logging disabled due to filesystem restrictions: {e}')
+            app.logger.setLevel(logging.INFO)
     
     # For self-checking (temporary)
     app.logger.warning(
@@ -70,7 +81,14 @@ def create_app(config_name: Optional[str] = None):
     
     # Initialize extensions
     db.init_app(app)
-    migrate.init_app(app, db)
+    # SQLite-specific migration settings
+    migrate.init_app(
+        app,
+        db,
+        render_as_batch=True,  # Required for SQLite ALTER operations
+        compare_type=True,  # Detect column type changes
+        compare_server_default=True  # Detect default value changes
+    )
     login_manager.init_app(app)
     csrf.init_app(app)
     cache.init_app(app)
@@ -175,7 +193,7 @@ def create_app(config_name: Optional[str] = None):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.modules.goals.models import SavingsGoal
         goal = SavingsGoal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
         
@@ -191,7 +209,7 @@ def create_app(config_name: Optional[str] = None):
         if not current_user.is_authenticated:
             return redirect(url_for('auth.login'))
         
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.modules.goals.models import SavingsGoal
         goal = SavingsGoal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
         
@@ -209,7 +227,7 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         from app.modules.auth.models import User
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             return redirect(url_for('auth.logout'))
         
@@ -225,7 +243,7 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         from app.modules.auth.models import User
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             return redirect(url_for('auth.logout'))
         
@@ -250,7 +268,7 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         # Get user statistics
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.core.extensions import db
         from sqlalchemy import text
         
@@ -296,7 +314,7 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         # Get user statistics
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.core.extensions import db
         from sqlalchemy import text
         
@@ -332,12 +350,12 @@ def create_app(config_name: Optional[str] = None):
             return redirect(url_for('auth.login'))
         
         from app.modules.auth.models import User
-        user = User.query.get(session['user_id'])
+        user = User.query.get(current_user.id)
         if not user:
             return redirect(url_for('auth.logout'))
         
         # Get user statistics
-        user_id = session['user_id']
+        user_id = current_user.id
         from app.core.extensions import db
         from sqlalchemy import text
         

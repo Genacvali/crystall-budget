@@ -58,3 +58,11 @@ instance/sync_sqlite_v2.py
 instance/sync_sqlite.py
 crystalbudget.service
 crystalbudget.service
+CLAUDE.md
+crystalbudget.service.CORRECT
+crystalbudget.service.FINAL
+crystalbudget.service.FIXED
+crystalbudget.service.fixed
+crystalbudget.service.PRODUCTION
+crystalbudget.service.production
+docs/PRODUCTION_SETUP.md

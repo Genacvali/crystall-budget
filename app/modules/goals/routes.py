@@ -11,7 +11,7 @@ from . import goals_bp
 @login_required
 def list_goals():
     """Goals list page."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     goals = GoalsService.get_user_goals(user_id)
     statistics = GoalsService.get_goal_statistics(user_id)
@@ -25,7 +25,7 @@ def list_goals():
 @login_required
 def create_goal():
     """Create new savings goal."""
-    user_id = session['user_id']
+    user_id = current_user.id
     form = SavingsGoalForm()
     
     if form.validate_on_submit():
@@ -50,7 +50,7 @@ def create_goal():
 @login_required
 def edit_goal(goal_id):
     """Edit savings goal."""
-    user_id = session['user_id']
+    user_id = current_user.id
     goal = SavingsGoal.query.filter_by(id=goal_id, user_id=user_id).first_or_404()
     
     form = SavingsGoalForm(obj=goal)
@@ -78,7 +78,7 @@ def edit_goal(goal_id):
 @login_required
 def delete_goal(goal_id):
     """Delete savings goal."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     if GoalsService.delete_goal(goal_id, user_id):
         flash('Цель удалена', 'success')
@@ -92,7 +92,7 @@ def delete_goal(goal_id):
 @login_required
 def add_progress():
     """Add progress to savings goal."""
-    user_id = session['user_id']
+    user_id = current_user.id
     form = GoalProgressForm()
     
     if form.validate_on_submit():
@@ -120,7 +120,7 @@ def add_progress():
 @login_required
 def shared_budgets():
     """Shared budgets page."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     budgets = SharedBudgetService.get_user_shared_budgets(user_id)
     
@@ -131,7 +131,7 @@ def shared_budgets():
 @login_required
 def create_shared_budget():
     """Create new shared budget."""
-    user_id = session['user_id']
+    user_id = current_user.id
     form = SharedBudgetForm()
     
     if form.validate_on_submit():
@@ -153,7 +153,7 @@ def create_shared_budget():
 @login_required
 def join_shared_budget():
     """Join shared budget by invitation code."""
-    user_id = session['user_id']
+    user_id = current_user.id
     form = JoinBudgetForm()
     
     if form.validate_on_submit():
@@ -177,7 +177,7 @@ def join_shared_budget():
 @login_required
 def shared_budget_detail(budget_id):
     """Shared budget detail page."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     summary = SharedBudgetService.get_budget_summary(budget_id, user_id)
     if not summary:
@@ -191,7 +191,7 @@ def shared_budget_detail(budget_id):
 @login_required
 def remove_budget_member(budget_id, member_user_id):
     """Remove member from shared budget."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     if SharedBudgetService.remove_member(budget_id, member_user_id, user_id):
         flash('Участник удален', 'success')
@@ -205,7 +205,7 @@ def remove_budget_member(budget_id, member_user_id):
 @login_required
 def update_member_role(budget_id, member_user_id):
     """Update member role in shared budget."""
-    user_id = session['user_id']
+    user_id = current_user.id
     form = MemberRoleForm()
     
     if form.validate_on_submit():
@@ -223,7 +223,7 @@ def update_member_role(budget_id, member_user_id):
 @login_required
 def delete_shared_budget(budget_id):
     """Delete shared budget."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     if SharedBudgetService.delete_shared_budget(budget_id, user_id):
         flash('Семейный бюджет удален', 'success')

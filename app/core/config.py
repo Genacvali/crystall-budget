@@ -14,7 +14,10 @@ class BaseConfig:
         'pool_recycle': -1,
         'pool_pre_ping': True
     }
-    
+
+    # CSRF Protection
+    WTF_CSRF_ENABLED = True
+
     # Session configuration
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     SESSION_COOKIE_SECURE = False
@@ -27,7 +30,9 @@ class BaseConfig:
     
     # Telegram
     TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
-    
+    TELEGRAM_BOT_NAME = os.environ.get('TELEGRAM_BOT_NAME', 'crystalbudget_bot')
+    TELEGRAM_LOGIN_ENABLED = os.environ.get('TELEGRAM_LOGIN_ENABLED', 'true').lower() == 'true'
+
     # Diagnostics
     DIAGNOSTICS_ENABLED = os.environ.get('DIAGNOSTICS_ENABLED', 'false').lower() == 'true'
     

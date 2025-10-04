@@ -108,16 +108,21 @@ class StaticAssetLogger:
         """Setup dedicated logger for static assets."""
         self.logger = logging.getLogger('static_assets')
         self.logger.setLevel(logging.WARNING)
-        
-        # Create file handler
-        handler = logging.FileHandler(self.log_file)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(levelname)s - %(message)s'
-        )
-        handler.setFormatter(formatter)
-        
-        if not self.logger.handlers:
-            self.logger.addHandler(handler)
+
+        try:
+            # Create file handler
+            handler = logging.FileHandler(self.log_file)
+            formatter = logging.Formatter(
+                '%(asctime)s - %(levelname)s - %(message)s'
+            )
+            handler.setFormatter(formatter)
+
+            if not self.logger.handlers:
+                self.logger.addHandler(handler)
+        except (PermissionError, OSError):
+            # File logging disabled due to read-only filesystem
+            # Fall back to console logging only
+            pass
     
     def log_static_404(self, path: str, user_agent: str = None, referer: str = None):
         """Log static asset 404."""
@@ -139,7 +144,10 @@ class StaticAssetLogger:
 
 # Global instances
 error_metrics = ErrorMetrics()
-static_logger = StaticAssetLogger()
+
+# Use /var/lib/crystalbudget for logs in production (writable path in systemd)
+log_dir = os.environ.get('LOG_DIR', '/var/lib/crystalbudget')
+static_logger = StaticAssetLogger(log_file=os.path.join(log_dir, 'static_404.log'))
 
 
 def track_errors(f):

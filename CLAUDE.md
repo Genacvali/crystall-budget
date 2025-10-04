@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Paths
+
+**Production Configuration:**
+- Project directory: `/opt/crystall-budget`
+- Database: `/var/lib/crystalbudget/budget.db` (URI: `sqlite:////var/lib/crystalbudget/budget.db`)
+- Backups: `/var/lib/crystalbudget/backups/`
+- Service name: `crystalbudget`
+- Service port: `5000` (127.0.0.1:5000, proxied via nginx)
+- Development/Testing port: `5030` (when running with MODAL_SYSTEM_ENABLED=true PORT=5030)
+
 ## Development Commands
 
 ### Environment Setup
@@ -33,22 +43,53 @@ cd admin_panel && python admin_panel.py
 ```
 
 ### Database Management
+
+#### Migration Commands
 ```bash
-# Create new migration
-flask db migrate -m "Description"
-
-# Apply migrations
-flask db upgrade
-
-# Downgrade migration
-flask db downgrade
+# Check current migration status
+flask db current
 
 # View migration history
 flask db history
 
-# Check current migration
-flask db current
+# Create new migration (auto-generate from models)
+flask db migrate -m "Description of changes"
+
+# Apply all pending migrations
+flask db upgrade
+
+# Rollback one migration
+flask db downgrade -1
+
+# Rollback to specific revision
+flask db downgrade <revision_id>
+
+# Show SQL without applying (dry-run)
+flask db upgrade --sql
+
+# Create empty migration (for data migrations)
+flask db revision -m "Description"
 ```
+
+#### Production Migration Workflow
+```bash
+# First-time setup on existing production database
+./scripts/prod_baseline.sh
+
+# Apply migrations to production (with automatic backup)
+./scripts/prod_migrate.sh
+
+# Manual backup before risky operations
+./scripts/backup_db.sh
+```
+
+#### Important Notes
+- **SQLite-specific**: Project configured with `render_as_batch=True` for proper ALTER operations
+- **Type checking**: `compare_type=True` detects column type changes
+- **Default checking**: `compare_server_default=True` detects default value changes
+- **Always backup** before production migrations (scripts do this automatically)
+- **Test migrations** on staging/dev before production
+- See `docs/MIGRATIONS.md` for detailed migration guide
 
 ### Testing and Code Quality
 ```bash
@@ -273,11 +314,14 @@ HTTPS_MODE="true"  # Enables secure cookies and HSTS headers
 TELEGRAM_BOT_TOKEN="your-telegram-bot-token"  # Required for Telegram authentication
 
 # Optional configuration
-BUDGET_DB="sqlite:////opt/crystall-budget/instance/budget.db"  # Database URI (SQLAlchemy format)
+BUDGET_DB="sqlite:////var/lib/crystalbudget/budget.db"  # Database URI (SQLAlchemy format)
 LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
+LOG_DIR="/var/lib/crystalbudget/logs"  # Directory for application logs (default: /var/lib/crystalbudget/logs)
 APP_CONFIG="testing"  # Configuration mode (development/production/testing)
 DIAGNOSTICS_ENABLED="false"  # Enable diagnostics mode
 MODAL_SYSTEM_ENABLED="true"  # Kill-switch for modal system (default: true)
+TELEGRAM_LOGIN_ENABLED="false"  # Enable/disable Telegram login widget (default: true, set to false if domain not configured in @BotFather)
+TELEGRAM_BOT_NAME="crystalbudget_bot"  # Telegram bot username (default: crystalbudget_bot, use different bot for dev/preprod)
 
 ```
 
@@ -295,8 +339,13 @@ MODAL_SYSTEM_ENABLED="true"  # Kill-switch for modal system (default: true)
 
 #### Database Migrations
 - **Migration Directory**: `migrations/` - Alembic migration files
-- **Configuration**: `migrations/alembic.ini` - Migration settings
+- **Configuration**: `migrations/alembic.ini` - Migration settings with timestamp naming
+- **SQLite Batch Mode**: Enabled via `render_as_batch=True` in `app/__init__.py:74-80`
+- **Type Comparison**: Enabled via `compare_type=True` to detect column type changes
+- **Default Comparison**: Enabled via `compare_server_default=True` to detect default value changes
 - **Version Control**: All schema changes must go through migration system
+- **Production Scripts**: `scripts/prod_baseline.sh`, `scripts/prod_migrate.sh`, `scripts/backup_db.sh`
+- **Documentation**: See `docs/MIGRATIONS.md` for complete workflow guide
 
 #### Configuration Management
 - **Environment-Based**: Development/Production/Testing configurations
@@ -333,10 +382,15 @@ crystalbudget.service       # Systemd service file
 ```
 
 ### Service Files
-- `crystalbudget.service` - Main application systemd service (runs Flask dev server via app.py)
-- `admin_panel/admin-panel.service` - Admin panel systemd service
+- `crystalbudget.service` - Main application systemd service
+  - Gunicorn WSGI server with 3 workers, 2 threads per worker
+  - Binds to 127.0.0.1:5000 (localhost only)
+  - Uses `/opt/crystall-budget/.venv/bin/gunicorn`
+  - Security hardening: NoNewPrivileges, PrivateTmp, ProtectSystem
+  - Runs as `admin:admin` user
+- `admin_panel/admin-panel.service` - Admin panel systemd service (port 5001)
 
-Note: The main service currently runs Flask's development server. For production, consider switching to Gunicorn in the ExecStart line.
+**Note**: Production service requires nginx reverse proxy in front of Gunicorn for HTTPS termination and public access.
 
 ### Development Workflow
 
@@ -350,9 +404,11 @@ Note: The main service currently runs Flask's development server. For production
 7. Add templates and static assets as needed
 
 #### Working with Database
-- **Model Changes**: Always create migrations for schema changes
-- **Data Changes**: Use Flask CLI commands or write migration scripts
+- **Model Changes**: Always create migrations for schema changes via `flask db migrate`
+- **Data Changes**: Create empty migrations via `flask db revision` and add data logic
 - **Testing**: Use in-memory SQLite for testing configuration
+- **Production**: Use `scripts/prod_migrate.sh` for safe production migrations with auto-backup
+- **Baseline**: For existing prod DB without migrations, use `scripts/prod_baseline.sh` once
 
 #### Code Organization Patterns
 - **Models**: SQLAlchemy models with relationships and validation

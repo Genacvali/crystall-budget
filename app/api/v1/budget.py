@@ -12,7 +12,7 @@ from . import api_v1_bp
 @login_required
 def budget_summary():
     """Get budget summary for month."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Get year-month parameter
     ym_param = request.args.get('ym')
@@ -36,7 +36,7 @@ def budget_summary():
 @login_required
 def get_expenses():
     """Get expenses for user."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Get filters
     ym_param = request.args.get('ym')
@@ -88,7 +88,7 @@ def get_expenses():
 @login_required
 def create_expense():
     """Create new expense."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -124,7 +124,7 @@ def create_expense():
 @login_required
 def update_expense(expense_id):
     """Update expense."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -160,7 +160,7 @@ def update_expense(expense_id):
 @login_required
 def delete_expense(expense_id):
     """Delete expense."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         success = BudgetService.delete_expense(expense_id, user_id)
@@ -179,7 +179,7 @@ def delete_expense(expense_id):
 @login_required
 def get_categories():
     """Get categories for user."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         categories = BudgetService.get_user_categories(user_id)
@@ -194,7 +194,7 @@ def get_categories():
 @login_required
 def create_category():
     """Create new category."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -228,7 +228,7 @@ def create_category():
 @login_required
 def get_income():
     """Get income for user."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     # Get year-month parameter
     ym_param = request.args.get('ym')
@@ -263,7 +263,7 @@ def get_income():
 @login_required
 def create_income():
     """Create or update income."""
-    user_id = session['user_id']
+    user_id = current_user.id
     
     try:
         data = request.get_json()
@@ -313,7 +313,7 @@ def get_income_sources():
     from app.modules.budget.models import IncomeSource
     from app.core.extensions import db
 
-    user_id = session['user_id']
+    user_id = current_user.id
 
     try:
         sources = db.session.query(IncomeSource).filter_by(user_id=user_id).all()
