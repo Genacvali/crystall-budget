@@ -43,7 +43,8 @@
       "Read(//opt/**)",
       "Bash(echo $BUDGET_DB)",
       "Read(//etc/systemd/system/**)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []
