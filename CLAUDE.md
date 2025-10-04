@@ -5,11 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Paths
 
 **Production Configuration:**
-- Project directory: `/opt/crystalbudget/crystall-budget`
-- Database: `/var/lib/crystalbudget/budget.db`
+- Project directory: `/opt/crystall-budget`
+- Database: `/var/lib/crystalbudget/budget.db` (URI: `sqlite:////var/lib/crystalbudget/budget.db`)
 - Backups: `/var/lib/crystalbudget/backups/`
 - Service name: `crystalbudget`
-- Port: `5030`
+- Service port: `5000` (127.0.0.1:5000, proxied via nginx)
+- Development/Testing port: `5030` (when running with MODAL_SYSTEM_ENABLED=true PORT=5030)
 
 ## Development Commands
 
@@ -378,10 +379,15 @@ crystalbudget.service       # Systemd service file
 ```
 
 ### Service Files
-- `crystalbudget.service` - Main application systemd service (runs Gunicorn with 3 workers, 2 threads)
-- `admin_panel/admin-panel.service` - Admin panel systemd service
+- `crystalbudget.service` - Main application systemd service
+  - Gunicorn WSGI server with 3 workers, 2 threads per worker
+  - Binds to 127.0.0.1:5000 (localhost only)
+  - Uses `/opt/crystall-budget/.venv/bin/gunicorn`
+  - Security hardening: NoNewPrivileges, PrivateTmp, ProtectSystem
+  - Runs as `admin:admin` user
+- `admin_panel/admin-panel.service` - Admin panel systemd service (port 5001)
 
-Note: The production service uses Gunicorn on port 5000 (127.0.0.1:5000) with proper security hardening.
+**Note**: Production service requires nginx reverse proxy in front of Gunicorn for HTTPS termination and public access.
 
 ### Development Workflow
 

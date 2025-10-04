@@ -139,7 +139,10 @@ class StaticAssetLogger:
 
 # Global instances
 error_metrics = ErrorMetrics()
-static_logger = StaticAssetLogger()
+
+# Use /var/lib/crystalbudget for logs in production (writable path in systemd)
+log_dir = os.environ.get('LOG_DIR', '/var/lib/crystalbudget')
+static_logger = StaticAssetLogger(log_file=os.path.join(log_dir, 'static_404.log'))
 
 
 def track_errors(f):
