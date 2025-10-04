@@ -47,8 +47,16 @@ sudo rsync -av --delete \
 ### 3. Установить зависимости
 ```bash
 cd /opt/preprod/crystall-budget
+
+# Удалить сломанный virtualenv если есть
+sudo rm -rf .venv
+
+# Создать новый
 python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
+sudo chown -R crystal:crystal .venv
+
+# Установить зависимости
+sudo -u crystal .venv/bin/pip install -r requirements.txt
 ```
 
 ### 4. Применить миграции
@@ -109,4 +117,30 @@ sudo pkill -f "python.*preprod"
 
 # Запусти снова
 sudo systemctl start crystalbudget_preprod
+```
+
+### Virtualenv не создается
+
+```bash
+# Быстрое решение
+cd /opt/preprod/crystall-budget
+sudo rm -rf .venv
+python3 -m venv .venv
+sudo chown -R crystal:crystal .venv
+sudo -u crystal .venv/bin/pip install --upgrade pip
+sudo -u crystal .venv/bin/pip install -r requirements.txt
+```
+
+### Сервис не стартует (NAMESPACE error)
+
+```bash
+# Убедись что ВСЕ директории созданы
+sudo mkdir -p /opt/preprod/crystall-budget/instance
+sudo mkdir -p /opt/preprod/crystall-budget/logs  
+sudo mkdir -p /opt/preprod/crystall-budget/static/avatars
+sudo chown -R crystal:crystal /opt/preprod/crystall-budget
+
+# Перезапусти
+sudo systemctl daemon-reload
+sudo systemctl restart crystalbudget_preprod
 ```

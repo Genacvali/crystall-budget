@@ -68,11 +68,36 @@ echo -e "${GREEN}✅ Permissions set${NC}"
 echo -e "${YELLOW}Step 4: Setting up virtual environment...${NC}"
 if [ ! -d "$PREPROD_PATH/.venv" ]; then
     echo "Creating new virtual environment..."
-    sudo -u $PREPROD_USER python3 -m venv "$PREPROD_PATH/.venv"
+    cd "$PREPROD_PATH"
+    sudo -u $PREPROD_USER python3 -m venv .venv
+
+    # Upgrade pip
+    echo "Upgrading pip..."
+    sudo -u $PREPROD_USER .venv/bin/python -m pip install --upgrade pip
+fi
+
+# Verify virtualenv exists
+if [ ! -f "$PREPROD_PATH/.venv/bin/pip" ]; then
+    echo -e "${RED}❌ Failed to create virtualenv!${NC}"
+    echo "Trying alternative method..."
+
+    # Remove broken venv
+    sudo rm -rf "$PREPROD_PATH/.venv"
+
+    # Create as root and chown
+    cd "$PREPROD_PATH"
+    python3 -m venv .venv
+    sudo chown -R $PREPROD_USER:$PREPROD_GROUP .venv
+
+    if [ ! -f "$PREPROD_PATH/.venv/bin/pip" ]; then
+        echo -e "${RED}❌ Virtualenv creation failed!${NC}"
+        exit 1
+    fi
 fi
 
 echo "Installing dependencies..."
-sudo -u $PREPROD_USER "$PREPROD_PATH/.venv/bin/pip" install --quiet -r "$PREPROD_PATH/requirements.txt"
+cd "$PREPROD_PATH"
+sudo -u $PREPROD_USER .venv/bin/pip install --quiet -r requirements.txt
 echo -e "${GREEN}✅ Virtual environment ready${NC}"
 
 # Initialize database if needed
