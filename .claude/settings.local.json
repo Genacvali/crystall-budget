@@ -36,7 +36,8 @@
       "Bash(export BUDGET_DB=\"sqlite:////var/lib/crystalbudget/budget.db\")",
       "Bash(python3:*)",
       "Read(//var/**)",
-      "Bash(sudo sqlite3:*)"
+      "Bash(sudo sqlite3:*)",
+      "Bash(export BUDGET_DB=\"sqlite:///test_migrations.db\")"
     ],
     "deny": [],
     "ask": []

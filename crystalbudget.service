@@ -5,27 +5,27 @@ Wants=network.target
 
 [Service]
 Type=notify
-User=crystal
-Group=crystal
-WorkingDirectory=/opt/crystalbudget/crystall-budget
+User=admin
+Group=admin
+WorkingDirectory=/opt/crystall-budget
 
 # Environment
 Environment="FLASK_ENV=production"
 Environment="LOG_LEVEL=INFO"
-Environment="SECRET_KEY=0xm5hy67Txo5taHWK_CuWy72wSDFkgN0f9Rc2L7c_ZhdYFMJTYu8IoXjoW6YQy0x"
+Environment="SECRET_KEY=0xm5hy67Txo5taHWK_CuWy72wSDFkgN0f9Rc2L7c_ZhdYFMJTYu8IoXjoW6QQy0x"
 Environment="BUDGET_DB=sqlite:////var/lib/crystalbudget/budget.db"
-Environment="PYTHONPATH=/opt/crystalbudget/crystall-budget"
+Environment="PYTHONPATH=/opt/crystall-budget"
 Environment="HTTPS_MODE=true"
 Environment="TELEGRAM_BOT_TOKEN=test-token"
 Environment="MODAL_SYSTEM_ENABLED=true"
 
 # Ensure directories exist
 ExecStartPre=/bin/mkdir -p /var/lib/crystalbudget
-ExecStartPre=/bin/chown crystal:crystal /var/lib/crystalbudget
+ExecStartPre=/bin/chown admin:admin /var/lib/crystalbudget
 
 # Production server
-ExecStart=/opt/crystalbudget/venv/bin/gunicorn \
-  --chdir /opt/crystalbudget/crystall-budget \
+ExecStart=/opt/crystall-budget/.venv/bin/gunicorn \
+  --chdir /opt/crystall-budget \
   --workers=3 --threads=2 --timeout=60 \
   --bind 127.0.0.1:5000 \
   app:app

@@ -70,7 +70,14 @@ def create_app(config_name: Optional[str] = None):
     
     # Initialize extensions
     db.init_app(app)
-    migrate.init_app(app, db)
+    # SQLite-specific migration settings
+    migrate.init_app(
+        app,
+        db,
+        render_as_batch=True,  # Required for SQLite ALTER operations
+        compare_type=True,  # Detect column type changes
+        compare_server_default=True  # Detect default value changes
+    )
     login_manager.init_app(app)
     csrf.init_app(app)
     cache.init_app(app)
