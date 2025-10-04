@@ -39,8 +39,34 @@ sudo mkdir -p "$PREPROD_PATH/logs"
 echo -e "${GREEN}✅ Directories created${NC}"
 
 # Sync files from dev to preprod
-echo -e "${YELLOW}Step 2: Syncing files...${NC}"
-sudo rsync -av --delete \
+echo -e "${YELLOW}Step 2: Syncing files (DRY RUN first)...${NC}"
+
+# First do a dry-run to show what will be changed
+echo -e "${BLUE}Previewing changes:${NC}"
+sudo rsync -avn --delete \
+    --exclude='.git' \
+    --exclude='__pycache__' \
+    --exclude='*.pyc' \
+    --exclude='.venv' \
+    --exclude='instance/*.db' \
+    --exclude='instance/*.db-journal' \
+    --exclude='logs/*.log' \
+    --exclude='static/avatars/*' \
+    --exclude='.pytest_cache' \
+    --exclude='node_modules' \
+    "$DEV_PATH/" "$PREPROD_PATH/" | head -20
+
+echo ""
+read -p "Continue with sync? (yes/no): " -r
+echo
+if [[ ! $REPLY =~ ^[Yy]es$ ]]; then
+    echo -e "${RED}Sync cancelled${NC}"
+    exit 1
+fi
+
+# Actual sync WITHOUT --delete flag (safer)
+# Use --update to only copy newer files
+sudo rsync -av --update \
     --exclude='.git' \
     --exclude='__pycache__' \
     --exclude='*.pyc' \
