@@ -21,6 +21,7 @@
         {% endwith %}
 
         <!-- Telegram Login -->
+        {% if config.TELEGRAM_LOGIN_ENABLED %}
         <div class="text-center mb-2">
           <div id="telegram-widget-container" class="d-flex justify-content-center">
 <script async src="https://telegram.org/js/telegram-widget.js?22"
@@ -47,6 +48,7 @@
         <div class="auth-divider">
           <span></span><small>или</small><span></span>
         </div>
+        {% endif %}
 
         <!-- Email Login -->
         <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">

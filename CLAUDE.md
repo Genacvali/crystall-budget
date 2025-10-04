@@ -316,9 +316,11 @@ TELEGRAM_BOT_TOKEN="your-telegram-bot-token"  # Required for Telegram authentica
 # Optional configuration
 BUDGET_DB="sqlite:////var/lib/crystalbudget/budget.db"  # Database URI (SQLAlchemy format)
 LOG_LEVEL="INFO"  # Logging level (DEBUG, INFO, WARNING, ERROR)
+LOG_DIR="/var/lib/crystalbudget/logs"  # Directory for application logs (default: /var/lib/crystalbudget/logs)
 APP_CONFIG="testing"  # Configuration mode (development/production/testing)
 DIAGNOSTICS_ENABLED="false"  # Enable diagnostics mode
 MODAL_SYSTEM_ENABLED="true"  # Kill-switch for modal system (default: true)
+TELEGRAM_LOGIN_ENABLED="false"  # Enable/disable Telegram login widget (default: true, set to false if domain not configured in @BotFather)
 
 ```
 
