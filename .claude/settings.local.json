@@ -41,7 +41,9 @@
       "Bash(sudo mkdir:*)",
       "Bash(sudo chown:*)",
       "Read(//opt/**)",
-      "Bash(echo $BUDGET_DB)"
+      "Bash(echo $BUDGET_DB)",
+      "Read(//etc/systemd/system/**)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

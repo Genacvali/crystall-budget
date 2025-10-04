@@ -378,10 +378,10 @@ crystalbudget.service       # Systemd service file
 ```
 
 ### Service Files
-- `crystalbudget.service` - Main application systemd service (runs Flask dev server via app.py)
+- `crystalbudget.service` - Main application systemd service (runs Gunicorn with 3 workers, 2 threads)
 - `admin_panel/admin-panel.service` - Admin panel systemd service
 
-Note: The main service currently runs Flask's development server. For production, consider switching to Gunicorn in the ExecStart line.
+Note: The production service uses Gunicorn on port 5000 (127.0.0.1:5000) with proper security hardening.
 
 ### Development Workflow
 
