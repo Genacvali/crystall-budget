@@ -41,6 +41,10 @@ fi
 echo -e "${YELLOW}Activating virtual environment...${NC}"
 source .venv/bin/activate
 
+# Set database path
+export BUDGET_DB="sqlite:///$DB_PATH"
+echo -e "Database: ${GREEN}$BUDGET_DB${NC}"
+
 # Check if migrations directory exists
 if [ ! -d "migrations" ]; then
     echo -e "${RED}❌ Migrations directory not found!${NC}"

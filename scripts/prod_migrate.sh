@@ -39,6 +39,10 @@ fi
 echo -e "${YELLOW}Activating virtual environment...${NC}"
 source .venv/bin/activate
 
+# Set database path
+export BUDGET_DB="sqlite:///$DB_PATH"
+echo -e "Database: ${GREEN}$BUDGET_DB${NC}"
+
 # Check current migration status
 echo -e "${BLUE}Current migration status:${NC}"
 flask db current || echo -e "${YELLOW}No migration history found${NC}"

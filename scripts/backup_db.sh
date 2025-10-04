@@ -28,7 +28,11 @@ fi
 # Check if database exists
 if [ ! -f "$DB_PATH" ]; then
     echo -e "${RED}❌ Database not found at: $DB_PATH${NC}"
-    exit 1
+    echo -e "${YELLOW}Creating database directory...${NC}"
+    DB_DIR=$(dirname "$DB_PATH")
+    mkdir -p "$DB_DIR"
+    echo -e "${YELLOW}⚠️  Database file doesn't exist yet. This is normal for first setup.${NC}"
+    exit 0
 fi
 
 # Get database size

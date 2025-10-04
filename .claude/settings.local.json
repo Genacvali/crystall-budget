@@ -40,7 +40,8 @@
       "Bash(export BUDGET_DB=\"sqlite:///test_migrations.db\")",
       "Bash(sudo mkdir:*)",
       "Bash(sudo chown:*)",
-      "Read(//opt/**)"
+      "Read(//opt/**)",
+      "Bash(echo $BUDGET_DB)"
     ],
     "deny": [],
     "ask": []
